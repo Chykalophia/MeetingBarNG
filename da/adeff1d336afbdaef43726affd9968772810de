@@ -1,0 +1,26 @@
+MeetingBarTests/StatusBarItem/MenuBuilderTests.swift
+  s_8821c3fb11800f::t_ca7d961820a984 499-500,502-503,505-506
+  s_8821c3fb11800f::t_eaecb272fe3d36 1228-1229,1233
+MeetingBar/Calendar/EventSelection.swift
+  s_8821c3fb11800f::t_4945d80884a427 59-72
+MeetingBarLogicTests/EventListWindowTests.swift
+  s_8821c3fb11800f::t_b14559ab1ab5db 1-59
+MeetingBar/UI/StatusBar/MenuBuilder.swift
+  s_8821c3fb11800f::t_d88b4a5c7c61bc 340-346
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "daadeff1d336afbdaef43726affd9968772810de",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
