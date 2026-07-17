@@ -1,0 +1,19 @@
+MeetingBar/Calendar/Providers/Google/GoogleCalendarEventStore.swift
+  s_8821c3fb11800f::t_4105c35fa21f2b 598-605
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "0e0a156527ce8651a62846a9c7f4c7408d6938bd",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
