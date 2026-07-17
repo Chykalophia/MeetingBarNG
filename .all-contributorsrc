@@ -35,10 +35,10 @@
       ]
     },
     {
-      "login": "peterkrzyzek",
+      "login": "PiotrKrzyzek",
       "name": "Peter Krzyzek",
-      "avatar_url": "https://github.com/peterkrzyzek.png",
-      "profile": "https://peterkrzyzek.com",
+      "avatar_url": "https://github.com/PiotrKrzyzek.png",
+      "profile": "https://github.com/PiotrKrzyzek",
       "contributions": [
         "maintenance",
         "code",

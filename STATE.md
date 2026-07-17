@@ -40,9 +40,9 @@ Changed (11 modified, 2 new):
 ---
 
 ## Open decisions / follow-ups (need Peter)
-- [ ] `.all-contributorsrc` uses a **best-guess GitHub login `peterkrzyzek`** (+ `peterkrzyzek.png` avatar) — confirm/fix.
-- [ ] `.github/FUNDING.yml` handles are **commented placeholders** — add real GitHub Sponsors / custom handles or leave disabled.
-- [ ] GitHub repo **"About" blurb** is server-side metadata (not a file) — set via `gh repo edit` if wanted.
+- [x] `.all-contributorsrc` login corrected to **`PiotrKrzyzek`** (verified via `gh api user`); avatar + profile now point at that GitHub account.
+- [x] `.github/FUNDING.yml` enabled with `custom: ["https://chykalophia.com"]` (maintainer's own domain; no upstream-author handles). Add a GitHub Sponsors handle later if desired.
+- [ ] GitHub repo **"About" blurb** is server-side metadata (not a file) — set via `gh repo edit` if wanted (not touched; no remote changes made).
 - [x] **Committed** on `chore/rebrand-meetingbarng` (Phase 1). Not pushed. Next:
       `git push -u origin chore/rebrand-meetingbarng` then open a PR into `master`.
 

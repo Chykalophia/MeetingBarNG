@@ -105,8 +105,8 @@ each with its own migration care.
 - [ ] Per-file source headers still read `Copyright © <year> Andrii Leitsius`. These are
       **retained** by Apache-2.0 §4(c). As files are modified for MeetingBarNG, add a change
       notice (§4(b)) rather than removing the original.
-- [ ] `docs/ARCHITECTURE.md` references `CLAUDE.md` / `AGENTS.md` that are not present in the
-      fork — add them or drop the reference.
+- [x] `docs/ARCHITECTURE.md` referenced `CLAUDE.md` / `AGENTS.md` that are not present in the
+      fork — reference dropped (2026-07-17).
 - [ ] Upstream folder names with trailing spaces (`MeetingBar/Resources `,
       `.../Localization `) are an upstream quirk wired into the Xcode project and
       `Package.swift`; rename only as a deliberate, tested change.
