@@ -58,9 +58,7 @@ final class OnboardingFlowTests: XCTestCase {
     func testProgressMapsStepsToFourUserFacingStages() {
         XCTAssertEqual(OnboardingProgressPolicy.totalStages, 4)
         XCTAssertEqual(OnboardingProgressPolicy.stageIndex(for: .welcome), 1)
-        // Authorization runs automatically as part of source selection, so it
-        // shares the source stage rather than counting as its own.
-        XCTAssertEqual(OnboardingProgressPolicy.stageIndex(for: .calendarSource), 2)
+        // Authorization (stage 2) runs automatically right after Welcome.
         XCTAssertEqual(OnboardingProgressPolicy.stageIndex(for: .authorization), 2)
         XCTAssertEqual(OnboardingProgressPolicy.stageIndex(for: .calendarSelection), 3)
         XCTAssertEqual(OnboardingProgressPolicy.stageIndex(for: .essentials), 4)
@@ -71,21 +69,21 @@ final class OnboardingFlowTests: XCTestCase {
     func testSelectingProviderMovesRouterToAuthorizationStep() {
         let router = OnboardingRouter()
 
-        router.selectProvider(.googleCalendar)
+        router.selectProvider(.macOSEventKit)
 
-        XCTAssertEqual(router.selectedProvider, .googleCalendar)
+        XCTAssertEqual(router.selectedProvider, .macOSEventKit)
         XCTAssertEqual(router.authorizationState, .idle)
         XCTAssertEqual(router.currentStep, .authorization)
     }
 
     func testSuccessfulProviderSelectionEntersCalendarSelectionWithCalendars() async {
         let harness = AppModelTestHarness()
-        let calendar = makeFakeCalendar(id: "google-calendar")
+        let calendar = makeFakeCalendar(id: "macos-calendar")
         harness.providerCalendarsAfterChange = [calendar]
         let router = OnboardingRouter()
-        router.selectProvider(.googleCalendar)
+        router.selectProvider(.macOSEventKit)
 
-        let result = await harness.model.changeProvider(to: .googleCalendar)
+        let result = await harness.model.changeProvider(to: .macOSEventKit)
         if result == .success {
             router.currentStep = .calendarSelection
         }

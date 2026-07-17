@@ -347,7 +347,7 @@
 "onboarding_done" = "Done";
 "onboarding_choose_different_source" = "Choose a different source";
 "onboarding_welcome_title" = "Welcome to MeetingBar";
-"onboarding_welcome_description" = "MeetingBar helps you see and join your next meeting directly from the menu bar.";
+"onboarding_welcome_description" = "MeetingBar shows your next meeting in the menu bar and joins it in one click. It syncs the calendars already on this Mac — iCloud, Google, Exchange, and more — from the accounts in System Settings.";
 "onboarding_calendar_source_title" = "Choose your calendar source";
 "onboarding_calendar_source_description" = "Choose how MeetingBar reads calendar data. Both options can include Google calendars.";
 "onboarding_apple_calendar_title" = "macOS Calendar app";

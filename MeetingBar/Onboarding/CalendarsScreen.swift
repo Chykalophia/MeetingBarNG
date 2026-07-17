@@ -28,7 +28,7 @@ struct CalendarsScreen: View {
             } else {
                 ProgressView()
                 Spacer()
-                OnboardingFooter(onBack: { router.currentStep = .calendarSource })
+                OnboardingFooter(onBack: { router.currentStep = .welcome })
             }
         }
     }
@@ -42,7 +42,7 @@ private struct CalendarSelectionStep: View {
         CalendarSelectionContent(appModel: appModel)
 
         OnboardingFooter(
-            onBack: { router.currentStep = .calendarSource },
+            onBack: { router.currentStep = .welcome },
             hint: canContinue ? nil : "calendars_screen_select_calendar_title".loco(),
             primaryTitle: "onboarding_continue".loco(),
             primaryEnabled: canContinue,

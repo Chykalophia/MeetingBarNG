@@ -16,7 +16,6 @@ import SwiftUI
 /// the transition.
 enum OnboardingStep: Hashable {
     case welcome
-    case calendarSource
     case authorization
     case calendarSelection
     case essentials
@@ -65,16 +64,15 @@ final class OnboardingRouter: ObservableObject {
 }
 
 /// Maps a step to its position among the user-facing setup stages. The
-/// authorization step shares stage 2 with source selection (it runs
-/// automatically), and `success` is terminal, so neither shows a distinct
-/// progress position.
+/// authorization step (stage 2) runs automatically after Welcome, and
+/// `success` is terminal, so neither shows a distinct progress position.
 enum OnboardingProgressPolicy {
     static let totalStages = 4
 
     static func stageIndex(for step: OnboardingStep) -> Int? {
         switch step {
         case .welcome: 1
-        case .calendarSource, .authorization: 2
+        case .authorization: 2
         case .calendarSelection: 3
         case .essentials: 4
         case .success: nil
@@ -111,8 +109,6 @@ struct OnboardingView: View {
                 switch router.currentStep {
                 case .welcome:
                     WelcomeScreen(router: router)
-                case .calendarSource:
-                    AccessScreen(router: router)
                 case .authorization:
                     AuthorizationScreen(router: router)
                 case .calendarSelection:

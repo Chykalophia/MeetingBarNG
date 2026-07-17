@@ -2,9 +2,9 @@
 //  OnboardingHandler.swift
 //  MeetingBar
 //
-//  Holds the app-level callback that AccessScreen invokes when the user
-//  selects and authorises a calendar provider.  Injected as an
-//  EnvironmentObject so no view needs to reach into AppDelegate directly.
+//  Holds the app-level callback that AuthorizationScreen invokes when the user
+//  authorises the calendar provider.  Injected as an EnvironmentObject so no
+//  view needs to reach into AppDelegate directly.
 //
 
 import Foundation

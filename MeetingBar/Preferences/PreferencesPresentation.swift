@@ -16,9 +16,13 @@ struct CalendarSourcePresentation: Equatable, Identifiable {
 
     var id: EventStoreProvider { provider }
 
+    // Option A (MeetingBarNG): ship the macOS Calendar provider only — it
+    // already surfaces Google/iCloud/Exchange accounts synced on this Mac, and
+    // the native Google provider needs OAuth credentials this build doesn't
+    // carry. `make(for: .googleCalendar)` is retained for any install still on
+    // the Google provider from a prior build.
     static let all: [CalendarSourcePresentation] = [
-        make(for: .macOSEventKit),
-        make(for: .googleCalendar)
+        make(for: .macOSEventKit)
     ]
 
     static func make(for provider: EventStoreProvider) -> CalendarSourcePresentation {

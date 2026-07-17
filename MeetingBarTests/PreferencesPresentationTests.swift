@@ -9,9 +9,11 @@ import XCTest
 
 final class PreferencesPresentationTests: XCTestCase {
     func testCalendarSourcesExplainDistinctDataSourcesAndAccountScopes() {
+        // Option A ships the macOS Calendar provider only; `make(for:)` still
+        // supports Google for any install left on the provider from a prior build.
         XCTAssertEqual(
             CalendarSourcePresentation.all.map(\.provider),
-            [.macOSEventKit, .googleCalendar]
+            [.macOSEventKit]
         )
 
         let macOSSource = CalendarSourcePresentation.make(for: .macOSEventKit)

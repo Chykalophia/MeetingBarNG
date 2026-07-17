@@ -28,7 +28,10 @@ struct WelcomeScreen: View {
             Spacer()
             OnboardingFooter(
                 primaryTitle: "onboarding_continue".loco(),
-                primaryAction: { router.currentStep = .calendarSource }
+                // Option A ships the macOS Calendar provider only (it already
+                // surfaces Google/iCloud/Exchange accounts synced on this Mac),
+                // so there's no source to pick — go straight to granting access.
+                primaryAction: { router.selectProvider(.macOSEventKit) }
             )
         }
     }
