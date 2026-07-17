@@ -496,12 +496,14 @@ final class MenuBuilderTests: BaseTestCase {
         let builder = MenuBuilder(target: Dummy())
 
         let day = Calendar.current.startOfDay(for: Date())
+        // Near-future events so the "start at now" list filter keeps both.
+        let now = Date()
         let e1 = makeFakeEvent(
-            id: "1", start: day.addingTimeInterval(3600),
-            end: day.addingTimeInterval(5400))
+            id: "1", start: now.addingTimeInterval(3600),
+            end: now.addingTimeInterval(5400))
         let e2 = makeFakeEvent(
-            id: "2", start: day.addingTimeInterval(7200),
-            end: day.addingTimeInterval(9000))
+            id: "2", start: now.addingTimeInterval(7200),
+            end: now.addingTimeInterval(9000))
         let items = builder.buildDateSection(
             date: day,
             title: "Today",
@@ -1223,10 +1225,12 @@ final class MenuBuilderEventItemTests: BaseTestCase {
 
     func test_pastEventUsesOnState() throws {
         let now = Date(timeIntervalSinceReferenceDate: 800_000_000)
+        // Just-ended (within the list's grace window) so it still renders — a
+        // meeting ended long ago is now filtered out of the menu entirely.
         let event = makeFakeEvent(
             id: "PAST",
             start: now.addingTimeInterval(-1200),
-            end: now.addingTimeInterval(-600)
+            end: now.addingTimeInterval(-60)
         )
 
         let item = try XCTUnwrap(buildItem(event: event, now: now))
