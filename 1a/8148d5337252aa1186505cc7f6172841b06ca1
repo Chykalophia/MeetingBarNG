@@ -1,0 +1,25 @@
+.github/FUNDING.yml
+  s_5801d5cb52db74::t_72beb0b6277b01 4-5,7-9
+STATE.md
+  s_5801d5cb52db74::t_c9a22932c8d431 43-45
+.all-contributorsrc
+  s_5801d5cb52db74::t_8748aea10222c9 38,40-41
+ROADMAP.md
+  s_5801d5cb52db74::t_d0a6992a41f3d5 108-109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "1a8148d5337252aa1186505cc7f6172841b06ca1",
+  "prompts": {},
+  "sessions": {
+    "s_5801d5cb52db74": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f0590a81-0585-4a79-bf13-74ccf93dfd65",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
