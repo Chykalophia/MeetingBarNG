@@ -255,11 +255,19 @@ final class StatusBarItemController {
         case .none:
             break
         }
-        button.imagePosition = button.image?.name() == "no_online_session" ? .noImage : .imageLeft
+        if button.image?.name() == "no_online_session" {
+            button.imagePosition = .noImage
+        } else {
+            button.imagePosition = presentation.iconPosition == .trailing ? .imageRight : .imageLeft
+        }
 
-        if presentation.mode == .nextEvent {
+        // Render the composed title whenever there is one (event mode, or a
+        // non-event clock/date composition). `.none` layout ⇒ icon-only.
+        if presentation.layout != .none {
             button.attributedTitle = StatusBarTitleRenderer.attributedTitle(for: presentation)
-            button.toolTip = presentation.tooltip
+        }
+        if let tooltip = presentation.tooltip {
+            button.toolTip = tooltip
         }
 
         ensureStatusBarButtonIsVisible(button)

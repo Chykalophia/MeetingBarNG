@@ -398,14 +398,15 @@ struct MenuBarComposerSection: View {
     private var previewChip: some View {
         let presentation = previewPresentation
         HStack(spacing: 4) {
-            if case .asset(let name) = presentation.icon {
-                Image(nsImage: MenuStyleConstants.iconNamed(name))
-                    .resizable()
-                    .frame(width: 16, height: 16)
+            if presentation.iconPosition == .leading {
+                previewIcon(presentation.icon)
             }
             if !presentation.title.isEmpty {
                 Text(presentation.title)
                     .font(.system(size: MenuStyleConstants.defaultFontSize))
+            }
+            if presentation.iconPosition == .trailing {
+                previewIcon(presentation.icon)
             }
         }
         .padding(.horizontal, 8)
@@ -414,6 +415,22 @@ struct MenuBarComposerSection: View {
             RoundedRectangle(cornerRadius: 6)
                 .fill(Color.primary.opacity(0.08))
         )
+    }
+
+    @ViewBuilder
+    private func previewIcon(_ icon: StatusBarIcon) -> some View {
+        switch icon {
+        case .asset(let name):
+            Image(nsImage: MenuStyleConstants.iconNamed(name))
+                .resizable()
+                .frame(width: 16, height: 16)
+        case .meetingService(let service):
+            Image(nsImage: getIconForMeetingService(service))
+                .resizable()
+                .frame(width: 16, height: 16)
+        case .none:
+            EmptyView()
+        }
     }
 
     // MARK: Data
@@ -436,7 +453,9 @@ struct MenuBarComposerSection: View {
             title: "preferences_appearance_menu_bar_preview_sample_event".loco(),
             startDate: now.addingTimeInterval(25 * 60),
             endDate: now.addingTimeInterval(55 * 60),
-            meetingService: nil,
+            // A representative service so the "event type" icon format previews a
+            // real glyph rather than the no-session fallback.
+            meetingService: .zoom,
             participation: .normal
         )
         return StatusBarPresenter.composedPresentation(

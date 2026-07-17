@@ -81,15 +81,47 @@ struct StatusBarPresenterSettings: Equatable {
     let tentativeDisplay: StatusBarParticipationDisplay
 }
 
+/// Which side of the title the icon renders on. The classic path is always
+/// `.leading`; the composable path derives it from where the user placed the
+/// icon token relative to the text tokens (leading if nothing precedes it,
+/// otherwise trailing — `NSStatusBarButton` only supports left/right).
+enum StatusBarIconPosition: Equatable {
+    case leading
+    case trailing
+}
+
 struct StatusBarPresentation: Equatable {
     let mode: StatusBarTitleMode
     let title: String
     let time: String
     let tooltip: String?
     let icon: StatusBarIcon
+    let iconPosition: StatusBarIconPosition
     let layout: StatusBarTitleLayout
     let titleStyle: StatusBarTitleStyle
     let removeDeliveredNotifications: Bool
+
+    init(
+        mode: StatusBarTitleMode,
+        title: String,
+        time: String,
+        tooltip: String?,
+        icon: StatusBarIcon,
+        iconPosition: StatusBarIconPosition = .leading,
+        layout: StatusBarTitleLayout,
+        titleStyle: StatusBarTitleStyle,
+        removeDeliveredNotifications: Bool
+    ) {
+        self.mode = mode
+        self.title = title
+        self.time = time
+        self.tooltip = tooltip
+        self.icon = icon
+        self.iconPosition = iconPosition
+        self.layout = layout
+        self.titleStyle = titleStyle
+        self.removeDeliveredNotifications = removeDeliveredNotifications
+    }
 }
 
 /// Picks the status bar mode for the current next-event candidate.
@@ -474,9 +506,15 @@ enum MenuBarCompositionPolicy {
         // Digital is built by hand to guarantee a stable `H:MM` shape
         // (e.g. "2:30", "0:16"); DateComponentsFormatter's positional style
         // pads the leading unit to "02:30", which reads poorly in a menu bar.
+        // Intervals of a day or more get a `Nd ` prefix so the hours field
+        // never overflows into a clock-like "50:00".
         if style == .digital {
             let totalMinutes = Int((end.timeIntervalSince(start) / 60).rounded(.down))
-            return "\(totalMinutes / 60):" + String(format: "%02d", totalMinutes % 60)
+            let days = totalMinutes / (24 * 60)
+            let hours = (totalMinutes % (24 * 60)) / 60
+            let minutes = totalMinutes % 60
+            let hoursMinutes = "\(hours):" + String(format: "%02d", minutes)
+            return days > 0 ? "\(days)d \(hoursMinutes)" : hoursMinutes
         }
 
         let formatter = DateComponentsFormatter()
@@ -520,11 +558,12 @@ enum MenuBarCompositionPolicy {
 }
 
 extension StatusBarPresenter {
-    /// Builds the status-bar presentation from a user-defined token
-    /// composition. Non-event modes (idle / noUpcoming / afterThreshold) render
-    /// exactly like the classic path — the status icon only, no text — so
-    /// menu-bar visibility remains a reliability guarantee regardless of which
-    /// tokens the user picked.
+    /// Builds the status-bar presentation from a user-defined token composition.
+    /// Non-event modes (idle / noUpcoming / afterThreshold) render the status
+    /// icon plus any event-independent tokens (clock/date) the user chose;
+    /// title/countdown need an event, so they drop out there. The status icon
+    /// always shows in those modes, so menu-bar visibility stays a reliability
+    /// guarantee regardless of which tokens the user picked.
     static func composedPresentation(
         nextEvent: StatusBarEventPresentationInput?,
         composition: MenuBarComposition,
@@ -539,30 +578,18 @@ extension StatusBarPresenter {
         )
 
         guard mode == .nextEvent, let nextEvent else {
-            return StatusBarPresentation(
-                mode: mode,
-                title: "",
-                time: "",
-                tooltip: nil,
-                icon: StatusBarIconPolicy.icon(
-                    mode: mode,
-                    format: settings.iconFormat,
-                    formatAssetName: settings.iconFormatAssetName,
-                    meetingService: nil,
-                    assets: settings.iconAssets
-                ),
-                layout: .none,
-                titleStyle: .normal,
-                removeDeliveredNotifications: mode == .noUpcoming
+            return composedNonEventPresentation(
+                mode: mode, composition: composition, settings: settings, now: now, calendar: calendar
             )
         }
 
         var icon: StatusBarIcon = .none
+        var iconPosition: StatusBarIconPosition = .leading
         var segments: [String] = []
 
         for token in composition.tokens {
-            switch token {
-            case .icon:
+            if case .icon = token {
+                iconPosition = segments.isEmpty ? .leading : .trailing
                 icon = StatusBarIconPolicy.icon(
                     mode: mode,
                     format: settings.iconFormat,
@@ -570,34 +597,9 @@ extension StatusBarPresenter {
                     meetingService: nextEvent.meetingService,
                     assets: settings.iconAssets
                 )
-            case .title:
-                let text = StatusBarTitlePolicy.text(
-                    eventTitle: nextEvent.title,
-                    startDate: nextEvent.startDate,
-                    endDate: nextEvent.endDate,
-                    settings: settings.title,
-                    now: now,
-                    calendar: calendar
-                ).title
-                if !text.isEmpty { segments.append(text) }
-            case .countdown:
-                let isActive = nextEvent.startDate <= now && nextEvent.endDate > now
-                let target = isActive ? nextEvent.endDate : nextEvent.startDate
-                let text = MenuBarCompositionPolicy.countdownText(
-                    from: now.addingTimeInterval(-60),
-                    to: target,
-                    style: settings.countdownStyle,
-                    calendar: calendar
-                )
-                if !text.isEmpty { segments.append(text) }
-            case .date:
-                let text = MenuBarCompositionPolicy.dateText(
-                    now: now, style: settings.dateStyle, calendar: calendar
-                )
-                if !text.isEmpty { segments.append(text) }
-            case .clock:
-                let text = MenuBarCompositionPolicy.clockText(
-                    now: now, use24Hour: settings.use24HourClock, calendar: calendar
+            } else {
+                let text = eventTokenText(
+                    token, nextEvent: nextEvent, settings: settings, now: now, calendar: calendar
                 )
                 if !text.isEmpty { segments.append(text) }
             }
@@ -611,6 +613,7 @@ extension StatusBarPresenter {
             time: "",
             tooltip: nextEvent.title,
             icon: icon,
+            iconPosition: iconPosition,
             layout: composedTitle.isEmpty ? .none : .inline(showTime: false),
             titleStyle: titleStyle(
                 participation: nextEvent.participation,
@@ -619,6 +622,96 @@ extension StatusBarPresenter {
                 tentativeDisplay: settings.tentativeDisplay
             ),
             removeDeliveredNotifications: false
+        )
+    }
+
+    /// Rendered text for a single event-mode token. `.icon` sets the icon rather
+    /// than a text segment, so it's handled by the caller and returns "" here.
+    private static func eventTokenText(
+        _ token: MenuBarTokenKind,
+        nextEvent: StatusBarEventPresentationInput,
+        settings: MenuBarComposedSettings,
+        now: Date,
+        calendar: Calendar
+    ) -> String {
+        switch token {
+        case .icon:
+            return ""
+        case .title:
+            return StatusBarTitlePolicy.text(
+                eventTitle: nextEvent.title,
+                startDate: nextEvent.startDate,
+                endDate: nextEvent.endDate,
+                settings: settings.title,
+                now: now,
+                calendar: calendar
+            ).title
+        case .countdown:
+            let isActive = nextEvent.startDate <= now && nextEvent.endDate > now
+            let target = isActive ? nextEvent.endDate : nextEvent.startDate
+            return MenuBarCompositionPolicy.countdownText(
+                from: now.addingTimeInterval(-60),
+                to: target,
+                style: settings.countdownStyle,
+                calendar: calendar
+            )
+        case .date:
+            return MenuBarCompositionPolicy.dateText(now: now, style: settings.dateStyle, calendar: calendar)
+        case .clock:
+            return MenuBarCompositionPolicy.clockText(
+                now: now, use24Hour: settings.use24HourClock, calendar: calendar
+            )
+        }
+    }
+
+    /// Non-event composition: the status icon plus event-independent tokens
+    /// (clock/date) only. Title/countdown are dropped (they need an event).
+    private static func composedNonEventPresentation(
+        mode: StatusBarTitleMode,
+        composition: MenuBarComposition,
+        settings: MenuBarComposedSettings,
+        now: Date,
+        calendar: Calendar
+    ) -> StatusBarPresentation {
+        var segments: [String] = []
+        var iconPosition: StatusBarIconPosition = .leading
+
+        for token in composition.tokens {
+            switch token {
+            case .icon:
+                iconPosition = segments.isEmpty ? .leading : .trailing
+            case .clock:
+                let text = MenuBarCompositionPolicy.clockText(
+                    now: now, use24Hour: settings.use24HourClock, calendar: calendar
+                )
+                if !text.isEmpty { segments.append(text) }
+            case .date:
+                let text = MenuBarCompositionPolicy.dateText(
+                    now: now, style: settings.dateStyle, calendar: calendar
+                )
+                if !text.isEmpty { segments.append(text) }
+            case .title, .countdown:
+                break
+            }
+        }
+
+        let composedTitle = segments.joined(separator: settings.tokenSeparator)
+        return StatusBarPresentation(
+            mode: mode,
+            title: composedTitle,
+            time: "",
+            tooltip: nil,
+            icon: StatusBarIconPolicy.icon(
+                mode: mode,
+                format: settings.iconFormat,
+                formatAssetName: settings.iconFormatAssetName,
+                meetingService: nil,
+                assets: settings.iconAssets
+            ),
+            iconPosition: iconPosition,
+            layout: composedTitle.isEmpty ? .none : .inline(showTime: false),
+            titleStyle: .normal,
+            removeDeliveredNotifications: mode == .noUpcoming
         )
     }
 }

@@ -21,9 +21,15 @@ if [ ! -f "$EN_STRINGS" ]; then
 fi
 
 # Keys referenced in source via "<key>".loco(...).
-used_keys=$(grep -rhoE '"[a-zA-Z0-9_]+"\.loco\b' "$SOURCE_DIR" --include="*.swift" \
-    | sed -E 's/^"([^"]+)"\.loco$/\1/' \
-    | sort -u)
+loco_keys=$(grep -rhoE '"[a-zA-Z0-9_]+"\.loco\b' "$SOURCE_DIR" --include="*.swift" \
+    | sed -E 's/^"([^"]+)"\.loco$/\1/')
+
+# Keys referenced via the preferenceLabel("<key>") helper (which calls .loco()
+# internally, so those keys must exist in English too).
+label_keys=$(grep -rhoE 'preferenceLabel\("[a-zA-Z0-9_]+"\)' "$SOURCE_DIR" --include="*.swift" \
+    | sed -E 's/^preferenceLabel\("([^"]+)"\)$/\1/')
+
+used_keys=$(printf '%s\n%s\n' "$loco_keys" "$label_keys" | sed '/^$/d' | sort -u)
 
 # Keys defined in en.lproj/Localizable.strings (lines like: "key" = "value";).
 defined_keys=$(grep -E '^"[^"]+"[[:space:]]*=' "$EN_STRINGS" \

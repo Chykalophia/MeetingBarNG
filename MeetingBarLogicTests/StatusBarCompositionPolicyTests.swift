@@ -340,4 +340,61 @@ final class StatusBarCompositionPolicyTests: XCTestCase {
         let result = present(tokens: [.title], event: event(title: "Weekly sync"))
         XCTAssertEqual(result.tooltip, "Weekly sync")
     }
+
+    // MARK: - composedPresentation: icon position
+
+    func testIconLeadingWhenFirstToken() {
+        let result = present(tokens: [.icon, .title], event: event())
+        XCTAssertEqual(result.iconPosition, .leading)
+    }
+
+    func testIconTrailingWhenAfterText() {
+        let result = present(tokens: [.title, .icon], event: event())
+        XCTAssertEqual(result.iconPosition, .trailing)
+    }
+
+    func testIconLeadingWhenPrecedingTextIsEmpty() {
+        // Title format .none emits no text, so an icon after it is still leading.
+        let result = present(
+            tokens: [.title, .icon],
+            event: event(),
+            settings: settings(titleFormat: .none)
+        )
+        XCTAssertEqual(result.iconPosition, .leading)
+    }
+
+    // MARK: - composedPresentation: non-event clock/date
+
+    func testNonEventRendersClockToken() {
+        let result = present(tokens: [.icon, .clock], event: nil)
+        XCTAssertEqual(result.mode, .noUpcoming)
+        XCTAssertFalse(result.title.isEmpty, result.title)
+        assertMatches(result.title, "[0-9]{1,2}:[0-9]{2}")
+        XCTAssertEqual(result.layout, .inline(showTime: false))
+        XCTAssertEqual(result.icon, .asset("AppIcon"))
+        XCTAssertEqual(result.iconPosition, .leading)
+    }
+
+    func testNonEventDropsEventDependentTokens() {
+        // title + countdown need an event; with none they vanish, leaving date.
+        let result = present(tokens: [.date, .title, .countdown], event: nil)
+        XCTAssertEqual(result.mode, .noUpcoming)
+        XCTAssertFalse(result.title.contains("Standup"), result.title)
+        assertMatches(result.title, "^[A-Za-z]{3}, [A-Za-z]{3} [0-9]{1,2}$")
+    }
+
+    func testNonEventIconTrailingAfterDate() {
+        let result = present(tokens: [.date, .icon], event: nil)
+        XCTAssertEqual(result.iconPosition, .trailing)
+    }
+
+    // MARK: - countdownText: multi-day digital
+
+    func testCountdownDigitalPrefixesDaysBeyondOneDay() {
+        // 26 h → "1d 2:00"
+        let result = MenuBarCompositionPolicy.countdownText(
+            from: now, to: now.addingTimeInterval(26 * 3600), style: .digital, calendar: calendar()
+        )
+        XCTAssertEqual(result, "1d 2:00")
+    }
 }
