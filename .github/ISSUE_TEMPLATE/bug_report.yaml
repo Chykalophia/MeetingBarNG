@@ -2,8 +2,7 @@ name: Bug report
 description: Create a report to help us improve
 title: 'Bug: '
 labels: 'bug'
-assignees:
-  - leits
+assignees: []
 body:
 - type: input
   attributes:
@@ -14,14 +13,14 @@ body:
     required: true
 - type: input
   attributes:
-    label: MeetingBar version
+    label: MeetingBarNG version
     placeholder: "e.g., 4.2.1"
   validations:
     required: true
 - type: dropdown
   attributes:
     label: Installation source
-    description: How did you install MeetingBar?
+    description: How did you install MeetingBarNG?
     options:
     - AppStore
     - Homebrew
@@ -31,7 +30,7 @@ body:
 - type: dropdown
   attributes:
     label: Calendars provider
-    description: "Selected in \"Calendars\" pane of the MeetingBar Preferences window"
+    description: "Selected in \"Calendars\" pane of the MeetingBarNG Preferences window"
     options:
     - macOS Calendar app
     - Google Calendar

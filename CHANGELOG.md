@@ -1,6 +1,11 @@
-# Changelog for MeetingBar
+# Changelog for MeetingBarNG
 
-For next releases info look here: <https://github.com/leits/MeetingBar/releases>
+MeetingBarNG is a fork of [MeetingBar](https://github.com/leits/MeetingBar) by Andrii
+Leitsius. The history below (5.0.0 and earlier) is inherited from upstream MeetingBar and
+kept for attribution and reference. MeetingBarNG's own release notes will be added above
+this line as the fork ships its own versions.
+
+For upstream releases, see <https://github.com/leits/MeetingBar/releases>.
 
 ## 5.0.0 (2026-06-19)
 

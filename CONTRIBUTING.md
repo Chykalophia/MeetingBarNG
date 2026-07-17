@@ -1,6 +1,6 @@
-# Contributing to MeetingBar
+# Contributing to MeetingBarNG
 
-MeetingBar welcomes focused bug fixes, meeting-service integrations, reliability improvements, translations, and documentation updates.
+MeetingBarNG welcomes focused bug fixes, meeting-service integrations, reliability improvements, translations, and documentation updates.
 
 ## GitHub Workflow
 
@@ -15,7 +15,7 @@ Use GitHub issues for public bugs and feature requests. Keep pull requests small
 
 Good bug reports include:
 
-* MeetingBar version and macOS version
+* MeetingBarNG version and macOS version
 * Calendar provider: macOS Calendar or Google Calendar
 * Meeting service when relevant: Zoom, Google Meet, Microsoft Teams, Webex, etc.
 * Steps to reproduce
@@ -25,7 +25,7 @@ Good bug reports include:
 
 ## Building Locally
 
-MeetingBar is a macOS app built with Xcode, Swift 6, AppKit, SwiftUI, and Xcode-managed Swift Package dependencies.
+MeetingBarNG is a macOS app built with Xcode, Swift 6, AppKit, SwiftUI, and Xcode-managed Swift Package dependencies.
 
 For local signing, create `XCConfig/DevTeamOverride.xcconfig` with your Apple development team. This file is git-ignored, so you do not need to change the Xcode project:
 
@@ -53,6 +53,8 @@ Direct app dependencies are Xcode Swift Package references pinned by `MeetingBar
 
 Update `CHANGELOG.md` for user-visible changes and notable architecture, dependency, or release-process changes. For new source strings, update `MeetingBar/Resources /Localization /en.lproj/Localizable.strings` and run `make validate-strings`; non-English translations are managed through Weblate.
 
-## License
+## License And Attribution
 
-By contributing, you agree that your contributions are licensed under the Apache License 2.0.
+MeetingBarNG is a fork of [MeetingBar](https://github.com/leits/MeetingBar) and is licensed under the Apache License 2.0. By contributing, you agree that your contributions are licensed under the Apache License 2.0.
+
+When you modify a file that carries an upstream `Copyright © … Andrii Leitsius` header, retain that header (Apache-2.0 §4(c)) and add a change notice for significant modifications (§4(b)) rather than removing the original notice. See [`NOTICE`](NOTICE).

@@ -1,0 +1,25 @@
+MeetingBarNG
+Copyright 2026 Chykalophia (Peter Krzyzek)
+
+This product is a derivative work of MeetingBar.
+
+    MeetingBar
+    Copyright 2020 Andrii Leitsius and the MeetingBar contributors
+    https://github.com/leits/MeetingBar
+
+MeetingBar and MeetingBarNG are licensed under the Apache License, Version 2.0
+(the "License"); you may not use these files except in compliance with the
+License. You may obtain a copy of the License at:
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Original project:  https://github.com/leits/MeetingBar
+This fork:         https://github.com/Chykalophia/MeetingBarNG
+Maintainer:        Peter Krzyzek <peter@chykalophia.com> (https://peterkrzyzek.com)
+Organization:      Chykalophia (https://chykalophia.com)
+
+Modifications made for MeetingBarNG by Chykalophia / Peter Krzyzek are likewise
+licensed under the Apache License, Version 2.0. Source files carrying the original
+"Copyright © <year> Andrii Leitsius" notices retain those notices as required by
+Section 4(c) of the License; files modified for MeetingBarNG carry change notices
+as required by Section 4(b).

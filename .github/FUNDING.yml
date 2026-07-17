@@ -1,4 +1,9 @@
-# These are supported funding model platforms
-
-patreon: meetingbar
-custom: buymeacoffee.com/meetingbar
+# Funding for MeetingBarNG.
+#
+# MeetingBarNG is an independent fork maintained by Peter Krzyzek / Chykalophia.
+# The upstream MeetingBar Patreon / Buy-Me-a-Coffee handles were intentionally removed
+# so this fork does not solicit sponsorship on the original author's behalf.
+#
+# Add your own funding handles below before enabling, e.g.:
+# github: [your-github-sponsors-handle]
+# custom: ["https://chykalophia.com"]

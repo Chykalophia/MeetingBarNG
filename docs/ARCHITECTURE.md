@@ -1,6 +1,6 @@
-# MeetingBar Architecture
+# MeetingBarNG Architecture
 
-This document is the contributor-facing map of the codebase. It is the canonical reference for app structure, dependency ownership, and release-sensitive configuration. [`CLAUDE.md`](../CLAUDE.md) and [`AGENTS.md`](../AGENTS.md) provide AI-agent operating instructions.
+MeetingBarNG is a fork of [MeetingBar](https://github.com/leits/MeetingBar). This document is the contributor-facing map of the codebase. It is the canonical reference for app structure, dependency ownership, and release-sensitive configuration. Internal module, target, and bundle names still use the historical "MeetingBar" name; see [`ROADMAP.md`](../ROADMAP.md) for the rename backlog.
 
 If anything below disagrees with the actual code, the code wins — and the doc needs a fix.
 

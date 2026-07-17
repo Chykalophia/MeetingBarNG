@@ -33,11 +33,22 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "peterkrzyzek",
+      "name": "Peter Krzyzek",
+      "avatar_url": "https://github.com/peterkrzyzek.png",
+      "profile": "https://peterkrzyzek.com",
+      "contributions": [
+        "maintenance",
+        "code",
+        "projectManagement"
+      ]
     }
   ],
   "contributorsPerLine": 7,
-  "projectName": "MeetingBar",
-  "projectOwner": "leits",
+  "projectName": "MeetingBarNG",
+  "projectOwner": "Chykalophia",
   "repoType": "github",
   "repoHost": "https://github.com",
   "skipCi": true

@@ -1,55 +1,38 @@
-[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner-direct-single.svg)](https://stand-with-ukraine.pp.ua)
+# MeetingBarNG
 
-[![GitHub license](https://img.shields.io/github/license/leits/MeetingBar.svg)](https://github.com/leits/MeetingBar/blob/master/LICENSE)
-[![Translation state](https://hosted.weblate.org/widgets/meetingbar/-/app/svg-badge.svg)](https://hosted.weblate.org/engage/meetingbar/)
-[![Github all releases](https://img.shields.io/github/downloads/leits/MeetingBar/total.svg)](https://github.com/leits/MeetingBar/releases/)
-[![Made in Ukraine](https://img.shields.io/badge/made_in-ukraine-ffd700.svg?labelColor=0057b7)](https://stand-with-ukraine.pp.ua)
+**MeetingBarNG** is a modern, customizable rebuild of the macOS menu-bar meeting
+companion — it keeps your current or next calendar meeting in the status bar and
+lets you join it in one click.
 
-**MeetingBar** is a lightweight macOS menu-bar app that shows your current or next calendar meeting and lets you join it in one click.
+It is created and maintained by **[Peter Krzyzek](https://peterkrzyzek.com)** under
+**[Chykalophia](https://chykalophia.com)**, and is an actively-developed fork of the
+excellent open-source [**MeetingBar**](https://github.com/leits/MeetingBar) by
+[Andrii Leitsius](https://github.com/leits). MeetingBarNG stays free, open source,
+and privacy-respecting.
 
-It keeps meetings visible in the status bar, detects meeting links from calendar events, supports macOS Calendar and Google Calendar, and works with 50+ meeting services including Google Meet, Zoom, Microsoft Teams, Webex, and Discord.
+> **Status: pre-release / in active development.** MeetingBarNG is being overhauled
+> and modernized (code, UI, UX, and features). It is not yet distributed as a packaged
+> app under its own identity — build it from source, or use the original
+> [MeetingBar](https://github.com/leits/MeetingBar) if you want a shipping app today.
 
-MeetingBar is free, open source, and privacy-respecting.
+<img src="screenshot.png" width="700" alt="MeetingBarNG in the macOS menu bar">
 
-<img src="https://github.com/leits/MeetingBar/blob/master/screenshot.png" width="700">
+---
 
-<a href="https://www.producthunt.com/posts/meetingbar?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-meetingbar" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=203807&theme=light" alt="MeetingBar - Join your next meeting from your menu bar | Product Hunt Embed" style="width: 250px; height: 54px;" width="250px" height="54px" /></a>
+## Why MeetingBarNG
 
-[![Download on the Mac App Store](mas_badge.png)](https://apps.apple.com/us/app/id1532419400)
+MeetingBar is a rock-solid, reliability-first menu-bar app. MeetingBarNG builds on that
+foundation with a deliberate goal: a **modern, deeply customizable look and feel** with
+close **productivity feature parity** to modern menu-bar calendars like
+[Dot](https://www.trydot.app), while keeping everything local, private, and open source.
 
-<a href="https://www.buymeacoffee.com/meetingbar" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+See [`ROADMAP.md`](ROADMAP.md) for the full build-out plan.
 
-## Install
+---
 
-MeetingBar requires **macOS 12.0 or later**.
-
-### Mac App Store
-
-Download MeetingBar from the [Mac App Store](https://apps.apple.com/us/app/id1532419400).
-
-### Homebrew
-
-```bash
-brew install --cask meetingbar
-```
-
-### Manual download
-
-Download the latest DMG from the [releases page](https://github.com/leits/MeetingBar/releases/latest/download/MeetingBar.dmg).
-
-## Calendar providers
-
-MeetingBar works with:
-
-* **macOS Calendar**: use any calendar account synchronized with Calendar.app, including iCloud, Google, Exchange, Office 365, Yahoo, AOL, and others.
-* **Google Calendar**: connect Google Calendar directly from MeetingBar.
-
-After installation, open MeetingBar and go through onboarding to choose your calendar source and preferences.
-
-## Features
+## What it does today
 
 ### See what is next
-
 * Show the current or next meeting in the macOS status bar.
 * Display meeting title, time, countdown, icon, or meeting service.
 * Show upcoming events from today and tomorrow in the menu.
@@ -57,7 +40,6 @@ After installation, open MeetingBar and go through onboarding to choose your cal
 * Shorten long meeting titles to keep the menu bar readable.
 
 ### Join meetings faster
-
 * Join the current or next online meeting with one click.
 * Join the nearest meeting with a global keyboard shortcut.
 * Create ad-hoc meetings from your preferred meeting service.
@@ -65,76 +47,120 @@ After installation, open MeetingBar and go through onboarding to choose your cal
 * Open event details in macOS Calendar or Fantastical.
 
 ### Get meeting reminders
-
 * Receive macOS notifications before meetings.
 * Use full-screen reminders for important meeting starts.
 * Dismiss meeting notifications when you no longer need them.
-* Configure reminders around your own workflow.
 
 ### Customize and automate
-
 * Bookmark recurring meetings and access them quickly.
-* Launch MeetingBar automatically at login.
-* Use Shortcuts and AppleScript integrations.
-* Run custom AppleScript, for example to pause music when joining a meeting.
+* Launch automatically at login.
+* Use Shortcuts and AppleScript integrations (e.g. pause music when joining a meeting).
 
-## Supported meeting services
+### Calendar providers
+* **macOS Calendar** — any account synced with Calendar.app (iCloud, Google, Exchange,
+  Office 365, Yahoo, AOL, and others).
+* **Google Calendar** — connect Google Calendar directly.
 
-MeetingBar supports more than 50 meeting services, including:
+### Supported meeting services
+More than 50 services, including Google Meet, Zoom, Microsoft Teams, Webex, GoToMeeting,
+Skype, Discord, Jitsi, RingCentral, BlueJeans, Whereby, Slack Huddle, FaceTime, LiveKit
+Meet, Meetecho, and StreamYard.
 
-Google Meet, Zoom, Microsoft Teams, Webex, GoToMeeting, Skype, Discord, Jitsi, RingCentral, BlueJeans, Whereby, Slack Huddle, FaceTime, LiveKit Meet, Meetecho, StreamYard, and many others.
+---
 
-See the [full supported services list](https://github.com/leits/MeetingBar/discussions/108).
+## Where we are headed (launch goal)
+
+The launch target is close **productivity parity** with [Dot](https://www.trydot.app),
+paired with a modern, customizable UI. Highlights on the roadmap:
+
+* **Composable menu bar** — mix-and-match tokens (date, next event, countdown, progress
+  bars, clock) instead of a single fixed format.
+* **Menu-bar calendar** — browse/navigate a month ⇄ week calendar and a day summary
+  (event count + focus time) right from the menu bar.
+* **Command bar & keyboard-first navigation** — one shortcut to create, search, and jump.
+* **Meeting prep & camera preview** — surface invite links automatically and check
+  camera/mic/lighting before joining.
+* **Reminders & focus** — Apple Reminders alongside events, per-event reminders, and
+  snooze (by time or location).
+* **Deeper customization & theming** — countdown styles, date markers, hide-empty-days,
+  system/custom themes.
+* **Richer event handling** — full event search, inline edit, location autocomplete,
+  calendar picker, quick date jump, right-click actions, multi-calendar
+  (iCloud/Google/Outlook/Exchange).
+
+**Explicitly out of scope:** natural-language event creation. MeetingBarNG will not parse
+free-text into events.
+
+The complete parity checklist and the deferred rename/overhaul backlog live in
+[`ROADMAP.md`](ROADMAP.md).
+
+---
+
+## Build from source
+
+MeetingBarNG requires **macOS 12.0 or later** and is built with Xcode, Swift 6, AppKit,
+SwiftUI, and Xcode-managed Swift Package dependencies.
+
+For local signing, create `XCConfig/DevTeamOverride.xcconfig` with your Apple development
+team (this file is git-ignored):
+
+```xcconfig
+DEVELOPMENT_TEAM = <your development team id>
+```
+
+Common commands:
+
+```bash
+make build            # Debug build
+make test             # SwiftPM logic tests + Xcode app-hosted tests with coverage
+make test-logic       # Hostless SwiftPM logic tests only
+make lint             # SwiftLint
+make validate-strings # Verify English localization keys used by .loco()
+```
+
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) before changing app flow, calendar
+providers, meeting-link detection, notifications, status-bar rendering, settings,
+dependencies, entitlements, or release-sensitive configuration.
+
+---
 
 ## Privacy
 
-MeetingBar does not collect personal data.
+MeetingBarNG does not collect personal data. Calendar data is used only on your Mac to
+show meetings, detect meeting links, and open the correct meeting action.
 
-Calendar data is used by the app to show your meetings, detect meeting links, and open the correct meeting action.
-
-## Troubleshooting
-
-If meetings do not appear, links are not detected, or Google Calendar needs reconnecting, check the [FAQ](../../wiki/FAQ), install the [latest release](https://github.com/leits/MeetingBar/releases/latest), or [open an issue](https://github.com/leits/MeetingBar/issues/new).
-
-Useful details for bug reports:
-
-* MeetingBar version
-* macOS version
-* Calendar provider: macOS Calendar or Google Calendar
-* Meeting service: Zoom, Google Meet, Microsoft Teams, Webex, etc.
-* Whether the event is recurring or one-off
-* Whether the event is accepted, tentative, pending, declined, or canceled
-* Sanitized event title, description, location, and URL fields
-* Whether manual refresh changes the behavior
-* Screenshots or logs when available
-
-## Third-party integrations
-
-* [Raycast commands](https://github.com/raycast/script-commands/tree/master/commands#meetingbar)
+---
 
 ## Contributing
 
-MeetingBar is open source and welcomes focused fixes, meeting service integrations, translations, reliability improvements, and documentation updates.
+Contributions are welcome — focused fixes, meeting-service integrations, reliability
+improvements, translations, and documentation. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+---
 
-## Support the project
+## Credits & attribution
 
-MeetingBar is free and community-supported.
+MeetingBarNG is a derivative work of [**MeetingBar**](https://github.com/leits/MeetingBar),
+© 2020 [Andrii Leitsius](https://github.com/leits) and the MeetingBar contributors, used
+under the Apache License 2.0. Enormous thanks to the original author and community — the
+original app is [in the Mac App Store](https://apps.apple.com/us/app/id1532419400) and on
+Homebrew (`brew install --cask meetingbar`). The original author is Ukrainian 🇺🇦 —
+[Stand With Ukraine](https://stand-with-ukraine.pp.ua).
 
-You can support development through [Patreon](https://www.patreon.com/meetingbar), in-app purchases, or [Buy Me a Coffee](https://www.buymeacoffee.com/meetingbar).
+MeetingBarNG (and MeetingBar) rely on:
 
-## Credits
+* [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) — global shortcuts
+* [Defaults](https://github.com/sindresorhus/Defaults) — user settings
+* [LaunchAtLogin](https://github.com/sindresorhus/LaunchAtLogin) — launch-at-login
+* [AppAuth-iOS](https://github.com/openid/AppAuth-iOS) — Google Calendar OAuth
 
-MeetingBar is stable and in active development by [leits](https://github.com/leits). Written in Swift 6.
+Original app logo by [Miroslav Rajkovic](https://www.rajkovic.co/).
 
-MeetingBar also uses these resources:
+See [`NOTICE`](NOTICE) for the full attribution notice.
 
-* [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) for managing global keyboard shortcuts
-* [Defaults](https://github.com/sindresorhus/Defaults) for managing user settings
-* [LaunchAtLogin](https://github.com/sindresorhus/LaunchAtLogin) for launch-at-login integration
-* [AppAuth-iOS](https://github.com/openid/AppAuth-iOS) for Google Calendar OAuth
+---
 
-App logo made by [Miroslav Rajkovic](https://www.rajkovic.co/).
+## License
 
-If you encounter any bugs or have a feature request, [open an issue](https://github.com/leits/MeetingBar/issues/new).
+MeetingBarNG is licensed under the [Apache License 2.0](LICENSE), the same license as the
+upstream project.

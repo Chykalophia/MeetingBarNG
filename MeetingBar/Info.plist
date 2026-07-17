@@ -51,7 +51,7 @@
 		<key>NSCalendarsUsageDescription</key>
 		<string>To get events to show on status bar</string>
 		<key>NSHumanReadableCopyright</key>
-		<string>Copyright © 2020 Andrii Leitsius. All rights reserved.</string>
+		<string>© 2020 Andrii Leitsius. Modifications © 2026 Chykalophia (Peter Krzyzek). MeetingBarNG is a derivative of MeetingBar, licensed under Apache 2.0.</string>
 		<key>NSMainStoryboardFile</key>
 		<string>Main</string>
 		<key>NSPrincipalClass</key>
