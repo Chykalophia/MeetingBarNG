@@ -1,0 +1,36 @@
+MeetingBarTests/OnboardingFlowTests.swift
+  s_8821c3fb11800f::t_9f4615518feca3 61,72,74,81,84,86
+MeetingBar/Preferences/PreferencesPresentation.swift
+  s_8821c3fb11800f::t_ddecf82ec4bacc 19-23,25
+"MeetingBar/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_138df4bcb445ca 350
+MeetingBarTests/PreferencesPresentationTests.swift
+  s_8821c3fb11800f::t_22214193fa08ba 12-13,16
+MeetingBar/Onboarding/Onboarding.swift
+  s_8821c3fb11800f::t_a341ed493d425a 67-68,75
+MeetingBar/Onboarding/OnboardingHandler.swift
+  s_8821c3fb11800f::t_2f36a94062608e 5-7
+MeetingBar/Onboarding/CalendarsScreen.swift
+  s_8821c3fb11800f::t_07a03c1b4cfe34 31
+  s_8821c3fb11800f::t_ba5cf21c52799c 45
+MeetingBar/Onboarding/WelcomeScreen.swift
+  s_8821c3fb11800f::t_678ba1df2eed18 31-34
+MeetingBar/Onboarding/AccessScreen.swift
+  s_8821c3fb11800f::t_49fdebf9114dcf 8-11,43,45,47-48,76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "5a174dc290c937c478e7d23828f6e18f862996e7",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
