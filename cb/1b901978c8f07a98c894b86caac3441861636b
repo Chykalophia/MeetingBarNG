@@ -1,0 +1,53 @@
+MeetingBarTests/AdapterMappingTests.swift
+  s_8821c3fb11800f::t_512f0437d9b4db 328-366
+MeetingBar/Utilities/Helpers.swift
+  s_8821c3fb11800f::t_14874a294a3395 222
+MeetingBar/Calendar/Providers/Google/GoogleCalendarEventStore.swift
+  s_8821c3fb11800f::t_b7b608bfcafb14 14-23,25,38-47
+  s_8821c3fb11800f::t_a5d4d7097317da 24,26-34
+  s_8821c3fb11800f::t_a1c760b2ecdd0c 129-138,141
+  s_8821c3fb11800f::t_37abfd86c285f0 35-37
+  s_8821c3fb11800f::t_e1bafdafb69241 166
+README.md
+  s_8821c3fb11800f::t_dfe7e13c057bcb 111-123
+XCConfig/GoogleSecrets.xcconfig.example
+  s_8821c3fb11800f::t_fa914ea60391c8 1-36
+MeetingBar/Calendar/Providers/Google/GoogleCalendarPolicy.swift
+  s_8821c3fb11800f::t_7de3c9e8d32488 12,22-25
+.gitignore
+  s_8821c3fb11800f::t_ff8659228a8888 26
+  s_8821c3fb11800f::t_72ea37bb376815 8-10
+MeetingBar/Calendar/ProviderHealth.swift
+  s_8821c3fb11800f::t_751d7dd8d68ea1 70
+MeetingBarLogicTests/GoogleCalendarPolicyTests.swift
+  s_8821c3fb11800f::t_c685e21609fec0 154-159
+MeetingBar/Preferences/BrowserConfigView.swift
+  s_8821c3fb11800f::t_102163410ebe55 213-214,216-218
+MeetingBar/Meetings/MeetingOpener.swift
+  s_8821c3fb11800f::t_98df0b405e885f 278-280
+  s_8821c3fb11800f::t_ff8a87e129f2d6 417-421
+MeetingBar/Meetings/MeetingServices.swift
+  s_8821c3fb11800f::t_ed2f3b363eade2 61-64
+MeetingBar/Calendar/CalendarSync.swift
+  s_8821c3fb11800f::t_029e279181eb3d 108-109
+XCConfig/Project.xcconfig
+  s_8821c3fb11800f::t_11ffb6cf170215 7-11
+MeetingBar/Preferences/AdvancedTab.swift
+  s_8821c3fb11800f::t_8b12eabf84eead 168
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "cb1b901978c8f07a98c894b86caac3441861636b",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
