@@ -152,6 +152,31 @@
 "preferences_appearance_menu_show_event_calendar_color_value" = "calendar color";
 "preferences_appearance_menu_show_event_details_value" = "details as submenu";
 
+// MARK: - Composable menu bar (MeetingBarNG)
+
+"preferences_appearance_menu_bar_composer_title" = "Composable menu bar";
+"preferences_appearance_menu_bar_composer_enable_toggle" = "Customize menu bar layout";
+"preferences_appearance_menu_bar_composer_hint" = "Arrange the tokens shown in the menu bar. Turn this off to use the classic title settings above.";
+"preferences_appearance_menu_bar_composer_add" = "Add token";
+"preferences_appearance_menu_bar_composer_move_up" = "Move up";
+"preferences_appearance_menu_bar_composer_move_down" = "Move down";
+"preferences_appearance_menu_bar_composer_remove" = "Remove";
+"preferences_appearance_menu_bar_composer_preview_label" = "Preview";
+"preferences_appearance_menu_bar_preview_sample_event" = "Design review";
+"preferences_appearance_menu_bar_token_icon" = "Icon";
+"preferences_appearance_menu_bar_token_title" = "Event title";
+"preferences_appearance_menu_bar_token_countdown" = "Countdown";
+"preferences_appearance_menu_bar_token_date" = "Date";
+"preferences_appearance_menu_bar_token_clock" = "Clock";
+"preferences_appearance_menu_bar_countdown_style_title" = "Countdown style";
+"preferences_appearance_menu_bar_countdown_style_compact_value" = "2h";
+"preferences_appearance_menu_bar_countdown_style_full_value" = "2h 30m";
+"preferences_appearance_menu_bar_countdown_style_digital_value" = "2:30";
+"preferences_appearance_menu_bar_date_style_title" = "Date style";
+"preferences_appearance_menu_bar_date_style_weekday_value" = "Mon";
+"preferences_appearance_menu_bar_date_style_medium_value" = "Mon, Jul 17";
+"preferences_appearance_menu_bar_date_style_short_value" = "7/17/26";
+
 // MARK: - Preferences Services
 
 "preferences_services_link_meeting_title" = "Default browser for meeting links";

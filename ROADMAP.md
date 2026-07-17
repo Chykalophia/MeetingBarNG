@@ -28,13 +28,15 @@ to 1:1 on the productivity side" target; it is a goal, not a guarantee of scope 
 single release.
 
 ### Menu bar & display
-- [ ] Composable menu bar — mix-and-match tokens (date, next event, countdown, progress
-      bars, clock) instead of one fixed format.
+- [x] Composable menu bar — mix-and-match tokens instead of one fixed format.
+      v1 ships icon / event-title / countdown / date / clock, reorderable with a live
+      preview; opt-in (classic settings still drive the bar until enabled). Progress-bar
+      and day-summary tokens tracked separately below.
 - [ ] Menu-bar calendar — browse, navigate, and pick dates from the menu bar.
 - [ ] Month ⇄ week view toggle.
 - [ ] Day summary — event count and focus-time at a glance.
 - [ ] Progress bars — day and year progress as menu-bar tokens.
-- [ ] Countdown styles — `2h`, `2h 30m`, `2:30`.
+- [x] Countdown styles — `2h`, `2h 30m`, `2:30`.
 
 ### Meetings
 - [x] One-click join (Zoom, Google Meet, Microsoft Teams, Webex, + 50 more) — already in MeetingBar.

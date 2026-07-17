@@ -5,6 +5,9 @@
 //  Created by Andrii Leitsius on 13.01.2021.
 //  Copyright © 2021 Andrii Leitsius. All rights reserved.
 //
+//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
+//  add the composable menu-bar composer section.
+//
 
 import Defaults
 import SwiftUI
@@ -14,6 +17,7 @@ struct AppearanceTab: View {
         PreferencesGroupedForm {
             EventsSection()
             StatusBarSection()
+            MenuBarComposerSection()
             MenuSection()
         }
     }
@@ -268,6 +272,232 @@ struct StatusBarSection: View {
         let icon = NSImage(named: iconName)
         icon!.size = NSSize(width: 16, height: 16)
         return icon!
+    }
+}
+
+// MARK: - Composable menu bar (MeetingBarNG)
+
+/// Lets the user compose the menu-bar title from ordered tokens. When no tokens
+/// are set, the classic `StatusBarSection` settings drive the menu bar, so
+/// existing installs are unaffected until the user opts in here.
+struct MenuBarComposerSection: View {
+    @Default(.menuBarTokens) var menuBarTokens
+    @Default(.menuBarCountdownStyle) var menuBarCountdownStyle
+    @Default(.menuBarDateStyle) var menuBarDateStyle
+
+    private var tokens: [MenuBarTokenKind] {
+        var seen = Set<MenuBarTokenKind>()
+        return menuBarTokens
+            .compactMap(MenuBarTokenKind.init(rawValue:))
+            .filter { seen.insert($0).inserted }
+    }
+
+    private var isEnabled: Bool { !tokens.isEmpty }
+
+    private var availableTokens: [MenuBarTokenKind] {
+        MenuBarTokenKind.allCases.filter { !tokens.contains($0) }
+    }
+
+    var body: some View {
+        Section(header: Text("preferences_appearance_menu_bar_composer_title".loco())) {
+            Toggle(
+                preferenceLabel("preferences_appearance_menu_bar_composer_enable_toggle"),
+                isOn: enabledBinding
+            )
+            Text("preferences_appearance_menu_bar_composer_hint".loco())
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+
+        if isEnabled {
+            Section {
+                ForEach(Array(tokens.enumerated()), id: \.element) { pair in
+                    tokenRow(token: pair.element, index: pair.offset)
+                }
+                if !availableTokens.isEmpty {
+                    Menu {
+                        ForEach(availableTokens, id: \.self) { token in
+                            Button(tokenName(token)) { add(token) }
+                        }
+                    } label: {
+                        Label(
+                            "preferences_appearance_menu_bar_composer_add".loco(),
+                            systemImage: "plus"
+                        )
+                    }
+                }
+            }
+
+            if tokens.contains(.countdown) {
+                Section {
+                    Picker(
+                        preferenceLabel("preferences_appearance_menu_bar_countdown_style_title"),
+                        selection: countdownStyleBinding
+                    ) {
+                        Text("preferences_appearance_menu_bar_countdown_style_compact_value".loco())
+                            .tag(CountdownStyle.compact)
+                        Text("preferences_appearance_menu_bar_countdown_style_full_value".loco())
+                            .tag(CountdownStyle.full)
+                        Text("preferences_appearance_menu_bar_countdown_style_digital_value".loco())
+                            .tag(CountdownStyle.digital)
+                    }
+                }
+            }
+
+            if tokens.contains(.date) {
+                Section {
+                    Picker(
+                        preferenceLabel("preferences_appearance_menu_bar_date_style_title"),
+                        selection: dateStyleBinding
+                    ) {
+                        Text("preferences_appearance_menu_bar_date_style_weekday_value".loco())
+                            .tag(MenuBarDateStyle.weekday)
+                        Text("preferences_appearance_menu_bar_date_style_medium_value".loco())
+                            .tag(MenuBarDateStyle.medium)
+                        Text("preferences_appearance_menu_bar_date_style_short_value".loco())
+                            .tag(MenuBarDateStyle.short)
+                    }
+                }
+            }
+
+            Section(header: Text("preferences_appearance_menu_bar_composer_preview_label".loco())) {
+                previewChip
+            }
+        }
+    }
+
+    // MARK: Rows
+
+    private func tokenRow(token: MenuBarTokenKind, index: Int) -> some View {
+        HStack {
+            Text(tokenName(token))
+            Spacer()
+            Button { move(from: index, by: -1) } label: {
+                Image(systemName: "chevron.up")
+            }
+            .buttonStyle(.borderless)
+            .disabled(index == 0)
+            .help("preferences_appearance_menu_bar_composer_move_up".loco())
+
+            Button { move(from: index, by: 1) } label: {
+                Image(systemName: "chevron.down")
+            }
+            .buttonStyle(.borderless)
+            .disabled(index == tokens.count - 1)
+            .help("preferences_appearance_menu_bar_composer_move_down".loco())
+
+            Button { remove(token) } label: {
+                Image(systemName: "minus.circle")
+            }
+            .buttonStyle(.borderless)
+            .help("preferences_appearance_menu_bar_composer_remove".loco())
+        }
+    }
+
+    @ViewBuilder
+    private var previewChip: some View {
+        let presentation = previewPresentation
+        HStack(spacing: 4) {
+            if case .asset(let name) = presentation.icon {
+                Image(nsImage: MenuStyleConstants.iconNamed(name))
+                    .resizable()
+                    .frame(width: 16, height: 16)
+            }
+            if !presentation.title.isEmpty {
+                Text(presentation.title)
+                    .font(.system(size: MenuStyleConstants.defaultFontSize))
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.primary.opacity(0.08))
+        )
+    }
+
+    // MARK: Data
+
+    private func tokenName(_ token: MenuBarTokenKind) -> String {
+        switch token {
+        case .icon: return "preferences_appearance_menu_bar_token_icon".loco()
+        case .title: return "preferences_appearance_menu_bar_token_title".loco()
+        case .countdown: return "preferences_appearance_menu_bar_token_countdown".loco()
+        case .date: return "preferences_appearance_menu_bar_token_date".loco()
+        case .clock: return "preferences_appearance_menu_bar_token_clock".loco()
+        }
+    }
+
+    private var previewPresentation: StatusBarPresentation {
+        let now = Date()
+        var calendar = Calendar.current
+        calendar.locale = I18N.instance.locale
+        let sample = StatusBarEventPresentationInput(
+            title: "preferences_appearance_menu_bar_preview_sample_event".loco(),
+            startDate: now.addingTimeInterval(25 * 60),
+            endDate: now.addingTimeInterval(55 * 60),
+            meetingService: nil,
+            participation: .normal
+        )
+        return StatusBarPresenter.composedPresentation(
+            nextEvent: sample,
+            composition: MenuBarComposition(tokens: tokens),
+            settings: .current,
+            now: now,
+            calendar: calendar
+        )
+    }
+
+    // MARK: Mutation
+
+    private func write(_ newTokens: [MenuBarTokenKind]) {
+        menuBarTokens = newTokens.map(\.rawValue)
+    }
+
+    private func move(from index: Int, by offset: Int) {
+        var updated = tokens
+        let target = index + offset
+        guard updated.indices.contains(index), updated.indices.contains(target) else { return }
+        updated.swapAt(index, target)
+        write(updated)
+    }
+
+    private func remove(_ token: MenuBarTokenKind) {
+        write(tokens.filter { $0 != token })
+    }
+
+    private func add(_ token: MenuBarTokenKind) {
+        guard !tokens.contains(token) else { return }
+        write(tokens + [token])
+    }
+
+    // MARK: Bindings
+
+    private var enabledBinding: Binding<Bool> {
+        Binding(
+            get: { isEnabled },
+            set: { isOn in
+                if isOn {
+                    if tokens.isEmpty { write(MenuBarComposition.derivedFromLegacy.tokens) }
+                } else {
+                    menuBarTokens = []
+                }
+            }
+        )
+    }
+
+    private var countdownStyleBinding: Binding<CountdownStyle> {
+        Binding(
+            get: { CountdownStyle(rawValue: menuBarCountdownStyle) ?? .full },
+            set: { menuBarCountdownStyle = $0.rawValue }
+        )
+    }
+
+    private var dateStyleBinding: Binding<MenuBarDateStyle> {
+        Binding(
+            get: { MenuBarDateStyle(rawValue: menuBarDateStyle) ?? .medium },
+            set: { menuBarDateStyle = $0.rawValue }
+        )
     }
 }
 

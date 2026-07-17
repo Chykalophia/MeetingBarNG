@@ -157,3 +157,50 @@ extension StatusBarIconAssets {
         )
     }
 }
+
+// MARK: - Composable menu bar adapters (MeetingBarNG)
+
+extension MenuBarComposition {
+    /// The user's saved composition, or `nil` when they have not opted in — in
+    /// which case the renderer uses the classic `StatusBarPresenter` path so
+    /// existing installs behave exactly as before.
+    static var currentIfEnabled: MenuBarComposition? {
+        var seen = Set<MenuBarTokenKind>()
+        let tokens = Defaults[.menuBarTokens]
+            .compactMap(MenuBarTokenKind.init(rawValue:))
+            .filter { seen.insert($0).inserted }
+        return tokens.isEmpty ? nil : MenuBarComposition(tokens: tokens)
+    }
+
+    /// A composition mirroring the user's classic status-bar settings. Used to
+    /// seed the composer when they first opt in, so the starting point matches
+    /// their current menu bar.
+    static var derivedFromLegacy: MenuBarComposition {
+        var tokens: [MenuBarTokenKind] = []
+        if Defaults[.eventTitleIconFormat] != .none { tokens.append(.icon) }
+        if Defaults[.eventTitleFormat] != .none { tokens.append(.title) }
+        if Defaults[.eventTimeFormat] != .hide { tokens.append(.countdown) }
+        return tokens.isEmpty ? .standard : MenuBarComposition(tokens: tokens)
+    }
+}
+
+extension MenuBarComposedSettings {
+    /// Snapshot of the `Defaults` the composed presenter needs. Reuses the
+    /// existing classic adapters (`StatusBarPresentationSettings.current`,
+    /// `StatusBarTitleSettings.current`, `StatusBarIconAssets.production`).
+    static var current: MenuBarComposedSettings {
+        MenuBarComposedSettings(
+            presentation: .current,
+            title: .current,
+            countdownStyle: CountdownStyle(rawValue: Defaults[.menuBarCountdownStyle]) ?? .full,
+            dateStyle: MenuBarDateStyle(rawValue: Defaults[.menuBarDateStyle]) ?? .medium,
+            use24HourClock: Defaults[.timeFormat] == .military,
+            iconFormat: StatusBarIconFormat(Defaults[.eventTitleIconFormat]),
+            iconFormatAssetName: Defaults[.eventTitleIconFormat].rawValue,
+            iconAssets: .production,
+            tokenSeparator: "  ",
+            pendingDisplay: StatusBarParticipationDisplay(Defaults[.showPendingEvents]),
+            tentativeDisplay: StatusBarParticipationDisplay(Defaults[.showTentativeEvents])
+        )
+    }
+}

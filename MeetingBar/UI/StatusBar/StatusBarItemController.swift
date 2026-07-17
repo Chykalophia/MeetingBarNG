@@ -5,6 +5,10 @@
 //  Created by Andrii Leitsius on 12.06.2020.
 //  Copyright © 2020 Andrii Leitsius. All rights reserved.
 //
+//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
+//  render the status-bar title through the composable menu-bar presenter when
+//  the user has set a custom token composition, and observe its Defaults keys.
+//
 
 import Cocoa
 import Combine
@@ -103,6 +107,7 @@ final class StatusBarItemController {
             .personalEventsAppereance, .pastEventsAppereance,
             .declinedEventsAppereance, .ongoingEventVisibility,
             .showTimelineInMenu,
+            .menuBarTokens, .menuBarCountdownStyle, .menuBarDateStyle,
             options: []
         )
         .receive(on: DispatchQueue.main)
@@ -202,12 +207,27 @@ final class StatusBarItemController {
 
     func updateTitle() {
         let now = Date()
-        let presentation = StatusBarPresenter.presentation(
-            nextEvent: events.nextEvent().map(StatusBarEventPresentationInput.init),
-            settings: .current,
-            now: now,
-            calendar: statusBarCalendar()
-        )
+        let nextEvent = events.nextEvent().map(StatusBarEventPresentationInput.init)
+
+        let presentation: StatusBarPresentation
+        if let composition = MenuBarComposition.currentIfEnabled {
+            // User opted into a custom token layout (composable menu bar).
+            presentation = StatusBarPresenter.composedPresentation(
+                nextEvent: nextEvent,
+                composition: composition,
+                settings: .current,
+                now: now,
+                calendar: statusBarCalendar()
+            )
+        } else {
+            // Classic path — byte-for-byte unchanged for existing installs.
+            presentation = StatusBarPresenter.presentation(
+                nextEvent: nextEvent,
+                settings: .current,
+                now: now,
+                calendar: statusBarCalendar()
+            )
+        }
 
         if presentation.removeDeliveredNotifications, Defaults[.joinEventNotification] {
             removeDeliveredNotifications()

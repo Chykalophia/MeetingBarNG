@@ -5,6 +5,9 @@
 //  Created by Andrii Leitsius on 12.06.2020.
 //  Copyright © 2020 Andrii Leitsius. All rights reserved.
 //
+//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
+//  add persistence keys for the composable menu bar.
+//
 @preconcurrency import Defaults
 import Foundation
 
@@ -71,6 +74,16 @@ extension Defaults.Keys {
 
     static let ongoingEventVisibility = Key<OngoingEventVisibility>(
         "ongoingEventVisibility", default: .showTenMinBeforeNext)
+
+    // Composable menu bar (MeetingBarNG)
+    // Ordered `MenuBarTokenKind` raw values. Empty ⇒ classic status-bar path,
+    // so existing installs are unchanged until the user opts in. Stored as
+    // strings so unknown/renamed tokens degrade gracefully.
+    static let menuBarTokens = Key<[String]>("menuBarTokens", default: [])
+    static let menuBarCountdownStyle = Key<String>(
+        "menuBarCountdownStyle", default: CountdownStyle.full.rawValue)
+    static let menuBarDateStyle = Key<String>(
+        "menuBarDateStyle", default: MenuBarDateStyle.medium.rawValue)
 
     // Menu Appearance
     static let showTimelineInMenu = Key<Bool>("showTimelineInMenu", default: true)
