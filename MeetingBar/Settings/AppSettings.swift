@@ -111,6 +111,36 @@ enum StatusBarTitleFormatMigration {
     }
 }
 
+/// MeetingBarNG changed the time-format default from 24-hour to 12-hour. To
+/// avoid silently flipping people who were already running the app on the old
+/// default, this pins any EXISTING install (already past onboarding) that never
+/// explicitly chose a format back to 24-hour. New installs — and anyone who
+/// picked a value — are left alone, so only fresh installs get the 12-hour default.
+enum TimeFormatDefaultMigration {
+    /// Pure decision: only an existing install (already past onboarding) that
+    /// never explicitly chose a time format is pinned to the previous 24-hour
+    /// default. New installs — and anyone who picked a value — keep theirs (so
+    /// new installs get the 12-hour key default).
+    static func shouldPinToMilitary(onboardingCompleted: Bool, hasStoredTimeFormat: Bool) -> Bool {
+        onboardingCompleted && !hasStoredTimeFormat
+    }
+
+    @MainActor
+    static func migrateDefaultsIfNeeded() {
+        guard !Defaults[.timeFormatDefaultMigrated] else { return }
+        Defaults[.timeFormatDefaultMigrated] = true
+
+        // A nil raw value means the user never changed the picker.
+        let hasStored = UserDefaults.standard.object(forKey: "timeFormat") != nil
+        if shouldPinToMilitary(
+            onboardingCompleted: Defaults[.onboardingCompleted],
+            hasStoredTimeFormat: hasStored
+        ) {
+            Defaults[.timeFormat] = .military
+        }
+    }
+}
+
 // MARK: - Defaults factory
 
 extension AppSettings {

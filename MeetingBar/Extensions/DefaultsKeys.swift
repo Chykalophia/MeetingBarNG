@@ -33,6 +33,10 @@ extension Defaults.Keys {
         "selectedCalendarIDsByProviderMigrated",
         default: false
     )
+    static let timeFormatDefaultMigrated = Key<Bool>(
+        "timeFormatDefaultMigrated",
+        default: false
+    )
     static let eventStoreProvider = Key<EventStoreProvider>(
         "eventStoreProvider", default: .macOSEventKit)
 
@@ -115,7 +119,10 @@ extension Defaults.Keys {
     static let showTentativeEvents = Key<TentativeEventsAppereance>(
         "showTentativeEvents", default: TentativeEventsAppereance.show)
 
-    static let timeFormat = Key<TimeFormat>("timeFormat", default: .military)
+    // MeetingBarNG defaults new installs to 12-hour; the launch migration
+    // TimeFormatDefaultMigration (guarded by timeFormatDefaultMigrated) pins
+    // existing installs to their prior 24h so upgraders are never silently flipped.
+    static let timeFormat = Key<TimeFormat>("timeFormat", default: .am_pm)
 
     // Bookmarks
     static let bookmarks = Key<[Bookmark]>("bookmarks", default: [])

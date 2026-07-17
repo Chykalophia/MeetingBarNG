@@ -76,6 +76,8 @@ struct StatusBarMenuState: Equatable {
     }
 
     /// Time-format display (military vs am/pm) used when formatting event times.
+    /// Zero-state default only; production overwrites it from `Defaults[.timeFormat]`
+    /// (whose install default is now 12-hour).
     var timeFormat: TimeFormat = .military
 
     // MARK: - Changelog / install state
