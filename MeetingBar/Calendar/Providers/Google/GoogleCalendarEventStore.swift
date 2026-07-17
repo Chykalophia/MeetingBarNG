@@ -595,6 +595,14 @@ final class GCEventStore: NSObject,
                 isAllDay = false
             } else {
                 let formatter = DateFormatter()
+                // Pin a fixed locale + Gregorian calendar so the date-only
+                // "yyyy-MM-dd" parse is stable regardless of the user's system
+                // calendar/locale (e.g. a Buddhist or Japanese default calendar
+                // would otherwise land the event on the wrong year/day). All-day
+                // dates are floating, so local midnight is the correct instant —
+                // do NOT force UTC.
+                formatter.locale = Locale(identifier: "en_US_POSIX")
+                formatter.calendar = Calendar(identifier: .gregorian)
                 formatter.dateFormat = "yyyy-MM-dd"
                 guard let startDateString = itemStart["date"],
                       let endDateString = itemEnd["date"],
