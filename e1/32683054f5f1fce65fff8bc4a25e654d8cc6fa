@@ -1,0 +1,47 @@
+MeetingBarLogicTests/StatusBarCompositionPolicyTests.swift
+  s_5801d5cb52db74::t_1c6616baed3fe3 1-123,126-128,131-343
+  s_5801d5cb52db74::t_35d59d42c2b1cd 124-125,129-130
+MeetingBar/Preferences/AppearanceTab.swift
+  s_5801d5cb52db74::t_1997bfa8701d48 278-288,293-503
+  s_5801d5cb52db74::t_900368b42ec74d 8-10
+  s_5801d5cb52db74::t_edff325441025b 289-292
+  s_5801d5cb52db74::t_160c9093687c2f 20
+MeetingBar/UI/StatusBar/StatusBarPresentation.swift
+  s_5801d5cb52db74::t_ad3c6b3c33f9ba 516
+  s_5801d5cb52db74::t_94d24803728a0e 497-499
+  s_5801d5cb52db74::t_6e6f5ec58a89e2 394-473,482-483,488-496,500-515,517-624
+  s_5801d5cb52db74::t_5d700baf3138e1 474-481,484-487
+ROADMAP.md
+  s_5801d5cb52db74::t_26dc58ae68654d 31-34,39
+MeetingBar/UI/StatusBar/StatusBarPresentation+MeetingBar.swift
+  s_5801d5cb52db74::t_b1b4245223e376 168-171
+  s_5801d5cb52db74::t_74e1af71ab34ca 160-167,172-206
+STATE.md
+  s_5801d5cb52db74::t_ad90d425f85021 35-57
+  s_5801d5cb52db74::t_ed4067685ce865 73-80
+"MeetingBar/Resources /Localization /en.lproj/Localizable.strings"
+  s_5801d5cb52db74::t_cd276e4b071d4c 155-179
+MeetingBar/UI/StatusBar/StatusBarItemController.swift
+  s_5801d5cb52db74::t_50b105bf0eac44 110
+  s_5801d5cb52db74::t_90c1a56e5bc83b 210-230
+  s_5801d5cb52db74::t_1d6179a6acde77 8-11
+MeetingBar/Extensions/DefaultsKeys.swift
+  s_5801d5cb52db74::t_ec93654f230126 8-10
+  s_5801d5cb52db74::t_4049612f5a3b07 78-87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "e132683054f5f1fce65fff8bc4a25e654d8cc6fa",
+  "prompts": {},
+  "sessions": {
+    "s_5801d5cb52db74": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f0590a81-0585-4a79-bf13-74ccf93dfd65",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
