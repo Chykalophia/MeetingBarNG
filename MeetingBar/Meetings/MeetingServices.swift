@@ -58,8 +58,10 @@ func createMeeting() {
 
     if service == .url {
         var url: String = Defaults[.createMeetingServiceUrl]
-        if !url.isEmpty, NSURL(string: url) != nil {
-            openMeetingURL(nil, URL(string: url)!, browser)
+        // Validate with `URL(string:)` itself (not the more lenient `NSURL`),
+        // so we never force-unwrap a value the modern parser rejects.
+        if !url.isEmpty, let meetingURL = URL(string: url) {
+            openMeetingURL(nil, meetingURL, browser)
         } else {
             if !url.isEmpty { url += " " }
             AppMessageCenter.shared.post(.createMeetingInvalidURL(value: url))

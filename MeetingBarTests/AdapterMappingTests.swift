@@ -325,3 +325,42 @@ final class EventFilterEventAdapterTests: BaseTestCase {
         XCTAssertEqual(filterEvent.participationStatus, .active)
     }
 }
+
+// MARK: - Google OAuth config guard
+
+/// The guard that keeps an unconfigured build from crashing on Google sign-in:
+/// when the credentials are still placeholders (or empty), `isConfigured` is
+/// false and `GCEventStore.signIn` throws `.notConfigured` instead of
+/// force-unwrapping an invalid redirect URL.
+final class GoogleOAuthConfigTests: XCTestCase {
+    func test_placeholderValuesAreNotConfigured() {
+        XCTAssertFalse(GoogleOAuthConfig.isConfigured(
+            clientNumber: "REPLACE_BY_YOUR_GOOGLE_CLIENT_NUMBER",
+            clientSecret: "REPLACE_BY_YOUR_GOOGLE_CLIENT_SECRET",
+            keychainName: "REPLACE_BY_YOUR_GOOGLE_AUTH_KEYCHAIN_NAME"
+        ))
+    }
+
+    func test_emptyValuesAreNotConfigured() {
+        XCTAssertFalse(GoogleOAuthConfig.isConfigured(clientNumber: "", clientSecret: "", keychainName: ""))
+    }
+
+    func test_missingClientNumberIsNotConfigured() {
+        XCTAssertFalse(GoogleOAuthConfig.isConfigured(
+            clientNumber: "", clientSecret: "GOCSPX-x", keychainName: "MeetingBarNG.GoogleAuth"
+        ))
+    }
+
+    func test_realValuesWithSecretAreConfigured() {
+        XCTAssertTrue(GoogleOAuthConfig.isConfigured(
+            clientNumber: "1234567890-abc123", clientSecret: "GOCSPX-example", keychainName: "MeetingBarNG.GoogleAuth"
+        ))
+    }
+
+    func test_realValuesWithEmptySecretAreConfigured() {
+        // "iOS"-type OAuth clients have no secret; an empty secret is valid.
+        XCTAssertTrue(GoogleOAuthConfig.isConfigured(
+            clientNumber: "1234567890-abc123", clientSecret: "", keychainName: "MeetingBarNG.GoogleAuth"
+        ))
+    }
+}

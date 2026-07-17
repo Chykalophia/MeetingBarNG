@@ -219,7 +219,7 @@ func generateFakeEvent() -> MBEvent {
 extension NSImage {
     /// Returns a copy tinted with macOS disabled text colour.
     func tintedDisabled() -> NSImage {
-        let copy = self.copy() as! NSImage
+        guard let copy = self.copy() as? NSImage else { return self }
         copy.lockFocus()
         NSColor.disabledControlTextColor
             .withAlphaComponent(0.4)

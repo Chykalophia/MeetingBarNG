@@ -275,8 +275,9 @@ struct ZoomNativeOpenStrategy: MeetingOpenStrategy, Sendable {
             let urlString = url.absoluteString
                 .replacingFirstOccurrence(of: "&", with: "?")
                 .replacingOccurrences(of: "/join?confno=", with: "/j/")
-            var fallback = URLComponents(
-                url: URL(string: urlString)!, resolvingAgainstBaseURL: false)!
+            guard let rewrittenURL = URL(string: urlString),
+                  var fallback = URLComponents(url: rewrittenURL, resolvingAgainstBaseURL: false)
+            else { return }
             fallback.scheme = "https"
             fallback.url?.openInDefaultBrowser()
         }
@@ -413,8 +414,11 @@ struct GoogleMeetOpenStrategy: MeetingOpenStrategy, Sendable {
     ) {
         switch opening.mode {
         case .meetInOne:
-            let meetInOneURL = URL(string: "meetinone://url=" + url.absoluteString)!
-            defaultOpener(meetInOneURL)
+            if let meetInOneURL = URL(string: "meetinone://url=" + url.absoluteString) {
+                defaultOpener(meetInOneURL)
+            } else {
+                browserOpener(url, opening.browser)
+            }
         case .googleMeetPWA:
             guard let plan = pwaPlanBuilder(url), pwaLauncher(plan) else {
                 browserOpener(url, opening.browser)

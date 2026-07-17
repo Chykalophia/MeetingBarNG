@@ -5,6 +5,9 @@
 # Development Team override
 XCConfig/DevTeamOverride.xcconfig
 
+# Local Google OAuth credentials (copy from GoogleSecrets.xcconfig.example)
+XCConfig/GoogleSecrets.xcconfig
+
 # XCode generated files
 MeetingBar.xcodeproj/project.xcworkspace/xcuserdata/*
 MeetingBar.xcodeproj/xcuserdata/*
@@ -20,6 +23,7 @@ build
 
 # AI agent local state
 .claude/
+.zenflow/
 .ignore
 AGENTS.md
 CLAUDE.md

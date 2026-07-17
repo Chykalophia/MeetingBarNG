@@ -210,13 +210,12 @@ struct BrowserConfigView: View {
             openPanel.prompt = "preferences_configure_browsers_choose_browser_panel_prompt".loco()
             openPanel.message = "preferences_configure_browsers_choose_browser_panel_message".loco()
 
-            let appPath = try! FileManager.default.url(for: .allApplicationsDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-
-            openPanel.directoryURL = appPath
+            openPanel.directoryURL = try? FileManager.default.url(
+                for: .allApplicationsDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
             openPanel.begin { response in
-                if response == .OK {
-                    self.browser.path = (openPanel.url?.path)!
-                    self.browser.name = openPanel.url!.deletingPathExtension().lastPathComponent.fileName()
+                if response == .OK, let selectedURL = openPanel.url {
+                    self.browser.path = selectedURL.path
+                    self.browser.name = selectedURL.deletingPathExtension().lastPathComponent.fileName()
                     openPanel.close()
                 }
             }

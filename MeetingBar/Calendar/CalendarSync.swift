@@ -105,6 +105,8 @@ public class CalendarSync: ObservableObject {
                 return .authRequired(error.localizedDescription)
             case .refreshFailed:
                 return .failed(error.localizedDescription)
+            case .notConfigured:
+                return .failed(error.localizedDescription)
             }
         }
         if case .unauthorized = error as? GoogleCalendarError {

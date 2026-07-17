@@ -165,7 +165,7 @@ struct EditScriptModal: View {
         openPanel.allowsOtherFileTypes = false
         openPanel.prompt = "preferences_advanced_save_script_button".loco()
         openPanel.message = "preferences_advanced_wrong_location_message".loco()
-        let scriptPath = try! FileManager.default.url(
+        let scriptPath = try? FileManager.default.url(
             for: .applicationScriptsDirectory, in: .userDomainMask, appropriateFor: nil,
             create: true)
         openPanel.directoryURL = scriptPath

@@ -11,9 +11,40 @@ import AppKit
 import Defaults
 import Foundation
 
-let googleClientNumber = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_CLIENT_NUMBER") as! String
-let googleClientSecret = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_CLIENT_SECRET") as! String
-let googleAuthKeychainName = Bundle.main.object(forInfoDictionaryKey: "GOOGLE_AUTH_KEYCHAIN_NAME") as! String
+/// Google OAuth configuration, read from the app's Info.plist (populated at
+/// build time from `XCConfig/GoogleSecrets.xcconfig` — see README). Reads are
+/// non-crashing: a missing or still-placeholder value simply leaves
+/// `isConfigured == false`, and `GCEventStore.signIn` throws
+/// `AuthError.notConfigured` instead of trapping on a force-unwrap.
+enum GoogleOAuthConfig {
+    static let clientNumber = infoString("GOOGLE_CLIENT_NUMBER")
+    static let clientSecret = infoString("GOOGLE_CLIENT_SECRET")
+    static let keychainName = infoString("GOOGLE_AUTH_KEYCHAIN_NAME")
+
+    /// True when the current build carries real OAuth credentials.
+    static var isConfigured: Bool {
+        isConfigured(clientNumber: clientNumber, clientSecret: clientSecret, keychainName: keychainName)
+    }
+
+    /// Pure validation, split out so it's unit-testable without depending on the
+    /// ambient build's Info.plist. The client number and keychain name must be
+    /// real (non-empty, not the build placeholder); the client secret may be
+    /// empty — "iOS"-type OAuth clients (whose reversed-domain redirect scheme
+    /// this app uses) have none — but must not be left as the placeholder.
+    static func isConfigured(clientNumber: String, clientSecret: String, keychainName: String) -> Bool {
+        !clientNumber.isEmpty && !clientNumber.hasPrefix("REPLACE_BY_YOUR")
+            && !keychainName.isEmpty && !keychainName.hasPrefix("REPLACE_BY_YOUR")
+            && !clientSecret.hasPrefix("REPLACE_BY_YOUR")
+    }
+
+    private static func infoString(_ key: String) -> String {
+        (Bundle.main.object(forInfoDictionaryKey: key) as? String) ?? ""
+    }
+}
+
+let googleClientNumber = GoogleOAuthConfig.clientNumber
+let googleClientSecret = GoogleOAuthConfig.clientSecret
+let googleAuthKeychainName = GoogleOAuthConfig.keychainName
 
 extension OIDServiceConfiguration: @unchecked @retroactive Sendable {}
 
@@ -95,9 +126,19 @@ final class GCEventStore: NSObject,
             return
         }
 
+        // Fail gracefully when this build has no real Google OAuth credentials
+        // (e.g. a local debug build still on the placeholder values), rather
+        // than trapping on the invalid redirect URL below.
+        guard GoogleOAuthConfig.isConfigured,
+              let issuerURL = URL(string: Self.kIssuer),
+              let redirectURL = URL(string: Self.kRedirectURI)
+        else {
+            throw AuthError.notConfigured
+        }
+
         // discover configuration for Google issuer
         let config = try await withCheckedThrowingContinuation { cont in
-            OIDAuthorizationService.discoverConfiguration(forIssuer: URL(string: Self.kIssuer)!) { cfg, err in
+            OIDAuthorizationService.discoverConfiguration(forIssuer: issuerURL) { cfg, err in
                 if let cfg { cont.resume(returning: cfg) } else { cont.resume(throwing: err ?? NSError(domain: "GoogleSignIn", code: -1)) }
             }
         }
@@ -122,7 +163,7 @@ final class GCEventStore: NSObject,
             clientId: Self.kClientID,
             clientSecret: Self.kClientSecret,
             scopes: scopes,
-            redirectURL: URL(string: Self.kRedirectURI)!,
+            redirectURL: redirectURL,
             responseType: OIDResponseTypeCode,
             additionalParameters: extra
         )

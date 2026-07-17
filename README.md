@@ -108,6 +108,19 @@ team (this file is git-ignored):
 DEVELOPMENT_TEAM = <your development team id>
 ```
 
+### Google Calendar in a local build (optional)
+
+The **macOS Calendar** provider works out of the box (including Google accounts added
+in System Settings → Internet Accounts). To use the native **Google Calendar** provider
+in a local build, supply your own OAuth credentials — otherwise that provider fails
+gracefully with a "not configured" message.
+
+Copy `XCConfig/GoogleSecrets.xcconfig.example` to `XCConfig/GoogleSecrets.xcconfig`
+(git-ignored) and follow the steps in that file to create an OAuth client in the
+[Google Cloud Console](https://console.cloud.google.com/apis/credentials) and fill in
+`GOOGLE_CLIENT_NUMBER`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_AUTH_KEYCHAIN_NAME`. Rebuild
+and pick "Google Calendar" in onboarding.
+
 Common commands:
 
 ```bash

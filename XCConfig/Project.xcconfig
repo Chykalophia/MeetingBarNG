@@ -4,3 +4,8 @@ GOOGLE_CLIENT_SECRET = REPLACE_BY_YOUR_GOOGLE_CLIENT_SECRET
 GOOGLE_AUTH_KEYCHAIN_NAME = REPLACE_BY_YOUR_GOOGLE_AUTH_KEYCHAIN_NAME
 SWIFT_STRICT_CONCURRENCY = complete
 #include? "DevTeamOverride.xcconfig"
+// Optional local Google OAuth credentials (git-ignored). Copy
+// GoogleSecrets.xcconfig.example to GoogleSecrets.xcconfig and fill it in to
+// use your own Google Calendar in a local build. Included last so its values
+// override the REPLACE_BY_YOUR_* placeholders above.
+#include? "GoogleSecrets.xcconfig"

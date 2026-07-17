@@ -9,6 +9,7 @@ enum AuthError: LocalizedError {
     case cancelled
     case notSignedIn
     case refreshFailed
+    case notConfigured
 
     var errorDescription: String? {
         switch self {
@@ -18,6 +19,10 @@ enum AuthError: LocalizedError {
             return "Google Calendar authorization is required"
         case .refreshFailed:
             return "Google Calendar token refresh failed"
+        case .notConfigured:
+            return "Google Calendar isn't configured in this build. Add your OAuth "
+                + "credentials to XCConfig/GoogleSecrets.xcconfig (see the README), "
+                + "or use macOS Calendar instead."
         }
     }
 }
