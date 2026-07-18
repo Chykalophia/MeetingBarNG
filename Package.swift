@@ -39,7 +39,11 @@ let package = Package(
                 "Meetings/MeetingProvider.swift",
                 // UI/StatusBar
                 "UI/StatusBar/StatusBarPresentation.swift",
-                "UI/StatusBar/DaySummaryGreeting.swift"
+                "UI/StatusBar/DaySummaryGreeting.swift",
+                // UI/CommandBar (hostless core only; View/Window/ViewModel are app-target)
+                "UI/CommandBar/CommandBarModels.swift",
+                "UI/CommandBar/CommandBarSearch.swift",
+                "UI/CommandBar/CommandBarAgenda.swift"
             ],
             swiftSettings: [
                 .unsafeFlags(["-strict-concurrency=complete"])
