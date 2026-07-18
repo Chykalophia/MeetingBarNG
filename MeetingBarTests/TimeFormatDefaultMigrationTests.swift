@@ -9,7 +9,7 @@
 
 import XCTest
 
-@testable import MeetingBar
+@testable import MeetingBarNG
 
 final class TimeFormatDefaultMigrationTests: XCTestCase {
     func testUpgraderWithNoExplicitChoiceIsPinnedTo24Hour() {

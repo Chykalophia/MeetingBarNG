@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-@testable import MeetingBar
+@testable import MeetingBarNG
 
 class StringExtensionsTests: XCTestCase {
     private var temporaryBundles: [URL] = []

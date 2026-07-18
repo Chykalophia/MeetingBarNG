@@ -9,7 +9,7 @@ import Combine
 import Defaults
 import XCTest
 
-@testable import MeetingBar
+@testable import MeetingBarNG
 
 @MainActor
 class CalendarSyncTests: BaseTestCase {

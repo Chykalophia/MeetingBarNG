@@ -7,7 +7,7 @@
 
 import XCTest
 
-@testable import MeetingBar
+@testable import MeetingBarNG
 
 final class ChangelogTests: XCTestCase {
     func testDebutReleaseSurfacesForAFreshInstall() {

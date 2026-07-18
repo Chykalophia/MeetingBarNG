@@ -11,7 +11,7 @@ import Defaults
 import Security
 import UserNotifications
 
-@testable import MeetingBar
+@testable import MeetingBarNG
 
 class HelpersTests: XCTestCase {
     func test_cleanupOutlookSafeLinks_withSafeLink_returnCleanLink() throws {

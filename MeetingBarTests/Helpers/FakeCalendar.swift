@@ -5,7 +5,7 @@
 
 import AppKit
 
-@testable import MeetingBar
+@testable import MeetingBarNG
 
 func makeFakeCalendar(
     id: String = "cal-default",

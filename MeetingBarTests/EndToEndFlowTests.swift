@@ -22,7 +22,7 @@ import SwiftUI
 import UserNotifications
 import XCTest
 
-@testable import MeetingBar
+@testable import MeetingBarNG
 
 // MARK: - Harness
 

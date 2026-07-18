@@ -6,7 +6,7 @@
 import Combine
 import Foundation
 
-@testable import MeetingBar
+@testable import MeetingBarNG
 
 @MainActor
 final class AppModelTestHarness {

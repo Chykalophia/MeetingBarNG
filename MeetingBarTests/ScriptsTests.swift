@@ -1,5 +1,5 @@
 import Carbon
-@testable import MeetingBar
+@testable import MeetingBarNG
 import XCTest
 
 final class ScriptsTests: XCTestCase {

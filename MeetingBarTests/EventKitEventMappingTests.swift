@@ -11,7 +11,7 @@
 import EventKit
 import XCTest
 
-@testable import MeetingBar
+@testable import MeetingBarNG
 
 final class EventKitEventMappingTests: XCTestCase {
     private let calendar = MBCalendar(

@@ -6,7 +6,7 @@
 import UserNotifications
 import XCTest
 
-@testable import MeetingBar
+@testable import MeetingBarNG
 
 final class NotificationResponseActionTests: XCTestCase {
     private let defaultActionIdentifier = "DEFAULT_ACTION"

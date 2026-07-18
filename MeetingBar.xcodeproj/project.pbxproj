@@ -471,7 +471,6 @@
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chykalophia.MeetingBarNG;
 				PRODUCT_NAME = MeetingBarNG;
-				PRODUCT_MODULE_NAME = MeetingBar;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 6.0;
 			};
@@ -502,7 +501,6 @@
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chykalophia.MeetingBarNG;
 				PRODUCT_NAME = MeetingBarNG;
-				PRODUCT_MODULE_NAME = MeetingBar;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 6.0;
 			};

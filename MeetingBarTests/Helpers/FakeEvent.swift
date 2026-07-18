@@ -6,7 +6,7 @@
 //  Copyright © 2025 Andrii Leitsius. All rights reserved.
 //
 import Foundation
-@testable import MeetingBar
+@testable import MeetingBarNG
 
 // Helper to construct a minimal MBEvent – adjust to your real initializer
 func makeFakeEvent(

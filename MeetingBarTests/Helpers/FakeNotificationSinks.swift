@@ -6,7 +6,7 @@
 import UserNotifications
 import XCTest
 
-@testable import MeetingBar
+@testable import MeetingBarNG
 
 /// In-memory `NotificationRequestSink` that records every call so reconcile
 /// behaviour can be verified without touching the real notification center.

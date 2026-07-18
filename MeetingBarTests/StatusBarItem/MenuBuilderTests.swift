@@ -11,7 +11,7 @@ import Defaults
 import SwiftUI
 import XCTest
 
-@testable import MeetingBar
+@testable import MeetingBarNG
 
 @MainActor
 final class MenuBuilderTests: BaseTestCase {
