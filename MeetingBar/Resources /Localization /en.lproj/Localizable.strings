@@ -37,9 +37,9 @@
 
 // MARK: - Window titles
 
-"window_title_preferences" = "MeetingBar Preferences";
-"window_title_onboarding" = "Welcome to MeetingBar";
-"windows_title_changelog" = "MeetingBar – What's New";
+"window_title_preferences" = "MeetingBarNG Preferences";
+"window_title_onboarding" = "Welcome to MeetingBarNG";
+"windows_title_changelog" = "MeetingBarNG – What's New";
 
 // MARK: - Preferences tabs
 
@@ -88,15 +88,8 @@
 "preferences_general_shortcut_join_next" = "Join next meeting:";
 "preferences_general_shortcut_join_from_clipboard" = "Join meeting from clipboard:";
 "preferences_general_shortcut_toggle_meeting_name_visibility" = "Toggle title visibility in status bar:";
-"preferences_general_meeting_bar_description" = "MeetingBar is an open-source app\ncreated by Andrii Leitsius 🇺🇦\nFor smoother and easier online meetings";
+"preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_general_external_contact" = "Contact";
-"preferences_general_patron_title" = "Become a Patron";
-"preferences_general_patron_three_months" = "3 months – 2.99 USD";
-"preferences_general_patron_six_months" = "6 months – 5.99 USD";
-"preferences_general_patron_twelve_months" = "12 months – 11.99 USD";
-"preferences_general_patron_description" = "These are one-off purchases, and will not auto-renew.";
-"preferences_general_patron_thank_for_purchase" = "Thanks! You have supported MeetingBar for %d months 🎉";
-"preferences_general_patron_restore_purchases" = "Restore Purchases";
 
 // MARK: - Preferences Appearance
 
@@ -119,7 +112,7 @@
 "preferences_appearance_events_value_only_with_link" = "show only those with meeting links";
 "preferences_appearance_status_bar_title" = "Status bar";
 "preferences_appearance_status_bar_icon_title" = "Icon";
-"preferences_appearance_status_bar_icon_app_icon_value" = "\U00A0MeetingBar";
+"preferences_appearance_status_bar_icon_app_icon_value" = "\U00A0MeetingBarNG";
 "preferences_appearance_status_bar_icon_calendar_icon_value" = "\U00A0Calendar";
 "preferences_appearance_status_bar_icon_specific_icon_value" = "\U00A0Event-specific icon (e.g. MS Teams)";
 "preferences_appearance_status_bar_icon_no_icon_value" = "\U00A0No icon";
@@ -251,7 +244,7 @@
 "preferences_advanced_edit_script" = "Edit script";
 "preferences_advanced_save_script_button" = "Save script";
 "preferences_advanced_wrong_location_title" = "Wrong location";
-"preferences_advanced_wrong_location_message" = "Please select the User → Library → Application Scripts → leits.MeetingBar folder";
+"preferences_advanced_wrong_location_message" = "Please select the User → Library → Application Scripts → com.chykalophia.MeetingBarNG folder";
 "preferences_advanced_wrong_location_button" = "Got it!";
 "preferences_advanced_event_regex_title" = "Custom regexes to filter out meetings";
 "preferences_advanced_regex_title" = "Custom regexes for meeting link";
@@ -327,9 +320,8 @@
 "status_bar_show_meeting_names" = "Show meeting title";
 "status_bar_hide_meeting_names" = "Hide meeting title";
 "status_bar_whats_new" = "What's new?";
-"status_bar_rate_app" = "Rate App";
 "status_bar_preferences" = "Preferences";
-"status_bar_quit" = "Quit MeetingBar";
+"status_bar_quit" = "Quit MeetingBarNG";
 "status_bar_no_title" = "No title";
 "status_bar_event_status_now" = "now (%@ left)";
 "status_bar_event_status_in" = "in %@";
@@ -340,33 +332,33 @@
 "status_bar_error_app_link_message" = "Ensure you have the %@ installed, or open such links in a web browser from the preferences instead.";
 // MARK: - Welcome screen
 
-"onboarding_setup_title" = "MeetingBar Setup";
+"onboarding_setup_title" = "MeetingBarNG Setup";
 "onboarding_progress" = "Step %@ of %@";
 "onboarding_continue" = "Continue";
 "onboarding_back" = "Back";
 "onboarding_done" = "Done";
 "onboarding_choose_different_source" = "Choose a different source";
-"onboarding_welcome_title" = "Welcome to MeetingBar";
-"onboarding_welcome_description" = "MeetingBar shows your next meeting in the menu bar and joins it in one click. It syncs the calendars already on this Mac — iCloud, Google, Exchange, and more — from the accounts in System Settings.";
+"onboarding_welcome_title" = "Welcome to MeetingBarNG";
+"onboarding_welcome_description" = "MeetingBarNG shows your next meeting in the menu bar and joins it in one click. It syncs the calendars already on this Mac — iCloud, Google, Exchange, and more — from the accounts in System Settings.";
 "onboarding_calendar_source_title" = "Choose your calendar source";
-"onboarding_calendar_source_description" = "Choose how MeetingBar reads calendar data. Both options can include Google calendars.";
+"onboarding_calendar_source_description" = "Choose how MeetingBarNG reads calendar data. Both options can include Google calendars.";
 "onboarding_apple_calendar_title" = "macOS Calendar app";
 "onboarding_apple_calendar_description" = "Reads calendars from the Calendar app on this Mac, including every account configured there.";
 "onboarding_google_calendar_title" = "Google Calendar API";
 "onboarding_google_calendar_description" = "Connects MeetingBar directly to Google Calendar without using the macOS Calendar app.";
 "onboarding_authorization_title" = "Verify calendar access";
 "onboarding_authorization_waiting" = "Waiting for authorization…";
-"onboarding_authorization_apple_description" = "Allow MeetingBar to read events from the Calendar app on this Mac.";
+"onboarding_authorization_apple_description" = "Allow MeetingBarNG to read events from the Calendar app on this Mac.";
 "onboarding_authorization_google_description" = "Complete Google sign-in in your browser, then return to MeetingBar.";
 "onboarding_calendar_selection_title" = "Choose calendars";
-"onboarding_calendar_selection_description" = "Select the calendars whose meetings should appear in MeetingBar.";
+"onboarding_calendar_selection_description" = "Select the calendars whose meetings should appear in MeetingBarNG.";
 "onboarding_calendar_selection_empty" = "No calendars found. Refresh or check your calendar accounts.";
 "onboarding_calendar_selection_permission" = "Calendar permission is required. Grant access in System Settings, then refresh.";
 "onboarding_calendar_selection_reconnect" = "Google Calendar needs to be reconnected.";
 "onboarding_essentials_title" = "Choose daily behavior";
 "onboarding_essentials_description" = "Choose a few defaults for opening meetings and staying on schedule.";
 "onboarding_essentials_hint" = "You can tune every detail later in Preferences.";
-"onboarding_start_using" = "Start using MeetingBar";
+"onboarding_start_using" = "Start using MeetingBarNG";
 "onboarding_success_title" = "You’re ready";
 "onboarding_success_description" = "Your next meeting will appear in the menu bar.";
 
@@ -396,7 +388,7 @@
 "shared_fullscreen_notification_without_link_help" = "Events without meeting links show a fullscreen reminder with a Dismiss action only.";
 "fullscreen_notification_dismiss_action" = "Dismiss";
 "shared_send_notification_no_alert_style_tip" = "Note: Notifications are set to Banners, so they appear briefly before disappearing. To keep them onscreen until you dismiss them, switch to Alerts in your macOS notification settings.";
-"shared_send_notification_disabled_tip" = "⚠️ Your macOS notification settings for MeetingBar are off. Turn on notifications in the macOS system settings to keep track of meetings.";
+"shared_send_notification_disabled_tip" = "⚠️ Your macOS notification settings for MeetingBarNG are off. Turn on notifications in the macOS system settings to keep track of meetings.";
 "shared_automatic_event_join_toggle" = "Automatically join next event meeting";
 "shared_automatic_event_join_tip" = "This setting will automatically open your next meeting in your configured app or browser";
 
@@ -406,17 +398,6 @@
 "constants_meeting_service_zoom_native" = "Zoom native";
 "constants_meeting_service_other" = "Other";
 "constants_meeting_service_url" = "URL";
-
-// MARK: - Store
-
-"store_patronage_title" = "MeetingBar Patronage";
-"store_patronage_restore_success_message" = "Restored";
-"store_patronage_restore_nothing_message" = "Nothing to restore";
-"store_patronage_purchase_success_message" = "Purchase made. Thanks for your support!";
-"store_patronage_purchase_unknown_message" = "Unknown error. Please contact support.";
-"store_patronage_purchase_payment_not_allowed_message" = "The device is not allowed to carry out the payment";
-"store_patronage_purchase_store_product_not_available_message" = "The product is not available in the current storefront";
-"store_patronage_purchase_cloud_service_network_connection_failed" = "Could not connect to the network";
 
 // MARK: - Notifications
 

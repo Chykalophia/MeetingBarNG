@@ -6,7 +6,9 @@
 //  Copyright © 2020 Andrii Leitsius. All rights reserved.
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
-//  add persistence keys for the composable menu bar.
+//  add persistence keys for the composable menu bar; remove the StoreKit
+//  patronage keys (patronageDuration, processedPatronageTransactionIDs,
+//  isInstalledFromAppStore) along with the removed patronage feature.
 //
 @preconcurrency import Defaults
 import Foundation
@@ -16,13 +18,6 @@ extension Defaults.Keys {
     static let appVersion = Key<String>("appVersion", default: "2.0.5")
     static let lastRevisedVersionInChangelog = Key<String>(
         "lastRevisedVersionInChangelog", default: "4.2.0")
-
-    static let isInstalledFromAppStore = Key<Bool>("isInstalledFromAppStore", default: false)
-    static let patronageDuration = Key<Int>("patronageDuration", default: 0)
-    static let processedPatronageTransactionIDs = Key<[String]>(
-        "processedPatronageTransactionIDs",
-        default: []
-    )
 
     static let selectedCalendarIDs = Key<[String]>("selectedCalendarIDs", default: [])
     static let selectedCalendarIDsByProvider = Key<[String: [String]]>(

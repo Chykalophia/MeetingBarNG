@@ -5,6 +5,9 @@
 //  Created by Andrii Leitsius on 24.04.2020.
 //  Copyright © 2020 Andrii Leitsius. All rights reserved.
 //
+//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
+//  remove the StoreKit patronage service and its lifecycle wiring.
+//
 
 import AppKit
 import Combine
@@ -19,7 +22,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var calendarSync: CalendarSync!
     let notificationScheduler = NotificationScheduler()
     let snoozeService = SnoozeService()
-    let patronageService = PatronageService()
     private var notificationCenterDelegate: NotificationCenterDelegate?
     private var notificationActionHandler: NotificationActionHandler?
     private(set) var appModel: AppModel?
@@ -36,8 +38,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // When launched as a test host, skip the entire launch flow so tests
         // don't trigger onboarding, status bar setup, or calendar sync.
         guard !AppMessageCenter.shouldSuppressSystemUI() else { return }
-
-        patronageService.start()
 
         // Migrate legacy per-provider browser keys → providerBrowsers map
         MeetingOpenPreferencesMigration.migrateDefaultsIfNeeded()
@@ -264,8 +264,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func openPreferencesWindow(_: NSStatusBarButton?) {
         windowCoordinator.openPreferencesWindow(
             appModel: appModel,
-            calendarSync: calendarSync,
-            patronageService: patronageService
+            calendarSync: calendarSync
         )
     }
 
@@ -319,7 +318,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         appModel?.handleWillTerminate()
         notificationScheduler.stop()
         calendarSync?.stop()
-        patronageService.stop()
         cancellables.removeAll()
     }
 }

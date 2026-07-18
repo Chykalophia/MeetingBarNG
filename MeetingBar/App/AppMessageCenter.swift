@@ -33,14 +33,6 @@ enum AppMessage: Equatable, Sendable {
     case eventScriptExecutionFailed(path: String, description: String)
     case eventScriptFileMissing(path: String)
     case googleAccountConnected(email: String)
-    case patronagePurchaseSucceeded
-    case patronageRestoreSucceeded
-    case patronageRestoreEmpty
-    case patronagePaymentNotAllowed
-    case patronageProductUnavailable
-    case patronageNetworkFailed
-    case patronageUnknownError
-    case patronageFailure(description: String)
 
     var content: AppMessageContent {
         switch self {
@@ -116,22 +108,6 @@ enum AppMessage: Equatable, Sendable {
                 title: "message_google_account_connected_title".loco(),
                 text: "message_google_account_connected_text".loco(email)
             )
-        case .patronagePurchaseSucceeded:
-            patronage("store_patronage_purchase_success_message")
-        case .patronageRestoreSucceeded:
-            patronage("store_patronage_restore_success_message")
-        case .patronageRestoreEmpty:
-            patronage("store_patronage_restore_nothing_message")
-        case .patronagePaymentNotAllowed:
-            patronage("store_patronage_purchase_payment_not_allowed_message")
-        case .patronageProductUnavailable:
-            patronage("store_patronage_purchase_store_product_not_available_message")
-        case .patronageNetworkFailed:
-            patronage("store_patronage_purchase_cloud_service_network_connection_failed")
-        case .patronageUnknownError:
-            patronage("store_patronage_purchase_unknown_message")
-        case .patronageFailure(let description):
-            notification(title: "store_patronage_title".loco(), text: description)
         }
     }
 
@@ -141,10 +117,6 @@ enum AppMessage: Equatable, Sendable {
 
     private func alert(title: String, text: String) -> AppMessageContent {
         AppMessageContent(title: title, text: text, presentation: .alert)
-    }
-
-    private func patronage(_ textKey: String) -> AppMessageContent {
-        notification(title: "store_patronage_title".loco(), text: textKey.loco())
     }
 }
 

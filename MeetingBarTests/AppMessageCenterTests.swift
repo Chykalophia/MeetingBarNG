@@ -8,7 +8,7 @@ import XCTest
 @testable import MeetingBar
 
 final class AppMessageMappingTests: XCTestCase {
-    func testMeetingAndPatronageMessagesUseLocalizedContent() {
+    func testMeetingMessagesUseLocalizedContent() {
         XCTAssertEqual(
             AppMessage.meetingLinkMissing(title: "Standup").content,
             AppMessageContent(
@@ -16,10 +16,6 @@ final class AppMessageMappingTests: XCTestCase {
                 text: "status_bar_error_link_missed_message".loco(),
                 presentation: .notificationOrAlert
             )
-        )
-        XCTAssertEqual(
-            AppMessage.patronagePurchaseSucceeded.content.title,
-            "store_patronage_title".loco()
         )
     }
 

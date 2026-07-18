@@ -203,11 +203,10 @@ final class WindowCoordinator {
 
     func openPreferencesWindow(
         appModel: AppModel?,
-        calendarSync: CalendarSync?,
-        patronageService: PatronageService
+        calendarSync: CalendarSync?
     ) {
         guard let appModel, let calendarSync else { return }
-        let contentView = PreferencesView(patronageService: patronageService)
+        let contentView = PreferencesView()
             .environmentObject(appModel)
             .environmentObject(calendarSync)
 

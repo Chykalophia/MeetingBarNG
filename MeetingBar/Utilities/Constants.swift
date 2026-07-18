@@ -5,6 +5,10 @@
 //  Created by Andrii Leitsius on 12.06.2020.
 //  Copyright © 2020 Andrii Leitsius. All rights reserved.
 //
+//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
+//  remove the original author's donation/support/rate links and repoint the
+//  GitHub and contact links to the MeetingBarNG fork.
+//
 
 import Cocoa
 import Defaults
@@ -27,14 +31,9 @@ enum TitleTruncationRules {
 }
 
 enum Links {
-    static let patreon = URL(string: "https://www.patreon.com/meetingbar")!
-    static let buymeacoffee = URL(string: "https://www.buymeacoffee.com/meetingbar")!
-    static let github = URL(string: "https://github.com/leits/MeetingBar")!
-    static let telegram = URL(string: "https://t.me/leits")!
-    static let twitter = URL(string: "https://twitter.com/leits_dev")!
-    static let emailMe = URL(string: "mailto:leits.dev@gmail.com?subject=MeetingBar")!
+    static let github = URL(string: "https://github.com/Chykalophia/MeetingBarNG")!
+    static let emailMe = URL(string: "mailto:peter@chykalophia.com?subject=MeetingBarNG")!
     static let calendarPreferences = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars")!
-    static let rateAppInAppStore = URL(string: "itms-apps://apps.apple.com/app/id1532419400?action=write-review")!
 }
 
 enum TimeFormat: String, Defaults.Serializable, Codable, CaseIterable {

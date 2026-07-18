@@ -90,10 +90,6 @@ struct StatusBarMenuState: Equatable {
     /// an unread-changelog hint.
     var lastRevisedMajorVersion: String = ""
 
-    /// Whether the app was installed from the Mac App Store. Hides certain
-    /// release-channel UI when true.
-    var isInstalledFromAppStore: Bool = false
-
     // MARK: - Convenience accessors
 
     /// Settings groups exposed for shorter call sites in MenuBuilder.
@@ -182,8 +178,7 @@ extension StatusBarMenuState {
             showTimeline: settings.menu.showTimelineInMenu,
             timeFormat: Defaults[.timeFormat],
             appMajorVersion: String(Defaults[.appVersion].dropLast(2)),
-            lastRevisedMajorVersion: String(Defaults[.lastRevisedVersionInChangelog].dropLast(2)),
-            isInstalledFromAppStore: Defaults[.isInstalledFromAppStore]
+            lastRevisedMajorVersion: String(Defaults[.lastRevisedVersionInChangelog].dropLast(2))
         )
     }
 

@@ -5,6 +5,9 @@
 //  Created by Andrii Leitsius on 28.05.2025.
 //  Copyright © 2025 Andrii Leitsius. All rights reserved.
 //
+//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
+//  remove the "Rate App" menu item (pointed at the original App Store listing).
+//
 
 import Cocoa
 import KeyboardShortcuts
@@ -501,26 +504,6 @@ struct MenuBuilder {
             changelogItem.image = NSImage(named: NSImage.statusAvailableName)
             changelogItem.target = target
             items.append(changelogItem)
-        }
-
-        var showRateAppButton = true
-        if let installationDate {
-            let twoWeeksAfterInstallation = Calendar.current.date(
-                byAdding: .day,
-                value: 14,
-                to: installationDate
-            )!
-            showRateAppButton = now > twoWeeksAfterInstallation
-        }
-
-        if showRateAppButton {
-            let rateItem = NSMenuItem(
-                title: "status_bar_rate_app".loco(),
-                action: #selector(StatusBarItemController.rateApp),
-                keyEquivalent: ""
-            )
-            rateItem.target = target
-            items.append(rateItem)
         }
 
         let preferencesItem = NSMenuItem(

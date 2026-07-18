@@ -7,7 +7,8 @@
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
 //  render the status-bar title through the composable menu-bar presenter when
-//  the user has set a custom token composition, and observe its Defaults keys.
+//  the user has set a custom token composition, and observe its Defaults keys;
+//  remove the "Rate App" action that opened the original App Store listing.
 //
 
 import Cocoa
@@ -404,11 +405,6 @@ final class StatusBarItemController {
     @objc
     func toggleMeetingTitleVisibility() {
         dependencies.send(.toggleMeetingTitleVisibility)
-    }
-
-    @objc
-    func rateApp() {
-        Links.rateAppInAppStore.openInDefaultBrowser()
     }
 
     @objc
