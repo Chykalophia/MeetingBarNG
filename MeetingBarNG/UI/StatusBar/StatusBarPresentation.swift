@@ -442,6 +442,14 @@ enum MenuBarTokenKind: String, CaseIterable, Codable, Hashable {
     case date
     /// The current wall-clock time (respects the 12h/24h preference).
     case clock
+    /// A day/year progress bar drawn as a fixed-width Unicode-block string,
+    /// styled per `MenuBarProgressStyle`. Event-independent.
+    case progress
+    /// The ISO-8601 week number, e.g. `W29`. Event-independent.
+    case weekNumber
+    /// The current time in a chosen time zone with an optional short label,
+    /// e.g. `SF 9:41`. Event-independent.
+    case worldClock
 }
 
 /// Countdown rendering styles. Mirrors the ROADMAP "Countdown styles" item.
@@ -464,6 +472,14 @@ enum MenuBarDateStyle: String, CaseIterable, Codable, Hashable {
     case short
 }
 
+/// Progress-token rendering styles.
+enum MenuBarProgressStyle: String, CaseIterable, Codable, Hashable {
+    /// Fraction of the current day elapsed (midnight → midnight).
+    case day
+    /// Fraction of the current year elapsed (Jan 1 → Jan 1).
+    case year
+}
+
 /// An ordered list of tokens. Considered "enabled" only when non-empty; the
 /// adapter returns `nil` for an empty composition so the classic path runs.
 struct MenuBarComposition: Equatable {
@@ -481,7 +497,14 @@ struct MenuBarComposedSettings: Equatable {
     let title: StatusBarTitleSettings
     let countdownStyle: CountdownStyle
     let dateStyle: MenuBarDateStyle
+    let progressStyle: MenuBarProgressStyle
     let use24HourClock: Bool
+    /// Time zone for the `.worldClock` token (defaults to the current zone).
+    let worldClockTimeZone: TimeZone
+    /// Optional short label prepended to the `.worldClock` token (e.g. `SF`).
+    let worldClockLabel: String
+    /// Localized prefix for the `.weekNumber` token (e.g. `W`, `KW`, `S`).
+    let weekNumberPrefix: String
     let iconFormat: StatusBarIconFormat
     let iconFormatAssetName: String
     let iconAssets: StatusBarIconAssets
@@ -493,6 +516,11 @@ struct MenuBarComposedSettings: Equatable {
 
 /// Pure formatters for the new tokens. Hostless and fully unit-tested.
 enum MenuBarCompositionPolicy {
+    /// Cell count for the `.progress` token's Unicode-block bar. Fixed (not a
+    /// user setting yet) so the composer stays simple; ~1/8-cell resolution is
+    /// plenty for a menu-bar day/year indicator.
+    static let progressBarWidth = 8
+
     /// Bare countdown between two dates. Returns an empty string for a
     /// non-positive interval so a stale/negative countdown never renders.
     static func countdownText(
@@ -554,6 +582,96 @@ enum MenuBarCompositionPolicy {
         formatter.timeZone = calendar.timeZone
         formatter.setLocalizedDateFormatFromTemplate(use24Hour ? "Hmm" : "hmma")
         return formatter.string(from: now)
+    }
+
+    /// The current time in `timeZone`, formatted like `clockText`, prefixed with
+    /// a trimmed non-empty `label` (e.g. `SF 9:41`). Empty label yields the time
+    /// alone. Differs from `clockText` only in pinning the chosen time zone.
+    static func worldClockText(
+        now: Date,
+        timeZone: TimeZone,
+        label: String,
+        use24Hour: Bool,
+        calendar: Calendar
+    ) -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.locale = calendar.locale ?? Locale.current
+        formatter.timeZone = timeZone
+        formatter.setLocalizedDateFormatFromTemplate(use24Hour ? "Hmm" : "hmma")
+        let time = formatter.string(from: now)
+        let trimmedLabel = label.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmedLabel.isEmpty ? time : "\(trimmedLabel) \(time)"
+    }
+
+    /// ISO-8601 week number (e.g. `W29`) with a caller-supplied prefix.
+    /// Computed on a dedicated ISO-8601 calendar (Monday-start, 4-day first
+    /// week) — copying only the passed calendar's time zone and locale — so the
+    /// result is correct near year boundaries regardless of the passed
+    /// calendar's `firstWeekday`/`minimumDaysInFirstWeek`.
+    static func weekNumberText(now: Date, calendar: Calendar, prefix: String) -> String {
+        var isoCalendar = Calendar(identifier: .iso8601)
+        isoCalendar.timeZone = calendar.timeZone
+        isoCalendar.locale = calendar.locale ?? Locale.current
+        let week = isoCalendar.component(.weekOfYear, from: now)
+        return "\(prefix)\(week)"
+    }
+
+    /// Fraction (0...1) of the current calendar day elapsed at `now`. Uses the
+    /// calendar's own day boundaries (not a hardcoded 86 400s) so DST-short and
+    /// DST-long days stay correct.
+    static func dayFraction(now: Date, calendar: Calendar) -> Double {
+        let startOfDay = calendar.startOfDay(for: now)
+        guard let startOfNextDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return 0 }
+        let dayLength = startOfNextDay.timeIntervalSince(startOfDay)
+        guard dayLength > 0 else { return 0 }
+        return min(1, max(0, now.timeIntervalSince(startOfDay) / dayLength))
+    }
+
+    /// Fraction (0...1) of the current calendar year elapsed at `now`. Measures
+    /// the actual year span (Jan 1 → next Jan 1), so leap years are automatic.
+    static func yearFraction(now: Date, calendar: Calendar) -> Double {
+        let year = calendar.component(.year, from: now)
+        guard
+            let startOfYear = calendar.date(from: DateComponents(year: year, month: 1, day: 1)),
+            let startOfNextYear = calendar.date(from: DateComponents(year: year + 1, month: 1, day: 1))
+        else { return 0 }
+        let yearLength = startOfNextYear.timeIntervalSince(startOfYear)
+        guard yearLength > 0 else { return 0 }
+        return min(1, max(0, now.timeIntervalSince(startOfYear) / yearLength))
+    }
+
+    /// Fraction (0...1) for the chosen progress style.
+    static func progressFraction(now: Date, style: MenuBarProgressStyle, calendar: Calendar) -> Double {
+        switch style {
+        case .day:
+            return dayFraction(now: now, calendar: calendar)
+        case .year:
+            return yearFraction(now: now, calendar: calendar)
+        }
+    }
+
+    /// Renders `fraction` (clamped to 0...1) as a fixed-width bar of `width`
+    /// cells: full `█` cells, one partial eighth-block glyph for the fractional
+    /// cell, and `░` for the remainder — e.g. `███▍░░░░`.
+    static func progressBarText(fraction: Double, width: Int) -> String {
+        guard width > 0 else { return "" }
+        let clamped = min(1, max(0, fraction))
+        let totalEighths = Int((clamped * Double(width) * 8).rounded(.down))
+        let fullCells = min(totalEighths / 8, width)
+        let remainder = totalEighths % 8
+        let partials = ["", "▏", "▎", "▍", "▌", "▋", "▊", "▉"]
+
+        var bar = String(repeating: "█", count: fullCells)
+        var cellsUsed = fullCells
+        if cellsUsed < width && remainder > 0 {
+            bar += partials[remainder]
+            cellsUsed += 1
+        }
+        if cellsUsed < width {
+            bar += String(repeating: "░", count: width - cellsUsed)
+        }
+        return bar
     }
 }
 
@@ -661,6 +779,25 @@ extension StatusBarPresenter {
             return MenuBarCompositionPolicy.clockText(
                 now: now, use24Hour: settings.use24HourClock, calendar: calendar
             )
+        case .progress:
+            return MenuBarCompositionPolicy.progressBarText(
+                fraction: MenuBarCompositionPolicy.progressFraction(
+                    now: now, style: settings.progressStyle, calendar: calendar
+                ),
+                width: MenuBarCompositionPolicy.progressBarWidth
+            )
+        case .weekNumber:
+            return MenuBarCompositionPolicy.weekNumberText(
+                now: now, calendar: calendar, prefix: settings.weekNumberPrefix
+            )
+        case .worldClock:
+            return MenuBarCompositionPolicy.worldClockText(
+                now: now,
+                timeZone: settings.worldClockTimeZone,
+                label: settings.worldClockLabel,
+                use24Hour: settings.use24HourClock,
+                calendar: calendar
+            )
         }
     }
 
@@ -688,6 +825,28 @@ extension StatusBarPresenter {
             case .date:
                 let text = MenuBarCompositionPolicy.dateText(
                     now: now, style: settings.dateStyle, calendar: calendar
+                )
+                if !text.isEmpty { segments.append(text) }
+            case .progress:
+                let text = MenuBarCompositionPolicy.progressBarText(
+                    fraction: MenuBarCompositionPolicy.progressFraction(
+                        now: now, style: settings.progressStyle, calendar: calendar
+                    ),
+                    width: MenuBarCompositionPolicy.progressBarWidth
+                )
+                if !text.isEmpty { segments.append(text) }
+            case .weekNumber:
+                let text = MenuBarCompositionPolicy.weekNumberText(
+                    now: now, calendar: calendar, prefix: settings.weekNumberPrefix
+                )
+                if !text.isEmpty { segments.append(text) }
+            case .worldClock:
+                let text = MenuBarCompositionPolicy.worldClockText(
+                    now: now,
+                    timeZone: settings.worldClockTimeZone,
+                    label: settings.worldClockLabel,
+                    use24Hour: settings.use24HourClock,
+                    calendar: calendar
                 )
                 if !text.isEmpty { segments.append(text) }
             case .title, .countdown:

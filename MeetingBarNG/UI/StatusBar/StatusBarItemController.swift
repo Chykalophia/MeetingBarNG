@@ -109,6 +109,7 @@ final class StatusBarItemController {
             .declinedEventsAppereance, .ongoingEventVisibility,
             .showTimelineInMenu, .hideFinishedEventsInMenu,
             .menuBarTokens, .menuBarCountdownStyle, .menuBarDateStyle,
+            .menuBarProgressStyle, .menuBarWorldClockTimeZone, .menuBarWorldClockLabel,
             options: []
         )
         .receive(on: DispatchQueue.main)

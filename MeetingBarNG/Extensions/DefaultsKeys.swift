@@ -87,6 +87,13 @@ extension Defaults.Keys {
         "menuBarCountdownStyle", default: CountdownStyle.full.rawValue)
     static let menuBarDateStyle = Key<String>(
         "menuBarDateStyle", default: MenuBarDateStyle.medium.rawValue)
+    static let menuBarProgressStyle = Key<String>(
+        "menuBarProgressStyle", default: MenuBarProgressStyle.day.rawValue)
+    // World-clock token: time zone stored as its identifier (TimeZone isn't
+    // trivially Defaults.Serializable) and reconstructed with a `.current` fallback.
+    static let menuBarWorldClockTimeZone = Key<String>(
+        "menuBarWorldClockTimeZone", default: TimeZone.current.identifier)
+    static let menuBarWorldClockLabel = Key<String>("menuBarWorldClockLabel", default: "")
 
     // Menu Appearance
     static let showTimelineInMenu = Key<Bool>("showTimelineInMenu", default: true)

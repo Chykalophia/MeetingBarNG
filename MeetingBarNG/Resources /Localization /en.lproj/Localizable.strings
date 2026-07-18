@@ -163,6 +163,9 @@
 "preferences_appearance_menu_bar_token_countdown" = "Countdown";
 "preferences_appearance_menu_bar_token_date" = "Date";
 "preferences_appearance_menu_bar_token_clock" = "Clock";
+"preferences_appearance_menu_bar_token_progress" = "Progress bar";
+"preferences_appearance_menu_bar_token_week_number" = "Week number";
+"preferences_appearance_menu_bar_token_world_clock" = "World clock";
 "preferences_appearance_menu_bar_countdown_style_title" = "Countdown style";
 "preferences_appearance_menu_bar_countdown_style_compact_value" = "2h";
 "preferences_appearance_menu_bar_countdown_style_full_value" = "2h 30m";
@@ -171,6 +174,13 @@
 "preferences_appearance_menu_bar_date_style_weekday_value" = "Mon";
 "preferences_appearance_menu_bar_date_style_medium_value" = "Mon, Jul 17";
 "preferences_appearance_menu_bar_date_style_short_value" = "7/17/26";
+"preferences_appearance_menu_bar_progress_style_title" = "Progress style";
+"preferences_appearance_menu_bar_progress_style_day_value" = "Day";
+"preferences_appearance_menu_bar_progress_style_year_value" = "Year";
+"preferences_appearance_menu_bar_world_clock_timezone_title" = "Time zone";
+"preferences_appearance_menu_bar_world_clock_label_title" = "Label";
+"preferences_appearance_menu_bar_world_clock_label_placeholder" = "e.g. SF";
+"preferences_appearance_menu_bar_week_number_prefix" = "W";
 
 // MARK: - Preferences Services
 

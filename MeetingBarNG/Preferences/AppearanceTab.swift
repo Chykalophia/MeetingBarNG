@@ -285,6 +285,9 @@ struct MenuBarComposerSection: View {
     @Default(.menuBarTokens) var menuBarTokens
     @Default(.menuBarCountdownStyle) var menuBarCountdownStyle
     @Default(.menuBarDateStyle) var menuBarDateStyle
+    @Default(.menuBarProgressStyle) var menuBarProgressStyle
+    @Default(.menuBarWorldClockTimeZone) var menuBarWorldClockTimeZone
+    @Default(.menuBarWorldClockLabel) var menuBarWorldClockLabel
 
     private var tokens: [MenuBarTokenKind] {
         var seen = Set<MenuBarTokenKind>()
@@ -358,6 +361,38 @@ struct MenuBarComposerSection: View {
                         Text("preferences_appearance_menu_bar_date_style_short_value".loco())
                             .tag(MenuBarDateStyle.short)
                     }
+                }
+            }
+
+            if tokens.contains(.progress) {
+                Section {
+                    Picker(
+                        preferenceLabel("preferences_appearance_menu_bar_progress_style_title"),
+                        selection: progressStyleBinding
+                    ) {
+                        Text("preferences_appearance_menu_bar_progress_style_day_value".loco())
+                            .tag(MenuBarProgressStyle.day)
+                        Text("preferences_appearance_menu_bar_progress_style_year_value".loco())
+                            .tag(MenuBarProgressStyle.year)
+                    }
+                }
+            }
+
+            if tokens.contains(.worldClock) {
+                Section {
+                    Picker(
+                        preferenceLabel("preferences_appearance_menu_bar_world_clock_timezone_title"),
+                        selection: $menuBarWorldClockTimeZone
+                    ) {
+                        ForEach(TimeZone.knownTimeZoneIdentifiers.sorted(), id: \.self) { identifier in
+                            Text(identifier).tag(identifier)
+                        }
+                    }
+                    TextField(
+                        preferenceLabel("preferences_appearance_menu_bar_world_clock_label_title"),
+                        text: $menuBarWorldClockLabel,
+                        prompt: Text("preferences_appearance_menu_bar_world_clock_label_placeholder".loco())
+                    )
                 }
             }
 
@@ -443,6 +478,9 @@ struct MenuBarComposerSection: View {
         case .countdown: return "preferences_appearance_menu_bar_token_countdown".loco()
         case .date: return "preferences_appearance_menu_bar_token_date".loco()
         case .clock: return "preferences_appearance_menu_bar_token_clock".loco()
+        case .progress: return "preferences_appearance_menu_bar_token_progress".loco()
+        case .weekNumber: return "preferences_appearance_menu_bar_token_week_number".loco()
+        case .worldClock: return "preferences_appearance_menu_bar_token_world_clock".loco()
         }
     }
 
@@ -517,6 +555,13 @@ struct MenuBarComposerSection: View {
         Binding(
             get: { MenuBarDateStyle(rawValue: menuBarDateStyle) ?? .medium },
             set: { menuBarDateStyle = $0.rawValue }
+        )
+    }
+
+    private var progressStyleBinding: Binding<MenuBarProgressStyle> {
+        Binding(
+            get: { MenuBarProgressStyle(rawValue: menuBarProgressStyle) ?? .day },
+            set: { menuBarProgressStyle = $0.rawValue }
         )
     }
 }
