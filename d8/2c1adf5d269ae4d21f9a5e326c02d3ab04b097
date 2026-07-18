@@ -1,0 +1,29 @@
+MeetingBar.xcodeproj/project.pbxproj
+  s_8821c3fb11800f::t_0f7c8dc0edee0d 473,504
+  s_8821c3fb11800f::t_92177cc903e845 474,505
+  s_8821c3fb11800f::t_818bfcce5a8211 529,551
+.github/workflows/ci.yml
+  s_8821c3fb11800f::t_87bde3b057e467 119-120
+Makefile
+  s_8821c3fb11800f::t_a9b6e52f42ca89 94
+  s_8821c3fb11800f::t_6ee85cc26d27d7 2
+  s_8821c3fb11800f::t_51520e4f135fc5 8
+MeetingBar.xcodeproj/xcshareddata/xcschemes/MeetingBarNG.xcscheme
+  s_8821c3fb11800f::t_fe4c91e955cf4b 18,35,70,87
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "d82c1adf5d269ae4d21f9a5e326c02d3ab04b097",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
