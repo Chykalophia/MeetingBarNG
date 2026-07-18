@@ -31,6 +31,7 @@ let package = Package(
                 "Notifications/NotificationPlanner.swift",
                 // Calendar
                 "Calendar/EventFiltering.swift",
+                "Calendar/EventSearch.swift",
                 "Calendar/EventSelection.swift",
                 "Calendar/Providers/Google/GoogleCalendarPolicy.swift",
                 // Meetings
