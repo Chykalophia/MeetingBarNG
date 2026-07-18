@@ -308,6 +308,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApplication.shared.terminate(self)
     }
 
+    /// Relaunching an already-running instance (Finder, Dock, `open`, CLI) sends
+    /// a reopen event. MeetingBarNG is a menu-bar (accessory) app with no main
+    /// window, so that would otherwise do nothing visible — leaving the app
+    /// unreachable when its status-bar icon is hidden (e.g. overflowed under the
+    /// notch). Surface Preferences instead so there's always a way back in.
+    func applicationShouldHandleReopen(_: NSApplication, hasVisibleWindows _: Bool) -> Bool {
+        // While onboarding is still open, leave that window in charge.
+        guard Defaults[.onboardingCompleted] else { return true }
+        openPreferencesWindow(nil)
+        return true
+    }
+
     func applicationWillTerminate(_: Notification) {
         launchTask?.cancel()
         launchTask = nil
