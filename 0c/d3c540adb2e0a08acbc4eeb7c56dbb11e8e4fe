@@ -1,0 +1,75 @@
+MeetingBarTests/AppMessageCenterTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 8
+MeetingBarTests/AppModelTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 8
+MeetingBarTests/NotificationSchedulerTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 10
+MeetingBarTests/AdapterMappingTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 21
+MeetingBarTests/NotificationRoutingTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 9
+MeetingBarTests/EndToEndFlowTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 25
+MeetingBarTests/Helpers/FakeNotificationSinks.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 9
+MeetingBarTests/Helpers/FakeEventStore.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 11
+MeetingBarTests/ChangelogTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 10
+MeetingBarTests/Helpers/FakeCalendar.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 8
+MeetingBarTests/StringExtensionsTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 4
+MeetingBarTests/EventKitEventMappingTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 14
+MeetingBarTests/WindowCoordinatorTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 8
+MeetingBarTests/URLHandlerTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 8
+MeetingBarTests/OnboardingFlowTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 8
+MeetingBarTests/TimeFormatDefaultMigrationTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 12
+MeetingBarTests/CalendarSyncTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 12
+MeetingBarTests/HelpersTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 14
+MeetingBarTests/GetGmailAccountTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 8
+MeetingBarTests/StatusBarItem/MenuBuilderTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 14
+MeetingBarTests/Helpers/AppModelTestHarness.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 9
+MeetingBarTests/PreferencesPresentationTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 8
+MeetingBarTests/AppSettingsTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 13
+MeetingBarTests/ProviderBrowserMigrationTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 15
+MeetingBarTests/BookmarkMigrationTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 15
+MeetingBarTests/Helpers/FakeEvent.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 9
+MeetingBarTests/ScriptsTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 2
+MeetingBarTests/TimelineLogicTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 10
+MeetingBarTests/GoogleCalendarParserTests.swift
+  s_8821c3fb11800f::t_09e46dfda5a53e 9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "0cd3c540adb2e0a08acbc4eeb7c56dbb11e8e4fe",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
