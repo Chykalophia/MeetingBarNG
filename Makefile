@@ -1,11 +1,11 @@
 PROJECT := MeetingBar.xcodeproj
-SCHEME := MeetingBar
+SCHEME := MeetingBarNG
 XCODEBUILD ?= xcodebuild
 SWIFT ?= swift
 SWIFTLINT ?= swiftlint
 BUILD_DIR ?= build
 COVERAGE_DIR := $(BUILD_DIR)/coverage
-XCODE_RESULT_BUNDLE := $(COVERAGE_DIR)/MeetingBar.xcresult
+XCODE_RESULT_BUNDLE := $(COVERAGE_DIR)/MeetingBarNG.xcresult
 DERIVED_DATA_DIR := $(BUILD_DIR)/DerivedData
 XCODE_SOURCE_PACKAGES_DIR := $(BUILD_DIR)/SourcePackages
 HOST_ARCH := $(shell uname -m)
@@ -91,7 +91,7 @@ coverage-app-report:
 	fi
 	@echo ""
 	@echo "Xcode app-hosted coverage (target summary):"
-	@set -o pipefail; xcrun xccov view --report --only-targets $(XCODE_RESULT_BUNDLE) 2>/dev/null | awk 'NR <= 2 || /MeetingBar\.app/'
+	@set -o pipefail; xcrun xccov view --report --only-targets $(XCODE_RESULT_BUNDLE) 2>/dev/null | awk 'NR <= 2 || /MeetingBarNG\.app/'
 
 lint:
 	@if command -v $(SWIFTLINT) >/dev/null 2>&1; then \

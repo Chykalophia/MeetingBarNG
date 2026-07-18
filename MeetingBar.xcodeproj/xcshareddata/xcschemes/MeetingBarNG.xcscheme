@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "144C01782462D0C3000C9FFC"
-               BuildableName = "MeetingBar.app"
+               BuildableName = "MeetingBarNG.app"
                BlueprintName = "MeetingBar"
                ReferencedContainer = "container:MeetingBar.xcodeproj">
             </BuildableReference>
@@ -32,7 +32,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "144C01782462D0C3000C9FFC"
-            BuildableName = "MeetingBar.app"
+            BuildableName = "MeetingBarNG.app"
             BlueprintName = "MeetingBar"
             ReferencedContainer = "container:MeetingBar.xcodeproj">
          </BuildableReference>
@@ -67,7 +67,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "144C01782462D0C3000C9FFC"
-            BuildableName = "MeetingBar.app"
+            BuildableName = "MeetingBarNG.app"
             BlueprintName = "MeetingBar"
             ReferencedContainer = "container:MeetingBar.xcodeproj">
          </BuildableReference>
@@ -84,7 +84,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "144C01782462D0C3000C9FFC"
-            BuildableName = "MeetingBar.app"
+            BuildableName = "MeetingBarNG.app"
             BlueprintName = "MeetingBar"
             ReferencedContainer = "container:MeetingBar.xcodeproj">
          </BuildableReference>
