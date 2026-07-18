@@ -1,0 +1,27 @@
+MeetingBarNG.xcodeproj/project.pbxproj
+  s_8821c3fb11800f::t_f2d6ae87e5993a 1-649
+MeetingBarNG.xcodeproj/xcshareddata/xcschemes/MeetingBarNG.xcscheme
+  s_8821c3fb11800f::t_f2d6ae87e5993a 1-100
+Scripts/test_summary.sh
+  s_8821c3fb11800f::t_f2d6ae87e5993a 12
+.gitignore
+  s_8821c3fb11800f::t_f2d6ae87e5993a 12-15
+Makefile
+  s_8821c3fb11800f::t_f2d6ae87e5993a 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "bece5f47b174190233eb3a51e07143806df49a69",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
