@@ -1,0 +1,29 @@
+MeetingBar.xcodeproj/project.pbxproj
+  s_8821c3fb11800f::t_97419df30df461 30-31,53,55,131,139,159-160,453,463,483,493,517,539
+MeetingBar.xcodeproj/xcshareddata/xcschemes/MeetingBarNG.xcscheme
+  s_8821c3fb11800f::t_97419df30df461 19,36,46-47,71,88
+Package.swift
+  s_8821c3fb11800f::t_97419df30df461 16
+Makefile
+  s_8821c3fb11800f::t_97419df30df461 15
+.swiftlint.yml
+  s_8821c3fb11800f::t_97419df30df461 5,7
+Scripts/validate_localizations.sh
+  s_8821c3fb11800f::t_97419df30df461 14-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "5a300f71d07a58649fd24aa6f6839577cbd318b8",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
