@@ -1,0 +1,59 @@
+"MeetingBar/Resources /Localization /nl.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 11-13,70,72,100,145,256,267,281,339-340,342,346,349-350,352
+"MeetingBar/Resources /Localization /es.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 3,26-28,47,54,159,218,245-246,260,344-345,347,351,354-355,357
+"MeetingBar/Resources /Localization /cs.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 36,44-45,78,125,212,231,238,257,261-262,299-300,303,308,313,318-319
+"MeetingBar/Resources /Localization /bg.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 3,27-28,47,54,77,164,223,251,264,309-310,313,318,323,328-329
+"MeetingBar/Resources /Localization /ta.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 43,255-256,259,264,269,274-275
+"MeetingBar/Resources /Localization /pt-BR.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 3,27-29,48,55,160,219,245-246,259,314-315,318,323,328,333-334
+"MeetingBar/Resources /Localization /pl.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 3,23-25,44,51,74,155,203,234,247,310-311,314,319,324,329-330
+"MeetingBar/Resources /Localization /sk.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 14,26,84-85,102,120,187,189,202,257,305-306,309,314,319,324-325
+"MeetingBar/Resources /Localization /nb-NO.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 7-8,32,68,92,95,100,126,220,242,265,300-301,304,309,314,319-320
+"MeetingBar/Resources /Localization /zh-Hans.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 17-19,31,37,91-92,95,100,105,110-111,133,161,262,294,338
+"MeetingBar/Resources /Localization /pt.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 16-18,30,37,134-135,138,143,148,153-154,175,179,259,291,335
+"MeetingBar/Resources /Localization /hr.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 3,22-24,43,50,73,155,204,236,249,309-310,313,318,323,328-329
+"MeetingBar/Resources /Localization /hu.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 15,87,105-106,110,179-180,183,188,193,198-199,217,268,298,339,341
+"MeetingBar/Resources /Localization /it.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 3,22-24,43,50,73,155,214,246,259,309-310,313,318,323,328-329
+"MeetingBar/Resources /Localization /he.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 10,22,30,50,166,174-175,194,237,253,302-303,306,311,316,321-322
+"MeetingBar/Resources /Localization /ko.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 30,50-51,57,129,216-217,220,225,230,235-236,307,313-314
+"MeetingBar/Resources /Localization /tr.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 3,25,45,59,107,139,166,178,186,188,264,310-311,314,319,324,329-330
+"MeetingBar/Resources /Localization /ja.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 3,24-26,47,54,78,165,215,248-249,263,318-319,322,327,332,337-338
+"MeetingBar/Resources /Localization /uk.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 3,23-25,44,51,158,209,241,254,358-359,361,365,368-369,371,378
+"MeetingBar/Resources /Localization /de.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 4,67,89,110-111,115,128,177,233,267,338-339,341,345,348-349,351
+"MeetingBar/Resources /Localization /fr.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_93907707994cf1 42,49,79,123,204,227,234,252-253,257,302-303,306,311,316,321-322
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "557c136d54fb5096252f78d84615f4e6712710b6",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
