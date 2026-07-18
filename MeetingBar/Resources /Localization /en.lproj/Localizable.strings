@@ -90,6 +90,7 @@
 "preferences_general_shortcut_toggle_meeting_name_visibility" = "Toggle title visibility in status bar:";
 "preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_general_external_contact" = "Contact";
+"preferences_general_whats_new" = "What's New";
 
 // MARK: - Preferences Appearance
 
@@ -134,6 +135,7 @@
 "preferences_appearance_status_bar_next_event_stepper" = "%d minutes";
 "preferences_appearance_menu_title" = "Menu";
 "preferences_appearance_menu_show_timeline_toggle" = "Show visual timeline of the day";
+"preferences_appearance_menu_hide_finished_toggle" = "Hide events that have already ended";
 "preferences_appearance_menu_shorten_event_title_toggle" = "Shorten event title to";
 "preferences_appearance_menu_shorten_event_title_stepper" = "%d characters";
 "preferences_appearance_menu_time_format_title" = "Time format:";

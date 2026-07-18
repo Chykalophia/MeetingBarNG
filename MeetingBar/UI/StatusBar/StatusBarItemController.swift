@@ -107,7 +107,7 @@ final class StatusBarItemController {
             .timeFormat, .bookmarks,
             .personalEventsAppereance, .pastEventsAppereance,
             .declinedEventsAppereance, .ongoingEventVisibility,
-            .showTimelineInMenu,
+            .showTimelineInMenu, .hideFinishedEventsInMenu,
             .menuBarTokens, .menuBarCountdownStyle, .menuBarDateStyle,
             options: []
         )

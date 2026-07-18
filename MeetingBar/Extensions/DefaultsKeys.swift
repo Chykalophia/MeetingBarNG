@@ -90,6 +90,8 @@ extension Defaults.Keys {
 
     // Menu Appearance
     static let showTimelineInMenu = Key<Bool>("showTimelineInMenu", default: true)
+    // When on, the menu's day list starts at "now" (hides finished events).
+    static let hideFinishedEventsInMenu = Key<Bool>("hideFinishedEventsInMenu", default: true)
     // if the event title in the menu should be shortened or not -> the length will be stored in field menuEventTitleLength
     static let shortenEventTitle = Key<Bool>("shortenEventTitle", default: true)
     static let menuEventTitleLength = Key<Int>("menuEventTitleLength", default: 50)

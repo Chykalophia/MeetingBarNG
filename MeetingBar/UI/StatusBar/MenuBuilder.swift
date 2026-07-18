@@ -340,12 +340,13 @@ struct MenuBuilder {
 
         items.append(titleItem)
 
-        // Events — start the list at "now": drop meetings that ended more than
-        // the grace period ago, keeping the in-progress event and everything
-        // upcoming. A no-op for tomorrow's and all-day events (their endDate is
-        // far ahead), so the same filter serves the today and tomorrow sections.
+        // Events — when enabled, start the list at "now": drop meetings that
+        // ended more than the grace period ago, keeping the in-progress event and
+        // everything upcoming. A no-op for tomorrow's and all-day events (their
+        // endDate is far ahead), so the same filter serves the today and tomorrow
+        // sections. Disabling the preference shows the full day again.
         let sortedEvents = events
-            .filter { EventListWindow.isVisible(endDate: $0.endDate, now: now) }
+            .filter { !state.menu.hideFinishedEventsInMenu || EventListWindow.isVisible(endDate: $0.endDate, now: now) }
             .sorted { $0.startDate < $1.startDate }
         if sortedEvents.isEmpty {
             let item = NSMenuItem(

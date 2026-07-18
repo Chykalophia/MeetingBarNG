@@ -133,6 +133,12 @@ struct AboutAppSection: View {
                         Links.emailMe.openInDefaultBrowser()
                     }
                     .buttonStyle(.link)
+                    Button("preferences_general_whats_new".loco()) {
+                        NSApplication.shared.sendAction(
+                            #selector(AppDelegate.openChangelogWindow(_:)), to: nil, from: nil
+                        )
+                    }
+                    .buttonStyle(.link)
                     Spacer()
                     Button("preferences_status_copy_diagnostics".loco()) {
                         DiagnosticsClipboard.copy(

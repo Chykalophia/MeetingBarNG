@@ -49,6 +49,9 @@ struct MenuSettings: Equatable {
     var showEventDetails: Bool
     var showMeetingServiceIcon: Bool
     var showEventCalendarColor: Bool
+    /// When true, the menu's day list starts at "now" — meetings that ended more
+    /// than the grace period ago are hidden. When false, the full day is shown.
+    var hideFinishedEventsInMenu: Bool
 }
 
 struct NotificationSettings: Equatable {
@@ -212,7 +215,8 @@ extension AppSettings {
                 menuEventTitleLength: Defaults[.menuEventTitleLength],
                 showEventDetails: Defaults[.showEventDetails],
                 showMeetingServiceIcon: Defaults[.showMeetingServiceIcon],
-                showEventCalendarColor: Defaults[.showEventCalendarColor]
+                showEventCalendarColor: Defaults[.showEventCalendarColor],
+                hideFinishedEventsInMenu: Defaults[.hideFinishedEventsInMenu]
             ),
             notifications: NotificationSettings(
                 joinEventNotification: Defaults[.joinEventNotification],
@@ -285,7 +289,8 @@ extension AppSettings {
                 menuEventTitleLength: 50,
                 showEventDetails: false,
                 showMeetingServiceIcon: true,
-                showEventCalendarColor: true
+                showEventCalendarColor: true,
+                hideFinishedEventsInMenu: true
             ),
             notifications: NotificationSettings(
                 joinEventNotification: true,

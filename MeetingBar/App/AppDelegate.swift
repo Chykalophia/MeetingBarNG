@@ -75,7 +75,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             calendarSync = manager
             if Defaults[.onboardingCompleted] {
                 setup()
-                presentChangelogIfNeeded()
             } else {
                 setup(triggerInitialRefresh: false)
                 presentOnboardingWindow()
@@ -107,16 +106,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 return result
             }
         )
-    }
-
-    /// After an update, surface "What's New" once. Only on the onboarded launch
-    /// path (never stacked over onboarding); closing it acknowledges the version,
-    /// so it won't reappear until the next release bumps the major.minor.
-    private func presentChangelogIfNeeded() {
-        let appMajor = StatusBarMenuState.majorMinorVersion(Defaults[.appVersion])
-        let seenMajor = StatusBarMenuState.majorMinorVersion(Defaults[.lastRevisedVersionInChangelog])
-        guard compareVersions(appMajor, seenMajor) else { return }
-        windowCoordinator.openChangelogWindow()
     }
 
     func setup(triggerInitialRefresh: Bool = true) {

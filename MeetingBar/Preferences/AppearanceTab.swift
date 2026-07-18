@@ -531,12 +531,17 @@ struct MenuSection: View {
     @Default(.showMeetingServiceIcon) var showMeetingServiceIcon
     @Default(.showEventCalendarColor) var showEventCalendarColor
     @Default(.showTimelineInMenu) var showTimelineInMenu
+    @Default(.hideFinishedEventsInMenu) var hideFinishedEventsInMenu
 
     var body: some View {
         Section(header: Text("preferences_appearance_menu_title".loco())) {
             Toggle(
                 preferenceLabel("preferences_appearance_menu_show_timeline_toggle"),
                 isOn: $showTimelineInMenu
+            )
+            Toggle(
+                preferenceLabel("preferences_appearance_menu_hide_finished_toggle"),
+                isOn: $hideFinishedEventsInMenu
             )
         }
 
