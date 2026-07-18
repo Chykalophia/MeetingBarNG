@@ -2,9 +2,9 @@ reporter: "github-actions-logging"
 
 included:
   - Package.swift
-  - MeetingBar
+  - MeetingBarNG
   - MeetingBarLogicTests
-  - MeetingBarTests
+  - MeetingBarNGTests
 
 excluded:
   - Carthage

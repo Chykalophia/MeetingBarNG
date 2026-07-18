@@ -13,7 +13,7 @@ let package = Package(
     targets: [
         .target(
             name: "MeetingBarLogic",
-            path: "MeetingBar",
+            path: "MeetingBarNG",
             exclude: [
                 // Exclude app-layer files that depend on AppKit/Defaults/EventKit.
                 // SPM scans the whole MeetingBar/ tree for resources; these paths

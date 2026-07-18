@@ -27,8 +27,8 @@
 
 /* Begin PBXFileReference section */
 		14158D3A246C65AD0006436C /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		144C01792462D0C3000C9FFC /* MeetingBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetingBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		14619A1B25EC26DF00F3098F /* MeetingBarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeetingBarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		144C01792462D0C3000C9FFC /* MeetingBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetingBarNG.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		14619A1B25EC26DF00F3098F /* MeetingBarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeetingBarNGTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		40DC7053250E5E1000217DD9 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -50,9 +50,9 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		37826AE02DAEFAAD00A6BFF8 /* MeetingBar */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (37826B092DAEFAAD00A6BFF8 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MeetingBar; sourceTree = "<group>"; };
+		37826AE02DAEFAAD00A6BFF8 /* MeetingBar */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (37826B092DAEFAAD00A6BFF8 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MeetingBarNG; sourceTree = "<group>"; };
 		37AF6E1A2DAEEEE900F38307 /* XCConfig */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = XCConfig; sourceTree = "<group>"; };
-		37AF6E582DAEEF1800F38307 /* MeetingBarTests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (37AF6E5D2DAEEF1800F38307 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MeetingBarTests; sourceTree = "<group>"; };
+		37AF6E582DAEEF1800F38307 /* MeetingBarTests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (37AF6E5D2DAEEF1800F38307 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MeetingBarNGTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,7 +128,7 @@
 			fileSystemSynchronizedGroups = (
 				37826AE02DAEFAAD00A6BFF8 /* MeetingBar */,
 			);
-			name = MeetingBar;
+			name = MeetingBarNG;
 			packageProductDependencies = (
 				1418907B26F23CCD00DCD9B1 /* KeyboardShortcuts */,
 				1418907E26F23CF600DCD9B1 /* Defaults */,
@@ -136,7 +136,7 @@
 				467D98082DDB501F00EB205C /* AppAuth */,
 				467D980A2DDB501F00EB205C /* AppAuthCore */,
 			);
-			productName = MeetingBar;
+			productName = MeetingBarNG;
 			productReference = 144C01792462D0C3000C9FFC /* MeetingBar.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -156,8 +156,8 @@
 			fileSystemSynchronizedGroups = (
 				37AF6E582DAEEF1800F38307 /* MeetingBarTests */,
 			);
-			name = MeetingBarTests;
-			productName = MeetingBarTests;
+			name = MeetingBarNGTests;
+			productName = MeetingBarNGTests;
 			productReference = 14619A1B25EC26DF00F3098F /* MeetingBarTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
@@ -450,7 +450,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = MeetingBar/MeetingBar.entitlements;
+				CODE_SIGN_ENTITLEMENTS = MeetingBarNG/MeetingBar.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -460,7 +460,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				INFOPLIST_FILE = MeetingBar/Info.plist;
+				INFOPLIST_FILE = MeetingBarNG/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MeetingBarNG;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -480,7 +480,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = MeetingBar/MeetingBar.entitlements;
+				CODE_SIGN_ENTITLEMENTS = MeetingBarNG/MeetingBar.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -490,7 +490,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				INFOPLIST_FILE = MeetingBar/Info.plist;
+				INFOPLIST_FILE = MeetingBarNG/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MeetingBarNG;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -514,7 +514,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = KGH289N6T8;
-				INFOPLIST_FILE = MeetingBarTests/Info.plist;
+				INFOPLIST_FILE = MeetingBarNGTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -536,7 +536,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = KGH289N6T8;
-				INFOPLIST_FILE = MeetingBarTests/Info.plist;
+				INFOPLIST_FILE = MeetingBarNGTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

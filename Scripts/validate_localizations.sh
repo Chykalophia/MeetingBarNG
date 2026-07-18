@@ -11,8 +11,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SOURCE_DIR="$ROOT/MeetingBar"
-EN_STRINGS="$ROOT/MeetingBar/Resources /Localization /en.lproj/Localizable.strings"
+SOURCE_DIR="$ROOT/MeetingBarNG"
+EN_STRINGS="$ROOT/MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
 
 if [ ! -f "$EN_STRINGS" ]; then
     echo "ERROR: English strings file not found at:"

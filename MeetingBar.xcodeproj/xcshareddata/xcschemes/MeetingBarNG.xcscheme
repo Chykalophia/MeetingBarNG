@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "144C01782462D0C3000C9FFC"
                BuildableName = "MeetingBarNG.app"
-               BlueprintName = "MeetingBar"
+               BlueprintName = "MeetingBarNG"
                ReferencedContainer = "container:MeetingBar.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,7 +33,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "144C01782462D0C3000C9FFC"
             BuildableName = "MeetingBarNG.app"
-            BlueprintName = "MeetingBar"
+            BlueprintName = "MeetingBarNG"
             ReferencedContainer = "container:MeetingBar.xcodeproj">
          </BuildableReference>
       </CodeCoverageTargets>
@@ -43,8 +43,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "14619A1A25EC26DF00F3098F"
-               BuildableName = "MeetingBarTests.xctest"
-               BlueprintName = "MeetingBarTests"
+               BuildableName = "MeetingBarNGTests.xctest"
+               BlueprintName = "MeetingBarNGTests"
                ReferencedContainer = "container:MeetingBar.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -68,7 +68,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "144C01782462D0C3000C9FFC"
             BuildableName = "MeetingBarNG.app"
-            BlueprintName = "MeetingBar"
+            BlueprintName = "MeetingBarNG"
             ReferencedContainer = "container:MeetingBar.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -85,7 +85,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "144C01782462D0C3000C9FFC"
             BuildableName = "MeetingBarNG.app"
-            BlueprintName = "MeetingBar"
+            BlueprintName = "MeetingBarNG"
             ReferencedContainer = "container:MeetingBar.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
