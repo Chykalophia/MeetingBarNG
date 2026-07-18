@@ -1,0 +1,25 @@
+MeetingBarLogicTests/EventSearchTests.swift
+  s_8821c3fb11800f::t_5e295e794b4333 1-145
+MeetingBarNG/Calendar/EventSearch+MeetingBar.swift
+  s_8821c3fb11800f::t_9061aa4ddd7aaa 1-28
+MeetingBarNG/Calendar/EventSearch.swift
+  s_8821c3fb11800f::t_87853525f777e8 1-159
+Package.swift
+  s_8821c3fb11800f::t_571b855d365a8d 34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "d63f8aa9d263a5336d77e3218651cc385249244a",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
