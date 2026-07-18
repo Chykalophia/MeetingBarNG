@@ -1,0 +1,27 @@
+MeetingBarNG/UI/CommandBar/CommandBarModels.swift
+  s_8821c3fb11800f::t_6308eba4f732b4 1-68
+MeetingBarNG/UI/CommandBar/CommandBarSearch.swift
+  s_8821c3fb11800f::t_c0fa0894ab6093 1-158
+Package.swift
+  s_8821c3fb11800f::t_548456c1a6318c 42-46
+MeetingBarNG/UI/CommandBar/CommandBarAgenda.swift
+  s_8821c3fb11800f::t_367fa88a7ac8c5 1-42
+MeetingBarLogicTests/CommandBarSearchTests.swift
+  s_8821c3fb11800f::t_0847e8ad739735 1-174
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "f5c545934df36dedfcd7b3c493c17db7091d7566",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
