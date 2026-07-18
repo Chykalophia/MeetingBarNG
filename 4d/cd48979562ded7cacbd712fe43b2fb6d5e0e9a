@@ -1,0 +1,41 @@
+MeetingBarNG/UI/StatusBar/StatusBarMenuState.swift
+  s_8821c3fb11800f::t_46a475f5f1301a 207-209,216-223
+  s_8821c3fb11800f::t_de3eccaa1c3310 179-188
+  s_8821c3fb11800f::t_118f9c168665d4 72-89,224
+  s_8821c3fb11800f::t_a7f7f6f3f40c83 225
+MeetingBarNG/UI/StatusBar/MenuBuilder.swift
+  s_8821c3fb11800f::t_7894467617541c 36-105
+MeetingBarLogicTests/DaySummaryPolicyTests.swift
+  s_8821c3fb11800f::t_d5208d42270ca5 1-151
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_8821c3fb11800f::t_2e8ddc01861660 98-103
+Package.swift
+  s_8821c3fb11800f::t_b0f79220fd1687 40-41
+MeetingBarNG/Preferences/AppearanceTab.swift
+  s_8821c3fb11800f::t_d7fe67db9fc189 580-581,593-603
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_8821c3fb11800f::t_513dfdbb989bf8 113
+  s_8821c3fb11800f::t_ac5e17f4cedbe4 311-313
+MeetingBarNG/UI/StatusBar/DaySummaryGreeting.swift
+  s_8821c3fb11800f::t_6f5cb46a4ce8eb 1-124
+MeetingBarNG/UI/StatusBar/DaySummaryHeaderView.swift
+  s_8821c3fb11800f::t_b1932092f7b1f0 1-52
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_36bd58d216525d 139-151
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "4dcd48979562ded7cacbd712fe43b2fb6d5e0e9a",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
