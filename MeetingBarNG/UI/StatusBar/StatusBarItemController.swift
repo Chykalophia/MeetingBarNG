@@ -110,6 +110,7 @@ final class StatusBarItemController {
             .showTimelineInMenu, .hideFinishedEventsInMenu,
             .menuBarTokens, .menuBarCountdownStyle, .menuBarDateStyle,
             .menuBarProgressStyle, .menuBarWorldClockTimeZone, .menuBarWorldClockLabel,
+            .showGreetingInMenu, .greetingName,
             options: []
         )
         .receive(on: DispatchQueue.main)
@@ -307,6 +308,9 @@ final class StatusBarItemController {
         statusItemMenu.autoenablesItems = false
         statusItemMenu.removeAllItems()
 
+        if menuState.shouldShowGreetingHeader {
+            statusItemMenu.items += builder.buildGreetingHeaderSection()
+        }
         statusItemMenu.items += builder.buildTopSection()
 
         if menuState.hasSelectedCalendars {

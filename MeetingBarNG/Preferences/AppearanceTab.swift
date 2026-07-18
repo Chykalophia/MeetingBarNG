@@ -577,6 +577,8 @@ struct MenuSection: View {
     @Default(.showEventCalendarColor) var showEventCalendarColor
     @Default(.showTimelineInMenu) var showTimelineInMenu
     @Default(.hideFinishedEventsInMenu) var hideFinishedEventsInMenu
+    @Default(.showGreetingInMenu) var showGreetingInMenu
+    @Default(.greetingName) var greetingName
 
     var body: some View {
         Section(header: Text("preferences_appearance_menu_title".loco())) {
@@ -588,6 +590,17 @@ struct MenuSection: View {
                 preferenceLabel("preferences_appearance_menu_hide_finished_toggle"),
                 isOn: $hideFinishedEventsInMenu
             )
+            Toggle(
+                preferenceLabel("preferences_appearance_menu_show_greeting_toggle"),
+                isOn: $showGreetingInMenu
+            )
+            TextField(
+                preferenceLabel("preferences_appearance_menu_greeting_name_title"),
+                text: $greetingName,
+                prompt: Text("preferences_appearance_menu_greeting_name_placeholder".loco())
+            )
+            .preferenceIndent()
+            .disabled(!showGreetingInMenu)
         }
 
         Section(header: Text(preferenceLabel("preferences_appearance_menu_show_event_title"))) {

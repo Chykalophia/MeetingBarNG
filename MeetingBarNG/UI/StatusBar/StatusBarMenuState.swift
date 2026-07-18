@@ -69,6 +69,24 @@ struct StatusBarMenuState: Equatable {
     /// Whether the day-timeline bar should appear above the event list.
     var showTimeline: Bool = false
 
+    // MARK: - Day-summary greeting header
+
+    /// Structured summary for the greeting header (time-of-day, meeting count,
+    /// free minutes). `nil` when no snapshot is available.
+    var daySummary: DaySummary?
+
+    /// Resolved friendly first name for the greeting, or `nil` for a name-less one.
+    var greetingName: String?
+
+    /// Whether the greeting header should render (user preference).
+    var showGreetingHeader: Bool = false
+
+    /// The greeting header renders only when enabled, calendars are selected, and
+    /// a summary exists — so a disabled preference or empty state shows nothing.
+    var shouldShowGreetingHeader: Bool {
+        showGreetingHeader && hasSelectedCalendars && daySummary != nil
+    }
+
     /// The timeline represents the current day, so it is intentionally hidden
     /// when there are no events today even if the preference is enabled.
     var shouldShowTimeline: Bool {
@@ -158,6 +176,16 @@ extension StatusBarMenuState {
             health: providerHealth
         )
 
+        let daySummary = DaySummaryPolicy.summary(
+            input: DaySummaryInput(
+                now: now,
+                events: todayEvents.map {
+                    DaySummaryInterval(start: $0.startDate, end: $0.endDate, isAllDay: $0.isAllDay)
+                }
+            ),
+            calendar: Calendar.current
+        )
+
         return StatusBarMenuState(
             todayEvents: todayEvents,
             tomorrowEvents: tomorrowEvents,
@@ -176,10 +204,23 @@ extension StatusBarMenuState {
             hasSelectedCalendars: selectedCount > 0,
             hasMultipleSelectedCalendars: selectedCount > 1,
             showTimeline: settings.menu.showTimelineInMenu,
+            daySummary: daySummary,
+            greetingName: resolveGreetingName(),
+            showGreetingHeader: Defaults[.showGreetingInMenu],
             timeFormat: Defaults[.timeFormat],
             appMajorVersion: majorMinorVersion(Defaults[.appVersion]),
             lastRevisedMajorVersion: majorMinorVersion(Defaults[.lastRevisedVersionInChangelog])
         )
+    }
+
+    /// The name for the greeting: the user's override, else the first component
+    /// of `NSFullUserName()`, else `nil` (renders a name-less greeting). Empty or
+    /// whitespace-only values collapse to `nil`.
+    private static func resolveGreetingName() -> String? {
+        let override = Defaults[.greetingName].trimmingCharacters(in: .whitespacesAndNewlines)
+        let source = override.isEmpty ? NSFullUserName() : override
+        let firstName = source.split(whereSeparator: { $0.isWhitespace }).first.map(String.init) ?? ""
+        return firstName.isEmpty ? nil : firstName
     }
 
     /// Extracts the "major.minor" of a semantic version robustly (the old

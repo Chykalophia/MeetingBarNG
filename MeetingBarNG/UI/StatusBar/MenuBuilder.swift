@@ -33,6 +33,76 @@ struct MenuBuilder {
     var installationDate: Date?
     var now: Date = Date()
 
+    // MARK: Greeting header --------------------------------------------------
+
+    /// Non-clickable day-summary greeting rendered at the very top of the
+    /// dropdown (Dot parity). Returns `[]` unless a summary snapshot exists; the
+    /// controller additionally gates on `state.shouldShowGreetingHeader`.
+    func buildGreetingHeaderSection() -> [NSMenuItem] {
+        guard let summary = state.daySummary else { return [] }
+
+        let item = NSMenuItem()
+        let hosting = NSHostingView(
+            rootView: DaySummaryHeaderView(
+                greeting: greetingLine(summary.timeOfDay, name: state.greetingName),
+                summary: daySummaryLine(summary),
+                symbolName: greetingSymbolName(summary.timeOfDay)
+            )
+        )
+        hosting.frame = NSRect(
+            x: 0,
+            y: 0,
+            width: DaySummaryHeaderView.preferredWidth,
+            height: DaySummaryHeaderView.preferredHeight
+        )
+        hosting.autoresizingMask = [.width]
+        item.view = hosting
+        return [item, .separator()]
+    }
+
+    private func greetingLine(_ timeOfDay: GreetingTimeOfDay, name: String?) -> String {
+        let key: String
+        switch timeOfDay {
+        case .morning:
+            key = name == nil ? "menu_greeting_morning" : "menu_greeting_morning_named"
+        case .afternoon:
+            key = name == nil ? "menu_greeting_afternoon" : "menu_greeting_afternoon_named"
+        case .evening:
+            key = name == nil ? "menu_greeting_evening" : "menu_greeting_evening_named"
+        }
+        return name.map { key.loco($0) } ?? key.loco()
+    }
+
+    private func greetingSymbolName(_ timeOfDay: GreetingTimeOfDay) -> String {
+        switch timeOfDay {
+        case .morning: return "sunrise.fill"
+        case .afternoon: return "sun.max.fill"
+        case .evening: return "moon.stars.fill"
+        }
+    }
+
+    private func daySummaryLine(_ summary: DaySummary) -> String {
+        let countText: String
+        switch summary.eventCount {
+        case 0:
+            countText = "menu_day_summary_no_events".loco()
+        case 1:
+            countText = "menu_day_summary_event_count_one".loco(summary.eventCount)
+        default:
+            countText = "menu_day_summary_event_count_other".loco(summary.eventCount)
+        }
+        let freeText = "menu_day_summary_focus_time".loco(formattedFreeTime(summary.freeMinutes))
+        return "\(countText) · \(freeText)"
+    }
+
+    private func formattedFreeTime(_ minutes: Int) -> String {
+        let hours = minutes / 60
+        let mins = minutes % 60
+        if hours > 0, mins > 0 { return "\(hours)h \(mins)m" }
+        if hours > 0 { return "\(hours)h" }
+        return "\(mins)m"
+    }
+
     // MARK: Top section ------------------------------------------------------
 
     func buildTopSection() -> [NSMenuItem] {

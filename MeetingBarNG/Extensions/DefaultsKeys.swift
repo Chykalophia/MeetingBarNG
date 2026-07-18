@@ -95,6 +95,12 @@ extension Defaults.Keys {
         "menuBarWorldClockTimeZone", default: TimeZone.current.identifier)
     static let menuBarWorldClockLabel = Key<String>("menuBarWorldClockLabel", default: "")
 
+    // Day-summary greeting header (top of the dropdown). Name is optional —
+    // empty falls back to NSFullUserName() at the host boundary, then to a
+    // name-less greeting.
+    static let showGreetingInMenu = Key<Bool>("showGreetingInMenu", default: true)
+    static let greetingName = Key<String>("greetingName", default: "")
+
     // Menu Appearance
     static let showTimelineInMenu = Key<Bool>("showTimelineInMenu", default: true)
     // When on, the menu's day list starts at "now" (hides finished events).
