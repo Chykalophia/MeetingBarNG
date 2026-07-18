@@ -8,7 +8,7 @@ import OSLog
 
 enum MeetingBarLogger {
     private static let subsystem =
-        Bundle.main.bundleIdentifier ?? "leits.MeetingBar"
+        Bundle.main.bundleIdentifier ?? "com.chykalophia.MeetingBarNG"
 
     static let calendar = Logger(subsystem: subsystem, category: "calendar-provider")
     static let meetingOpening = Logger(subsystem: subsystem, category: "meeting-opening")
