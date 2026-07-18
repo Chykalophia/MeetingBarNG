@@ -11,7 +11,7 @@
 "general_one_minute_before" = "1 minútu predtým";
 "general_three_minute_before" = "3 minúty predtým";
 "general_five_minute_before" = "5 minút predtým";
-"window_title_onboarding" = "Víta Ťa MeetingBar";
+"window_title_onboarding" = "Víta Ťa MeetingBarNG";
 
 // MARK: - Preferences General
 
@@ -23,7 +23,7 @@
 // MARK: - Shared
 
 "shared_send_notification_toggle" = "Upozorniť systémovým hlásením";
-"shared_send_notification_disabled_tip" = "⚠️ Tvoje MacOS nastavenia hlásení pre MeetingBar sú vypnuté. Zapni upozornenia v Systémových nastaveniach macOS pre prehľad o stretnutiach.";
+"shared_send_notification_disabled_tip" = "⚠️ Tvoje MacOS nastavenia hlásení pre MeetingBarNG sú vypnuté. Zapni upozornenia v Systémových nastaveniach macOS pre prehľad o stretnutiach.";
 "shared_automatic_event_join_toggle" = "Automaticky sa pripojiť k ďalšiemu stretnutiu";
 "shared_send_notification_no_alert_style_tip" = "Poznámka: Upozornenia sú nastavené ako bannery, takže sa krátko zobrazia a potom zmiznú. Ak chcete, aby zostali na obrazovke, kým ich nezrušíte, prepnite v nastaveniach upozornení v systéme macOS na možnosť Upozornenia.";
 "next_meeting_empty_title" = "Dnes nie sú žiadne naplánované stretnutia";
@@ -81,8 +81,8 @@
 
 // MARK: - Window titles
 
-"window_title_preferences" = "MeetingBar Predvoľby";
-"windows_title_changelog" = "MeetingBar - Čo je nové";
+"window_title_preferences" = "MeetingBarNG Predvoľby";
+"windows_title_changelog" = "MeetingBarNG - Čo je nové";
 
 // MARK: - Preferences tabs
 
@@ -99,7 +99,7 @@
 "preferences_general_patron_three_months" = "3 mesiace - 2,99 USD";
 "preferences_general_patron_six_months" = "6 mesiacov - 5,99 USD";
 "preferences_general_patron_description" = "Ide o jednorazové nákupy a nebudú sa automaticky obnovovať.";
-"preferences_general_patron_thank_for_purchase" = "Vďaka! MeetingBar podporený na %d mesiace(ov) 🎉";
+"preferences_general_patron_thank_for_purchase" = "Vďaka! MeetingBarNG podporený na %d mesiace(ov) 🎉";
 "preferences_general_patron_restore_purchases" = "Obnovenie nákupov";
 
 // MARK: - Preferences Appearance
@@ -117,7 +117,7 @@
 "preferences_appearance_events_value_with_strikethrough" = "zobraziť s preškrtnutím";
 "preferences_appearance_status_bar_title" = "Lišta";
 "preferences_appearance_status_bar_icon_title" = "Ikona";
-"preferences_appearance_status_bar_icon_app_icon_value" = " . MeetingBar";
+"preferences_appearance_status_bar_icon_app_icon_value" = " . MeetingBarNG";
 "preferences_appearance_status_bar_icon_calendar_icon_value" = " Kalendár";
 "preferences_appearance_status_bar_icon_specific_icon_value" = " Ikona konkrétnej udalosti (napr. MS Teams)";
 "preferences_appearance_status_bar_icon_no_icon_value" = " Bez ikony";
@@ -184,9 +184,9 @@
 "status_bar_hide_meeting_names" = "Skryť názov stretnutia";
 "status_bar_whats_new" = "Čo je nové?";
 "status_bar_rate_app" = "Ohodnotiť aplikáciu";
-"status_bar_quit" = "Ukončiť MeetingBar";
+"status_bar_quit" = "Ukončiť MeetingBarNG";
 "shared_automatic_event_join_tip" = "Toto nastavenie automaticky otvorí nasledujúce stretnutie v nastavenej aplikácii alebo prehliadači";
-"preferences_general_meeting_bar_description" = "MeetingBar je open-source aplikácia\nvytvoril ju Andrii Leitsius 🇺🇦\nPre plynulejšie a jednoduchšie online stretnutia";
+"preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_services_create_meeting_custom_url_placeholder" = "Zadaj platnú URL adresu (s http:// alebo https://)";
 "preferences_services_create_meeting_custom_url_value" = "Vlastná URL adresa";
 
@@ -199,7 +199,7 @@
 "preferences_advanced_test_script_on_next_event" = "Vyskúšať pri nasledujúcej udalosti";
 "preferences_advanced_edit_script" = "Upraviť skript";
 "preferences_advanced_wrong_location_title" = "Nesprávne umiestnenie";
-"preferences_advanced_wrong_location_message" = "Vyber priečinok Užívateľ → Knižnica → Aplication Scripts → leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "Vyber priečinok Užívateľ → Knižnica → Aplication Scripts → com.chykalophia.MeetingBarNG";
 "preferences_advanced_wrong_location_button" = "Rozumiem!";
 "preferences_advanced_event_regex_title" = "Vlastné regexy na filtrovanie stretnutí";
 "preferences_advanced_regex_add_button" = "Pridať regex";
@@ -254,7 +254,7 @@
 
 // MARK: - Store
 
-"store_patronage_title" = "MeetingBar Podpora";
+"store_patronage_title" = "MeetingBarNG Podpora";
 "store_patronage_restore_success_message" = "Obnovené";
 "store_patronage_purchase_success_message" = "Nákup uskutočnený. Díky za tvoju podporu!";
 "store_patronage_purchase_unknown_message" = "Neznáma chyba. Kontaktuj prosím podporu.";
@@ -302,27 +302,27 @@
 "message_google_account_connected_title" = "Účet Google pripojený";
 "onboarding_apple_calendar_description" = "Číta kalendáre z aplikácie Kalendár na tomto Macu vrátane všetkých nakonfigurovaných účtov.";
 "onboarding_apple_calendar_title" = "Aplikácia Kalendár macOS";
-"onboarding_authorization_apple_description" = "Povoľte aplikácii MeetingBar čítať udalosti z aplikácie Kalendár na tomto Macu.";
-"onboarding_authorization_google_description" = "Dokončite prihlásenie Google v prehliadači a vráťte sa do MeetingBar.";
+"onboarding_authorization_apple_description" = "Povoľte aplikácii MeetingBarNG čítať udalosti z aplikácie Kalendár na tomto Macu.";
+"onboarding_authorization_google_description" = "Dokončite prihlásenie Google v prehliadači a vráťte sa do MeetingBarNG.";
 "onboarding_authorization_title" = "Overiť prístup ku kalendáru";
 "onboarding_authorization_waiting" = "Čaká sa na autorizáciu…";
-"onboarding_calendar_selection_description" = "Vyberte kalendáre, ktorých stretnutia sa majú zobrazovať v MeetingBar.";
+"onboarding_calendar_selection_description" = "Vyberte kalendáre, ktorých stretnutia sa majú zobrazovať v MeetingBarNG.";
 "onboarding_calendar_selection_empty" = "Nenašli sa žiadne kalendáre. Obnovte alebo skontrolujte svoje účty kalendára.";
 "onboarding_calendar_selection_permission" = "Je potrebné povolenie kalendára. Udeľte prístup v Systémových nastaveniach a obnovte.";
 "onboarding_calendar_selection_reconnect" = "Google Kalendár je potrebné znova pripojiť.";
 "onboarding_calendar_selection_title" = "Vybrať kalendáre";
-"onboarding_calendar_source_description" = "Vyberte, ako MeetingBar číta kalendárne dáta. Obe možnosti môžu zahŕňať kalendáre Google.";
+"onboarding_calendar_source_description" = "Vyberte, ako MeetingBarNG číta kalendárne dáta. Obe možnosti môžu zahŕňať kalendáre Google.";
 "onboarding_calendar_source_title" = "Vyberte zdroj kalendára";
 "onboarding_choose_different_source" = "Vybrať iný zdroj";
 "onboarding_continue" = "Pokračovať";
 "onboarding_done" = "Hotovo";
-"onboarding_google_calendar_description" = "Pripojí MeetingBar priamo ku Google Kalendáru bez použitia aplikácie Kalendár macOS.";
+"onboarding_google_calendar_description" = "Pripojí MeetingBarNG priamo ku Google Kalendáru bez použitia aplikácie Kalendár macOS.";
 "onboarding_google_calendar_title" = "Google Calendar API";
 "onboarding_progress" = "Krok %@ z %@";
 "onboarding_success_description" = "Vaše ďalšie stretnutie sa zobrazí v paneli s ponukami.";
 "onboarding_success_title" = "Ste pripravený";
-"onboarding_welcome_description" = "MeetingBar vám pomáha vidieť a pripojiť sa k vášmu ďalšiemu stretnutiu priamo z panela s ponukami.";
-"onboarding_welcome_title" = "Vitajte v MeetingBar";
+"onboarding_welcome_description" = "MeetingBarNG vám pomáha vidieť a pripojiť sa k vášmu ďalšiemu stretnutiu priamo z panela s ponukami.";
+"onboarding_welcome_title" = "Vitajte v MeetingBarNG";
 "preferences_advanced_regex_duplicate_error" = "Tento regulárny výraz už existuje.";
 "preferences_advanced_regex_test_button" = "Testovať regex";
 "preferences_advanced_regex_test_match" = "Zhoda: %@";

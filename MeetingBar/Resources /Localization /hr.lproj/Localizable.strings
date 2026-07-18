@@ -1,6 +1,6 @@
 /* 
   Localizable.strings
-  MeetingBar
+  MeetingBarNG
 
   Copyright © 2021 Andrii Leitsius. All rights reserved.
 */
@@ -19,9 +19,9 @@
 
 // MARK: - Window titles
 
-"window_title_preferences" = "MeetingBar postavke";
-"window_title_onboarding" = "MeetingBar dobrodošlica";
-"windows_title_changelog" = "MeetingBar – novosti";
+"window_title_preferences" = "MeetingBarNG postavke";
+"window_title_onboarding" = "MeetingBarNG dobrodošlica";
+"windows_title_changelog" = "MeetingBarNG – novosti";
 
 // MARK: - Preferences tabs
 
@@ -40,14 +40,14 @@
 "preferences_general_shortcut_join_next" = "Pridruži se sljedećem sastanku:";
 "preferences_general_shortcut_join_from_clipboard" = "Pridruži se sastanku iz međuspremnika:";
 "preferences_general_shortcut_toggle_meeting_name_visibility" = "Uključi/isključi prikaz naslova u traci stanja:";
-"preferences_general_meeting_bar_description" = "MeetingBar je program otvorenog koda\na autor programa je Andrii Leitsius 🇺🇦\nZa jednostavnije održavanje sastanaka online";
+"preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_general_external_contact" = "Kontakt";
 "preferences_general_patron_title" = "Postani pokrovitelj";
 "preferences_general_patron_three_months" = "3 mjeseca – 2,99 USD";
 "preferences_general_patron_six_months" = "6 mjeseci – 5,99 USD";
 "preferences_general_patron_twelve_months" = "12 mjeseci – 11,99 USD";
 "preferences_general_patron_description" = "Ovo su jednokratne kupnje i neće se automatski obnavljati.";
-"preferences_general_patron_thank_for_purchase" = "Hvala! Podržavaš MeetingBar %d mjeseca/i. 🎉";
+"preferences_general_patron_thank_for_purchase" = "Hvala! Podržavaš MeetingBarNG %d mjeseca/i. 🎉";
 "preferences_general_patron_restore_purchases" = "Obnovi kupnje";
 
 // MARK: - Preferences Appearance
@@ -70,7 +70,7 @@
 "preferences_appearance_events_value_only_with_link" = "prikaži samo one s poveznicama na sastanak";
 "preferences_appearance_status_bar_title" = "Traka stanja";
 "preferences_appearance_status_bar_icon_title" = "Ikona";
-"preferences_appearance_status_bar_icon_app_icon_value" = " MeetingBar";
+"preferences_appearance_status_bar_icon_app_icon_value" = " MeetingBarNG";
 "preferences_appearance_status_bar_icon_calendar_icon_value" = " Kalendar";
 "preferences_appearance_status_bar_icon_specific_icon_value" = " Ikona određenog događaja (npr. MS Teams)";
 "preferences_appearance_status_bar_icon_no_icon_value" = " Bez ikone";
@@ -152,7 +152,7 @@
 "preferences_advanced_edit_script" = "Uredi skripta";
 "preferences_advanced_save_script_button" = "Spremi skripta";
 "preferences_advanced_wrong_location_title" = "Krivo mjesto";
-"preferences_advanced_wrong_location_message" = "Odaberi mapu Korisnici → Medijateka → Application Scripts → leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "Odaberi mapu Korisnici → Medijateka → Application Scripts → com.chykalophia.MeetingBarNG";
 "preferences_advanced_wrong_location_button" = "Razumijem!";
 "preferences_advanced_regex_title" = "Prilagođen regularni izrazi za poveznicu sastanka";
 "preferences_advanced_regex_add_button" = "Dodaj regularni izraz";
@@ -201,7 +201,7 @@
 "status_bar_whats_new" = "Što je novoga?";
 "status_bar_rate_app" = "Ocijeni program";
 "status_bar_preferences" = "Postavke";
-"status_bar_quit" = "Zatvori MeetingBar";
+"status_bar_quit" = "Zatvori MeetingBarNG";
 "status_bar_no_title" = "Bez naslova";
 "status_bar_event_status_now" = "sada (%@ preostalo)";
 "status_bar_event_status_in" = "za %@";
@@ -233,7 +233,7 @@
 "general_three_minute_before" = "3 minute prije";
 "general_five_minute_before" = "5 minuta prije";
 "shared_send_notification_no_alert_style_tip" = "Napomena: Obavijesti su postavljene na „Baneri” koje se kratko prikazuju prije nego nestanu. Ako ih želiš zadržati na ekranu sve dok ih ne ukloniš, promijeni opcije u postavci „Obavijesti” na macOS-u.";
-"shared_send_notification_disabled_tip" = "⚠️ Tvoje macOS postavke obavještavanja za MeetingBar su trenutačno isključene. Za praćenje sastanaka uključi obavijesti u postavkama macOS sustava.";
+"shared_send_notification_disabled_tip" = "⚠️ Tvoje macOS postavke obavještavanja za MeetingBarNG su trenutačno isključene. Za praćenje sastanaka uključi obavijesti u postavkama macOS sustava.";
 "shared_automatic_event_join_toggle" = "Automatski se pridruži sljedećem sastanku";
 "shared_automatic_event_join_tip" = "Ova postavka automatski otvara tvoj sljedeći sastanak u konfiguriranon programu ili pregledniku";
 
@@ -246,7 +246,7 @@
 
 // MARK: - Store
 
-"store_patronage_title" = "MeetingBar pokroviteljstvo";
+"store_patronage_title" = "MeetingBarNG pokroviteljstvo";
 "store_patronage_restore_success_message" = "Obnovljeno";
 "store_patronage_restore_nothing_message" = "Nema se što obnoviti";
 "store_patronage_purchase_success_message" = "Kupnja obavljena. Hvala ti na podršci!";
@@ -306,27 +306,27 @@
 "message_google_account_connected_title" = "Google račun je povezan";
 "onboarding_apple_calendar_description" = "Čita kalendare iz aplikacije Kalendar na ovom Macu, uključujući sve konfigurirane račune.";
 "onboarding_apple_calendar_title" = "macOS aplikacija Kalendar";
-"onboarding_authorization_apple_description" = "Dopustite MeetingBar-u čitanje događaja iz aplikacije Kalendar na ovom Macu.";
-"onboarding_authorization_google_description" = "Dovršite Google prijavu u pregledniku, zatim se vratite u MeetingBar.";
+"onboarding_authorization_apple_description" = "Dopustite MeetingBarNG-u čitanje događaja iz aplikacije Kalendar na ovom Macu.";
+"onboarding_authorization_google_description" = "Dovršite Google prijavu u pregledniku, zatim se vratite u MeetingBarNG.";
 "onboarding_authorization_title" = "Provjeri pristup kalendaru";
 "onboarding_authorization_waiting" = "Čeka se autorizacija…";
-"onboarding_calendar_selection_description" = "Odaberite kalendare čiji sastanci trebaju biti prikazani u MeetingBar-u.";
+"onboarding_calendar_selection_description" = "Odaberite kalendare čiji sastanci trebaju biti prikazani u MeetingBarNG-u.";
 "onboarding_calendar_selection_empty" = "Nisu pronađeni kalendari. Osvježite ili provjerite račune kalendara.";
 "onboarding_calendar_selection_permission" = "Potrebno je dopuštenje za kalendar. Dodijelite pristup u Postavkama sustava, zatim osvježite.";
 "onboarding_calendar_selection_reconnect" = "Google Kalendar treba biti ponovo povezan.";
 "onboarding_calendar_selection_title" = "Odaberi kalendare";
-"onboarding_calendar_source_description" = "Odaberite kako MeetingBar čita podatke kalendara. Obje opcije mogu uključivati Google kalendare.";
+"onboarding_calendar_source_description" = "Odaberite kako MeetingBarNG čita podatke kalendara. Obje opcije mogu uključivati Google kalendare.";
 "onboarding_calendar_source_title" = "Odaberite izvor kalendara";
 "onboarding_choose_different_source" = "Odaberi drugi izvor";
 "onboarding_continue" = "Nastavi";
 "onboarding_done" = "Gotovo";
-"onboarding_google_calendar_description" = "Povezuje MeetingBar izravno s Google Kalendarom bez korištenja macOS aplikacije Kalendar.";
+"onboarding_google_calendar_description" = "Povezuje MeetingBarNG izravno s Google Kalendarom bez korištenja macOS aplikacije Kalendar.";
 "onboarding_google_calendar_title" = "Google Calendar API";
 "onboarding_progress" = "Korak %@ od %@";
 "onboarding_success_description" = "Sljedeći sastanak pojavit će se u traci izbornika.";
 "onboarding_success_title" = "Spremni ste";
-"onboarding_welcome_description" = "MeetingBar vam pomaže vidjeti i pridružiti se sljedećem sastanku izravno iz trake izbornika.";
-"onboarding_welcome_title" = "Dobrodošli u MeetingBar";
+"onboarding_welcome_description" = "MeetingBarNG vam pomaže vidjeti i pridružiti se sljedećem sastanku izravno iz trake izbornika.";
+"onboarding_welcome_title" = "Dobrodošli u MeetingBarNG";
 "preferences_advanced_regex_duplicate_error" = "Ovaj regularni izraz već postoji.";
 "preferences_advanced_regex_test_button" = "Testiraj regex";
 "preferences_advanced_regex_test_match" = "Pronađeno %@";

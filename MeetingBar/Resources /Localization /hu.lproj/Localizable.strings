@@ -12,7 +12,7 @@
 "general_five_minute_before" = "5 perccel előtte";
 "create_meeting_error_title" = "Nem lehet új megbeszélést létrehozni!";
 "next_meeting_empty_title" = "Nincs jövőbeli megbeszélés a mai napra!";
-"window_title_onboarding" = "Üdvözli a MeetingBar";
+"window_title_onboarding" = "Üdvözli a MeetingBarNG";
 
 // MARK: - Preferences tabs
 
@@ -84,7 +84,7 @@
 "preferences_general_shortcut_join_next" = "Csatlakozás a következő találkozóhoz:";
 "preferences_general_patron_twelve_months" = "12 hónap - 11,99 USD";
 "preferences_general_patron_description" = "Ezek egyszeri vásárlások, nem újulnak meg maguktól.";
-"preferences_general_patron_thank_for_purchase" = "Köszi! Támogattad a MeetingBar-t %d hónapig 🎉";
+"preferences_general_patron_thank_for_purchase" = "Köszi! Támogattad a MeetingBarNG-t %d hónapig 🎉";
 "preferences_general_patron_restore_purchases" = "Vásárlások visszaállítása";
 "preferences_appearance_events_title" = "Események";
 "preferences_appearance_events_show_events_for_today_value" = "ma";
@@ -102,12 +102,12 @@
 "preferences_bookmarks_new_bookmark_service" = "Szolgáltatás";
 "preferences_bookmarks_new_bookmark_error_title" = "Nem adhat hozzá könyvjelzőt";
 "preferences_calendars_select_calendars_title" = "Válasz ki a naptárakat, hogy megmutassa az eseményeket az állapotsávban";
-"preferences_advanced_wrong_location_message" = "Kérjük, válassza ki a Felhasználó → Könyvtár → Alkalmazás Scriptek → leits.MeetingBar mappa";
-"window_title_preferences" = "MeetingBar Preferenciák";
+"preferences_advanced_wrong_location_message" = "Kérjük, válassza ki a Felhasználó → Könyvtár → Alkalmazás Scriptek → com.chykalophia.MeetingBarNG mappa";
+"window_title_preferences" = "MeetingBarNG Preferenciák";
 "preferences_configure_browsers_modal_add_browser_name" = "Név";
 "preferences_general_shortcut_join_from_clipboard" = "Csatlakozás a találkozóhoz vágólapról:";
 "preferences_advanced_setting_warning" = "⚠️ Csak akkor használd ezeket a beállításokat, ha érted amit csinálnak";
-"preferences_general_meeting_bar_description" = "A MeetingBar egy nyílt forráskódú alkalmazás\nAndrii Leitsius🇺🇦 által létrehozott\nA simább és könnyebb online találkozókért";
+"preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_appearance_status_bar_time_title" = "Idő";
 "preferences_configure_browsers_modal_add_browser_title" = "Webböngésző hozzáadása";
 "preferences_appearance_status_bar_title_event_title_value" = "esemény címe";
@@ -176,27 +176,27 @@
 "notifications_snooze_until_start" = "Szundi a kezdési időpontig";
 "onboarding_apple_calendar_description" = "A Mac gép Naptár alkalmazásából olvassa be a naptárakat, beleértve minden ott beállított fiókot.";
 "onboarding_apple_calendar_title" = "macOS Naptár alkalmazás";
-"onboarding_authorization_apple_description" = "Engedélyezze a MeetingBar számára az események olvasását a Mac gép Naptár alkalmazásából.";
-"onboarding_authorization_google_description" = "Fejezze be a Google-bejelentkezést a böngészőjében, majd térjen vissza a MeetingBar-hoz.";
+"onboarding_authorization_apple_description" = "Engedélyezze a MeetingBarNG számára az események olvasását a Mac gép Naptár alkalmazásából.";
+"onboarding_authorization_google_description" = "Fejezze be a Google-bejelentkezést a böngészőjében, majd térjen vissza a MeetingBarNG-hoz.";
 "onboarding_authorization_title" = "Naptár-hozzáférés ellenőrzése";
 "onboarding_authorization_waiting" = "Engedélyezésre vár…";
-"onboarding_calendar_selection_description" = "Válassza ki azokat a naptárakat, amelyek értekezletei megjelenjenek a MeetingBar-ban.";
+"onboarding_calendar_selection_description" = "Válassza ki azokat a naptárakat, amelyek értekezletei megjelenjenek a MeetingBarNG-ban.";
 "onboarding_calendar_selection_empty" = "Nem található naptár. Frissítsen, vagy ellenőrizze naptárfiókjait.";
 "onboarding_calendar_selection_permission" = "Naptárengedély szükséges. Adjon hozzáférést a Rendszerbeállításokban, majd frissítsen.";
 "onboarding_calendar_selection_reconnect" = "A Google Naptárat újra kell csatlakoztatni.";
 "onboarding_calendar_selection_title" = "Naptárak kiválasztása";
-"onboarding_calendar_source_description" = "Válassza ki, hogyan olvassa a MeetingBar a naptáradatokat. Mindkét lehetőség tartalmazhat Google-naptárakat.";
+"onboarding_calendar_source_description" = "Válassza ki, hogyan olvassa a MeetingBarNG a naptáradatokat. Mindkét lehetőség tartalmazhat Google-naptárakat.";
 "onboarding_calendar_source_title" = "Válassza ki a naptárforrást";
 "onboarding_choose_different_source" = "Másik forrás kiválasztása";
 "onboarding_continue" = "Folytatás";
 "onboarding_done" = "Kész";
-"onboarding_google_calendar_description" = "Közvetlenül csatlakoztatja a MeetingBar-t a Google Naptárhoz a macOS Naptár alkalmazás nélkül.";
+"onboarding_google_calendar_description" = "Közvetlenül csatlakoztatja a MeetingBarNG-t a Google Naptárhoz a macOS Naptár alkalmazás nélkül.";
 "onboarding_google_calendar_title" = "Google Calendar API";
 "onboarding_progress" = "%@. lépés / %@";
 "onboarding_success_description" = "A következő értekezlet megjelenik a menüsorban.";
 "onboarding_success_title" = "Készen áll";
-"onboarding_welcome_description" = "A MeetingBar segítségével közvetlenül a menüsorból láthatja és csatlakozhat a következő értekezletéhez.";
-"onboarding_welcome_title" = "Üdvözöljük a MeetingBar-ban";
+"onboarding_welcome_description" = "A MeetingBarNG segítségével közvetlenül a menüsorból láthatja és csatlakozhat a következő értekezletéhez.";
+"onboarding_welcome_title" = "Üdvözöljük a MeetingBarNG-ban";
 "preferences_advanced_apple_script_placeholder" = "# írja ide a szkriptet\ntell application \"Music\" to pause";
 "preferences_advanced_event_regex_title" = "Egyéni reguláris kifejezések az értekezletek szűréséhez";
 "preferences_advanced_regex_add_button" = "Regex hozzáadása";
@@ -214,7 +214,7 @@
 "preferences_appearance_events_value_only_with_link" = "csak értekezlet-hivatkozással rendelkezők megjelenítése";
 "preferences_appearance_events_value_with_strikethrough" = "megjelenítés áthúzással";
 "preferences_appearance_menu_show_timeline_toggle" = "Nap vizuális idővonalának megjelenítése";
-"preferences_appearance_status_bar_icon_app_icon_value" = "\U00A0MeetingBar";
+"preferences_appearance_status_bar_icon_app_icon_value" = "\U00A0MeetingBarNG";
 "preferences_appearance_status_bar_ongoing_time_immediate_value" = "elrejtés a kezdés után";
 "preferences_appearance_status_bar_ongoing_time_ten_after_value" = "elrejtés 10 perccel a kezdés után";
 "preferences_appearance_status_bar_ongoing_time_ten_before_next_value" = "elrejtés 10 perccel a következő esemény előtt";
@@ -265,7 +265,7 @@
 "shared_fullscreen_notification_toggle" = "Teljes képernyős értesítés megjelenítése";
 "shared_fullscreen_notification_without_link_help" = "Az értekezlet-hivatkozás nélküli események teljes képernyős emlékeztetőt mutatnak, csak az Elvet művelettel.";
 "shared_fullscreen_notification_without_link_toggle" = "Teljes képernyős értesítés megjelenítése értekezlet-hivatkozás nélküli eseményekhez is";
-"shared_send_notification_disabled_tip" = "⚠️ A MeetingBar macOS értesítési beállításai ki vannak kapcsolva. Kapcsolja be az értesítéseket a macOS rendszerbeállításokban az értekezletek nyomon követéséhez.";
+"shared_send_notification_disabled_tip" = "⚠️ A MeetingBarNG macOS értesítési beállításai ki vannak kapcsolva. Kapcsolja be az értesítéseket a macOS rendszerbeállításokban az értekezletek nyomon követéséhez.";
 "shared_send_notification_no_alert_style_tip" = "Megjegyzés: Az értesítések Banner módra vannak beállítva, így rövid időre jelennek meg, majd eltűnnek. Ha azt szeretné, hogy az értesítések mindaddig a képernyőn maradjanak, amíg el nem veti azokat, váltson Riasztásokra a macOS értesítési beállításaiban.";
 "shared_send_notification_toggle" = "Rendszerértesítés küldése";
 "status_bar_control_actions" = "További műveletek";
@@ -295,7 +295,7 @@
 "status_bar_no_title" = "Nincs cím";
 "status_bar_preferences" = "Beállítások";
 "status_bar_quick_actions" = "Gyors műveletek";
-"status_bar_quit" = "MeetingBar bezárása";
+"status_bar_quit" = "MeetingBarNG bezárása";
 "status_bar_rate_app" = "Alkalmazás értékelése";
 "status_bar_section_bookmarks_menu" = "Könyvjelzők menü";
 "status_bar_section_bookmarks_title" = "Könyvjelzők";
@@ -336,9 +336,9 @@
 "store_patronage_purchase_unknown_message" = "Ismeretlen hiba. Kérjük, vegye fel a kapcsolatot az ügyfélszolgálattal.";
 "store_patronage_restore_nothing_message" = "Nincs visszaállítandó elem";
 "store_patronage_restore_success_message" = "Visszaállítva";
-"store_patronage_title" = "MeetingBar Patronázs";
+"store_patronage_title" = "MeetingBarNG Patronázs";
 "timeline_accessibility_label" = "Idővonal %d eseménnyel";
-"windows_title_changelog" = "MeetingBar – Mi újság?";
+"windows_title_changelog" = "MeetingBarNG – Mi újság?";
 "preferences_advanced_script_link_only_help" = "Csak értekezlet-hivatkozással rendelkező eseményeknél fut.";
 "preferences_sidebar_experience" = "Élmény";
 "preferences_sidebar_setup" = "Beállítás";

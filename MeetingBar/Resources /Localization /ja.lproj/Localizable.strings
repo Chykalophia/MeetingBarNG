@@ -1,6 +1,6 @@
 /*
   Localizable.strings
-  MeetingBar
+  MeetingBarNG
 
   Created by Mitsukuni Sato on 29.07.2021.
   Copyright © 2021 Andrii Leitsius. All rights reserved.
@@ -21,9 +21,9 @@
 // MARK: - Window titles
 
 
-"window_title_preferences" = "MeetingBar の設定";
-"window_title_onboarding" = "MeetingBar へようこそ";
-"windows_title_changelog" = "MeetingBar - 新機能";
+"window_title_preferences" = "MeetingBarNG の設定";
+"window_title_onboarding" = "MeetingBarNG へようこそ";
+"windows_title_changelog" = "MeetingBarNG - 新機能";
 
 // MARK: - Preferences tabs
 
@@ -44,14 +44,14 @@
 "preferences_general_shortcut_join_next" = "次のミーティングに参加:";
 "preferences_general_shortcut_join_from_clipboard" = "クリップボードからミーティングに参加:";
 "preferences_general_shortcut_toggle_meeting_name_visibility" = "ステータスバーのタイトル表示をトグルする:";
-"preferences_general_meeting_bar_description" = "MeetingBar は Andrii Leitsius 🇺🇦 によって開発されたオープンソースアプリケーションです。\nオンラインミーティングをスムーズで簡単にします。";
+"preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_general_external_contact" = "お問い合わせ";
 "preferences_general_patron_title" = "パトロンになる";
 "preferences_general_patron_three_months" = "3ヶ月 - 2.99 USD";
 "preferences_general_patron_six_months" = "6ヶ月 - 5.99 USD";
 "preferences_general_patron_twelve_months" = "12ヶ月 - 11.99 USD";
 "preferences_general_patron_description" = "これらは一回限りの購入で、自動更新されません。";
-"preferences_general_patron_thank_for_purchase" = "ありがとう！MeetingBar をサポートしてくれて %d か月になりました！🎉";
+"preferences_general_patron_thank_for_purchase" = "ありがとう！MeetingBarNG をサポートしてくれて %d か月になりました！🎉";
 "preferences_general_patron_restore_purchases" = "購入の復元";
 
 // MARK: - Preferences Appearance
@@ -75,7 +75,7 @@
 "preferences_appearance_events_value_only_with_link" = "リンクのあるイベントのみ表示";
 "preferences_appearance_status_bar_title" = "ステータスバー";
 "preferences_appearance_status_bar_icon_title" = "アイコン";
-"preferences_appearance_status_bar_icon_app_icon_value" = " MeetingBar";
+"preferences_appearance_status_bar_icon_app_icon_value" = " MeetingBarNG";
 "preferences_appearance_status_bar_icon_calendar_icon_value" = " カレンダー";
 "preferences_appearance_status_bar_icon_specific_icon_value" = " ミーティング固有のアイコン (MS Teamsなど)";
 "preferences_appearance_status_bar_icon_no_icon_value" = " アイコンなし";
@@ -162,7 +162,7 @@
 "preferences_advanced_edit_script" = "スクリプトを編集";
 "preferences_advanced_save_script_button" = "保存";
 "preferences_advanced_wrong_location_title" = "場所が誤っています";
-"preferences_advanced_wrong_location_message" = "User > Library → Application Scripts → leits.MeetingBar フォルダを選択してください";
+"preferences_advanced_wrong_location_message" = "User > Library → Application Scripts → com.chykalophia.MeetingBarNG フォルダを選択してください";
 "preferences_advanced_wrong_location_button" = "了解！";
 "preferences_advanced_regex_title" = "ミーティングリンク用のカスタム正規表現";
 "preferences_advanced_regex_add_button" = "正規表現を追加";
@@ -212,7 +212,7 @@
 "status_bar_whats_new" = "お知らせ";
 "status_bar_rate_app" = "アプリを評価する";
 "status_bar_preferences" = "設定";
-"status_bar_quit" = "MeetingBar を終了";
+"status_bar_quit" = "MeetingBarNG を終了";
 "status_bar_no_title" = "タイトルなし";
 "status_bar_event_status_now" = "現在 (残り %@)";
 "status_bar_event_status_in" = "まで%@";
@@ -245,8 +245,8 @@
 "general_one_minute_before" = "1分前";
 "general_three_minute_before" = "3分前";
 "general_five_minute_before" = "5分前";
-"shared_send_notification_no_alert_style_tip" = "⚠️ MeetingBar の macOS の通知設定は、通知パネルに設定されていません。持続的な通知を利用する場合は、通知パネルに設定してください。";
-"shared_send_notification_disabled_tip" = "⚠️ MeetingBar の macOS の通知設定が現在オフになっています。ミーティングを見逃さないために、 macOS のシステム設定で通知を有効にしてください。";
+"shared_send_notification_no_alert_style_tip" = "⚠️ MeetingBarNG の macOS の通知設定は、通知パネルに設定されていません。持続的な通知を利用する場合は、通知パネルに設定してください。";
+"shared_send_notification_disabled_tip" = "⚠️ MeetingBarNG の macOS の通知設定が現在オフになっています。ミーティングを見逃さないために、 macOS のシステム設定で通知を有効にしてください。";
 "shared_automatic_event_join_toggle" = "自動的に次のイベントを開く";
 "shared_automatic_event_join_tip" = "設定したアプリやブラウザで次のイベントを自動的に開きます。";
 
@@ -260,7 +260,7 @@
 // MARK: - Store
 
 
-"store_patronage_title" = "MeetingBar のパトロンになる";
+"store_patronage_title" = "MeetingBarNG のパトロンになる";
 "store_patronage_restore_success_message" = "復元しました";
 "store_patronage_restore_nothing_message" = "復元する内容がありません";
 "store_patronage_purchase_success_message" = "購入しました。あなたのサポートに感謝します！";
@@ -315,27 +315,27 @@
 "message_google_account_connected_title" = "Googleアカウントが接続されました";
 "onboarding_apple_calendar_description" = "このMacのカレンダーアプリからカレンダーを読み取ります。設定済みのすべてのアカウントが含まれます。";
 "onboarding_apple_calendar_title" = "macOSカレンダーアプリ";
-"onboarding_authorization_apple_description" = "MeetingBarがこのMacのカレンダーアプリからイベントを読み取ることを許可してください。";
-"onboarding_authorization_google_description" = "ブラウザでGoogleサインインを完了してから、MeetingBarに戻ってください。";
+"onboarding_authorization_apple_description" = "MeetingBarNGがこのMacのカレンダーアプリからイベントを読み取ることを許可してください。";
+"onboarding_authorization_google_description" = "ブラウザでGoogleサインインを完了してから、MeetingBarNGに戻ってください。";
 "onboarding_authorization_title" = "カレンダーアクセスを確認";
 "onboarding_authorization_waiting" = "認証を待っています…";
-"onboarding_calendar_selection_description" = "MeetingBarに表示するミーティングのカレンダーを選択してください。";
+"onboarding_calendar_selection_description" = "MeetingBarNGに表示するミーティングのカレンダーを選択してください。";
 "onboarding_calendar_selection_empty" = "カレンダーが見つかりません。更新するかカレンダーアカウントを確認してください。";
 "onboarding_calendar_selection_permission" = "カレンダーの許可が必要です。システム設定でアクセスを許可してから更新してください。";
 "onboarding_calendar_selection_reconnect" = "Google カレンダーを再接続する必要があります。";
 "onboarding_calendar_selection_title" = "カレンダーを選択";
-"onboarding_calendar_source_description" = "MeetingBarがカレンダーデータを読み取る方法を選択してください。どちらのオプションもGoogleカレンダーを含めることができます。";
+"onboarding_calendar_source_description" = "MeetingBarNGがカレンダーデータを読み取る方法を選択してください。どちらのオプションもGoogleカレンダーを含めることができます。";
 "onboarding_calendar_source_title" = "カレンダーソースを選択";
 "onboarding_choose_different_source" = "別のソースを選択";
 "onboarding_continue" = "続ける";
 "onboarding_done" = "完了";
-"onboarding_google_calendar_description" = "macOSカレンダーアプリを使わずに、MeetingBarをGoogle カレンダーに直接接続します。";
+"onboarding_google_calendar_description" = "macOSカレンダーアプリを使わずに、MeetingBarNGをGoogle カレンダーに直接接続します。";
 "onboarding_google_calendar_title" = "Google Calendar API";
 "onboarding_progress" = "ステップ %@ / %@";
 "onboarding_success_description" = "次のミーティングがメニューバーに表示されます。";
 "onboarding_success_title" = "準備完了";
-"onboarding_welcome_description" = "MeetingBarは次のミーティングをメニューバーから直接確認・参加するのに役立ちます。";
-"onboarding_welcome_title" = "MeetingBarへようこそ";
+"onboarding_welcome_description" = "MeetingBarNGは次のミーティングをメニューバーから直接確認・参加するのに役立ちます。";
+"onboarding_welcome_title" = "MeetingBarNGへようこそ";
 "preferences_advanced_regex_duplicate_error" = "この正規表現はすでに存在します。";
 "preferences_advanced_regex_test_button" = "正規表現をテスト";
 "preferences_advanced_regex_test_match" = "%@ が一致しました";

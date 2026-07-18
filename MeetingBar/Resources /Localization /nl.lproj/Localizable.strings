@@ -8,9 +8,9 @@
 
 // MARK: - Window titles
 
-"window_title_preferences" = "MeetingBar instellingen";
-"window_title_onboarding" = "Welkom bij MeetingBar";
-"windows_title_changelog" = "MeetingBar – Wat is er nieuw";
+"window_title_preferences" = "MeetingBarNG instellingen";
+"window_title_onboarding" = "Welkom bij MeetingBarNG";
+"windows_title_changelog" = "MeetingBarNG – Wat is er nieuw";
 "preferences_tab_bookmarks" = "Bladwijzers";
 "preferences_tab_calendars" = "Agenda's";
 "preferences_tab_advanced" = "Geavanceerd";
@@ -67,9 +67,9 @@
 
 "preferences_tab_general" = "Algemeen";
 "preferences_general_shortcut_toggle_meeting_name_visibility" = "Schakel de zichtbaarheid van titels in de statusbalk:";
-"preferences_general_meeting_bar_description" = "MeetingBar is een open-source app\nGemaakt door Andrii Leitsius 🇺🇦\nVoor sneller en makkelijker online meetings";
+"preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_general_patron_title" = "Word een sponsor";
-"preferences_general_patron_thank_for_purchase" = "Bedankt! Je hebt MeetingBar gesteund voor % van de maanden";
+"preferences_general_patron_thank_for_purchase" = "Bedankt! Je hebt MeetingBarNG gesteund voor % van de maanden";
 "preferences_general_patron_restore_purchases" = "Aankopen herstellen";
 "preferences_appearance_events_show_events_for_today_tomorrow_value" = "vandaag en morgen";
 "preferences_appearance_events_show_events_for_today_value" = "vandaag";
@@ -97,7 +97,7 @@
 "preferences_appearance_events_declined_title" = "Afgewezen meetings:";
 "preferences_appearance_status_bar_next_event_toggle" = "Toon alleen meetings die beginnen binnen";
 "preferences_general_external_contact" = "Contact";
-"preferences_appearance_status_bar_icon_app_icon_value" = " MeetingBar";
+"preferences_appearance_status_bar_icon_app_icon_value" = " MeetingBarNG";
 "preferences_appearance_menu_title" = "Menu";
 "preferences_services_link_service_title" = "Open %@ links in";
 "preferences_services_create_meeting_title" = "Maak meetings met";
@@ -142,7 +142,7 @@
 "preferences_advanced_edit_script" = "Script bewerken";
 "preferences_advanced_save_script_button" = "Bewaar script";
 "preferences_advanced_wrong_location_title" = "Verkeerde locatie";
-"preferences_advanced_wrong_location_message" = "Kies alsjeblieft de Gebruiker → Bibliotheek → Application Scripts → leits.MeetingBar map";
+"preferences_advanced_wrong_location_message" = "Kies alsjeblieft de Gebruiker → Bibliotheek → Application Scripts → com.chykalophia.MeetingBarNG map";
 "preferences_advanced_event_regex_title" = "Aangepaste regexes om meeting uit te filteren";
 "preferences_advanced_regex_title" = "Aangepaste regexes voor meetinglink";
 "preferences_advanced_regex_add_button" = "Regex toevoegen";
@@ -253,7 +253,7 @@
 
 // MARK: - Store
 
-"store_patronage_title" = "MeetingBar sponsoring";
+"store_patronage_title" = "MeetingBarNG sponsoring";
 "store_patronage_restore_success_message" = "Hersteld";
 "store_patronage_purchase_store_product_not_available_message" = "Het product is niet beschikbaar in de huidige winkel";
 
@@ -264,7 +264,7 @@
 "link_url_cant_open_message" = "Zorg ervoor dat %@ is geïnstalleerd, of open dergelijke links in een webbrowser vanuit de voorkeuren.";
 "status_bar_submenu_location_title" = "Plaats:";
 "status_bar_submenu_attendees_no_name" = "Anonieme deelnemer";
-"status_bar_quit" = "Stop MeetingBar";
+"status_bar_quit" = "Stop MeetingBarNG";
 "status_bar_submenu_email_attendees" = "E-mail deelnemers";
 "status_bar_submenu_undismiss_meeting" = "Verwijder afwijzingen";
 "status_bar_submenu_copy_meeting_link" = "Meetinglink kopiëren";
@@ -278,7 +278,7 @@
 "status_bar_error_apple_script_title" = "AppleScrift fout";
 "status_bar_event_status_in" = "in %@";
 "access_screen_provider_gcalendar_data_source" = "Ontvang gegevens rechtstreeks uit Google Calendar";
-"shared_send_notification_disabled_tip" = "⚠️ Je macOS meldingsinstellingen voor MeetingBar zijn uitgeschakeld. Schakel meldingen in de macOS systeeminstellingen in om meetings bij te houden.";
+"shared_send_notification_disabled_tip" = "⚠️ Je macOS meldingsinstellingen voor MeetingBarNG zijn uitgeschakeld. Schakel meldingen in de macOS systeeminstellingen in om meetings bij te houden.";
 "shared_automatic_event_join_tip" = "Met deze instelling wordt je volgende meeting automatisch geopend in je geconfigureerde app of webbrowser";
 "preferences_appearance_status_bar_ongoing_title" = "Zichtbaarheid van lopende evenementen:";
 "preferences_appearance_status_bar_ongoing_time_immediate_value" = "verbergen na start";
@@ -336,20 +336,20 @@
 "onboarding_continue" = "Doorgaan";
 "onboarding_done" = "Klaar";
 "onboarding_choose_different_source" = "Een andere bron kiezen";
-"onboarding_welcome_title" = "Welkom bij MeetingBar";
-"onboarding_welcome_description" = "MeetingBar helpt je je volgende meeting te zien en eraan deel te nemen direct vanuit de menubalk.";
+"onboarding_welcome_title" = "Welkom bij MeetingBarNG";
+"onboarding_welcome_description" = "MeetingBarNG helpt je je volgende meeting te zien en eraan deel te nemen direct vanuit de menubalk.";
 "onboarding_calendar_source_title" = "Kies je agendabron";
-"onboarding_calendar_source_description" = "Kies hoe MeetingBar agendagegevens leest. Beide opties kunnen Google-agenda's bevatten.";
+"onboarding_calendar_source_description" = "Kies hoe MeetingBarNG agendagegevens leest. Beide opties kunnen Google-agenda's bevatten.";
 "onboarding_apple_calendar_title" = "macOS Agenda-app";
 "onboarding_apple_calendar_description" = "Leest agenda's uit de Agenda-app op deze Mac, inclusief elk account dat daar is geconfigureerd.";
 "onboarding_google_calendar_title" = "Google Calendar API";
-"onboarding_google_calendar_description" = "Verbindt MeetingBar rechtstreeks met Google Calendar zonder de macOS Agenda-app te gebruiken.";
+"onboarding_google_calendar_description" = "Verbindt MeetingBarNG rechtstreeks met Google Calendar zonder de macOS Agenda-app te gebruiken.";
 "onboarding_authorization_title" = "Toegang tot agenda bevestigen";
 "onboarding_authorization_waiting" = "Wachten op autorisatie…";
-"onboarding_authorization_apple_description" = "Geef MeetingBar toestemming om meetings te lezen uit de Agenda-app op deze Mac.";
-"onboarding_authorization_google_description" = "Voltooi de Google-aanmelding in je browser en keer dan terug naar MeetingBar.";
+"onboarding_authorization_apple_description" = "Geef MeetingBarNG toestemming om meetings te lezen uit de Agenda-app op deze Mac.";
+"onboarding_authorization_google_description" = "Voltooi de Google-aanmelding in je browser en keer dan terug naar MeetingBarNG.";
 "onboarding_calendar_selection_title" = "Agenda's kiezen";
-"onboarding_calendar_selection_description" = "Selecteer de agenda's waarvan meetings in MeetingBar moeten verschijnen.";
+"onboarding_calendar_selection_description" = "Selecteer de agenda's waarvan meetings in MeetingBarNG moeten verschijnen.";
 "onboarding_calendar_selection_empty" = "Geen agenda's gevonden. Vernieuw of controleer je agenda-accounts.";
 "onboarding_calendar_selection_permission" = "Agendamachtiging vereist. Verleen toegang in Systeeminstellingen en vernieuw dan.";
 "onboarding_calendar_selection_reconnect" = "Google Calendar moet opnieuw worden verbonden.";

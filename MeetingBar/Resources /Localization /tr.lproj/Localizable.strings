@@ -1,6 +1,6 @@
 /*
   Localizable.strings
-  MeetingBar
+  MeetingBarNG
 
   Created by Varol Aksoy on 21.01.2022.
   Copyright © 2021 Andrii Leitsius. All rights reserved.
@@ -22,7 +22,7 @@
 "create_meeting_error_message" = "Özel bağlantı \\%@\\ eksik veya geçersiz. ";
 "next_meeting_empty_title" = "Bugün yaklaşmakta olan toplantı yok";
 "next_meeting_empty_message" = "Yaşasın! Kakao içme zamanı";
-"windows_title_changelog" = "MeetingBar – Neler Yeni";
+"windows_title_changelog" = "MeetingBarNG – Neler Yeni";
 
 // MARK: - Preferences tabs
 
@@ -42,7 +42,7 @@
 "preferences_general_shortcut_toggle_meeting_name_visibility" = "Durum çubuğunda başlık görünürlüğünü aç/kapat:";
 "preferences_general_external_contact" = "İletişim";
 "preferences_general_patron_description" = "Bunlar tek seferlik satın almalardır ve otomatik olarak yenilenmez.";
-"preferences_general_patron_thank_for_purchase" = "Teşekkürler! MeetingBar'ı %d aydır destekliyorsunuz 🎉";
+"preferences_general_patron_thank_for_purchase" = "Teşekkürler! MeetingBarNG'ı %d aydır destekliyorsunuz 🎉";
 "preferences_general_patron_restore_purchases" = "Satın alımları geri yükle";
 "preferences_appearance_events_show_events_for_today_value" = "bugün";
 "preferences_appearance_events_show_events_for_today_tomorrow_value" = "bugün ve yarın";
@@ -56,7 +56,7 @@
 "preferences_appearance_events_value_as_underlined" = "altı çizgili göster";
 "preferences_appearance_events_value_with_strikethrough" = "üstü çizgili göster";
 "preferences_appearance_status_bar_title" = "Durum çubuğu";
-"preferences_appearance_status_bar_icon_app_icon_value" = " MeetingBar";
+"preferences_appearance_status_bar_icon_app_icon_value" = " MeetingBarNG";
 "preferences_appearance_status_bar_icon_calendar_icon_value" = " Takvim";
 "preferences_appearance_status_bar_icon_specific_icon_value" = " Etkinliğe özel simge (MS Teams vs. gibi)";
 "preferences_appearance_status_bar_icon_no_icon_value" = " Simge yok";
@@ -104,7 +104,7 @@
 "preferences_calendars_provider_gcalendar_change_account" = "Google Hesabını Değiştir";
 "preferences_advanced_apple_script_checkmark" = "Toplantıya katıldığında AppleScript çalıştır";
 "preferences_advanced_save_script_button" = "Scripti kaydet";
-"preferences_advanced_wrong_location_message" = "Lütfen User → Library → Application Scripts → leits.MeetingBar klasörünü seçin";
+"preferences_advanced_wrong_location_message" = "Lütfen User → Library → Application Scripts → com.chykalophia.MeetingBarNG klasörünü seçin";
 "preferences_advanced_wrong_location_button" = "Anladım!";
 "preferences_advanced_event_regex_title" = "Toplantıları filtrelemek için özel regex betikleri";
 "preferences_advanced_regex_add_button" = "Regex ekle";
@@ -136,7 +136,7 @@
 "status_bar_whats_new" = "Neler yeni?";
 "status_bar_rate_app" = "Uygulamayı Değerlendir";
 "status_bar_preferences" = "Tercihler";
-"status_bar_quit" = "MeetingBar'dan çıkış";
+"status_bar_quit" = "MeetingBarNG'dan çıkış";
 "status_bar_no_title" = "Başlık yok";
 "status_bar_error_link_missed_title" = "Amanın! %@ 'e katılınamadı";
 "status_bar_error_link_missed_message" = "Link bulunamadı ya da toplantı servisiniz henüz desteklenmiyor";
@@ -163,7 +163,7 @@
 
 // MARK: - Store
 
-"store_patronage_title" = "MeetingBar'ı Destekle";
+"store_patronage_title" = "MeetingBarNG'ı Destekle";
 "store_patronage_purchase_success_message" = "Satın alma gerçekleşti. Desteğin için teşekkürler!";
 "store_patronage_purchase_payment_not_allowed_message" = "Cihazın ödeme yapmasına izin verilmiyor";
 "store_patronage_purchase_cloud_service_network_connection_failed" = "Ağa bağlanılamadı";
@@ -175,7 +175,7 @@
 "notifications_event_ends_one_minute_body" = "Etkinlik bir dakika içinde sona erecek";
 "notifications_event_ends_three_minutes_body" = "Etkinlik üç dakika içinde sona erecek";
 "notifications_event_ends_five_minutes_body" = "Etkinlik beş dakika içinde sona erecek";
-"window_title_onboarding" = "MeetingBar'a Hoşgeldiniz";
+"window_title_onboarding" = "MeetingBarNG'a Hoşgeldiniz";
 "preferences_general_patron_title" = "Destekçi ol";
 "preferences_general_patron_twelve_months" = "12 aylık – 11.99 USD";
 "general_add" = "Ekle";
@@ -183,9 +183,9 @@
 
 // MARK: - Window titles
 
-"window_title_preferences" = "MeetingBar Tercihler";
+"window_title_preferences" = "MeetingBarNG Tercihler";
 "preferences_general_shortcut_join_next" = "Sonraki toplantıya katıl:";
-"preferences_general_meeting_bar_description" = "MeetingBar, açık kaynaklı bir uygulamadır \nDaha sorunsuz ve daha kolay çevrimiçi toplantılar için \nAndrii Leitsius tarafından yaratılmıştır 🇺🇦";
+"preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_general_patron_three_months" = "3 aylık – 2.99 USD";
 "preferences_general_patron_six_months" = "6 aylık – 5.99 USD";
 "preferences_appearance_events_without_guest_title" = "Misafirsiz etkinlikler:";
@@ -261,7 +261,7 @@
 "general_one_minute_before" = "1 dakika önce";
 "general_three_minute_before" = "3 dakika önce";
 "general_five_minute_before" = "5 dakika önce";
-"shared_send_notification_disabled_tip" = "⚠️ macOS bildirim ayarlarınız MeetingBar için kapalı durumda. Toplantıları takip etmek için macOS sistem tercihlerinden bildirimleri açın.";
+"shared_send_notification_disabled_tip" = "⚠️ macOS bildirim ayarlarınız MeetingBarNG için kapalı durumda. Toplantıları takip etmek için macOS sistem tercihlerinden bildirimleri açın.";
 "constants_meeting_service_phone" = "Telefon numarası";
 "store_patronage_purchase_unknown_message" = "Bilinmeyen hata. Lütfen desteğe başvurun.";
 "notifications_event_start_three_minutes_body" = "Toplantı üç dakika içinde başlıyor";
@@ -307,27 +307,27 @@
 "message_google_account_connected_title" = "Google Hesabı bağlandı";
 "onboarding_apple_calendar_description" = "Bu Mac'teki Takvim uygulamasından takvim okur; orada yapılandırılmış tüm hesaplar dahildir.";
 "onboarding_apple_calendar_title" = "macOS Takvim uygulaması";
-"onboarding_authorization_apple_description" = "MeetingBar'ın bu Mac'teki Takvim uygulamasından etkinlikleri okumasına izin verin.";
-"onboarding_authorization_google_description" = "Tarayıcınızda Google girişini tamamlayın, ardından MeetingBar'a dönün.";
+"onboarding_authorization_apple_description" = "MeetingBarNG'ın bu Mac'teki Takvim uygulamasından etkinlikleri okumasına izin verin.";
+"onboarding_authorization_google_description" = "Tarayıcınızda Google girişini tamamlayın, ardından MeetingBarNG'a dönün.";
 "onboarding_authorization_title" = "Takvim erişimini doğrula";
 "onboarding_authorization_waiting" = "Yetkilendirme bekleniyor…";
-"onboarding_calendar_selection_description" = "Toplantıları MeetingBar'da görünmesi gereken takvimleri seçin.";
+"onboarding_calendar_selection_description" = "Toplantıları MeetingBarNG'da görünmesi gereken takvimleri seçin.";
 "onboarding_calendar_selection_empty" = "Takvim bulunamadı. Yenileyin veya takvim hesaplarınızı kontrol edin.";
 "onboarding_calendar_selection_permission" = "Takvim izni gerekli. Sistem Ayarları'nda erişim verin, ardından yenileyin.";
 "onboarding_calendar_selection_reconnect" = "Google Takvim'in yeniden bağlanması gerekiyor.";
 "onboarding_calendar_selection_title" = "Takvim seç";
-"onboarding_calendar_source_description" = "MeetingBar'ın takvim verilerini nasıl okuyacağını seçin. Her iki seçenek de Google takvimlerini içerebilir.";
+"onboarding_calendar_source_description" = "MeetingBarNG'ın takvim verilerini nasıl okuyacağını seçin. Her iki seçenek de Google takvimlerini içerebilir.";
 "onboarding_calendar_source_title" = "Takvim kaynağınızı seçin";
 "onboarding_choose_different_source" = "Farklı kaynak seç";
 "onboarding_continue" = "Devam";
 "onboarding_done" = "Bitti";
-"onboarding_google_calendar_description" = "MeetingBar'ı macOS Takvim uygulaması kullanmadan doğrudan Google Takvim'e bağlar.";
+"onboarding_google_calendar_description" = "MeetingBarNG'ı macOS Takvim uygulaması kullanmadan doğrudan Google Takvim'e bağlar.";
 "onboarding_google_calendar_title" = "Google Calendar API";
 "onboarding_progress" = "Adım %@ / %@";
 "onboarding_success_description" = "Bir sonraki toplantınız menü çubuğunda görünecek.";
 "onboarding_success_title" = "Hazırsınız";
-"onboarding_welcome_description" = "MeetingBar, bir sonraki toplantınızı doğrudan menü çubuğundan görmenize ve katılmanıza yardımcı olur.";
-"onboarding_welcome_title" = "MeetingBar'a Hoş Geldiniz";
+"onboarding_welcome_description" = "MeetingBarNG, bir sonraki toplantınızı doğrudan menü çubuğundan görmenize ve katılmanıza yardımcı olur.";
+"onboarding_welcome_title" = "MeetingBarNG'a Hoş Geldiniz";
 "preferences_advanced_regex_duplicate_error" = "Bu düzenli ifade zaten mevcut.";
 "preferences_advanced_regex_test_button" = "Regex'i test et";
 "preferences_advanced_regex_test_match" = "%@ eşleşti";

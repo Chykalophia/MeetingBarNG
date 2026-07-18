@@ -7,7 +7,7 @@
 "create_meeting_error_title" = "לא ניתן ליצור פגישה חדשה";
 "next_meeting_empty_title" = "אין פגישות שתתרחשנה היום";
 "next_meeting_empty_message" = "נפלא! זה בדיוק הזמן להכין שוקו";
-"window_title_onboarding" = "ברוך בואך ל־MeetingBar";
+"window_title_onboarding" = "ברוך בואך ל־MeetingBarNG";
 
 // MARK: - Preferences General
 
@@ -19,7 +19,7 @@
 "preferences_general_shortcut_join_next" = "הצטרפות לפגישה הבאה:";
 "preferences_general_shortcut_join_from_clipboard" = "הצטרפות לפגישה שבלוח הגזירים:";
 "preferences_general_shortcut_toggle_meeting_name_visibility" = "החלפת מצב הצגת הכותרת בשורת המצב:";
-"preferences_general_meeting_bar_description" = "MeetingBar הוא יישום בקוד פתוח\nשנוצר על ידי Andrii Leitsius 🇺🇦\nלפגישות מקוונות פשוטות וחלקות יותר";
+"preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_general_external_contact" = "יצירת קשר";
 "preferences_general_patron_title" = "להפוך ל־Patron (מימון חודשי)";
 "preferences_general_patron_three_months" = "3 חודשים – 2.99 דולר";
@@ -27,7 +27,7 @@
 "preferences_general_patron_twelve_months" = "שנה - 11.99 דולר";
 "preferences_general_patron_description" = "אלו רכישות חד־פעמיות והן לא תתחדשנה.";
 "general_ok" = "אישור";
-"preferences_general_patron_thank_for_purchase" = "תודה רבה! תמכת ב־MeetingBar למשך %d חודשים 🎉";
+"preferences_general_patron_thank_for_purchase" = "תודה רבה! תמכת ב־MeetingBarNG למשך %d חודשים 🎉";
 "status_bar_submenu_attendees_status_unknown" = " [?]";
 "status_bar_error_apple_script_title" = "שגיאת AppleScript";
 "preferences_general_patron_restore_purchases" = "שחזור רכישות";
@@ -47,7 +47,7 @@
 "preferences_appearance_events_value_only_with_link" = "הצגת אלו עם קישורים פגישות בלבד";
 "preferences_appearance_status_bar_title" = "שורת מצב";
 "preferences_appearance_status_bar_icon_title" = "סמל";
-"preferences_appearance_status_bar_icon_app_icon_value" = " MeetingBar";
+"preferences_appearance_status_bar_icon_app_icon_value" = " MeetingBarNG";
 "preferences_appearance_status_bar_icon_calendar_icon_value" = " לוח שנה";
 "preferences_appearance_status_bar_icon_no_icon_value" = " ללא סמל";
 "preferences_appearance_status_bar_title_title" = "כותרת";
@@ -163,7 +163,7 @@
 "constants_create_meeting_service_url" = "כתובת משלך";
 "constants_meeting_service_zoom_native" = "Zoom טבעי";
 "shared_send_notification_no_alert_style_tip" = "לתשומת ליבך: התראות מוגדרות ככרזות, לכן הן מופיעות לזמן קצר לפני שנעלמות. כדי להשאיר אותן על המסך עד לסילוקן ידנית, יש להחליף להתראות בהגדרות ההתראה ב־macOS שלך.";
-"shared_send_notification_disabled_tip" = "⚠️ הגדרות ההתראות ב־macOS שלך עבור MeetingBar כבויות. יש להפעיל את ההתראות בהגדרות המערכת של macOS כדי לעקוב אחר פגישות.";
+"shared_send_notification_disabled_tip" = "⚠️ הגדרות ההתראות ב־macOS שלך עבור MeetingBarNG כבויות. יש להפעיל את ההתראות בהגדרות המערכת של macOS כדי לעקוב אחר פגישות.";
 "shared_automatic_event_join_toggle" = "להצטרף אוטומטית בפגישת האירוע הבאה";
 "shared_automatic_event_join_tip" = "הגדרה זאת תפתח את הפגישה הבאה שלך ביישום או בדפדפן שהגדרת";
 "general_cancel" = "ביטול";
@@ -171,8 +171,8 @@
 
 // MARK: - Window titles
 
-"window_title_preferences" = "העדפות MeetingBar";
-"windows_title_changelog" = "MeetingBar – מה חדש";
+"window_title_preferences" = "העדפות MeetingBarNG";
+"windows_title_changelog" = "MeetingBarNG – מה חדש";
 "preferences_tab_bookmarks" = "סימניות";
 "preferences_tab_calendars" = "לוחות שנה";
 "preferences_appearance_status_bar_title_dot_value" = "נקודה (•)";
@@ -191,7 +191,7 @@
 
 // MARK: - Store
 
-"store_patronage_title" = "ה־Patronage של MeetingBar";
+"store_patronage_title" = "ה־Patronage של MeetingBarNG";
 "store_patronage_restore_success_message" = "שוחזר";
 "store_patronage_restore_nothing_message" = "אין מה לשחזר";
 "store_patronage_purchase_success_message" = "הרכישה בוצעה. תודה רבה על התמיכה!";
@@ -234,7 +234,7 @@
 
 "preferences_calendars_select_calendars_title" = "נא לבחור לוחות שנה כדי לצפות באירועים בסרגל המצב";
 "preferences_calendars_provider_gcalendar_change_account" = "החלפת חשבון Google";
-"preferences_advanced_wrong_location_message" = "נא לבחור את תיקיית משתמש ← ספרייה ← סקריפטים של יישומים ← leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "נא לבחור את תיקיית משתמש ← ספרייה ← סקריפטים של יישומים ← com.chykalophia.MeetingBarNG";
 "status_bar_section_bookmarks_menu" = "תפריט סימניות";
 "status_bar_section_date_nothing" = "שום דבר עבור %@";
 "status_bar_event_start_time_all_day" = "כל היום";
@@ -250,7 +250,7 @@
 "status_bar_whats_new" = "מה חדש?";
 "status_bar_rate_app" = "דירוג היישומון";
 "status_bar_preferences" = "העדפות";
-"status_bar_quit" = "יציאה מ־MeetingBar";
+"status_bar_quit" = "יציאה מ־MeetingBarNG";
 "status_bar_no_title" = "אין כותרת";
 "status_bar_event_status_now" = "עכשיו (%@ נותרו)";
 "status_bar_event_status_in" = "בעוד %@";
@@ -299,27 +299,27 @@
 "message_google_account_connected_title" = "חשבון Google חובר";
 "onboarding_apple_calendar_description" = "קורא לוחות שנה מיישום ה‑Calendars ב‑Mac זה, כולל כל החשבונות המוגדרים.";
 "onboarding_apple_calendar_title" = "יישום Calendars של macOS";
-"onboarding_authorization_apple_description" = "אפשר ל‑MeetingBar לקרוא אירועים מיישום ה‑Calendars ב‑Mac זה.";
-"onboarding_authorization_google_description" = "השלם את כניסת Google בדפדפן שלך, ולאחר מכן חזור ל‑MeetingBar.";
+"onboarding_authorization_apple_description" = "אפשר ל‑MeetingBarNG לקרוא אירועים מיישום ה‑Calendars ב‑Mac זה.";
+"onboarding_authorization_google_description" = "השלם את כניסת Google בדפדפן שלך, ולאחר מכן חזור ל‑MeetingBarNG.";
 "onboarding_authorization_title" = "אמת גישה ללוח שנה";
 "onboarding_authorization_waiting" = "ממתין להרשאה…";
-"onboarding_calendar_selection_description" = "בחר את לוחות השנה שפגישותיהם יופיעו ב‑MeetingBar.";
+"onboarding_calendar_selection_description" = "בחר את לוחות השנה שפגישותיהם יופיעו ב‑MeetingBarNG.";
 "onboarding_calendar_selection_empty" = "לא נמצאו לוחות שנה. רענן או בדוק את חשבונות לוח השנה שלך.";
 "onboarding_calendar_selection_permission" = "נדרשת הרשאה ללוח שנה. הענק גישה בהגדרות המערכת, ולאחר מכן רענן.";
 "onboarding_calendar_selection_reconnect" = "יש לחבר מחדש את Google Calendar.";
 "onboarding_calendar_selection_title" = "בחר לוחות שנה";
-"onboarding_calendar_source_description" = "בחר כיצד MeetingBar קורא נתוני לוח שנה. שתי האפשרויות יכולות לכלול לוחות שנה של Google.";
+"onboarding_calendar_source_description" = "בחר כיצד MeetingBarNG קורא נתוני לוח שנה. שתי האפשרויות יכולות לכלול לוחות שנה של Google.";
 "onboarding_calendar_source_title" = "בחר את מקור לוח השנה שלך";
 "onboarding_choose_different_source" = "בחר מקור אחר";
 "onboarding_continue" = "המשך";
 "onboarding_done" = "סיים";
-"onboarding_google_calendar_description" = "מחבר את MeetingBar ישירות ל‑Google Calendar מבלי להשתמש ביישום Calendars של macOS.";
+"onboarding_google_calendar_description" = "מחבר את MeetingBarNG ישירות ל‑Google Calendar מבלי להשתמש ביישום Calendars של macOS.";
 "onboarding_google_calendar_title" = "Google Calendar API";
 "onboarding_progress" = "שלב %@ מתוך %@";
 "onboarding_success_description" = "הפגישה הבאה שלך תופיע בסרגל התפריטים.";
 "onboarding_success_title" = "אתה מוכן";
-"onboarding_welcome_description" = "MeetingBar עוזר לך לראות ולהצטרף לפגישה הבאה שלך ישירות מסרגל התפריטים.";
-"onboarding_welcome_title" = "ברוך הבא ל‑MeetingBar";
+"onboarding_welcome_description" = "MeetingBarNG עוזר לך לראות ולהצטרף לפגישה הבאה שלך ישירות מסרגל התפריטים.";
+"onboarding_welcome_title" = "ברוך הבא ל‑MeetingBarNG";
 "preferences_advanced_regex_duplicate_error" = "ביטוי רגולרי זה כבר קיים.";
 "preferences_advanced_regex_test_button" = "בדוק regex";
 "preferences_advanced_regex_test_match" = "נמצא %@";

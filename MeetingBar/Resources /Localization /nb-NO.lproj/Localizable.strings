@@ -4,8 +4,8 @@
 "status_bar_submenu_status_default_extended" = " ❔ (%@)";
 "preferences_appearance_events_pending_title" = "Forestående begivenheter";
 "constants_meeting_service_zoom_native" = "Zoom-programmet";
-"shared_send_notification_disabled_tip" = "⚠️ Merknadsinnstillingene dine i macOS for MeetingBar er avslått. Skru på merknader i macOS-systeminnstillingene for å ikke gå glipp av møter.";
-"shared_send_notification_no_alert_style_tip" = "⚠️ Merknadsinnstillingene dine i macOS for MeetingBar er ikke satt til varsling. Aktiver dette hvis du ønsker vedvarende merknader.";
+"shared_send_notification_disabled_tip" = "⚠️ Merknadsinnstillingene dine i macOS for MeetingBarNG er avslått. Skru på merknader i macOS-systeminnstillingene for å ikke gå glipp av møter.";
+"shared_send_notification_no_alert_style_tip" = "⚠️ Merknadsinnstillingene dine i macOS for MeetingBarNG er ikke satt til varsling. Aktiver dette hvis du ønsker vedvarende merknader.";
 "status_bar_submenu_attendees_no_name" = "Deltager uten navn";
 
 // MARK: - Notifications
@@ -29,7 +29,7 @@
 
 // MARK: - Store
 
-"store_patronage_title" = "MeetingBar-kronerulling";
+"store_patronage_title" = "MeetingBarNG-kronerulling";
 "constants_meeting_service_other" = "Annet";
 
 // MARK: - Constants
@@ -65,7 +65,7 @@
 "status_bar_section_join_next_meeting" = "Ta del i neste begivenhetsmøte";
 "status_bar_section_join_current_meeting" = "Join current event meeting";
 "preferences_advanced_regex_title" = "Egendefinerte regulære uttrykk for møtelenke";
-"preferences_advanced_wrong_location_message" = "Velg Bruker → Bibliotek → Programskript → leits.MeetingBar-mappen";
+"preferences_advanced_wrong_location_message" = "Velg Bruker → Bibliotek → Programskript → com.chykalophia.MeetingBarNG-mappen";
 "preferences_advanced_apple_script_placeholder" = "# skriv ditt skript her\ntell application \"Music\" to pause";
 "preferences_advanced_run_script_on_event_start" = "Run AppleScript automatically";
 "preferences_advanced_test_script_on_next_event" = "Test on next event";
@@ -89,15 +89,15 @@
 "preferences_appearance_status_bar_title_title" = "Tittel";
 "preferences_appearance_status_bar_icon_no_icon_value" = " Uten ikon";
 "preferences_appearance_status_bar_icon_specific_icon_value" = " Begivenhetssesifikt ikon (f.eks. MS Teams)";
-"preferences_general_meeting_bar_description" = "MeetingBar er et fritt program laget av Andrii Leitsius 🇺🇦\nProgrammet tar sikte på å gjøre din opplevelse med nettbaserte møter smidigere og enklere";
+"preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_general_shortcut_toggle_meeting_name_visibility" = "Veksle visning av tittel i statusfelt:";
 "preferences_general_shortcut_join_from_clipboard" = "Ta del i møte fra utklippstavle:";
-"windows_title_changelog" = "MeetingBar Hva er nytt";
+"windows_title_changelog" = "MeetingBarNG Hva er nytt";
 
 
 // MARK: - Window titles
 
-"window_title_preferences" = "MeetingBar-innstillinger";
+"window_title_preferences" = "MeetingBarNG-innstillinger";
 "next_meeting_empty_message" = "Hurra. Det er på tide å lage kakao";
 "next_meeting_empty_title" = "Ingen kommende møter i dag";
 "create_meeting_error_message" = "Den egendefinerte nettadressen «%@» mangler eller er ugyldig. Skriv inn en verdi i programinnstillingene.";
@@ -123,7 +123,7 @@
 "status_bar_event_status_in" = "om %@";
 "status_bar_event_status_now" = "nå (%@ gjenstår)";
 "status_bar_no_title" = "Uten tittel";
-"status_bar_quit" = "Avslutt MeetingBar";
+"status_bar_quit" = "Avslutt MeetingBarNG";
 "status_bar_preferences" = "Innstillinger";
 "status_bar_whats_new" = "Hva er nytt?";
 "status_bar_rate_app" = "Rate App";
@@ -217,7 +217,7 @@
 "preferences_appearance_status_bar_title_shorten_stepper" = "forkort til %d tegn";
 "preferences_appearance_status_bar_title_hide_value" = "skjul";
 "preferences_appearance_status_bar_icon_calendar_icon_value" = " Kalender";
-"preferences_appearance_status_bar_icon_app_icon_value" = " MeetingBar";
+"preferences_appearance_status_bar_icon_app_icon_value" = " MeetingBarNG";
 "preferences_appearance_status_bar_icon_title" = "Ikon";
 "preferences_appearance_status_bar_title" = "Statusfelt";
 "preferences_appearance_events_value_only_with_link" = "vis kun dem med møtelenker";
@@ -239,7 +239,7 @@
 
 "preferences_appearance_events_title" = "Begivenheter";
 "preferences_general_patron_restore_purchases" = "Gjenopprett kjøp";
-"preferences_general_patron_thank_for_purchase" = "Takk. Du støtter MeetingBar i %d måneder! 🎉";
+"preferences_general_patron_thank_for_purchase" = "Takk. Du støtter MeetingBarNG i %d måneder! 🎉";
 "preferences_general_patron_description" = "Disse engangskjøpene fornyer seg ikke.";
 "preferences_general_patron_twelve_months" = "12 måneder – 11,99 USD";
 "preferences_general_patron_six_months" = "6 måneder – 5,99 USD";
@@ -262,7 +262,7 @@
 // MARK: - Preferences tabs
 
 "preferences_tab_general" = "Generelt";
-"window_title_onboarding" = "Velkommen til MeetingBar";
+"window_title_onboarding" = "Velkommen til MeetingBarNG";
 "create_meeting_error_title" = "Kan ikke opprette nytt møte";
 "general_meeting" = "Møte";
 "general_save" = "Lagre";
@@ -297,27 +297,27 @@
 "message_google_account_connected_title" = "Google-konto tilkoblet";
 "onboarding_apple_calendar_description" = "Leser kalendere fra Kalender-appen på denne Macen, inkludert alle konfigurerte kontoer.";
 "onboarding_apple_calendar_title" = "macOS Kalender-app";
-"onboarding_authorization_apple_description" = "Tillat MeetingBar å lese hendelser fra Kalender-appen på denne Macen.";
-"onboarding_authorization_google_description" = "Fullfør Google-pålogging i nettleseren, og gå deretter tilbake til MeetingBar.";
+"onboarding_authorization_apple_description" = "Tillat MeetingBarNG å lese hendelser fra Kalender-appen på denne Macen.";
+"onboarding_authorization_google_description" = "Fullfør Google-pålogging i nettleseren, og gå deretter tilbake til MeetingBarNG.";
 "onboarding_authorization_title" = "Bekreft kalendertilgang";
 "onboarding_authorization_waiting" = "Venter på autorisasjon…";
-"onboarding_calendar_selection_description" = "Velg kalenderne hvis møter skal vises i MeetingBar.";
+"onboarding_calendar_selection_description" = "Velg kalenderne hvis møter skal vises i MeetingBarNG.";
 "onboarding_calendar_selection_empty" = "Ingen kalendere funnet. Oppdater eller sjekk kalenderkontoene dine.";
 "onboarding_calendar_selection_permission" = "Kalendertillatelse er nødvendig. Gi tilgang i Systeminnstillinger, og oppdater deretter.";
 "onboarding_calendar_selection_reconnect" = "Google Kalender må kobles til på nytt.";
 "onboarding_calendar_selection_title" = "Velg kalendere";
-"onboarding_calendar_source_description" = "Velg hvordan MeetingBar leser kalenderdata. Begge alternativer kan inkludere Google-kalendere.";
+"onboarding_calendar_source_description" = "Velg hvordan MeetingBarNG leser kalenderdata. Begge alternativer kan inkludere Google-kalendere.";
 "onboarding_calendar_source_title" = "Velg kalenderkilden din";
 "onboarding_choose_different_source" = "Velg en annen kilde";
 "onboarding_continue" = "Fortsett";
 "onboarding_done" = "Ferdig";
-"onboarding_google_calendar_description" = "Kobler MeetingBar direkte til Google Kalender uten å bruke macOS Kalender-appen.";
+"onboarding_google_calendar_description" = "Kobler MeetingBarNG direkte til Google Kalender uten å bruke macOS Kalender-appen.";
 "onboarding_google_calendar_title" = "Google Calendar API";
 "onboarding_progress" = "Trinn %@ av %@";
 "onboarding_success_description" = "Neste møte vil vises i menylinjen.";
 "onboarding_success_title" = "Du er klar";
-"onboarding_welcome_description" = "MeetingBar hjelper deg med å se og delta i neste møte direkte fra menylinjen.";
-"onboarding_welcome_title" = "Velkommen til MeetingBar";
+"onboarding_welcome_description" = "MeetingBarNG hjelper deg med å se og delta i neste møte direkte fra menylinjen.";
+"onboarding_welcome_title" = "Velkommen til MeetingBarNG";
 "preferences_advanced_regex_duplicate_error" = "Dette regulære uttrykket finnes allerede.";
 "preferences_advanced_regex_test_button" = "Test regex";
 "preferences_advanced_regex_test_match" = "Treff: %@";

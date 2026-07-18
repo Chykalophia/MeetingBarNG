@@ -1,6 +1,6 @@
 /*
   Localizable.strings
-  MeetingBar
+  MeetingBarNG
 
   Created by Andrii Leitsius on 25.08.2021.
   Copyright © 2021 Andrii Leitsius. All rights reserved.
@@ -20,9 +20,9 @@
 
 // MARK: - Window titles
 
-"window_title_preferences" = "Preferencje MeetingBar";
-"window_title_onboarding" = "Witamy w MeetingBar";
-"windows_title_changelog" = "MeetingBar - Co nowego";
+"window_title_preferences" = "Preferencje MeetingBarNG";
+"window_title_onboarding" = "Witamy w MeetingBarNG";
+"windows_title_changelog" = "MeetingBarNG - Co nowego";
 
 // MARK: - Preferences tabs
 
@@ -41,14 +41,14 @@
 "preferences_general_shortcut_join_next" = "Dołącz do następnego spotkania:";
 "preferences_general_shortcut_join_from_clipboard" = "Dołącz do spotkania ze schowka:";
 "preferences_general_shortcut_toggle_meeting_name_visibility" = "Przełącz widoczność tytułu na pasku stanu:";
-"preferences_general_meeting_bar_description" = "MeetingBar to aplikacja open-source\nstworzona przez Andrii Leitsius 🇺🇦\ndla płynniejszych i łatwiejszych spotkań online";
+"preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_general_external_contact" = "Kontakt";
 "preferences_general_patron_title" = "Zostań patronem";
 "preferences_general_patron_three_months" = "3 miesiące - 2,99 USD";
 "preferences_general_patron_six_months" = "6 miesięcy - 5,99 USD";
 "preferences_general_patron_twelve_months" = "12 miesięcy - 11,99 USD";
 "preferences_general_patron_description" = "To są jednorazowe zakupy i nie podlegają odnowieniu.";
-"preferences_general_patron_thank_for_purchase" = "Dziękujemy! Wspierasz MeetingBar przez %d miesięcy. 🎉";
+"preferences_general_patron_thank_for_purchase" = "Dziękujemy! Wspierasz MeetingBarNG przez %d miesięcy. 🎉";
 "preferences_general_patron_restore_purchases" = "Przywróć zakupy";
 
 // MARK: - Preferences Appearance
@@ -71,7 +71,7 @@
 "preferences_appearance_events_value_only_with_link" = "pokaż tylko te z linkami do spotkań";
 "preferences_appearance_status_bar_title" = "Pasek stanu";
 "preferences_appearance_status_bar_icon_title" = "Ikona";
-"preferences_appearance_status_bar_icon_app_icon_value" = " MeetingBar";
+"preferences_appearance_status_bar_icon_app_icon_value" = " MeetingBarNG";
 "preferences_appearance_status_bar_icon_calendar_icon_value" = " Kalendarz";
 "preferences_appearance_status_bar_icon_specific_icon_value" = " Ikona zdarzenia (np. MS Teams)";
 "preferences_appearance_status_bar_icon_no_icon_value" = " Brak ikony";
@@ -152,7 +152,7 @@
 "preferences_advanced_edit_script" = "Edytuj skrypt";
 "preferences_advanced_save_script_button" = "Zapisz skrypt";
 "preferences_advanced_wrong_location_title" = "Nieprawidłowa lokalizacja";
-"preferences_advanced_wrong_location_message" = "Proszę wybrać folder User → Library → Application Scripts → leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "Proszę wybrać folder User → Library → Application Scripts → com.chykalophia.MeetingBarNG";
 "preferences_advanced_wrong_location_button" = "Mam to!";
 "preferences_advanced_regex_title" = "Własne regexy dla linku spotkania";
 "preferences_advanced_regex_add_button" = "Dodaj regex";
@@ -200,7 +200,7 @@
 "status_bar_hide_meeting_names" = "Ukryj tytuł spotkania";
 "status_bar_whats_new" = "Co nowego?";
 "status_bar_rate_app" = "Oceń Aplikację";
-"status_bar_quit" = "Wyjdź z MeetingBar";
+"status_bar_quit" = "Wyjdź z MeetingBarNG";
 "status_bar_no_title" = "Brak tytułu";
 "status_bar_event_status_now" = "teraz (pozostało %@)";
 "status_bar_event_status_in" = "za %@";
@@ -231,7 +231,7 @@
 "general_three_minute_before" = "3 minuty przed";
 "general_five_minute_before" = "5 minut przed";
 "shared_send_notification_no_alert_style_tip" = "Uwaga: Powiadomienia są ustawione jako banery, więc pojawiają się na krótko przed zniknięciem. Żeby były widoczne na ekranie, dopóki ich nie zamkniesz, wybierz opcję Alerty w ustawieniach powiadomień systemu macOS.";
-"shared_send_notification_disabled_tip" = "⚠️ Twoje ustawienia powiadomień macOS dla MeetingBar są wyłączone. Włącz powiadomienia w ustawieniach systemowych macOS, aby śledzić spotkania.";
+"shared_send_notification_disabled_tip" = "⚠️ Twoje ustawienia powiadomień macOS dla MeetingBarNG są wyłączone. Włącz powiadomienia w ustawieniach systemowych macOS, aby śledzić spotkania.";
 "shared_automatic_event_join_toggle" = "Automatycznie dołącz do następnego spotkania";
 "shared_automatic_event_join_tip" = "To ustawienie automatycznie otworzy następne spotkanie w skonfigurowanej aplikacji lub przeglądarce";
 
@@ -244,7 +244,7 @@
 
 // MARK: - Store
 
-"store_patronage_title" = "Patronat MeetingBar";
+"store_patronage_title" = "Patronat MeetingBarNG";
 "store_patronage_restore_success_message" = "Przywrócono";
 "store_patronage_restore_nothing_message" = "Nic do przywrócenia";
 "store_patronage_purchase_success_message" = "Zakup dokonany. Dziękujemy za wsparcie!";
@@ -307,27 +307,27 @@
 "message_google_account_connected_title" = "Konto Google połączone";
 "onboarding_apple_calendar_description" = "Odczytuje kalendarze z aplikacji Kalendarz na tym Macu, w tym wszystkie skonfigurowane konta.";
 "onboarding_apple_calendar_title" = "Aplikacja Kalendarz macOS";
-"onboarding_authorization_apple_description" = "Zezwól aplikacji MeetingBar na odczytywanie wydarzeń z aplikacji Kalendarz na tym Macu.";
-"onboarding_authorization_google_description" = "Zakończ logowanie Google w przeglądarce, a następnie wróć do MeetingBar.";
+"onboarding_authorization_apple_description" = "Zezwól aplikacji MeetingBarNG na odczytywanie wydarzeń z aplikacji Kalendarz na tym Macu.";
+"onboarding_authorization_google_description" = "Zakończ logowanie Google w przeglądarce, a następnie wróć do MeetingBarNG.";
 "onboarding_authorization_title" = "Weryfikuj dostęp do kalendarza";
 "onboarding_authorization_waiting" = "Oczekiwanie na autoryzację…";
-"onboarding_calendar_selection_description" = "Wybierz kalendarze, których spotkania mają być wyświetlane w MeetingBar.";
+"onboarding_calendar_selection_description" = "Wybierz kalendarze, których spotkania mają być wyświetlane w MeetingBarNG.";
 "onboarding_calendar_selection_empty" = "Nie znaleziono kalendarzy. Odśwież lub sprawdź swoje konta kalendarza.";
 "onboarding_calendar_selection_permission" = "Wymagane jest uprawnienie do kalendarza. Udziel dostępu w Ustawieniach systemowych, a następnie odśwież.";
 "onboarding_calendar_selection_reconnect" = "Google Calendar wymaga ponownego połączenia.";
 "onboarding_calendar_selection_title" = "Wybierz kalendarze";
-"onboarding_calendar_source_description" = "Wybierz, jak MeetingBar odczytuje dane kalendarza. Obie opcje mogą zawierać kalendarze Google.";
+"onboarding_calendar_source_description" = "Wybierz, jak MeetingBarNG odczytuje dane kalendarza. Obie opcje mogą zawierać kalendarze Google.";
 "onboarding_calendar_source_title" = "Wybierz źródło kalendarza";
 "onboarding_choose_different_source" = "Wybierz inne źródło";
 "onboarding_continue" = "Kontynuuj";
 "onboarding_done" = "Gotowe";
-"onboarding_google_calendar_description" = "Łączy MeetingBar bezpośrednio z Google Calendar bez używania aplikacji Kalendarz macOS.";
+"onboarding_google_calendar_description" = "Łączy MeetingBarNG bezpośrednio z Google Calendar bez używania aplikacji Kalendarz macOS.";
 "onboarding_google_calendar_title" = "Google Calendar API";
 "onboarding_progress" = "Krok %@ z %@";
 "onboarding_success_description" = "Twoje następne spotkanie pojawi się na pasku menu.";
 "onboarding_success_title" = "Jesteś gotowy";
-"onboarding_welcome_description" = "MeetingBar pomaga zobaczyć i dołączyć do następnego spotkania bezpośrednio z paska menu.";
-"onboarding_welcome_title" = "Witaj w MeetingBar";
+"onboarding_welcome_description" = "MeetingBarNG pomaga zobaczyć i dołączyć do następnego spotkania bezpośrednio z paska menu.";
+"onboarding_welcome_title" = "Witaj w MeetingBarNG";
 "preferences_advanced_regex_duplicate_error" = "To wyrażenie regularne już istnieje.";
 "preferences_advanced_regex_test_button" = "Testuj regex";
 "preferences_advanced_regex_test_match" = "Dopasowano %@";

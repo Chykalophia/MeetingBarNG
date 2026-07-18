@@ -1,6 +1,6 @@
 /*
   Localizable.strings
-  MeetingBar
+  MeetingBarNG
 
   Created by Andrii Leitsius on 23.04.2021.
   Copyright © 2021 Andrii Leitsius. All rights reserved.
@@ -20,9 +20,9 @@
 
 // MARK: - Window titles
 
-"window_title_preferences" = "Налаштування MeetingBar";
-"window_title_onboarding" = "Ласкаво просимо у MeetingBar";
-"windows_title_changelog" = "Що нового у MeetingBar";
+"window_title_preferences" = "Налаштування MeetingBarNG";
+"window_title_onboarding" = "Ласкаво просимо у MeetingBarNG";
+"windows_title_changelog" = "Що нового у MeetingBarNG";
 
 // MARK: - Preferences tabs
 
@@ -41,14 +41,14 @@
 "preferences_general_shortcut_join_next" = "Долучитись до наступної зустрічі:";
 "preferences_general_shortcut_join_from_clipboard" = "Долучитись до зустрічі з буфера обміну:";
 "preferences_general_shortcut_toggle_meeting_name_visibility" = "Показати/сховати заголовок у смузі меню:";
-"preferences_general_meeting_bar_description" = "MeetingBar – це застосунок з відкритим кодом,\nстворений Андрієм Лейцюсь 🇺🇦\nДля більш плавних та зручних онлайн-зустрічей";
+"preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_general_external_contact" = "Зв'язатись";
 "preferences_general_patron_title" = "Стати патроном";
 "preferences_general_patron_three_months" = "3 місяці – 2,99 USD";
 "preferences_general_patron_six_months" = "6 місяців – 5,99 USD";
 "preferences_general_patron_twelve_months" = "12 місяців – 11,99 USD";
 "preferences_general_patron_description" = "Це одноразові платежі, які не будуть повторюватись автоматично.";
-"preferences_general_patron_thank_for_purchase" = "Дякую! Ви підтримали MeetingBar на %d місяців 🎉";
+"preferences_general_patron_thank_for_purchase" = "Дякую! Ви підтримали MeetingBarNG на %d місяців 🎉";
 "preferences_general_patron_restore_purchases" = "Відновити платежі";
 
 // MARK: - Preferences Appearance
@@ -155,7 +155,7 @@
 "preferences_advanced_edit_script" = "Редагувати скрипт";
 "preferences_advanced_save_script_button" = "Зберегти скрипт";
 "preferences_advanced_wrong_location_title" = "Некоректне розташування";
-"preferences_advanced_wrong_location_message" = "Будь ласка, виберіть теку User > Library > Application Scripts > leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "Будь ласка, виберіть теку User > Library > Application Scripts > com.chykalophia.MeetingBarNG";
 "preferences_advanced_wrong_location_button" = "Зрозуміло!";
 "preferences_advanced_regex_title" = "Власні regex для посилань на зустрічі";
 "preferences_advanced_regex_add_button" = "Додати regex";
@@ -206,7 +206,7 @@
 "status_bar_whats_new" = "Що нового?";
 "status_bar_rate_app" = "Оцінити застосунок";
 "status_bar_preferences" = "Налаштування";
-"status_bar_quit" = "Вийти з MeetingBar";
+"status_bar_quit" = "Вийти з MeetingBarNG";
 "status_bar_no_title" = "Без заголовка";
 "status_bar_event_status_now" = "триває (ще %@)";
 "status_bar_event_status_in" = "через %@";
@@ -238,7 +238,7 @@
 "general_three_minute_before" = "за 3 хвилини до початку";
 "general_five_minute_before" = "за 5 хвилин до початку";
 "shared_send_notification_no_alert_style_tip" = "Примітка: Сповіщення налаштовано на банер, тому вони з’являються ненадовго, перш ніж зникнути. Щоб вони залишалися на екрані, доки ви їх не закриєте, перемкніться до опції «Сповіщення» в налаштуваннях сповіщень macOS.";
-"shared_send_notification_disabled_tip" = "⚠️ Сповіщення від MeetingBar вимкнені у системних параметрах. Будь ласка, увімкніть їх, щоб не проґавити зустріч.";
+"shared_send_notification_disabled_tip" = "⚠️ Сповіщення від MeetingBarNG вимкнені у системних параметрах. Будь ласка, увімкніть їх, щоб не проґавити зустріч.";
 "shared_automatic_event_join_toggle" = "Автоматично долучитись до наступної зустрічі";
 "shared_automatic_event_join_tip" = "Це налаштування автоматично відкриє вашу наступну зустріч у вибраному застосунку чи браузері";
 
@@ -251,7 +251,7 @@
 
 // MARK: - Store
 
-"store_patronage_title" = "Патронат MeetingBar";
+"store_patronage_title" = "Патронат MeetingBarNG";
 "store_patronage_restore_success_message" = "Успішно відновлено";
 "store_patronage_restore_nothing_message" = "Нічого відновлювати";
 "store_patronage_purchase_success_message" = "Успішно оплачено. Дякую за підтримку!";
@@ -355,27 +355,27 @@
 "onboarding_continue" = "Продовжити";
 "onboarding_done" = "Готово";
 "onboarding_choose_different_source" = "Вибрати інше джерело";
-"onboarding_welcome_title" = "Ласкаво просимо у MeetingBar";
-"onboarding_welcome_description" = "MeetingBar допомагає бачити та приєднуватись до наступної зустрічі прямо зі смуги меню.";
+"onboarding_welcome_title" = "Ласкаво просимо у MeetingBarNG";
+"onboarding_welcome_description" = "MeetingBarNG допомагає бачити та приєднуватись до наступної зустрічі прямо зі смуги меню.";
 "onboarding_calendar_source_title" = "Виберіть джерело календаря";
-"onboarding_calendar_source_description" = "Виберіть, як MeetingBar читатиме дані календаря. Обидва варіанти можуть включати Google Calendar.";
+"onboarding_calendar_source_description" = "Виберіть, як MeetingBarNG читатиме дані календаря. Обидва варіанти можуть включати Google Calendar.";
 "onboarding_apple_calendar_title" = "Застосунок macOS Calendar";
 "onboarding_apple_calendar_description" = "Читає календарі з застосунку Calendar на цьому Mac, включаючи всі налаштовані там акаунти.";
 "onboarding_google_calendar_title" = "Google Calendar API";
-"onboarding_google_calendar_description" = "Підключає MeetingBar напряму до Google Calendar без використання застосунку macOS Calendar.";
+"onboarding_google_calendar_description" = "Підключає MeetingBarNG напряму до Google Calendar без використання застосунку macOS Calendar.";
 "onboarding_authorization_title" = "Перевірте доступ до календаря";
 "onboarding_authorization_waiting" = "Очікування авторизації…";
-"onboarding_authorization_apple_description" = "Дозвольте MeetingBar читати події з застосунку Calendar на цьому Mac.";
-"onboarding_authorization_google_description" = "Завершіть вхід через Google у браузері, потім поверніться до MeetingBar.";
+"onboarding_authorization_apple_description" = "Дозвольте MeetingBarNG читати події з застосунку Calendar на цьому Mac.";
+"onboarding_authorization_google_description" = "Завершіть вхід через Google у браузері, потім поверніться до MeetingBarNG.";
 "onboarding_calendar_selection_title" = "Виберіть календарі";
-"onboarding_calendar_selection_description" = "Оберіть календарі, події яких мають відображатись у MeetingBar.";
+"onboarding_calendar_selection_description" = "Оберіть календарі, події яких мають відображатись у MeetingBarNG.";
 "onboarding_calendar_selection_empty" = "Календарів не знайдено. Оновіть або перевірте свої акаунти.";
 "onboarding_calendar_selection_permission" = "Потрібен дозвіл на доступ до Календаря. Надайте дозвіл у Системних налаштуваннях, потім оновіть.";
 "onboarding_calendar_selection_reconnect" = "Google Calendar потребує повторного підключення.";
 "onboarding_essentials_title" = "Налаштуйте щоденну поведінку";
 "onboarding_essentials_description" = "Оберіть кілька типових дій для відкриття зустрічей і нагадувань.";
 "onboarding_essentials_hint" = "Усі деталі можна змінити пізніше в Налаштуваннях.";
-"onboarding_start_using" = "Почати користуватись MeetingBar";
+"onboarding_start_using" = "Почати користуватись MeetingBarNG";
 "onboarding_success_title" = "Ви готові";
 "onboarding_success_description" = "Наступна зустріч з'явиться у смузі меню.";
 "access_screen_provider_authorization_cancelled" = "Авторизацію скасовано. Спробуй ще раз, щоб підключити календар.";
