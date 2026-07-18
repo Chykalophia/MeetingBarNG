@@ -60,6 +60,33 @@ final class OnboardingWindow: NSWindow {
     }
 }
 
+/// Borderless "What's New" window: the ChangelogView paints its own rounded
+/// chrome (matching Onboarding), and Escape / the primary button close it —
+/// which is what acknowledges the changelog via the close handler.
+final class ChangelogWindow: NSWindow {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == 53 { // Escape
+            close()
+            return
+        }
+        super.keyDown(with: event)
+    }
+
+    override func cancelOperation(_ sender: Any?) {
+        close()
+    }
+}
+
+enum ChangelogWindowPresentationPolicy {
+    static let contentRect = NSRect(x: 0, y: 0, width: 640, height: 560)
+    static let minimumSize = NSSize(width: 560, height: 460)
+    static let styleMask: NSWindow.StyleMask = [.resizable]
+    static let level: NSWindow.Level = .normal
+}
+
 enum OnboardingWindowPresentationPolicy {
     static let contentRect = NSRect(x: 0, y: 0, width: 760, height: 520)
     static let minimumSize = NSSize(width: 640, height: 460)
@@ -144,23 +171,29 @@ final class WindowCoordinator {
 
     func openChangelogWindow() {
         let contentView = ChangelogView()
-        let changelogWindow = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 600, height: 400),
-            styleMask: [.closable, .titled, .resizable],
+        let changelogWindow = ChangelogWindow(
+            contentRect: ChangelogWindowPresentationPolicy.contentRect,
+            styleMask: ChangelogWindowPresentationPolicy.styleMask,
             backing: .buffered,
             defer: false
         )
         changelogWindow.title = WindowTitles.changelog
-        changelogWindow.level = .floating
         changelogWindow.contentView = NSHostingView(rootView: contentView)
+        changelogWindow.minSize = ChangelogWindowPresentationPolicy.minimumSize
+        changelogWindow.isMovableByWindowBackground = true
         WindowStylePolicy.applyRoundedCorners(to: changelogWindow)
-        changelogWindow.makeKeyAndOrderFront(nil)
-        NSApplication.shared.activate(ignoringOtherApps: true)
 
         let controller = NSWindowController(window: changelogWindow)
         controller.showWindow(self)
 
+        // Standard level (not .floating): it shouldn't hover above every app.
+        changelogWindow.level = ChangelogWindowPresentationPolicy.level
         changelogWindow.center()
+        // Menu-bar agent isn't active; activate so the prominent button renders
+        // with its accent fill and the window becomes key.
+        NSApp.activate(ignoringOtherApps: true)
+        changelogWindow.makeKeyAndOrderFront(nil)
+        changelogWindow.orderFrontRegardless()
     }
 
     func openFullscreenNotificationWindow(event: MBEvent) {

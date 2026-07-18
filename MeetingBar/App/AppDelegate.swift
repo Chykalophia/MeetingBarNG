@@ -43,6 +43,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         MeetingOpenPreferencesMigration.migrateDefaultsIfNeeded()
         StatusBarTitleFormatMigration.migrateDefaultsIfNeeded()
         TimeFormatDefaultMigration.migrateDefaultsIfNeeded()
+        ChangelogResetMigration.migrateDefaultsIfNeeded()
 
         // Handle windows closing closing
         NotificationCenter.default.addObserver(

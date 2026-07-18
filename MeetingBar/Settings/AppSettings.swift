@@ -141,6 +141,34 @@ enum TimeFormatDefaultMigration {
     }
 }
 
+/// MeetingBarNG reset the app version to a sub-1.0 scheme. Because the "What's
+/// new" gate is a strictly-greater version compare, an install carrying an
+/// inherited upstream value (4.x/5.x) would never see the changelog again. This
+/// one-time migration resets such values so the 0.1.0 notes can surface, while
+/// leaving genuine sub-1.0 (MeetingBarNG) values alone.
+enum ChangelogResetMigration {
+    /// Pure decision: reset only when the stored value is a >= 1.0 (inherited)
+    /// version. nil / sub-1.0 / unparseable values are left as-is.
+    static func shouldReset(storedLastRevised: String?) -> Bool {
+        guard let stored = storedLastRevised,
+              let majorText = stored.split(separator: ".").first,
+              let major = Int(majorText)
+        else { return false }
+        return major >= 1
+    }
+
+    @MainActor
+    static func migrateDefaultsIfNeeded() {
+        guard !Defaults[.changelogResetMigrated] else { return }
+        Defaults[.changelogResetMigrated] = true
+
+        let stored = UserDefaults.standard.string(forKey: "lastRevisedVersionInChangelog")
+        if shouldReset(storedLastRevised: stored) {
+            Defaults[.lastRevisedVersionInChangelog] = "0.0.0"
+        }
+    }
+}
+
 // MARK: - Defaults factory
 
 extension AppSettings {

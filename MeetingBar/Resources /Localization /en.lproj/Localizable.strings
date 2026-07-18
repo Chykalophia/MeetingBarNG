@@ -320,6 +320,19 @@
 "status_bar_show_meeting_names" = "Show meeting title";
 "status_bar_hide_meeting_names" = "Hide meeting title";
 "status_bar_whats_new" = "What's new?";
+
+// MARK: - What's New / Changelog
+"changelog_hero_title" = "What's New in MeetingBarNG";
+"changelog_hero_version" = "Version %@";
+"changelog_earlier_releases" = "Earlier releases";
+"changelog_empty_title" = "You're all caught up";
+"changelog_empty_message" = "You're on the latest — MeetingBarNG %@.";
+"changelog_view_all" = "View all releases";
+"changelog_continue" = "Continue";
+"changelog_kind_feature" = "New";
+"changelog_kind_improvement" = "Improved";
+"changelog_kind_fix" = "Fixed";
+"changelog_kind_localization" = "Localization";
 "status_bar_preferences" = "Preferences";
 "status_bar_quit" = "Quit MeetingBarNG";
 "status_bar_no_title" = "No title";

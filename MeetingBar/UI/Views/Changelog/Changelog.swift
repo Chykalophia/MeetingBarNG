@@ -5,207 +5,210 @@
 //  Created by Andrii Leitsius on 22.03.2021.
 //  Copyright © 2021 Andrii Leitsius. All rights reserved.
 //
+//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
+//  bold, modern redesign of the "What's New" surface — a hero header, per-version
+//  cards driven by the ReleaseNotes model, an "Earlier releases" disclosure, an
+//  empty "all caught up" state, and an Onboarding-style prominent footer button.
+//  Replaces the hardcoded SidebarListStyle List and the in-content Close button.
+//
 
+import AppKit
+import Defaults
 import SwiftUI
 
-import Defaults
-
 struct ChangelogView: View {
-    @Default(.lastRevisedVersionInChangelog) var lastRevisedVersionInChangelog
+    @Default(.lastRevisedVersionInChangelog) private var lastRevisedVersionInChangelog
+    @Default(.appVersion) private var appVersion
 
-    var body: some View {
-        VStack(alignment: .center, spacing: 15) {
-            List {
-                Group {
-                    if compareVersions("3.2.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 3.2.0")) {
-                            Text("• Added setting to only show events starting in x minutes")
-                            Text("• Added Safari as a browser option")
-                            Text("• Recognize meetings in outlook safe links")
-                            Text("• New integrations: Discord, Jam, and Blackboard Collaborate")
-                            Text("and small bug fixes")
-                        }
-                    }
-                    if compareVersions("3.3.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 3.3.0")) {
-                            Text("⏱️ Fixed bug with timer freeze")
-                            Text("🧰 Browser management")
-                            Text("⚡ Quick Actions: ")
-                            Text("  - Show/hide meeting title in status bar")
-                            Text("  - Open meeting from clipboard")
-                            Text("• Customizable appearance for events without meeting links")
-                            Text("• Localization")
-                            Text("• Create meetings in Jam")
-                            Text("• Open event in Fantastical from event submenu")
-                            Text("• Integration with subscribed calendars")
-                        }
-                    }
-                    if compareVersions("3.4.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 3.4.0")) {
-                            Text("📋 New view of notes in the event submenu with selectable text and clickable links.")
-                            Text("🧭 Fixed a bug with opening meetings in a new browser instance")
-                            Text("and small bug fixes")
-                        }
-                    }
-                    if compareVersions("3.5.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 3.5.0")) {
-                            Text("🌍 Added translations into Croatian, German, French, and Norwegian Bokmål")
-                            Text("All app notifications are now removed after all meetings are over")
-                            Text("Improved RingCentral and Zoom links detection")
-                            Text("and small bug fixes")
-                        }
-                    }
-                    if compareVersions("3.6.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 3.6.0")) {
-                            Text("🌍 Added translations into Czech")
-                            Text("Added integration with Vowel")
-                            Text("Fixed zoom link detection")
-                        }
-                    }
-                    if compareVersions("3.7.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 3.7.0")) {
-                            Text("🌍 Added translations into Japanese")
-                            Text("🕑 Round the timer up, not down")
-                            Text("⚡ Quick Actions in event submenu: ")
-                            Text("  - Email attendees")
-                            Text("  - Copy meeting link")
-                        }
-                    }
-                    if compareVersions("3.8.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 3.8.0")) {
-                            Text("🇵🇱 Added translations into Polish")
-                            Text("• Support MeetInOne for Google Meet links")
-                            Text("• Support Jitsi native app for Jitsi links")
-                            Text("• Open the link from the event link field if the meeting service is not recognized")
-                        }
-                    }
-                    if compareVersions("3.9.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 3.9.0")) {
-                            Text("🌍 Added translations into Hebrew")
-                            Text("• Advanced feature to filter out events by regex")
-                            Text("• Added integration with Zhumu/WeMeeting, Lark, and Feishu")
-                            Text("and small bug fixes")
-                        }
-                    }
-                    if compareVersions("3.10.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 3.10.0")) {
-                            Text("⚡ New \"Refresh source\" Quick Action")
-                            Text("🌍 Translation into Turkish")
-                            Text("• Integrations with Facetime, Vimeo Showcases, and oVice")
-                        }
-                    }
-                    if compareVersions("4.0.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 4.0")) {
-                            Text("⚡⚡⚡ Direct integration with Google Calendar ⚡⚡⚡")
-                            Text("😴 Notification snooze")
-                            Text("🌍 Translation into Italian")
-                            Text("• Advanced feature to run AppleScript on event start")
-                            Text("• Advanced feature to join events automatically")
-                            Text("• Integration with Pop, Livestorm, Chorus & Gong")
-                            Text("• Fixed readability of the statusbar text in multi-screen setups")
-                            Text("• Fixed crash due to null emails for event attendees")
-                        }
-                    }
-                }
-                Group {
-                    if compareVersions("4.1.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 4.1")) {
-                            Text("• Integrations with Preply, Demodesk, Teemyco, UserZoom, Venue, and Zoho Cliq")
-                            Text("• Improved meetings recognition in the event description with html links")
-                            Text("• Fixed autojoin for meetings without a link")
-                            Text("• Fixed not showing the next meeting in the status bar if it starts the next day for a two-day view")
-                            Text("• Fixed padding for all-day meetings in the menu with am/pm end time enabled.")
-                        }
-                    }
-                    if compareVersions("4.2.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 4.2")) {
-                            Text("⚡ Quick Action for dismissing current/next event ⚡ ")
-                            Text("• Added option to use any browser for Zoom, Teams, and Jitsi meetings")
-                            Text("• Improved Zoom & UserZoom links recognition")
-                            Text("• Performance optimisations")
-                            Text("• Fixed Google re-login on every app restart for Google Calendar API data source")
-                            Text("• Fixed delegated calendar for macOS Calendar data source")
-                        }
-                    }
-                    if compareVersions("4.3.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 4.3")) {
-                            Text("• Event notifications are now Time-Sensitive and can break through Focus mode so you don't miss your meetings (can be changed in notification settings)")
-                                .lineLimit(nil)
-                            Text("• Added link recognition for Slack Huddle, Reclaim.ai, Vimeo Venues, Gather")
-                            Text("• Fixed Launch at login and many other small bugs")
-                        }
-                    }
-                    if compareVersions("4.4.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 4.4")) {
-                            Text("⚙️ Integration with the Shortcuts app!\n\nYou can automate your flows with \"Join Nearest Meeting\" and \"Get Nearest Event Details\" actions.").lineLimit(nil)
-                        }
-                    }
-                    if compareVersions("4.5.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 4.5")) {
-                            Text("• Improved links recognition for Microsoft Teams and Zoom Webinar")
-                            Text("• Improved performance on actions")
-                            Text("• Optimized direct Google Calendar integration")
-                            Text("• Updated Slack huddle icon to properly scale within a menu")
-                        }
-                    }
-                    if compareVersions("4.6.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 4.6")) {
-                            Text("• Configure appearance for tentative events")
-                            Text("• Open Slack huddle links directly in Slack app")
-                            Text("• Open preferences with `meetingbar://preferences` link")
-                            Text("• Dismiss event action for Shortcuts")
-                            Text("• Fixed a bug with autojoin when the screen is locked")
-                        }
-                    }
-                    if compareVersions("4.7.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 4.7")) {
-                            Text("• Autojoin is now semi-automatic with a full-screen notification")
-                            Text("• Integrations with Pumble, Suit Conference, Doxy.me")
-                            Text("• Improved Zoom link recognition")
-                            Text("• Fixed high CPU usage when meeting details are displayed in the submenu")
-                        }
-                    }
-                    if compareVersions("4.8.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 4.8")) {
-                            Text("🖥️ Full-screen notifications")
-                            Text("🌍 Translation into Spanish and Portuguese")
-                            Text("• Autojoin is back and separate from full-screen notification")
-                            Text("• Improved Zoom link recognition")
-                        }
-                    }
-                    if compareVersions("4.9.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 4.9")) {
-                            Text("🌍 Translation into Slovak and Dutch")
-                        }
-                    }
-                    if compareVersions("4.11.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 4.11")) {
-                            Text("🪄 Major performance and stability improvements (core rewrite)")
-                            Text("👀 Visual timeline of your day added to the menu")
-                            Text("• Calendar info now available via AppleScript interface")
-                            Text("• Added action to dismiss the event from the notification")
-                            Text("• Added support for LiveKit Meet, Meetecho, and StreamYard links")
-                            Text("• You can now set any executable as a \"browser\" to open meeting links")
-                            Text("and a lot of bug fixes and translations updates")
-                        }
-                    }
-                    if compareVersions("5.0.0", lastRevisedVersionInChangelog) {
-                        Section(header: Text("Version 5.0")) {
-                            Text("• Architecture and product refresh with clearer onboarding, meeting controls, and provider status")
-                            Text("• Added Proton Meet link detection")
-                            Text("• Added optional Workplace native app opening")
-                            Text("• Added optional Zoom Web App opening")
-                            Text("• Added optional Google Meet PWA opening for Chrome users")
-                            Text("• Existing meeting opening defaults remain unchanged")
-                        }
-                    }
-                }
-            }.listStyle(SidebarListStyle())
-            Button("general_close".loco(), action: close)
-        }.padding()
+    /// Releases unseen since the last acknowledgement — the headline content.
+    private var newReleases: [ReleaseNote] {
+        ReleaseNotes.releases(newerThan: lastRevisedVersionInChangelog)
     }
 
-    func close() {
+    /// Already-seen releases, collapsed under a disclosure when present.
+    private var earlierReleases: [ReleaseNote] {
+        ReleaseNotes.releases(upToAndIncluding: lastRevisedVersionInChangelog)
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            hero
+            Divider()
+            content
+            Divider()
+            footer
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        // The window itself is clear (WindowStylePolicy); the content paints an
+        // opaque rounded background and a hairline border so the borderless
+        // window reads as a distinct surface and AppKit can derive its shadow —
+        // matching the Onboarding chrome.
+        .background(Color(nsColor: .windowBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(Color(nsColor: .separatorColor), lineWidth: 1)
+        )
+    }
+
+    // MARK: - Hero
+
+    private var hero: some View {
+        HStack(spacing: 14) {
+            appIcon
+            VStack(alignment: .leading, spacing: 3) {
+                Text("changelog_hero_title".loco())
+                    .font(.title2)
+                    .bold()
+                Text("changelog_hero_version".loco(appVersion))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+    }
+
+    private var appIcon: some View {
+        let image = NSImage(named: "AppIcon")
+            ?? NSImage(named: NSImage.applicationIconName)
+            ?? NSImage()
+        return Image(nsImage: image)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 46, height: 46)
+            .accessibilityHidden(true)
+    }
+
+    // MARK: - Content
+
+    private var content: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                if newReleases.isEmpty {
+                    emptyState
+                } else {
+                    ForEach(newReleases) { release in
+                        ReleaseCard(release: release)
+                    }
+                }
+
+                if !earlierReleases.isEmpty {
+                    DisclosureGroup("changelog_earlier_releases".loco()) {
+                        VStack(alignment: .leading, spacing: 16) {
+                            ForEach(earlierReleases) { release in
+                                ReleaseCard(release: release)
+                            }
+                        }
+                        .padding(.top, 10)
+                    }
+                    .font(.headline)
+                    .tint(.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(20)
+        }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 46))
+                .foregroundStyle(.green)
+            Text("changelog_empty_title".loco())
+                .font(.title3)
+                .bold()
+            Text("changelog_empty_message".loco(appVersion))
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 44)
+    }
+
+    // MARK: - Footer
+
+    private var footer: some View {
+        HStack(spacing: 12) {
+            if let releasesURL = URL(string: "https://github.com/Chykalophia/MeetingBarNG/releases") {
+                Link("changelog_view_all".loco(), destination: releasesURL)
+                    .font(.callout)
+            }
+            Spacer()
+            Button("changelog_continue".loco(), action: close)
+                .buttonStyle(.borderedProminent)
+                .keyboardShortcut(.defaultAction)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 14)
+    }
+
+    /// Closing the window is what acknowledges the changelog: AppDelegate's
+    /// window-close handler matches on WindowTitles.changelog and records the
+    /// current app version as last-seen.
+    private func close() {
         NSApplication.shared.keyWindow?.close()
+    }
+}
+
+// MARK: - Release card
+
+private struct ReleaseCard: View {
+    let release: ReleaseNote
+
+    var body: some View {
+        GroupBox {
+            VStack(alignment: .leading, spacing: 12) {
+                cardHeader
+                VStack(alignment: .leading, spacing: 10) {
+                    ForEach(Array(release.highlights.enumerated()), id: \.offset) { _, entry in
+                        ChangeRow(entry: entry)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(6)
+        }
+    }
+
+    private var cardHeader: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Text(release.version)
+                .font(.headline)
+                .monospacedDigit()
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(Capsule().fill(Color.accentColor.opacity(0.15)))
+                .foregroundStyle(Color.accentColor)
+            if let date = release.date {
+                Text(date)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+    }
+}
+
+// MARK: - Change row
+
+private struct ChangeRow: View {
+    let entry: ChangeEntry
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 10) {
+            Image(systemName: entry.kind.symbolName)
+                .font(.body)
+                .foregroundStyle(entry.kind.accentColor)
+                .frame(width: 20)
+                .accessibilityLabel(Text(entry.kind.accessibilityLabelKey.loco()))
+            Text(entry.text)
+                .font(.body)
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer(minLength: 0)
+        }
     }
 }

@@ -177,9 +177,15 @@ extension StatusBarMenuState {
             hasMultipleSelectedCalendars: selectedCount > 1,
             showTimeline: settings.menu.showTimelineInMenu,
             timeFormat: Defaults[.timeFormat],
-            appMajorVersion: String(Defaults[.appVersion].dropLast(2)),
-            lastRevisedMajorVersion: String(Defaults[.lastRevisedVersionInChangelog].dropLast(2))
+            appMajorVersion: majorMinorVersion(Defaults[.appVersion]),
+            lastRevisedMajorVersion: majorMinorVersion(Defaults[.lastRevisedVersionInChangelog])
         )
+    }
+
+    /// Extracts the "major.minor" of a semantic version robustly (the old
+    /// `dropLast(2)` assumed a single-digit patch and broke on e.g. "0.1.10").
+    static func majorMinorVersion(_ version: String) -> String {
+        version.split(separator: ".").prefix(2).joined(separator: ".")
     }
 
     private static func providerStatus(

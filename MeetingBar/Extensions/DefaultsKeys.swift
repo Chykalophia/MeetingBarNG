@@ -15,9 +15,13 @@ import Foundation
 
 extension Defaults.Keys {
     // General
-    static let appVersion = Key<String>("appVersion", default: "2.0.5")
+    static let appVersion = Key<String>("appVersion", default: "0.1.0")
+    // Floor below the first MeetingBarNG release so its What's New surfaces on a
+    // fresh install; ChangelogResetMigration resets inherited upstream 4.x/5.x
+    // values on existing installs so the strictly-greater gate can fire again.
     static let lastRevisedVersionInChangelog = Key<String>(
-        "lastRevisedVersionInChangelog", default: "4.2.0")
+        "lastRevisedVersionInChangelog", default: "0.0.0")
+    static let changelogResetMigrated = Key<Bool>("changelogResetMigrated", default: false)
 
     static let selectedCalendarIDs = Key<[String]>("selectedCalendarIDs", default: [])
     static let selectedCalendarIDsByProvider = Key<[String: [String]]>(
