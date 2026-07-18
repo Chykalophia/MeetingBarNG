@@ -1,4 +1,4 @@
-PROJECT := MeetingBar.xcodeproj
+PROJECT := MeetingBarNG.xcodeproj
 SCHEME := MeetingBarNG
 XCODEBUILD ?= xcodebuild
 SWIFT ?= swift

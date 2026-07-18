@@ -21,14 +21,14 @@
 			containerPortal = 144C01712462D0C3000C9FFC /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 144C01782462D0C3000C9FFC;
-			remoteInfo = MeetingBar;
+			remoteInfo = MeetingBarNG;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		14158D3A246C65AD0006436C /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		144C01792462D0C3000C9FFC /* MeetingBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetingBarNG.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		14619A1B25EC26DF00F3098F /* MeetingBarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeetingBarNGTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		144C01792462D0C3000C9FFC /* MeetingBarNG.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetingBarNG.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		14619A1B25EC26DF00F3098F /* MeetingBarNGTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeetingBarNGTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		40DC7053250E5E1000217DD9 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -38,21 +38,21 @@
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 144C01782462D0C3000C9FFC /* MeetingBar */;
+			target = 144C01782462D0C3000C9FFC /* MeetingBarNG */;
 		};
 		37AF6E5D2DAEEF1800F38307 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 14619A1A25EC26DF00F3098F /* MeetingBarTests */;
+			target = 14619A1A25EC26DF00F3098F /* MeetingBarNGTests */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		37826AE02DAEFAAD00A6BFF8 /* MeetingBar */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (37826B092DAEFAAD00A6BFF8 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MeetingBarNG; sourceTree = "<group>"; };
+		37826AE02DAEFAAD00A6BFF8 /* MeetingBarNG */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (37826B092DAEFAAD00A6BFF8 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MeetingBarNG; sourceTree = "<group>"; };
 		37AF6E1A2DAEEEE900F38307 /* XCConfig */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = XCConfig; sourceTree = "<group>"; };
-		37AF6E582DAEEF1800F38307 /* MeetingBarTests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (37AF6E5D2DAEEF1800F38307 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MeetingBarNGTests; sourceTree = "<group>"; };
+		37AF6E582DAEEF1800F38307 /* MeetingBarNGTests */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (37AF6E5D2DAEEF1800F38307 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MeetingBarNGTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,8 +84,8 @@
 			children = (
 				14158D3A246C65AD0006436C /* README.md */,
 				37AF6E1A2DAEEEE900F38307 /* XCConfig */,
-				37826AE02DAEFAAD00A6BFF8 /* MeetingBar */,
-				37AF6E582DAEEF1800F38307 /* MeetingBarTests */,
+				37826AE02DAEFAAD00A6BFF8 /* MeetingBarNG */,
+				37AF6E582DAEEF1800F38307 /* MeetingBarNGTests */,
 				144C017A2462D0C3000C9FFC /* Products */,
 				40DC7052250E5E1000217DD9 /* Frameworks */,
 			);
@@ -94,8 +94,8 @@
 		144C017A2462D0C3000C9FFC /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				144C01792462D0C3000C9FFC /* MeetingBar.app */,
-				14619A1B25EC26DF00F3098F /* MeetingBarTests.xctest */,
+				144C01792462D0C3000C9FFC /* MeetingBarNG.app */,
+				14619A1B25EC26DF00F3098F /* MeetingBarNGTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -111,9 +111,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		144C01782462D0C3000C9FFC /* MeetingBar */ = {
+		144C01782462D0C3000C9FFC /* MeetingBarNG */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 144C018C2462D0C5000C9FFC /* Build configuration list for PBXNativeTarget "MeetingBar" */;
+			buildConfigurationList = 144C018C2462D0C5000C9FFC /* Build configuration list for PBXNativeTarget "MeetingBarNG" */;
 			buildPhases = (
 				144C01752462D0C3000C9FFC /* Sources */,
 				144C01762462D0C3000C9FFC /* Frameworks */,
@@ -126,7 +126,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				37826AE02DAEFAAD00A6BFF8 /* MeetingBar */,
+				37826AE02DAEFAAD00A6BFF8 /* MeetingBarNG */,
 			);
 			name = MeetingBarNG;
 			packageProductDependencies = (
@@ -137,12 +137,12 @@
 				467D980A2DDB501F00EB205C /* AppAuthCore */,
 			);
 			productName = MeetingBarNG;
-			productReference = 144C01792462D0C3000C9FFC /* MeetingBar.app */;
+			productReference = 144C01792462D0C3000C9FFC /* MeetingBarNG.app */;
 			productType = "com.apple.product-type.application";
 		};
-		14619A1A25EC26DF00F3098F /* MeetingBarTests */ = {
+		14619A1A25EC26DF00F3098F /* MeetingBarNGTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 14619A2425EC26DF00F3098F /* Build configuration list for PBXNativeTarget "MeetingBarTests" */;
+			buildConfigurationList = 14619A2425EC26DF00F3098F /* Build configuration list for PBXNativeTarget "MeetingBarNGTests" */;
 			buildPhases = (
 				14619A1725EC26DF00F3098F /* Sources */,
 				14619A1825EC26DF00F3098F /* Frameworks */,
@@ -154,11 +154,11 @@
 				14619A2125EC26DF00F3098F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				37AF6E582DAEEF1800F38307 /* MeetingBarTests */,
+				37AF6E582DAEEF1800F38307 /* MeetingBarNGTests */,
 			);
 			name = MeetingBarNGTests;
 			productName = MeetingBarNGTests;
-			productReference = 14619A1B25EC26DF00F3098F /* MeetingBarTests.xctest */;
+			productReference = 14619A1B25EC26DF00F3098F /* MeetingBarNGTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -181,7 +181,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 144C01742462D0C3000C9FFC /* Build configuration list for PBXProject "MeetingBar" */;
+			buildConfigurationList = 144C01742462D0C3000C9FFC /* Build configuration list for PBXProject "MeetingBarNG" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -222,8 +222,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				144C01782462D0C3000C9FFC /* MeetingBar */,
-				14619A1A25EC26DF00F3098F /* MeetingBarTests */,
+				144C01782462D0C3000C9FFC /* MeetingBarNG */,
+				14619A1A25EC26DF00F3098F /* MeetingBarNGTests */,
 			);
 		};
 /* End PBXProject section */
@@ -306,7 +306,7 @@
 /* Begin PBXTargetDependency section */
 		14619A2125EC26DF00F3098F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 144C01782462D0C3000C9FFC /* MeetingBar */;
+			target = 144C01782462D0C3000C9FFC /* MeetingBarNG */;
 			targetProxy = 14619A2025EC26DF00F3098F /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -450,7 +450,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = MeetingBarNG/MeetingBar.entitlements;
+				CODE_SIGN_ENTITLEMENTS = MeetingBarNG/MeetingBarNG.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -480,7 +480,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = MeetingBarNG/MeetingBar.entitlements;
+				CODE_SIGN_ENTITLEMENTS = MeetingBarNG/MeetingBarNG.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -553,7 +553,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		144C01742462D0C3000C9FFC /* Build configuration list for PBXProject "MeetingBar" */ = {
+		144C01742462D0C3000C9FFC /* Build configuration list for PBXProject "MeetingBarNG" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				144C018A2462D0C5000C9FFC /* Debug */,
@@ -562,7 +562,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		144C018C2462D0C5000C9FFC /* Build configuration list for PBXNativeTarget "MeetingBar" */ = {
+		144C018C2462D0C5000C9FFC /* Build configuration list for PBXNativeTarget "MeetingBarNG" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				144C018D2462D0C5000C9FFC /* Debug */,
@@ -571,7 +571,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		14619A2425EC26DF00F3098F /* Build configuration list for PBXNativeTarget "MeetingBarTests" */ = {
+		14619A2425EC26DF00F3098F /* Build configuration list for PBXNativeTarget "MeetingBarNGTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				14619A2225EC26DF00F3098F /* Debug */,
