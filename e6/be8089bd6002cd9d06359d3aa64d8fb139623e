@@ -1,0 +1,58 @@
+MeetingBar/UI/StatusBar/StatusBarItemController.swift
+  s_8821c3fb11800f::t_11adfc82e0a36b 10-11
+MeetingBarTests/StatusBarItem/MenuBuilderTests.swift
+  s_8821c3fb11800f::t_5710962a3f27ab 621
+MeetingBar/Preferences/GeneralTab.swift
+  s_8821c3fb11800f::t_ef36038985b4cc 8-11,24
+  s_8821c3fb11800f::t_78814521b867e0 90,95-96,104,120,144
+MeetingBar/Utilities/Constants.swift
+  s_8821c3fb11800f::t_22f925d978d85b 8-11
+  s_8821c3fb11800f::t_b578b52fcda5f1 34-35
+MeetingBar/Extensions/DefaultsKeys.swift
+  s_8821c3fb11800f::t_94280a52889413 9-11
+"MeetingBar/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_1a9c7b7c703f9e 361
+  s_8821c3fb11800f::t_5b42887f88f693 40-42
+  s_8821c3fb11800f::t_3d4e70ad5cb1bc 91
+  s_8821c3fb11800f::t_f0526d08e3cad1 335
+  s_8821c3fb11800f::t_4fc606881765b6 354
+  s_8821c3fb11800f::t_46ddcf7c4c3166 247
+  s_8821c3fb11800f::t_9c335d54ba3083 391
+  s_8821c3fb11800f::t_69d9325f39ecd8 115
+  s_8821c3fb11800f::t_96db84725f55d9 324
+  s_8821c3fb11800f::t_0acfd7dcb198ea 341-342,344
+  s_8821c3fb11800f::t_316b58a6c548ac 351
+MeetingBar/App/AppDelegate.swift
+  s_8821c3fb11800f::t_1fc6fb66d197da 8-10
+  s_8821c3fb11800f::t_ad473e2030607f 267
+MeetingBar/Preferences/Preferences.swift
+  s_8821c3fb11800f::t_be20621c9172ae 98
+  s_8821c3fb11800f::t_7ee4f5dea671e7 8-10
+  s_8821c3fb11800f::t_ab562d44ee1849 145
+MeetingBarTests/AppMessageCenterTests.swift
+  s_8821c3fb11800f::t_c7df29a971fea2 11
+MeetingBar/Utilities/Diagnostics/AppSourceDetector.swift
+  s_8821c3fb11800f::t_0c185d74f97dd5 1-20
+MeetingBar/UI/StatusBar/MenuBuilder.swift
+  s_8821c3fb11800f::t_78dae960641eef 8-10
+MeetingBar/App/WindowCoordinator.swift
+  s_8821c3fb11800f::t_ed58592ec7de60 206,209
+MeetingBar/UI/StatusBar/StatusBarMenuState.swift
+  s_8821c3fb11800f::t_64f3e1eb2d06c1 181
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "e6be8089bd6002cd9d06359d3aa64d8fb139623e",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
