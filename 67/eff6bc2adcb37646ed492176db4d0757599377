@@ -1,0 +1,29 @@
+MeetingBar.xcodeproj/project.pbxproj
+  s_8821c3fb11800f::t_64cfe59373d9a9 457,487
+  s_8821c3fb11800f::t_70cbc76de2f108 471,501
+  s_8821c3fb11800f::t_9524bf9e2853d3 464,494
+  s_8821c3fb11800f::t_d4eb89ab055a8f 472,502
+  s_8821c3fb11800f::t_771aa673b6fb7f 524,546
+MeetingBar/Utilities/MeetingBarLogger.swift
+  s_8821c3fb11800f::t_7c4ce03e9aca5f 11
+XCConfig/GoogleSecrets.xcconfig.example
+  s_8821c3fb11800f::t_e04af4e877034b 19
+MeetingBar/Info.plist
+  s_8821c3fb11800f::t_7cf9a3815c9329 19-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "67eff6bc2adcb37646ed492176db4d0757599377",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
