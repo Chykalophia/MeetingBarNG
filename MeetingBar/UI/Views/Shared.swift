@@ -5,6 +5,9 @@
 //  Created by Andrii Leitsius on 13.01.2021.
 //  Copyright © 2021 Andrii Leitsius. All rights reserved.
 //
+//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
+//  adopt the shared `.preferenceIndent()` modifier for dependent-row indents.
+//
 
 import Defaults
 import Foundation
@@ -27,7 +30,7 @@ private struct TimeBeforeEventPickerRow: View {
         }
         .labelsHidden()
         .fixedSize()
-        .padding(.leading, 16)
+        .preferenceIndent()
     }
 }
 
@@ -48,7 +51,7 @@ struct AutomaticEventJoinPicker: View {
             Text("shared_automatic_event_join_tip".loco())
                 .font(.caption)
                 .foregroundStyle(.secondary)
-                .padding(.leading, 16)
+                .preferenceIndent()
         }
     }
 }
@@ -70,12 +73,12 @@ struct FullscreenNotificationPicker: View {
             isOn: $fullscreenNotificationsForEventsWithoutMeetingLink
         )
         .disabled(!fullscreenNotification)
-        .padding(.leading, 16)
+        .preferenceIndent()
 
         Text("shared_fullscreen_notification_without_link_help".loco())
             .font(.caption)
             .foregroundStyle(.secondary)
-            .padding(.leading, 16)
+            .preferenceIndent()
     }
 }
 
@@ -98,14 +101,14 @@ struct JoinEventNotificationPicker: View {
                 Text("shared_send_notification_no_alert_style_tip".loco())
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .padding(.leading, 16)
+                    .preferenceIndent()
             }
 
             if notificationSettings.disabled {
                 Text("shared_send_notification_disabled_tip".loco())
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .padding(.leading, 16)
+                    .preferenceIndent()
             }
         }
     }
@@ -126,7 +129,7 @@ struct EndEventNotificationPicker: View {
         }
         .labelsHidden()
         .fixedSize()
-        .padding(.leading, 16)
+        .preferenceIndent()
         .disabled(!endOfEventNotification)
     }
 }

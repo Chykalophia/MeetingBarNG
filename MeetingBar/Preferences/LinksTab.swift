@@ -5,6 +5,10 @@
 //  Created by Andrii Leitsius on 13.01.2021.
 //  Copyright © 2021 Andrii Leitsius. All rights reserved.
 //
+//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
+//  replace the legacy NSImage template icons and the "x" bookmark delete
+//  button with SF Symbols.
+//
 
 import Defaults
 import SwiftUI
@@ -121,21 +125,22 @@ struct LinksTab: View {
                 }
                 ForEach(bookmarks, id: \.self) { bookmark in
                     HStack {
-                        Image(nsImage: NSImage(named: NSImage.listViewTemplateName)!)
-                            .foregroundColor(.gray)
+                        Image(systemName: "list.bullet")
+                            .foregroundStyle(.secondary)
 
                         Text("\(bookmark.name) (\(bookmark.service)): \(bookmark.url)")
                             .lineLimit(1)
                             .truncationMode(.middle)
                         Spacer()
-                        Button(action: {
+                        Button {
                             self.bookmark = bookmark
                             self.showingAlert = true
-                        }) {
-                            Image(
-                                nsImage: NSImage(
-                                    named: NSImage.stopProgressFreestandingTemplateName)!)
-                        }.buttonStyle(PlainButtonStyle())
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.borderless)
+                        .help("general_delete".loco())
                     }
                 }.onMove { source, destination in
                     bookmarks.move(fromOffsets: source, toOffset: destination)

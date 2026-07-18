@@ -5,6 +5,10 @@
 //  Created by Andrii Leitsius on 13.01.2021.
 //  Copyright © 2021 Andrii Leitsius. All rights reserved.
 //
+//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
+//  replace the flat orange warning banner with the shared PreferenceCallout,
+//  modernize the regex delete buttons, and adopt `.preferenceIndent()`.
+//
 
 import Defaults
 import SwiftUI
@@ -12,17 +16,15 @@ import SwiftUI
 struct AdvancedTab: View {
     var body: some View {
         PreferencesGroupedForm {
+            // Clear the grouped-form row chrome so the callout is the sole
+            // surface for the advanced-settings warning.
             Section {
-                HStack(spacing: 10) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.orange)
-                        .font(.title3)
-                    Text("preferences_advanced_setting_warning".loco())
-                        .fontWeight(.medium)
-                    Spacer()
-                }
-                .padding(.vertical, 2)
-                .listRowBackground(Color.orange.opacity(0.12))
+                PreferenceCallout(
+                    systemImage: "exclamationmark.triangle.fill",
+                    message: "preferences_advanced_setting_warning".loco()
+                )
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
             }
 
             Section(header: Text("preferences_section_apple_script_hooks_title".loco())) {
@@ -85,7 +87,7 @@ struct ScriptSection: View {
                 }
             }
         }
-        .padding(.leading, 16)
+        .preferenceIndent()
 
         Toggle(
             "preferences_advanced_apple_script_checkmark".loco(),
@@ -104,7 +106,7 @@ struct ScriptSection: View {
                     showingJoinEventScriptModal = true
                 }
             }
-            .padding(.leading, 16)
+            .preferenceIndent()
         }
 
         Text("preferences_advanced_script_link_only_help".loco())
@@ -265,7 +267,14 @@ struct FilterEventRegexesSection: View {
                         Button("preferences_advanced_regex_edit_button".loco()) {
                             openEditRegexModal(for: regex)
                         }
-                        Button("x") { removeRegex(regex) }
+                        Button {
+                            removeRegex(regex)
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.borderless)
+                        .help("general_delete".loco())
                     }
                 }
                 Button("preferences_advanced_regex_add_button".loco(), action: openAddRegexModal)
@@ -324,7 +333,14 @@ struct MeetingRegexesSection: View {
                         Button("preferences_advanced_regex_edit_button".loco()) {
                             openEditRegexModal(for: regex)
                         }
-                        Button("x") { removeRegex(regex) }
+                        Button {
+                            removeRegex(regex)
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.borderless)
+                        .help("general_delete".loco())
                     }
                 }
                 Button("preferences_advanced_regex_add_button".loco()) {

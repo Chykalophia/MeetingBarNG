@@ -6,7 +6,8 @@
 //  Copyright © 2021 Andrii Leitsius. All rights reserved.
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
-//  add the composable menu-bar composer section.
+//  add the composable menu-bar composer section; adopt the shared
+//  `.preferenceIndent()` modifier for dependent-row indents.
 //
 
 import Defaults
@@ -217,7 +218,7 @@ struct StatusBarSection: View {
                 }
                 .fixedSize()
             }
-            .padding(.leading, 16)
+            .preferenceIndent()
             .disabled(eventTitleFormat != .show)
 
             Picker(
@@ -251,7 +252,7 @@ struct StatusBarSection: View {
                 }
                 .fixedSize()
             }
-            .padding(.leading, 16)
+            .preferenceIndent()
             .disabled(!showEventMaxTimeUntilEventEnabled)
 
             Picker(
@@ -579,7 +580,7 @@ struct MenuSection: View {
                 }
                 .fixedSize()
             }
-            .padding(.leading, 16)
+            .preferenceIndent()
             .disabled(!shortenEventTitle)
         }
     }

@@ -7,7 +7,8 @@
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
 //  remove the StoreKit patronage / Patreon / Buy Me A Coffee monetization from
-//  the About card and re-brand it for MeetingBarNG.
+//  the About card and re-brand it for MeetingBarNG; wrap the About block in the
+//  shared PreferencesCard and unify header typography.
 //
 
 import SwiftUI
@@ -20,8 +21,12 @@ struct GeneralTab: View {
 
     var body: some View {
         PreferencesGroupedForm {
+            // Clear the grouped-form row chrome for the About row so the
+            // PreferencesCard is the sole surface (no card-in-card border).
             Section {
                 AboutAppSection()
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
             }
 
             Section(header: Text("preferences_section_general_settings_title".loco())) {
@@ -91,52 +96,53 @@ struct AboutAppSection: View {
     @EnvironmentObject var appModel: AppModel
 
     var body: some View {
-        // The whole About card is one Form row (a single VStack) so the
-        // grouped form doesn't insert its own separators between the identity
-        // and link clusters — we draw the one divider we want.
-        VStack(alignment: .leading, spacing: 16) {
-            HStack(alignment: .top, spacing: 16) {
-                Image("appIconForAbout")
-                    .resizable()
-                    .frame(width: 72, height: 72)
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text("MeetingBarNG")
-                            .font(.title2).bold()
-                        Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")
-                            .font(.callout)
+        // The whole About block is one PreferencesCard, matching the app's
+        // Onboarding chrome. A single divider separates identity from the
+        // link/diagnostics cluster.
+        PreferencesCard {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(alignment: .top, spacing: 16) {
+                    Image("appIconForAbout")
+                        .resizable()
+                        .frame(width: 72, height: 72)
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            Text("MeetingBarNG")
+                                .font(.title2).bold()
+                            Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")
+                                .font(.callout)
+                                .foregroundStyle(.secondary)
+                        }
+                        Text("preferences_general_meeting_bar_description".loco())
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
-                    Text("preferences_general_meeting_bar_description".loco())
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer()
                 }
-                Spacer()
-            }
 
-            Divider()
+                Divider()
 
-            // Links + diagnostics.
-            HStack(spacing: 16) {
-                Button("GitHub") {
-                    Links.github.openInDefaultBrowser()
+                // Links + diagnostics.
+                HStack(spacing: 16) {
+                    Button("GitHub") {
+                        Links.github.openInDefaultBrowser()
+                    }
+                    .buttonStyle(.link)
+                    Button("preferences_general_external_contact".loco()) {
+                        Links.emailMe.openInDefaultBrowser()
+                    }
+                    .buttonStyle(.link)
+                    Spacer()
+                    Button("preferences_status_copy_diagnostics".loco()) {
+                        DiagnosticsClipboard.copy(
+                            snapshot: DiagnosticsSnapshot(appState: appModel.state)
+                        )
+                    }
+                    .controlSize(.small)
                 }
-                .buttonStyle(.link)
-                Button("preferences_general_external_contact".loco()) {
-                    Links.emailMe.openInDefaultBrowser()
-                }
-                .buttonStyle(.link)
-                Spacer()
-                Button("preferences_status_copy_diagnostics".loco()) {
-                    DiagnosticsClipboard.copy(
-                        snapshot: DiagnosticsSnapshot(appState: appModel.state)
-                    )
-                }
-                .controlSize(.small)
             }
         }
-        .padding(.vertical, 4)
     }
 }
 

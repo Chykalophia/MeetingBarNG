@@ -5,6 +5,10 @@
 //  Created by Andrii Leitsius on 13.01.2021.
 //  Copyright © 2021 Andrii Leitsius. All rights reserved.
 //
+//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
+//  tidy the provider status/metadata/actions into a cleaner presentation
+//  (presentation logic and calendar toggles unchanged).
+//
 
 import Defaults
 import SwiftUI
@@ -19,7 +23,27 @@ struct CalendarsTab: View {
             Section(header: Text("preferences_calendar_source_title".loco())) {
                 ProviderPicker()
 
-                VStack(alignment: .leading, spacing: 5) {
+                // Status headline: a prominent, tinted state line with the last
+                // successful-refresh time trailing it.
+                HStack(spacing: 6) {
+                    Label(
+                        presentation.statusTextKey.loco(),
+                        systemImage: statusSystemImage(presentation.statusTone)
+                    )
+                    .foregroundStyle(statusColor(presentation.statusTone))
+                    .font(.subheadline.weight(.medium))
+                    if let lastSuccess = appModel.state.providerHealth.lastSuccessfulRefresh {
+                        Text("·")
+                            .foregroundStyle(.tertiary)
+                        Text(lastSuccess.formatted(date: .omitted, time: .shortened))
+                            .foregroundStyle(.secondary)
+                            .font(.caption)
+                    }
+                    Spacer()
+                }
+
+                // Provider metadata.
+                VStack(alignment: .leading, spacing: 4) {
                     Label(
                         presentation.providerDataSourceKey.loco(),
                         systemImage: "arrow.triangle.2.circlepath"
@@ -32,21 +56,16 @@ struct CalendarsTab: View {
                 .foregroundStyle(.secondary)
                 .font(.caption)
 
-                HStack(spacing: 6) {
-                    Label(
-                        presentation.statusTextKey.loco(),
-                        systemImage: statusSystemImage(presentation.statusTone)
-                    )
-                    .foregroundStyle(statusColor(presentation.statusTone))
-                    .font(.caption)
-                    if let lastSuccess = appModel.state.providerHealth.lastSuccessfulRefresh {
-                        Text("·")
-                            .foregroundStyle(.tertiary)
-                            .font(.caption)
-                        Text(lastSuccess.formatted(date: .omitted, time: .shortened))
-                            .foregroundStyle(.secondary)
-                            .font(.caption)
-                    }
+                if let error = appModel.state.providerHealth.lastErrorDescription {
+                    Text(error)
+                        .foregroundStyle(.red)
+                        .font(.caption)
+                        .textSelection(.enabled)
+                        .lineLimit(3)
+                }
+
+                // Actions.
+                HStack {
                     Spacer()
                     if presentation.canReconnect {
                         Button("preferences_status_reconnect".loco()) {
@@ -64,14 +83,6 @@ struct CalendarsTab: View {
                         appModel.send(.refreshCalendars)
                     }
                     .disabled(appModel.state.providerChangeInProgress)
-                }
-
-                if let error = appModel.state.providerHealth.lastErrorDescription {
-                    Text(error)
-                        .foregroundStyle(.red)
-                        .font(.caption)
-                        .textSelection(.enabled)
-                        .lineLimit(3)
                 }
             }
 

@@ -6,7 +6,9 @@
 //  Copyright © 2020 Andrii Leitsius. All rights reserved.
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
-//  drop the StoreKit patronage service threaded through the preferences window.
+//  drop the StoreKit patronage service threaded through the preferences window;
+//  pin the NavigationSplitView sidebar open (non-collapsible) and adopt the
+//  shared PreferencesDesign card/callout/indent language.
 //
 import SwiftUI
 
@@ -18,41 +20,17 @@ struct PreferencesView: View {
 
     var body: some View {
         if #available(macOS 13.0, *) {
-            NavigationSplitView {
-                sidebar
-                    .navigationSplitViewColumnWidth(min: 200, ideal: 215, max: 240)
-            } detail: {
-                tabContent(selectedTab)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .navigationTitle(selectedTab.titleKey.loco())
-            }
-            .navigationSplitViewStyle(.balanced)
-            .frame(minWidth: 760, minHeight: 520)
+            // The modern split view owns a `NavigationSplitViewVisibility`
+            // (macOS 13+ only), so it lives in its own availability-gated view
+            // to keep the macOS 12 `legacyLayout` compiling.
+            ModernPreferencesLayout(selectedTab: $selectedTab)
         } else {
             legacyLayout
         }
     }
 
-    // The native sidebar list: `List(selection:)` provides the System Settings
-    // accent-pill selection and translucent material for free, so the custom
-    // Button / listRowBackground styling the legacy layout needs is gone here.
-    @available(macOS 13.0, *)
-    private var sidebar: some View {
-        List(selection: $selectedTab) {
-            ForEach(PreferencesSidebarSection.allCases, id: \.self) { section in
-                Section(section.titleKey.loco()) {
-                    ForEach(section.tabs, id: \.self) { tab in
-                        Label(tab.titleKey.loco(), systemImage: tab.systemImage)
-                            .tag(tab)
-                    }
-                }
-            }
-        }
-        .listStyle(.sidebar)
-    }
-
     // macOS 12 fallback: NavigationSplitView is unavailable, so keep the manual
-    // split with hand-rolled selection styling.
+    // split with hand-rolled selection styling. Already non-collapsible.
     private var legacyLayout: some View {
         HStack(spacing: 0) {
             List {
@@ -85,28 +63,89 @@ struct PreferencesView: View {
 
             Divider()
 
-            tabContent(selectedTab)
+            preferencesTabContent(selectedTab)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(minWidth: 700, minHeight: 500)
     }
+}
 
-    @ViewBuilder
-    private func tabContent(_ tab: PreferencesTab) -> some View {
-        switch tab {
-        case .general:
-            GeneralTab()
-        case .calendars:
-            CalendarsTab()
-        case .meetingOpening:
-            LinksTab()
-        case .menuBar:
-            AppearanceTab()
-        case .notifications:
-            NotificationsTab()
-        case .advanced:
-            AdvancedTab()
+/// The macOS 13+ layout: a `NavigationSplitView` pinned open so the sidebar can
+/// never be collapsed. It owns the `NavigationSplitViewVisibility` state (a
+/// macOS 13-only type), so isolating it here keeps `PreferencesView`'s macOS 12
+/// `legacyLayout` compiling at the deployment floor.
+@available(macOS 13.0, *)
+private struct ModernPreferencesLayout: View {
+    @Binding var selectedTab: PreferencesTab
+    // Pinned to `.all`: on macOS 14+ the toggle button is removed entirely, and
+    // seeding the binding open keeps both columns visible on macOS 13.
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
+
+    var body: some View {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
+            sidebar
+                .navigationSplitViewColumnWidth(min: 215, ideal: 230, max: 260)
+        } detail: {
+            preferencesTabContent(selectedTab)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .navigationTitle(selectedTab.titleKey.loco())
         }
+        .navigationSplitViewStyle(.balanced)
+        .frame(minWidth: 760, minHeight: 520)
+    }
+
+    // The native sidebar list: `List(selection:)` provides the System Settings
+    // accent-pill selection and translucent material for free, so the custom
+    // Button / listRowBackground styling the legacy layout needs is gone here.
+    private var sidebar: some View {
+        List(selection: $selectedTab) {
+            ForEach(PreferencesSidebarSection.allCases, id: \.self) { section in
+                Section(section.titleKey.loco()) {
+                    ForEach(section.tabs, id: \.self) { tab in
+                        Label(tab.titleKey.loco(), systemImage: tab.systemImage)
+                            .tag(tab)
+                    }
+                }
+            }
+        }
+        .listStyle(.sidebar)
+        .pinnedSidebarToggleRemoved()
+    }
+}
+
+@available(macOS 13.0, *)
+private extension View {
+    /// Removes the automatic sidebar-toggle button on macOS 14+ (making the
+    /// sidebar truly non-collapsible); on macOS 13 the API is unavailable, so
+    /// the view is returned unchanged and the pinned `columnVisibility` binding
+    /// keeps the sidebar open.
+    @ViewBuilder
+    func pinnedSidebarToggleRemoved() -> some View {
+        if #available(macOS 14.0, *) {
+            toolbar(removing: .sidebarToggle)
+        } else {
+            self
+        }
+    }
+}
+
+/// Builds the detail content for a preferences tab. Shared by the modern
+/// `NavigationSplitView` layout and the macOS 12 `legacyLayout`.
+@ViewBuilder
+private func preferencesTabContent(_ tab: PreferencesTab) -> some View {
+    switch tab {
+    case .general:
+        GeneralTab()
+    case .calendars:
+        CalendarsTab()
+    case .meetingOpening:
+        LinksTab()
+    case .menuBar:
+        AppearanceTab()
+    case .notifications:
+        NotificationsTab()
+    case .advanced:
+        AdvancedTab()
     }
 }
 
