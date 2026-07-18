@@ -1,0 +1,20 @@
+MeetingBar/App/AppDelegate.swift
+  s_8821c3fb11800f::t_bfdc55662810f5 78
+  s_8821c3fb11800f::t_7faee5151f8df5 112-121
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "c3b14c1b2120777a077d48a76db5009b327b8745",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
