@@ -226,6 +226,13 @@ private struct EssentialsScreen: View {
                     Divider()
 
                     HStack {
+                        Text("preferences_services_create_meeting_title".loco())
+                        Spacer()
+                        CreateMeetingServicePicker()
+                            .fixedSize()
+                    }
+
+                    HStack {
                         Text("preferences_services_link_meeting_title".loco())
                         Spacer()
                         defaultBrowserPicker
