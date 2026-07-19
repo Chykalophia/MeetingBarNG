@@ -77,12 +77,21 @@ them. This is the map.
 - **Test:** Create an event (title, all-day, start/end, calendar picker with color swatches,
   location, notes, URL) — Save is disabled until valid. Edit an existing one. **Delete asks
   for confirmation.** No new permission needed (existing full calendar access covers writes).
-  ⚠️ These change your real calendar — test on throwaway events first.
+  For a **repeating event**, editing/deleting shows a **This event / This and future events**
+  choice. ⚠️ These change your real calendar — test on throwaway events first.
 
-### 11. Camera/mic pre-call preview  ⚠️ opt-in (new permissions) — *landing shortly*
-- Live self-view + mic level meter before joining. Requests Camera + Mic access only when
-  first opened. **Camera capture can't be verified in a headless build — this one needs your
-  hands-on test.**
+### 11. Camera/mic pre-call preview  ⚠️ opt-in (new permissions)
+- **Where:** **Camera check…** in the right-click menu (or its shortcut); **Preview camera…**
+  in an event's submenu (gives a contextual Join).
+- **Test:** Live self-view + mic level meter; switch camera/mic devices; grant/deny each
+  independently. **Camera capture can't be verified in a headless build — this one needs your
+  hands-on test** (confirm the preview renders, meter moves, and the camera light turns off
+  when you close the window).
+
+### 12. Multi-zone world-clock panel
+- **Where:** **World clock…** in the right-click menu (or its shortcut).
+- **Test:** Add/remove time zones; each row shows the current local time and a
+  **Tomorrow/Yesterday** tag when that zone's day differs from yours. Refreshes each minute.
 
 ---
 
@@ -95,9 +104,9 @@ them. This is the map.
 
 ---
 
-## Still to come (your call)
-- **World-clock panel** (multi-zone) — minor; the world-clock *token* already ships.
-- **Recurring-event span picker** for edit/delete (v1 edits a single occurrence).
+## Status
+The full Dot-parity plan (Waves 1–3) is shipped. Open threads are cosmetic/scope
+questions only — raise anything you'd like changed after testing.
 
 ## Not in scope (by request)
 No AI/LLM, no natural-language event creation, no voice-to-text — anywhere.
