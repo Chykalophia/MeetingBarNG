@@ -143,6 +143,7 @@
 "preferences_appearance_status_bar_icon_calendar_icon_value" = "\U00A0Calendar";
 "preferences_appearance_status_bar_icon_specific_icon_value" = "\U00A0Event-specific icon (e.g. MS Teams)";
 "preferences_appearance_status_bar_icon_no_icon_value" = "\U00A0No icon";
+"preferences_appearance_status_bar_icon_none_help" = "Hides the icon next to the event title. When there's no meeting to show, a calendar icon still appears so MeetingBarNG stays clickable in the menu bar.";
 "preferences_appearance_status_bar_title_title" = "Title";
 "preferences_appearance_status_bar_title_event_title_value" = "event title";
 "preferences_appearance_status_bar_title_generic_value" = "generic title (Meeting)";

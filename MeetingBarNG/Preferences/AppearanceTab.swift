@@ -189,6 +189,13 @@ struct StatusBarSection: View {
                 }.tag(EventTitleIconFormat.none)
             }
 
+            if eventTitleIconFormat == .none {
+                Text("preferences_appearance_status_bar_icon_none_help".loco())
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
             Picker(
                 preferenceLabel("preferences_appearance_status_bar_title_title"),
                 selection: $eventTitleFormat
