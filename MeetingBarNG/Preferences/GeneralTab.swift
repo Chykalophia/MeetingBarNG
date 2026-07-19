@@ -76,6 +76,10 @@ struct ShortcutsSection: View {
             title: "preferences_general_shortcut_toggle_meeting_name_visibility".loco(),
             recorder: KeyboardShortcuts.Recorder(for: .toggleMeetingTitleVisibilityShortcut)
         )
+        ShortcutRow(
+            title: "preferences_general_shortcut_command_bar".loco(),
+            recorder: KeyboardShortcuts.Recorder(for: .commandBarShortcut)
+        )
     }
 }
 

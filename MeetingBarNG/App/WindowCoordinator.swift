@@ -87,6 +87,42 @@ enum ChangelogWindowPresentationPolicy {
     static let level: NSWindow.Level = .normal
 }
 
+/// Borderless Spotlight-style Command Bar. Floats above the frontmost app (it is
+/// invoked by a global shortcut) and paints its own rounded chrome.
+final class CommandBarWindow: NSWindow {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == 53 { // Escape
+            close()
+            return
+        }
+        super.keyDown(with: event)
+    }
+
+    override func cancelOperation(_ sender: Any?) {
+        close()
+    }
+
+    /// Click-away dismiss (Spotlight behavior). Only fires after the window has
+    /// been key, so the open sequence (which *gains* key) never self-closes.
+    override func resignKey() {
+        super.resignKey()
+        close()
+    }
+}
+
+enum CommandBarWindowPresentationPolicy {
+    static let width: CGFloat = 640
+    static let height: CGFloat = 440
+    static let contentRect = NSRect(x: 0, y: 0, width: width, height: height)
+    static let level: NSWindow.Level = .floating
+    /// Fraction of the screen height from the top where the palette centers —
+    /// slightly above the middle, like Spotlight.
+    static let verticalAnchor: CGFloat = 0.28
+}
+
 enum OnboardingWindowPresentationPolicy {
     static let contentRect = NSRect(x: 0, y: 0, width: 760, height: 520)
     static let minimumSize = NSSize(width: 640, height: 460)
@@ -123,6 +159,59 @@ private enum WindowStylePolicy {
 final class WindowCoordinator {
     private weak var preferencesWindow: NSWindow?
     private weak var onboardingHandler: OnboardingHandler?
+    private weak var commandBarWindow: NSWindow?
+
+    /// Opens the Command Bar, or closes it if it's already open (toggle). The
+    /// window closes on Escape, on running a row, and on click-away (the window's
+    /// `resignKey` override), so it behaves like Spotlight. The window is
+    /// self-releasing (isReleasedWhenClosed), so the weak ref nils on close and
+    /// the next shortcut press opens a fresh one — no NSWindowController, which
+    /// would otherwise keep the reference alive and break the toggle.
+    func openCommandBarWindow(handlers: CommandBarHandlers) {
+        if let existing = commandBarWindow {
+            existing.close()
+            return
+        }
+
+        let window = CommandBarWindow(
+            contentRect: CommandBarWindowPresentationPolicy.contentRect,
+            styleMask: [.borderless],
+            backing: .buffered,
+            defer: false
+        )
+        let viewModel = CommandBarViewModel(
+            handlers: handlers,
+            dismiss: { [weak window] in window?.close() }
+        )
+        window.title = ""
+        window.isReleasedWhenClosed = true
+        window.contentView = NSHostingView(rootView: CommandBarView(viewModel: viewModel))
+        window.isMovableByWindowBackground = false
+        window.collectionBehavior = [.moveToActiveSpace, .transient, .ignoresCycle]
+        WindowStylePolicy.applyRoundedCorners(to: window)
+        window.level = CommandBarWindowPresentationPolicy.level
+        positionCommandBar(window)
+
+        // LSUIElement accessory app: activate before keying so the search field
+        // gains first-responder focus and accent controls render filled.
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
+
+        commandBarWindow = window
+    }
+
+    private func positionCommandBar(_ window: NSWindow) {
+        let screen = NSScreen.main ?? NSScreen.screens.first
+        guard let frame = screen?.visibleFrame else {
+            window.center()
+            return
+        }
+        let size = window.frame.size
+        let originX = frame.midX - size.width / 2
+        let originY = frame.maxY - frame.height * CommandBarWindowPresentationPolicy.verticalAnchor - size.height / 2
+        window.setFrameOrigin(NSPoint(x: originX, y: max(frame.minY, originY)))
+    }
 
     func openOnboardingWindow(
         appModel: AppModel,

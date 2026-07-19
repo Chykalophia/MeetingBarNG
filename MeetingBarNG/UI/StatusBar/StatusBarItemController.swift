@@ -45,6 +45,7 @@ struct StatusBarDependencies {
     var send: @MainActor (AppAction) -> Void = { _ in }
     var openPreferences: @MainActor () -> Void = {}
     var openChangelog: @MainActor () -> Void = {}
+    var openCommandBar: @MainActor () -> Void = {}
     var quit: @MainActor () -> Void = {}
 }
 
@@ -182,6 +183,10 @@ final class StatusBarItemController {
 
         KeyboardShortcuts.onKeyUp(for: .toggleMeetingTitleVisibilityShortcut) {
             Task { @MainActor in self.dependencies.send(.toggleMeetingTitleVisibility) }
+        }
+
+        KeyboardShortcuts.onKeyUp(for: .commandBarShortcut) {
+            Task { @MainActor in self.dependencies.openCommandBar() }
         }
     }
 

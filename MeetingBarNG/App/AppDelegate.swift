@@ -145,6 +145,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             send: { [weak model] action in model?.send(action) },
             openPreferences: { [weak self] in self?.openPreferencesWindow(nil) },
             openChangelog: { [weak self] in self?.openChangelogWindow(nil) },
+            openCommandBar: { [weak self] in self?.openCommandBarWindow() },
             quit: { [weak self] in self?.quit(nil) }
         ))
 
@@ -266,6 +267,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         windowCoordinator.openPreferencesWindow(
             appModel: appModel,
             calendarSync: calendarSync
+        )
+    }
+
+    func openCommandBarWindow() {
+        let model = appModel
+        windowCoordinator.openCommandBarWindow(
+            handlers: CommandBarHandlers(
+                events: { [weak model] in model?.state.events ?? [] },
+                send: { [weak model] action in model?.send(action) },
+                openPreferences: { [weak self] in self?.openPreferencesWindow(nil) },
+                createMeeting: { createMeeting() }
+            )
         )
     }
 

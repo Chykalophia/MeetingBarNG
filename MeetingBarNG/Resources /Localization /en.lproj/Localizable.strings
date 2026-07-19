@@ -88,6 +88,24 @@
 "preferences_general_shortcut_join_next" = "Join next meeting:";
 "preferences_general_shortcut_join_from_clipboard" = "Join meeting from clipboard:";
 "preferences_general_shortcut_toggle_meeting_name_visibility" = "Toggle title visibility in status bar:";
+"preferences_general_shortcut_command_bar" = "Open command bar:";
+
+// MARK: - Command Bar
+"command_bar_placeholder" = "Search events or run a command…";
+"command_bar_no_results" = "No matches";
+"command_bar_all_day" = "All-day";
+"command_bar_agenda_header" = "Agenda — %@";
+"command_bar_agenda_empty" = "No meetings scheduled.";
+"command_bar_action_join_next" = "Join next meeting";
+"command_bar_action_join_next_keywords" = "join next meeting call";
+"command_bar_action_create_meeting" = "Create meeting";
+"command_bar_action_create_meeting_keywords" = "create new meeting start";
+"command_bar_action_copy_agenda" = "Copy today's agenda";
+"command_bar_action_copy_agenda_keywords" = "copy agenda today schedule";
+"command_bar_action_refresh" = "Refresh calendars";
+"command_bar_action_refresh_keywords" = "refresh reload sync calendars";
+"command_bar_action_open_preferences" = "Open Preferences";
+"command_bar_action_open_preferences_keywords" = "preferences settings options";
 "preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_general_external_contact" = "Contact";
 "preferences_general_whats_new" = "What's New";
