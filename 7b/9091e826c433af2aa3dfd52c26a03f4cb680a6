@@ -1,0 +1,20 @@
+docs/MEETINGBARNG-FEATURES.md
+  s_8821c3fb11800f::t_6f1ccf81bbccdd 107-109
+  s_8821c3fb11800f::t_84a5ddfd72a033 80-94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "7b9091e826c433af2aa3dfd52c26a03f4cb680a6",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
