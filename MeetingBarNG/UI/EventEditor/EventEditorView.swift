@@ -37,6 +37,9 @@ struct EventEditorView: View {
                 titleField
                 allDayToggle
                 datePickers
+                if viewModel.isRecurring {
+                    recurringSpanPicker
+                }
                 calendarPicker
                 locationField
                 urlField
@@ -82,6 +85,15 @@ struct EventEditorView: View {
 
     private var dateComponents: DatePickerComponents {
         viewModel.isAllDay ? [.date] : [.date, .hourAndMinute]
+    }
+
+    /// Scope picker shown only for recurring events: apply the edit/delete to
+    /// this occurrence, or this and all future occurrences.
+    private var recurringSpanPicker: some View {
+        Picker("event_editor_span_label".loco(), selection: $viewModel.editSpan) {
+            Text("event_editor_span_this_event".loco()).tag(EventEditSpan.thisEvent)
+            Text("event_editor_span_this_and_future".loco()).tag(EventEditSpan.thisAndFuture)
+        }
     }
 
     private var calendarPicker: some View {

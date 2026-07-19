@@ -21,13 +21,22 @@ enum EventEditorMode {
     case edit(MBEvent)
 }
 
+/// Scope of an edit/delete on a recurring event: just the chosen occurrence, or
+/// that occurrence and every later one in the series. Maps to `EKSpan`
+/// (`.thisEvent` / `.futureEvents`) in `EventKitEventWriter`. Ignored for
+/// non-recurring events (always effectively `.thisEvent`).
+enum EventEditSpan: Hashable {
+    case thisEvent
+    case thisAndFuture
+}
+
 /// Closures the editor needs from the app, injected by AppDelegate so the view
 /// model stays decoupled from the EventKit writer / CalendarSync / coordinator.
 /// `dismiss` is supplied by the WindowCoordinator (it owns the window).
 struct EventEditorHandlers {
     var create: @MainActor (_ draft: EventDraft) async throws -> Void
-    var update: @MainActor (_ id: String, _ draft: EventDraft) async throws -> Void
-    var delete: @MainActor (_ id: String) async throws -> Void
+    var update: @MainActor (_ id: String, _ draft: EventDraft, _ span: EventEditSpan) async throws -> Void
+    var delete: @MainActor (_ id: String, _ span: EventEditSpan) async throws -> Void
     var writableCalendars: @MainActor () -> [MBCalendar]
     var dismiss: @MainActor () -> Void
 }
@@ -47,8 +56,15 @@ final class EventEditorViewModel: ObservableObject {
     @Published private(set) var errorMessage: String?
     @Published private(set) var isSaving = false
 
+    /// Chosen scope when editing/deleting a recurring event. Only surfaced (and
+    /// only meaningful) when `isRecurring`; otherwise stays `.thisEvent`.
+    @Published var editSpan: EventEditSpan = .thisEvent
+
     let writableCalendars: [MBCalendar]
     let isEditing: Bool
+    /// Whether the event being edited is part of a recurring series — drives the
+    /// "This event / This and future events" scope picker.
+    let isRecurring: Bool
 
     private let handlers: EventEditorHandlers
     /// Raw EventKit identifier (`MBEvent.scriptIdentifier`) for edit/delete.
@@ -62,6 +78,7 @@ final class EventEditorViewModel: ObservableObject {
         switch mode {
         case .create:
             isEditing = false
+            isRecurring = false
             editingID = nil
             title = ""
             isAllDay = false
@@ -74,6 +91,7 @@ final class EventEditorViewModel: ObservableObject {
             url = ""
         case let .edit(event):
             isEditing = true
+            isRecurring = event.recurrent
             editingID = event.scriptIdentifier
             title = event.title
             isAllDay = event.isAllDay
@@ -138,6 +156,7 @@ final class EventEditorViewModel: ObservableObject {
         isSaving = true
         let draft = self.draft
         let mode: SaveMode = editingID.map { .update($0) } ?? .create
+        let span = editSpan
 
         Task {
             do {
@@ -145,7 +164,7 @@ final class EventEditorViewModel: ObservableObject {
                 case .create:
                     try await handlers.create(draft)
                 case let .update(id):
-                    try await handlers.update(id, draft)
+                    try await handlers.update(id, draft, span)
                 }
                 handlers.dismiss()
             } catch {
@@ -165,7 +184,16 @@ final class EventEditorViewModel: ObservableObject {
 
         let alert = NSAlert()
         alert.messageText = "event_editor_delete_confirm_title".loco()
-        alert.informativeText = "event_editor_delete_confirm_message".loco(title)
+        // For a recurring event, spell out the scope the user picked so the
+        // destructive action is unambiguous.
+        alert.informativeText = isRecurring
+            ? "event_editor_delete_confirm_message_recurring".loco(
+                title,
+                editSpan == .thisAndFuture
+                    ? "event_editor_span_this_and_future".loco()
+                    : "event_editor_span_this_event".loco()
+            )
+            : "event_editor_delete_confirm_message".loco(title)
         alert.alertStyle = .warning
         let deleteButton = alert.addButton(withTitle: "event_editor_delete".loco())
         deleteButton.hasDestructiveAction = true
@@ -173,11 +201,12 @@ final class EventEditorViewModel: ObservableObject {
 
         guard alert.runModal() == .alertFirstButtonReturn else { return }
 
+        let span = editSpan
         errorMessage = nil
         isSaving = true
         Task {
             do {
-                try await handlers.delete(editingID)
+                try await handlers.delete(editingID, span)
                 handlers.dismiss()
             } catch {
                 MeetingBarLogger.calendar.error(

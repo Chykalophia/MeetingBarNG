@@ -19,6 +19,14 @@
 import EventKit
 import Foundation
 
+extension EventEditSpan {
+    /// The EventKit span for this edit scope. `.thisAndFuture` maps to
+    /// `.futureEvents` (this occurrence and every later one in the series).
+    var ekSpan: EKSpan {
+        self == .thisAndFuture ? .futureEvents : .thisEvent
+    }
+}
+
 enum EventKitWriteError: LocalizedError {
     case calendarNotFound
     case eventNotFound
@@ -88,8 +96,9 @@ struct EventKitEventWriter: Sendable {
 
     /// Re-fetches the event by identifier, applies `draft`, and saves. The
     /// identifier is the raw `calendarItemIdentifier` carried on `MBEvent`
-    /// (`scriptIdentifier`), so both lookup APIs are tried.
-    func update(id: String, draft: EventDraft) async throws {
+    /// (`scriptIdentifier`), so both lookup APIs are tried. `span` scopes a
+    /// recurring edit to the single occurrence or this-and-future occurrences.
+    func update(id: String, draft: EventDraft, span: EventEditSpan = .thisEvent) async throws {
         let store = EKEventStore.shared
         guard let event = Self.lookupEvent(id: id, in: store) else {
             MeetingBarLogger.calendar.error(
@@ -105,7 +114,7 @@ struct EventKitEventWriter: Sendable {
         Self.apply(draft, to: event)
 
         do {
-            try store.save(event, span: .thisEvent, commit: true)
+            try store.save(event, span: span.ekSpan, commit: true)
         } catch {
             MeetingBarLogger.calendar.error(
                 "Event update save failed for \(id, privacy: .private): \(String(describing: error), privacy: .private)"
@@ -114,8 +123,9 @@ struct EventKitEventWriter: Sendable {
         }
     }
 
-    /// Re-fetches the event by identifier and removes it (`.thisEvent` span).
-    func delete(id: String) async throws {
+    /// Re-fetches the event by identifier and removes it. `span` scopes a
+    /// recurring delete to the single occurrence or this-and-future occurrences.
+    func delete(id: String, span: EventEditSpan = .thisEvent) async throws {
         let store = EKEventStore.shared
         guard let event = Self.lookupEvent(id: id, in: store) else {
             MeetingBarLogger.calendar.error(
@@ -125,7 +135,7 @@ struct EventKitEventWriter: Sendable {
         }
 
         do {
-            try store.remove(event, span: .thisEvent, commit: true)
+            try store.remove(event, span: span.ekSpan, commit: true)
         } catch {
             MeetingBarLogger.calendar.error(
                 "Event delete failed for \(id, privacy: .private): \(String(describing: error), privacy: .private)"

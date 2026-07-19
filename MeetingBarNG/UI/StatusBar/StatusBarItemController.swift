@@ -61,7 +61,7 @@ struct StatusBarDependencies {
     var openCameraPreview: @MainActor (MBEvent?) -> Void = { _ in }
     var newEvent: @MainActor () -> Void = {}
     var editEvent: @MainActor (MBEvent) -> Void = { _ in }
-    var deleteEvent: @MainActor (MBEvent) -> Void = { _ in }
+    var deleteEvent: @MainActor (MBEvent, EventEditSpan) -> Void = { _, _ in }
     var quit: @MainActor () -> Void = {}
 }
 
@@ -704,12 +704,31 @@ final class StatusBarItemController {
         alert.messageText = "event_editor_delete_confirm_title".loco()
         alert.informativeText = "event_editor_delete_confirm_message".loco(event.title)
         alert.alertStyle = .warning
-        let deleteButton = alert.addButton(withTitle: "event_editor_delete".loco())
-        deleteButton.hasDestructiveAction = true
-        alert.addButton(withTitle: "event_editor_cancel".loco())
 
-        guard alert.runModal() == .alertFirstButtonReturn else { return }
-        dependencies.deleteEvent(event)
+        if event.recurrent {
+            // Recurring: offer the delete scope directly as destructive buttons.
+            let thisButton = alert.addButton(withTitle: "event_editor_delete_this_event".loco())
+            thisButton.hasDestructiveAction = true
+            let futureButton = alert.addButton(withTitle: "event_editor_delete_this_and_future".loco())
+            futureButton.hasDestructiveAction = true
+            alert.addButton(withTitle: "event_editor_cancel".loco())
+
+            switch alert.runModal() {
+            case .alertFirstButtonReturn:
+                dependencies.deleteEvent(event, .thisEvent)
+            case .alertSecondButtonReturn:
+                dependencies.deleteEvent(event, .thisAndFuture)
+            default:
+                return
+            }
+        } else {
+            let deleteButton = alert.addButton(withTitle: "event_editor_delete".loco())
+            deleteButton.hasDestructiveAction = true
+            alert.addButton(withTitle: "event_editor_cancel".loco())
+
+            guard alert.runModal() == .alertFirstButtonReturn else { return }
+            dependencies.deleteEvent(event, .thisEvent)
+        }
     }
 
     private var stateProvider: EventStoreProvider {

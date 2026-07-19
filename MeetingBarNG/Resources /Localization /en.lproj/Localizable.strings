@@ -446,6 +446,12 @@
 "event_editor_delete" = "Delete";
 "event_editor_delete_confirm_title" = "Delete this event?";
 "event_editor_delete_confirm_message" = "“%@” will be removed from your calendar. This can't be undone.";
+"event_editor_delete_confirm_message_recurring" = "“%@” is a repeating event. This applies to: %@. This can't be undone.";
+"event_editor_delete_this_event" = "Delete This Event";
+"event_editor_delete_this_and_future" = "Delete This and Future Events";
+"event_editor_span_label" = "Apply to";
+"event_editor_span_this_event" = "This event";
+"event_editor_span_this_and_future" = "This and future events";
 "event_editor_validation_empty_title" = "Add a title for the event.";
 "event_editor_validation_end_before_start" = "The end time must be after the start time.";
 "event_editor_validation_missing_calendar" = "Choose a calendar for the event.";

@@ -168,7 +168,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             openCameraPreview: { [weak self] event in self?.openCameraPreviewWindow(event: event) },
             newEvent: { [weak self] in self?.openNewEventWindow() },
             editEvent: { [weak self] event in self?.openEditEventWindow(event) },
-            deleteEvent: { [weak self] event in self?.deleteEvent(event) },
+            deleteEvent: { [weak self] event, span in self?.deleteEvent(event, span: span) },
             quit: { [weak self] in self?.quit(nil) }
         ))
 
@@ -380,11 +380,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// Deletes `event` via the EventKit writer and refreshes the menu. Called
     /// from the per-event "Delete…" menu item after its NSAlert confirmation.
-    func deleteEvent(_ event: MBEvent) {
+    /// `span` scopes a recurring delete (this occurrence vs this-and-future).
+    func deleteEvent(_ event: MBEvent, span: EventEditSpan) {
         let sync = calendarSync
         Task {
             do {
-                try await EventKitEventWriter.shared.delete(id: event.scriptIdentifier)
+                try await EventKitEventWriter.shared.delete(id: event.scriptIdentifier, span: span)
                 sync?.refreshSubject.send()
             } catch {
                 MeetingBarLogger.calendar.error(
@@ -405,12 +406,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 _ = try await EventKitEventWriter.shared.create(draft: draft)
                 sync?.refreshSubject.send()
             },
-            update: { id, draft in
-                try await EventKitEventWriter.shared.update(id: id, draft: draft)
+            update: { id, draft, span in
+                try await EventKitEventWriter.shared.update(id: id, draft: draft, span: span)
                 sync?.refreshSubject.send()
             },
-            delete: { id in
-                try await EventKitEventWriter.shared.delete(id: id)
+            delete: { id, span in
+                try await EventKitEventWriter.shared.delete(id: id, span: span)
                 sync?.refreshSubject.send()
             },
             writableCalendars: { EventKitEventWriter.shared.writableCalendars() },
