@@ -43,6 +43,7 @@ let package = Package(
                 "Meetings/MicLevel.swift",
                 // UI/StatusBar
                 "UI/StatusBar/StatusBarPresentation.swift",
+                "UI/StatusBar/WorldClockPanel.swift",
                 "UI/StatusBar/DaySummaryGreeting.swift",
                 "UI/StatusBar/DropdownComposition.swift",
                 // UI/CommandBar (hostless core only; View/Window/ViewModel are app-target)

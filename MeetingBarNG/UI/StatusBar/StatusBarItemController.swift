@@ -16,7 +16,9 @@
 //  .newEventShortcut registration, and @objc handlers, with a destructive NSAlert
 //  before delete); add the camera/mic pre-call preview entry points (the
 //  openCameraPreview dependency closure, the .cameraPreviewShortcut registration,
-//  and the standalone/per-event @objc handlers).
+//  and the standalone/per-event @objc handlers); add a "World clock" entry point
+//  (the openWorldClock dependency closure, the .worldClockShortcut registration,
+//  and the @objc handler) for the multi-zone world-clock panel window.
 //
 
 import Cocoa
@@ -55,6 +57,7 @@ struct StatusBarDependencies {
     var openChangelog: @MainActor () -> Void = {}
     var openCommandBar: @MainActor () -> Void = {}
     var openCalendar: @MainActor () -> Void = {}
+    var openWorldClock: @MainActor () -> Void = {}
     var openCameraPreview: @MainActor (MBEvent?) -> Void = { _ in }
     var newEvent: @MainActor () -> Void = {}
     var editEvent: @MainActor (MBEvent) -> Void = { _ in }
@@ -207,6 +210,10 @@ final class StatusBarItemController {
 
         KeyboardShortcuts.onKeyUp(for: .calendarShortcut) {
             Task { @MainActor in self.dependencies.openCalendar() }
+        }
+
+        KeyboardShortcuts.onKeyUp(for: .worldClockShortcut) {
+            Task { @MainActor in self.dependencies.openWorldClock() }
         }
 
         KeyboardShortcuts.onKeyUp(for: .cameraPreviewShortcut) {
@@ -651,6 +658,11 @@ final class StatusBarItemController {
     @objc
     func openCalendarAction() {
         dependencies.openCalendar()
+    }
+
+    @objc
+    func openWorldClockAction() {
+        dependencies.openWorldClock()
     }
 
     /// Opens the camera/mic pre-call preview standalone (no event → no Join

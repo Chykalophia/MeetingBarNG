@@ -161,6 +161,7 @@ final class WindowCoordinator {
     private weak var onboardingHandler: OnboardingHandler?
     private weak var commandBarWindow: NSWindow?
     private weak var calendarWindow: NSWindow?
+    private weak var worldClockWindow: NSWindow?
     private weak var eventEditorWindow: NSWindow?
     private weak var cameraPreviewWindow: NSWindow?
 
@@ -208,6 +209,51 @@ final class WindowCoordinator {
         window.orderFrontRegardless()
 
         calendarWindow = window
+    }
+
+    /// Opens the multi-zone world-clock panel window, or brings it forward if it
+    /// is already open. A small standard titled/resizable window held by a weak
+    /// ref and reused (like the calendar window). The view reads its zones and
+    /// time-format from `Defaults` and refreshes itself each minute, so no
+    /// handlers are injected.
+    func openWorldClockWindow() {
+        if let worldClockWindow {
+            if worldClockWindow.isMiniaturized {
+                worldClockWindow.deminiaturize(nil)
+            }
+            NSApplication.shared.activate(ignoringOtherApps: true)
+            worldClockWindow.makeKeyAndOrderFront(nil)
+            worldClockWindow.orderFrontRegardless()
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(
+                x: 0,
+                y: 0,
+                width: WorldClockPanelPresentationPolicy.contentRect.width,
+                height: WorldClockPanelPresentationPolicy.contentRect.height
+            ),
+            styleMask: [.closable, .titled, .resizable, .miniaturizable],
+            backing: .buffered,
+            defer: false
+        )
+
+        window.title = WindowTitles.worldClock
+        window.contentView = NSHostingView(rootView: WorldClockPanelView())
+        window.minSize = WorldClockPanelPresentationPolicy.minimumSize
+
+        let controller = NSWindowController(window: window)
+        controller.showWindow(self)
+        window.center()
+
+        // LSUIElement accessory app: activate before keying so the window opens
+        // focused rather than merely ordered to the front.
+        NSApplication.shared.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
+
+        worldClockWindow = window
     }
 
     /// Opens the camera/mic pre-call preview ("mirror check") window, or brings

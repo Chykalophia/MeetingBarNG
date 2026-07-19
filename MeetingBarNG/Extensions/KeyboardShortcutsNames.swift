@@ -6,7 +6,8 @@
 //  Copyright © 2020 Andrii Leitsius. All rights reserved.
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
-//  register the camera/mic pre-call preview ("mirror check") shortcut name.
+//  register the camera/mic pre-call preview ("mirror check") shortcut name and
+//  the multi-zone world-clock panel shortcut name.
 //
 
 import KeyboardShortcuts
@@ -21,4 +22,5 @@ extension KeyboardShortcuts.Name {
     static let calendarShortcut = Self("calendarShortcut")
     static let newEventShortcut = Self("newEventShortcut")
     static let cameraPreviewShortcut = Self("cameraPreviewShortcut")
+    static let worldClockShortcut = Self("worldClockShortcut")
 }

@@ -85,6 +85,10 @@ struct ShortcutsSection: View {
             recorder: KeyboardShortcuts.Recorder(for: .calendarShortcut)
         )
         ShortcutRow(
+            title: "preferences_general_shortcut_world_clock".loco(),
+            recorder: KeyboardShortcuts.Recorder(for: .worldClockShortcut)
+        )
+        ShortcutRow(
             title: "preferences_general_shortcut_camera_preview".loco(),
             recorder: KeyboardShortcuts.Recorder(for: .cameraPreviewShortcut)
         )

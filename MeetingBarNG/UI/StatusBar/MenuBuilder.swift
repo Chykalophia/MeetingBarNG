@@ -13,7 +13,8 @@
 //  add an "Open calendar" item to the right-click quick-actions menu; add a
 //  "New event…" quick action and per-event "Edit…"/"Delete…" submenu items
 //  (EventKit provider only); add a "Camera check…" quick action and a per-event
-//  "Preview camera" submenu item for the pre-call camera/mic preview.
+//  "Preview camera" submenu item for the pre-call camera/mic preview; add a
+//  "World clock…" quick action for the multi-zone world-clock panel window.
 //
 
 import Cocoa
@@ -158,6 +159,11 @@ struct MenuBuilder {
         menu.addItem(quickItem(
             "status_bar_quick_action_open_calendar",
             #selector(StatusBarItemController.openCalendarAction)
+        ))
+
+        menu.addItem(quickItem(
+            "status_bar_quick_action_world_clock",
+            #selector(StatusBarItemController.openWorldClockAction)
         ))
 
         menu.addItem(quickItem(

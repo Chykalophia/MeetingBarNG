@@ -97,6 +97,13 @@ extension Defaults.Keys {
         "menuBarWorldClockTimeZone", default: TimeZone.current.identifier)
     static let menuBarWorldClockLabel = Key<String>("menuBarWorldClockLabel", default: "")
 
+    // World-clock panel (MeetingBarNG): the multi-zone panel window's chosen
+    // zones, stored as time-zone identifiers (labels are derived at the host
+    // boundary via `WorldClockPanelPolicy.cityLabel`). Defaults to the local
+    // zone so a fresh panel shows something useful.
+    static let worldClockPanelZones = Key<[String]>(
+        "worldClockPanelZones", default: [TimeZone.current.identifier])
+
     // Day-summary greeting header (top of the dropdown). Name is optional —
     // empty falls back to NSFullUserName() at the host boundary, then to a
     // name-less greeting.

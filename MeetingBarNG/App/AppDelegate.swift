@@ -13,7 +13,8 @@
 //  refresh the sync after each write, and wire newEvent/editEvent/deleteEvent
 //  into the status-bar dependencies); add the camera/mic pre-call preview entry
 //  point (builds the join handlers over the AppModel and wires openCameraPreview
-//  into the status-bar dependencies).
+//  into the status-bar dependencies); add the multi-zone world-clock panel window
+//  entry point (wires openWorldClock into the status-bar dependencies).
 //
 
 import AppKit
@@ -163,6 +164,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             openChangelog: { [weak self] in self?.openChangelogWindow(nil) },
             openCommandBar: { [weak self] in self?.openCommandBarWindow() },
             openCalendar: { [weak self] in self?.openCalendarWindow() },
+            openWorldClock: { [weak self] in self?.openWorldClockWindow() },
             openCameraPreview: { [weak self] event in self?.openCameraPreviewWindow(event: event) },
             newEvent: { [weak self] in self?.openNewEventWindow() },
             editEvent: { [weak self] event in self?.openEditEventWindow(event) },
@@ -334,6 +336,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             )
         )
+    }
+
+    /// Opens the multi-zone world-clock panel window. It reads its zones and
+    /// time-format from `Defaults` and refreshes each minute on its own, so no
+    /// handlers are threaded through.
+    func openWorldClockWindow() {
+        windowCoordinator.openWorldClockWindow()
     }
 
     /// Opens the camera/mic pre-call preview ("mirror check"). When `event` is
