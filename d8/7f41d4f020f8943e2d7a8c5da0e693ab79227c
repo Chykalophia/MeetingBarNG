@@ -1,0 +1,72 @@
+MeetingBarNG/Calendar/RemindersSync.swift
+  s_8821c3fb11800f::t_e7ae02dae4ab20 1-92
+MeetingBarNG/App/AppModel.swift
+  s_8821c3fb11800f::t_fec806182a0d6f 372-378
+  s_8821c3fb11800f::t_b454a2c5330fed 337
+  s_8821c3fb11800f::t_bba8a20039e500 705-706
+  s_8821c3fb11800f::t_fe8a960f0d8489 213-230,234-235
+  s_8821c3fb11800f::t_ec3490b3f001ae 49-54
+  s_8821c3fb11800f::t_4e7be0b1e25123 398-399
+  s_8821c3fb11800f::t_37852833fdf3aa 303-315
+  s_8821c3fb11800f::t_05eb8b2b0ff43d 566-570,573-582,585-595,597-598,600-601
+  s_8821c3fb11800f::t_3934814942112c 571-572,583-584,596,599
+  s_8821c3fb11800f::t_0f382fbb6c252d 111-116
+MeetingBarNG/UI/StatusBar/MenuBuilder.swift
+  s_8821c3fb11800f::t_211939e7257139 9-11
+  s_8821c3fb11800f::t_46da6187e7ae73 450-611
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_8821c3fb11800f::t_d991421eb33a6c 334-336,342-344
+  s_8821c3fb11800f::t_34e348b1b8aef6 659-665
+  s_8821c3fb11800f::t_4cdb620b70f3c1 115
+  s_8821c3fb11800f::t_4c18e01e0ce5b8 460-486
+  s_8821c3fb11800f::t_45d5e688966a02 345
+MeetingBarNG/UI/StatusBar/StatusBarMenuState.swift
+  s_8821c3fb11800f::t_06ad62c3e636ca 186-194
+  s_8821c3fb11800f::t_e3b7451d3bc0ff 209
+  s_8821c3fb11800f::t_299280bdd9738a 45-51
+MeetingBarNG/Preferences/AppearanceTab.swift
+  s_8821c3fb11800f::t_1eaa53202fe0c0 665-682
+  s_8821c3fb11800f::t_fb1c369ec6baca 582-583,606-618
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_34b85a8616ca29 180-181
+  s_8821c3fb11800f::t_8f726f1ece3e40 311-317
+MeetingBarNG/Calendar/MBReminder.swift
+  s_8821c3fb11800f::t_2a943adfc8ea7b 1-59
+MeetingBarNG/Calendar/Providers/EventKit/RemindersStore.swift
+  s_8821c3fb11800f::t_959def43cea0ea 1-18,20-166
+  s_8821c3fb11800f::t_c4408267a0b95b 19
+MeetingBarNG/MeetingBarNG.entitlements
+  s_8821c3fb11800f::t_868e1457240874 15-16
+MeetingBarNG/Settings/AppSettings.swift
+  s_8821c3fb11800f::t_df83a375393da8 224-226
+  s_8821c3fb11800f::t_dc50d91892a072 55-59
+  s_8821c3fb11800f::t_66c150d05e108f 300-302
+MeetingBarNG/Info.plist
+  s_8821c3fb11800f::t_58b26c085d3b8f 55-56
+MeetingBarNG/Calendar/ReminderSelection+MeetingBar.swift
+  s_8821c3fb11800f::t_ae4fa4ec5779f4 1-48
+MeetingBarNG/App/AppDelegate.swift
+  s_8821c3fb11800f::t_bf510ab8844c21 118-119,122-123
+  s_8821c3fb11800f::t_0de71346fed2f3 23-27
+  s_8821c3fb11800f::t_99f2a14b20ea2d 211-216
+  s_8821c3fb11800f::t_a91347dfd016a5 362
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_8821c3fb11800f::t_f0fa881fc2346e 117-122
+  s_8821c3fb11800f::t_6e51c5ebf1485b 9-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "d87f41d4f020f8943e2d7a8c5da0e693ab79227c",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
