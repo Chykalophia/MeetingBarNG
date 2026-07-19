@@ -6,7 +6,9 @@
 //  Copyright © 2020 Andrii Leitsius. All rights reserved.
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
-//  remove the StoreKit patronage service and its lifecycle wiring.
+//  remove the StoreKit patronage service and its lifecycle wiring; add the month
+//  calendar window entry point (builds the fetch/join handlers and wires
+//  openCalendar into the status-bar dependencies).
 //
 
 import AppKit
@@ -155,6 +157,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             openPreferences: { [weak self] in self?.openPreferencesWindow(nil) },
             openChangelog: { [weak self] in self?.openChangelogWindow(nil) },
             openCommandBar: { [weak self] in self?.openCommandBarWindow() },
+            openCalendar: { [weak self] in self?.openCalendarWindow() },
             quit: { [weak self] in self?.quit(nil) }
         ))
 
@@ -293,6 +296,33 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 send: { [weak model] action in model?.send(action) },
                 openPreferences: { [weak self] in self?.openPreferencesWindow(nil) },
                 createMeeting: { createMeeting() }
+            )
+        )
+    }
+
+    /// Opens the month calendar window. Its fetch closure resolves the user's
+    /// selected calendars from the repository and loads that month's own window
+    /// of events via `fetchEventsForDateRange` — independent of the main
+    /// today/tomorrow sync. Joining forwards to the AppModel's join action.
+    func openCalendarWindow() {
+        let sync = calendarSync
+        let model = appModel
+        windowCoordinator.openCalendarWindow(
+            handlers: CalendarWindowHandlers(
+                fetchEvents: { [weak sync] from, to in
+                    guard let repository = sync?.repository else { return [] }
+                    let allCalendars = try await repository.fetchAllCalendars()
+                    let selectedIDs = AppSettings.selectedCalendarIDs(
+                        for: repository.activeProviderName
+                    )
+                    let selected = allCalendars.filter { selectedIDs.contains($0.id) }
+                    return try await repository.fetchEventsForDateRange(
+                        for: selected, from: from, to: to
+                    )
+                },
+                join: { [weak model] eventID in
+                    model?.send(.joinMeeting(eventID: eventID))
+                }
             )
         )
     }

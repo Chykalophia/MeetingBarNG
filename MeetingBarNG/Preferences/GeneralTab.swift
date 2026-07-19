@@ -80,6 +80,10 @@ struct ShortcutsSection: View {
             title: "preferences_general_shortcut_command_bar".loco(),
             recorder: KeyboardShortcuts.Recorder(for: .commandBarShortcut)
         )
+        ShortcutRow(
+            title: "preferences_general_shortcut_calendar".loco(),
+            recorder: KeyboardShortcuts.Recorder(for: .calendarShortcut)
+        )
     }
 }
 

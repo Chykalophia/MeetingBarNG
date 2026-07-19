@@ -160,6 +160,53 @@ final class WindowCoordinator {
     private weak var preferencesWindow: NSWindow?
     private weak var onboardingHandler: OnboardingHandler?
     private weak var commandBarWindow: NSWindow?
+    private weak var calendarWindow: NSWindow?
+
+    /// Opens the month calendar window, or brings it forward if it is already
+    /// open. A standard titled/resizable window (like Preferences) held by a
+    /// weak ref and reused — no borderless focus fiddliness. The window loads its
+    /// own month window of events via the injected handlers; it never touches the
+    /// main today/tomorrow sync.
+    func openCalendarWindow(handlers: CalendarWindowHandlers) {
+        if let calendarWindow {
+            if calendarWindow.isMiniaturized {
+                calendarWindow.deminiaturize(nil)
+            }
+            NSApplication.shared.activate(ignoringOtherApps: true)
+            calendarWindow.makeKeyAndOrderFront(nil)
+            calendarWindow.orderFrontRegardless()
+            return
+        }
+
+        let viewModel = CalendarGridViewModel(handlers: handlers)
+        let window = NSWindow(
+            contentRect: NSRect(
+                x: 0,
+                y: 0,
+                width: CalendarWindowPresentationPolicy.contentRect.width,
+                height: CalendarWindowPresentationPolicy.contentRect.height
+            ),
+            styleMask: [.closable, .titled, .resizable, .miniaturizable],
+            backing: .buffered,
+            defer: false
+        )
+
+        window.title = WindowTitles.calendar
+        window.contentView = NSHostingView(rootView: CalendarGridView(viewModel: viewModel))
+        window.minSize = CalendarWindowPresentationPolicy.minimumSize
+
+        let controller = NSWindowController(window: window)
+        controller.showWindow(self)
+        window.center()
+
+        // LSUIElement accessory app: activate before keying so the window opens
+        // focused rather than merely ordered to the front.
+        NSApplication.shared.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
+
+        calendarWindow = window
+    }
 
     /// Opens the Command Bar, or closes it if it's already open (toggle). The
     /// window closes on Escape, on running a row, and on click-away (the window's

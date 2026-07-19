@@ -40,6 +40,7 @@
 "window_title_preferences" = "MeetingBarNG Preferences";
 "window_title_onboarding" = "Welcome to MeetingBarNG";
 "windows_title_changelog" = "MeetingBarNG – What's New";
+"window_title_calendar" = "Calendar";
 
 // MARK: - Preferences tabs
 
@@ -90,6 +91,7 @@
 "preferences_general_shortcut_join_from_clipboard" = "Join meeting from clipboard:";
 "preferences_general_shortcut_toggle_meeting_name_visibility" = "Toggle title visibility in status bar:";
 "preferences_general_shortcut_command_bar" = "Open command bar:";
+"preferences_general_shortcut_calendar" = "Open calendar:";
 
 // MARK: - Command Bar
 "command_bar_placeholder" = "Search events or run a command…";
@@ -108,10 +110,18 @@
 "command_bar_action_open_preferences" = "Open Preferences";
 "command_bar_action_open_preferences_keywords" = "preferences settings options";
 
+// MARK: - Calendar window (month grid)
+"calendar_grid_today" = "Today";
+"calendar_grid_previous_month" = "Previous month";
+"calendar_grid_next_month" = "Next month";
+"calendar_grid_no_events" = "No events";
+"calendar_grid_all_day" = "All-day";
+
 // MARK: - Status bar quick actions (right-click)
 "status_bar_quick_action_join_next" = "Join next meeting";
 "status_bar_quick_action_create_meeting" = "Create meeting";
 "status_bar_quick_action_copy_agenda" = "Copy today's agenda";
+"status_bar_quick_action_open_calendar" = "Open calendar";
 "status_bar_quick_action_refresh" = "Refresh calendars";
 "status_bar_quick_action_preferences" = "Preferences…";
 "status_bar_quick_action_quit" = "Quit MeetingBarNG";

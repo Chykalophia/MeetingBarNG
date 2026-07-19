@@ -10,7 +10,8 @@
 //  the user has set a custom token composition, and observe its Defaults keys;
 //  assemble the dropdown from the composable-dropdown block-join (toggleable +
 //  reorderable modules); remove the "Rate App" action that opened the original
-//  App Store listing.
+//  App Store listing; add an "Open calendar" entry point (dependency closure,
+//  keyboard shortcut, and @objc handler) for the month calendar window.
 //
 
 import Cocoa
@@ -48,6 +49,7 @@ struct StatusBarDependencies {
     var openPreferences: @MainActor () -> Void = {}
     var openChangelog: @MainActor () -> Void = {}
     var openCommandBar: @MainActor () -> Void = {}
+    var openCalendar: @MainActor () -> Void = {}
     var quit: @MainActor () -> Void = {}
 }
 
@@ -192,6 +194,10 @@ final class StatusBarItemController {
 
         KeyboardShortcuts.onKeyUp(for: .commandBarShortcut) {
             Task { @MainActor in self.dependencies.openCommandBar() }
+        }
+
+        KeyboardShortcuts.onKeyUp(for: .calendarShortcut) {
+            Task { @MainActor in self.dependencies.openCalendar() }
         }
     }
 
@@ -623,6 +629,11 @@ final class StatusBarItemController {
     @objc
     func openPreferencesAction() {
         dependencies.openPreferences()
+    }
+
+    @objc
+    func openCalendarAction() {
+        dependencies.openCalendar()
     }
 
     private var stateProvider: EventStoreProvider {

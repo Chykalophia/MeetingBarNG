@@ -9,7 +9,8 @@
 //  remove the "Rate App" menu item (pointed at the original App Store listing);
 //  add Apple Reminders rows (checkbox complete + snooze submenu + open in
 //  Reminders) under the Today section; split the dropdown into separator-free
-//  blocks (greeting/timeline/agenda) for the composable-dropdown block-join.
+//  blocks (greeting/timeline/agenda) for the composable-dropdown block-join;
+//  add an "Open calendar" item to the right-click quick-actions menu.
 //
 
 import Cocoa
@@ -141,6 +142,11 @@ struct MenuBuilder {
         ))
 
         menu.addItem(.separator())
+
+        menu.addItem(quickItem(
+            "status_bar_quick_action_open_calendar",
+            #selector(StatusBarItemController.openCalendarAction)
+        ))
 
         menu.addItem(quickItem(
             "status_bar_quick_action_refresh",
