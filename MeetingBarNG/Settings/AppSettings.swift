@@ -52,6 +52,11 @@ struct MenuSettings: Equatable {
     /// When true, the menu's day list starts at "now" — meetings that ended more
     /// than the grace period ago are hidden. When false, the full day is shown.
     var hideFinishedEventsInMenu: Bool
+    /// When true, Apple Reminders due today are shown in the menu's Today section.
+    /// OFF by default (see `Defaults[.showRemindersInMenu]`).
+    var showRemindersInMenu: Bool
+    /// When true, overdue reminders are included alongside those due today.
+    var remindersIncludeOverdue: Bool
 }
 
 struct NotificationSettings: Equatable {
@@ -216,7 +221,9 @@ extension AppSettings {
                 showEventDetails: Defaults[.showEventDetails],
                 showMeetingServiceIcon: Defaults[.showMeetingServiceIcon],
                 showEventCalendarColor: Defaults[.showEventCalendarColor],
-                hideFinishedEventsInMenu: Defaults[.hideFinishedEventsInMenu]
+                hideFinishedEventsInMenu: Defaults[.hideFinishedEventsInMenu],
+                showRemindersInMenu: Defaults[.showRemindersInMenu],
+                remindersIncludeOverdue: Defaults[.remindersIncludeOverdue]
             ),
             notifications: NotificationSettings(
                 joinEventNotification: Defaults[.joinEventNotification],
@@ -290,7 +297,9 @@ extension AppSettings {
                 showEventDetails: false,
                 showMeetingServiceIcon: true,
                 showEventCalendarColor: true,
-                hideFinishedEventsInMenu: true
+                hideFinishedEventsInMenu: true,
+                showRemindersInMenu: false,
+                remindersIncludeOverdue: true
             ),
             notifications: NotificationSettings(
                 joinEventNotification: true,

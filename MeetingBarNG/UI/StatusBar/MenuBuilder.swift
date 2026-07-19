@@ -6,7 +6,9 @@
 //  Copyright © 2025 Andrii Leitsius. All rights reserved.
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
-//  remove the "Rate App" menu item (pointed at the original App Store listing).
+//  remove the "Rate App" menu item (pointed at the original App Store listing);
+//  add Apple Reminders rows (checkbox complete + snooze submenu + open in
+//  Reminders) under the Today section.
 //
 
 import Cocoa
@@ -443,6 +445,168 @@ struct MenuBuilder {
         }
 
         return items
+    }
+
+    // MARK: Reminders section (Dot parity) ------------------------------------
+
+    /// Rows for incomplete Apple Reminders due today, appended under the Today
+    /// section. `reminders` is already filtered/sorted by the caller
+    /// (`StatusBarMenuState` via `ReminderSelection`). Returns `[]` when empty
+    /// (feature off, no access, or nothing due) so the section vanishes entirely.
+    func buildRemindersRows(reminders: [MBReminder]) -> [NSMenuItem] {
+        guard !reminders.isEmpty else { return [] }
+
+        var items: [NSMenuItem] = []
+        items.append(remindersSubheaderItem())
+        for reminder in reminders {
+            items.append(makeReminderItem(reminder))
+        }
+        return items
+    }
+
+    private func remindersSubheaderItem() -> NSMenuItem {
+        let title = "status_bar_section_reminders".loco()
+        if #available(macOS 14.0, *) {
+            return NSMenuItem.sectionHeader(title: title)
+        }
+        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        item.attributedTitle = NSAttributedString(
+            string: title,
+            attributes: [
+                .font: NSFont.systemFont(
+                    ofSize: MenuStyleConstants.defaultFontSize - 2,
+                    weight: .semibold
+                ),
+                .foregroundColor: NSColor.secondaryLabelColor
+            ]
+        )
+        item.isEnabled = false
+        return item
+    }
+
+    private func makeReminderItem(_ reminder: MBReminder) -> NSMenuItem {
+        let title = reminder.title.isEmpty ? "status_bar_no_title".loco() : reminder.title
+        let attributed = reminderAttributedTitle(
+            timeColumn: reminderTimeColumn(for: reminder),
+            title: title,
+            isOverdue: reminder.isOverdue
+        )
+
+        // Mirrors the event-row shape: an action plus a submenu of actions. The
+        // circle image is the "checkbox"; the submenu holds Complete / Snooze /
+        // Open in Reminders.
+        let item = NSMenuItem(
+            title: attributed.string,
+            action: #selector(StatusBarItemController.toggleReminderComplete(sender:)),
+            keyEquivalent: ""
+        )
+        item.target = target
+        item.attributedTitle = attributed
+        item.representedObject = reminder
+        item.image = Self.reminderCheckboxImage(completed: reminder.isCompleted)
+        if let notes = reminder.notes, !notes.isEmpty {
+            item.toolTip = notes
+        }
+        item.submenu = makeReminderSubmenu(reminder)
+        return item
+    }
+
+    private func makeReminderSubmenu(_ reminder: MBReminder) -> NSMenu {
+        let menu = NSMenu(title: reminder.title)
+
+        let completeItem = menu.addItem(
+            withTitle: "status_bar_reminders_complete".loco(),
+            action: #selector(StatusBarItemController.toggleReminderComplete(sender:)),
+            keyEquivalent: ""
+        )
+        completeItem.target = target
+        completeItem.representedObject = reminder
+
+        let snoozeItem = menu.addItem(
+            withTitle: "status_bar_reminders_snooze".loco(),
+            action: nil,
+            keyEquivalent: ""
+        )
+        let snoozeMenu = NSMenu(title: "status_bar_reminders_snooze".loco())
+        for option in ReminderSnoozeOption.allCases {
+            let optionItem = snoozeMenu.addItem(
+                withTitle: reminderSnoozeOptionTitle(option),
+                action: #selector(StatusBarItemController.snoozeReminder(sender:)),
+                keyEquivalent: ""
+            )
+            optionItem.target = target
+            optionItem.representedObject = ReminderSnoozeCommand(
+                reminderID: reminder.id,
+                option: option
+            )
+        }
+        snoozeItem.submenu = snoozeMenu
+
+        let openItem = menu.addItem(
+            withTitle: "status_bar_reminders_open_in_reminders".loco(),
+            action: #selector(StatusBarItemController.openReminderInApp(sender:)),
+            keyEquivalent: ""
+        )
+        openItem.target = target
+        openItem.representedObject = reminder
+
+        return menu
+    }
+
+    private func reminderSnoozeOptionTitle(_ option: ReminderSnoozeOption) -> String {
+        switch option {
+        case .laterToday: return "status_bar_reminders_snooze_later_today".loco()
+        case .thisEvening: return "status_bar_reminders_snooze_this_evening".loco()
+        case .tomorrow: return "status_bar_reminders_snooze_tomorrow".loco()
+        }
+    }
+
+    private func reminderTimeColumn(for reminder: MBReminder) -> String {
+        guard reminder.hasTime, let due = reminder.dueDate else { return "" }
+        let formatter = DateFormatter()
+        formatter.locale = I18N.instance.locale
+        formatter.dateFormat = state.timeFormat == .am_pm ? "h:mm a" : "HH:mm"
+        return formatter.string(from: due)
+    }
+
+    /// Fixed-width time column + title, reusing the event rows' shared tab stop
+    /// so reminder times align with meeting times. Overdue rows are tinted red.
+    private func reminderAttributedTitle(
+        timeColumn: String,
+        title: String,
+        isOverdue: Bool
+    ) -> NSMutableAttributedString {
+        let timeFont = NSFont.monospacedDigitSystemFont(
+            ofSize: MenuStyleConstants.defaultFontSize,
+            weight: .regular
+        )
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.tabStops = [
+            NSTextTab(textAlignment: .left, location: timeColumnTabStopLocation(font: timeFont))
+        ]
+        paragraphStyle.lineBreakMode = .byTruncatingTail
+
+        let attributed = NSMutableAttributedString(
+            string: "\(timeColumn)\t\(title)",
+            attributes: [.paragraphStyle: paragraphStyle]
+        )
+        let timeRange = NSRange(location: 0, length: (timeColumn as NSString).length)
+        attributed.addAttribute(.font, value: timeFont, range: timeRange)
+        if isOverdue {
+            attributed.addAttribute(
+                .foregroundColor,
+                value: NSColor.systemRed,
+                range: NSRange(location: 0, length: attributed.length)
+            )
+        }
+        return attributed
+    }
+
+    private static func reminderCheckboxImage(completed: Bool) -> NSImage? {
+        let symbolName = completed ? "largecircle.fill.circle" : "circle"
+        let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)
+        image?.size = MenuStyleConstants.iconSize
+        return image
     }
 
     // MARK: Join section ------------------------------------------------------

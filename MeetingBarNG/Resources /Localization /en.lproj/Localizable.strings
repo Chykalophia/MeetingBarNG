@@ -177,6 +177,8 @@
 "preferences_appearance_menu_show_event_icon_value" = "icon";
 "preferences_appearance_menu_show_event_calendar_color_value" = "calendar color";
 "preferences_appearance_menu_show_event_details_value" = "details as submenu";
+"preferences_appearance_menu_show_reminders_toggle" = "Show reminders due today";
+"preferences_appearance_menu_reminders_include_overdue_toggle" = "Include overdue reminders";
 
 // MARK: - Composable menu bar (MeetingBarNG)
 
@@ -306,6 +308,13 @@
 
 "status_bar_section_today" = "Today";
 "status_bar_section_tomorrow" = "Tomorrow";
+"status_bar_section_reminders" = "Reminders";
+"status_bar_reminders_complete" = "Complete";
+"status_bar_reminders_snooze" = "Snooze";
+"status_bar_reminders_snooze_later_today" = "Later today";
+"status_bar_reminders_snooze_this_evening" = "This evening";
+"status_bar_reminders_snooze_tomorrow" = "Tomorrow";
+"status_bar_reminders_open_in_reminders" = "Open in Reminders";
 "status_bar_section_join_next_meeting" = "Join next event meeting";
 "status_bar_section_join_current_meeting" = "Join current event meeting";
 "status_bar_join_with_other_link" = "Join with other link";

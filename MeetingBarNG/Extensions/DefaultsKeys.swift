@@ -6,9 +6,10 @@
 //  Copyright © 2020 Andrii Leitsius. All rights reserved.
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
-//  add persistence keys for the composable menu bar; remove the StoreKit
-//  patronage keys (patronageDuration, processedPatronageTransactionIDs,
-//  isInstalledFromAppStore) along with the removed patronage feature.
+//  add persistence keys for the composable menu bar and Apple Reminders in the
+//  menu; remove the StoreKit patronage keys (patronageDuration,
+//  processedPatronageTransactionIDs, isInstalledFromAppStore) along with the
+//  removed patronage feature.
 //
 @preconcurrency import Defaults
 import Foundation
@@ -112,6 +113,12 @@ extension Defaults.Keys {
     static let showEventDetails = Key<Bool>("showEventDetails", default: false)
     static let showMeetingServiceIcon = Key<Bool>("showMeetingServiceIcon", default: true)
     static let showEventCalendarColor = Key<Bool>("showEventCalendarColor", default: true)
+
+    // Apple Reminders in the menu (MeetingBarNG). OFF by default so existing
+    // installs never see a surprise permission prompt — the Reminders access
+    // request only fires when the user turns this on in Preferences.
+    static let showRemindersInMenu = Key<Bool>("showRemindersInMenu", default: false)
+    static let remindersIncludeOverdue = Key<Bool>("remindersIncludeOverdue", default: true)
 
     static let declinedEventsAppereance = Key<DeclinedEventsAppereance>(
         "declinedEventsAppereance", default: .strikethrough)

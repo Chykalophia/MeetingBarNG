@@ -52,6 +52,8 @@
 		<true />
 		<key>NSCalendarsUsageDescription</key>
 		<string>To get events to show on status bar</string>
+		<key>NSRemindersFullAccessUsageDescription</key>
+		<string>MeetingBarNG shows your reminders that are due today alongside your meetings, and lets you check them off or snooze them.</string>
 		<key>NSHumanReadableCopyright</key>
 		<string>© 2020 Andrii Leitsius. Modifications © 2026 Chykalophia (Peter Krzyzek). MeetingBarNG is a derivative of MeetingBar, licensed under Apache 2.0.</string>
 		<key>NSMainStoryboardFile</key>

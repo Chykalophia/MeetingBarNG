@@ -579,6 +579,8 @@ struct MenuSection: View {
     @Default(.hideFinishedEventsInMenu) var hideFinishedEventsInMenu
     @Default(.showGreetingInMenu) var showGreetingInMenu
     @Default(.greetingName) var greetingName
+    @Default(.showRemindersInMenu) var showRemindersInMenu
+    @Default(.remindersIncludeOverdue) var remindersIncludeOverdue
 
     var body: some View {
         Section(header: Text("preferences_appearance_menu_title".loco())) {
@@ -601,6 +603,19 @@ struct MenuSection: View {
             )
             .preferenceIndent()
             .disabled(!showGreetingInMenu)
+
+            // Reminders (Dot parity). Turning this on is the ONLY place that
+            // requests Reminders access — the setting only flips on if granted.
+            Toggle(
+                preferenceLabel("preferences_appearance_menu_show_reminders_toggle"),
+                isOn: showRemindersBinding
+            )
+            Toggle(
+                preferenceLabel("preferences_appearance_menu_reminders_include_overdue_toggle"),
+                isOn: $remindersIncludeOverdue
+            )
+            .preferenceIndent()
+            .disabled(!showRemindersInMenu)
         }
 
         Section(header: Text(preferenceLabel("preferences_appearance_menu_show_event_title"))) {
@@ -646,6 +661,24 @@ struct MenuSection: View {
             .preferenceIndent()
             .disabled(!shortenEventTitle)
         }
+    }
+
+    /// Enabling the feature first requests Reminders access; the setting only
+    /// flips on when access is granted, so a denied prompt leaves the toggle off.
+    private var showRemindersBinding: Binding<Bool> {
+        Binding(
+            get: { showRemindersInMenu },
+            set: { isOn in
+                if isOn {
+                    Task {
+                        let granted = await RemindersStore.shared.requestAccess()
+                        await MainActor.run { showRemindersInMenu = granted }
+                    }
+                } else {
+                    showRemindersInMenu = false
+                }
+            }
+        )
     }
 }
 

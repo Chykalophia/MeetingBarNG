@@ -20,6 +20,11 @@ import UserNotifications
 class AppDelegate: NSObject, NSApplicationDelegate {
     var statusBarItem: StatusBarItemController!
     var calendarSync: CalendarSync!
+    /// Reminders live in their own EventKit store so their permission is
+    /// requested independently (and only on opt-in). Shared instance so the
+    /// preferences toggle, sync, and write paths all target the same store.
+    let remindersStore = RemindersStore.shared
+    private var remindersSync: RemindersSync!
     let notificationScheduler = NotificationScheduler()
     let snoozeService = SnoozeService()
     private var notificationCenterDelegate: NotificationCenterDelegate?
@@ -110,8 +115,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func setup(triggerInitialRefresh: Bool = true) {
         guard appModel == nil else { return }
+        let sync = RemindersSync(store: remindersStore)
+        remindersSync = sync
         let env = AppEnvironment.live(
             calendarSync: calendarSync,
+            remindersSync: sync,
+            remindersStore: remindersStore,
             notificationScheduler: notificationScheduler,
             snoozeService: snoozeService,
             openPreferences: { [weak self] in
@@ -199,6 +208,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         if triggerInitialRefresh {
             model.handleLaunch()
+            // Only fetch reminders at launch when the feature is enabled AND
+            // access is already granted — the permission prompt is exclusively
+            // triggered from the preferences toggle, never here.
+            if Defaults[.showRemindersInMenu], remindersStore.isAccessGranted {
+                sync.refreshSubject.send()
+            }
         }
     }
 
@@ -344,6 +359,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         appModel?.handleWillTerminate()
         notificationScheduler.stop()
         calendarSync?.stop()
+        remindersSync?.stop()
         cancellables.removeAll()
     }
 }

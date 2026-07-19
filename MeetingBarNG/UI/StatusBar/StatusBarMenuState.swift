@@ -42,6 +42,13 @@ struct StatusBarMenuState: Equatable {
     var tomorrowEvents: [MBEvent] = []
     var nextEvent: MBEvent?
 
+    // MARK: - Reminders (Dot parity)
+
+    /// Incomplete Apple Reminders due today (and optionally overdue), already
+    /// filtered/sorted by the hostless `ReminderSelection` policy. Empty unless
+    /// the feature is enabled in settings.
+    var todayReminders: [MBReminder] = []
+
     // MARK: - Provider
 
     var activeProvider: EventStoreProvider = .macOSEventKit
@@ -176,6 +183,15 @@ extension StatusBarMenuState {
             health: providerHealth
         )
 
+        // Reminders are gated on the opt-in setting, then run through the same
+        // hostless due-today policy the pure logic + tests use.
+        let todayReminders = settings.menu.showRemindersInMenu
+            ? appState.reminders.dueToday(
+                now: now,
+                includeOverdue: settings.menu.remindersIncludeOverdue
+            )
+            : []
+
         let daySummary = DaySummaryPolicy.summary(
             input: DaySummaryInput(
                 now: now,
@@ -190,6 +206,7 @@ extension StatusBarMenuState {
             todayEvents: todayEvents,
             tomorrowEvents: tomorrowEvents,
             nextEvent: nextEvent,
+            todayReminders: todayReminders,
             activeProvider: activeProvider,
             providerHealth: providerHealth,
             providerStatus: providerStatus,

@@ -46,6 +46,12 @@ struct AppState: Equatable {
     var providerChangeInProgress = false
     var providerHealth = ProviderHealth()
 
+    // MARK: Reminders (Dot parity)
+
+    /// Latest incomplete Apple Reminders published by `RemindersSync`. Empty
+    /// unless the feature is enabled and access has been granted.
+    var reminders: [MBReminder] = []
+
     // MARK: System
 
     /// `true` while the screen is locked or the display is off.
@@ -101,6 +107,12 @@ enum AppAction {
     case calendarRefreshFailed(Error)
     case providerChanged(EventStoreProvider)
     case selectCalendar(id: String, selected: Bool)
+
+    // Reminders (Dot parity)
+    case remindersLoaded([MBReminder])
+    case completeReminder(id: String)
+    case snoozeReminder(id: String, option: ReminderSnoozeOption)
+    case refreshReminders
 
     // Settings
     case settingsChanged
@@ -198,9 +210,29 @@ struct AppEnvironment {
     /// Current wall-clock time for workflow decisions.
     var clock: AppClock
 
+    // MARK: Reminders (Dot parity)
+    //
+    // Defaulted so existing (test) call sites that build `AppEnvironment` via the
+    // memberwise initializer keep compiling without the reminders wiring.
+
+    /// Live stream of the current reminders list from `RemindersSync`.
+    var remindersPublisher: AnyPublisher<[MBReminder], Never> =
+        Empty<[MBReminder], Never>().eraseToAnyPublisher()
+
+    /// Mark a reminder complete in Apple Reminders (by identifier).
+    var completeReminder: @MainActor (String) async -> Void = { _ in }
+
+    /// Reschedule a reminder's due date in Apple Reminders (snooze).
+    var rescheduleReminder: @MainActor (String, Date) async -> Void = { _, _ in }
+
+    /// Trigger a fresh reminders fetch. Results flow back through `remindersPublisher`.
+    var triggerRemindersRefresh: @MainActor () -> Void = {}
+
     @MainActor
     static func live(
         calendarSync: CalendarSync,
+        remindersSync: RemindersSync,
+        remindersStore: RemindersStore,
         notificationScheduler: NotificationScheduler,
         snoozeService: SnoozeService,
         openPreferences: @escaping @MainActor () -> Void = {},
@@ -268,7 +300,19 @@ struct AppEnvironment {
             },
             openPreferences: openPreferences,
             resumeOAuthFlow: resumeOAuthFlow,
-            clock: .live
+            clock: .live,
+            remindersPublisher: remindersSync.$reminders.eraseToAnyPublisher(),
+            completeReminder: { id in
+                await remindersStore.complete(id: id)
+                remindersSync.refreshSubject.send()
+            },
+            rescheduleReminder: { id, date in
+                await remindersStore.reschedule(id: id, to: date)
+                remindersSync.refreshSubject.send()
+            },
+            triggerRemindersRefresh: {
+                remindersSync.refreshSubject.send()
+            }
         )
     }
 }
@@ -290,6 +334,7 @@ final class AppModel: ObservableObject {
     private var onboardingTask: Task<Void, Never>?
     private var notificationReconcileTask: Task<Void, Never>?
     private var snoozeTasks: [String: Task<Void, Never>] = [:]
+    private var reminderTasks: [String: Task<Void, Never>] = [:]
     private var cancellables = Set<AnyCancellable>()
 
     init(environment: AppEnvironment) {
@@ -324,6 +369,13 @@ final class AppModel: ObservableObject {
                 self?.send(.selectedCalendarsChanged(selectedCalendarIDs))
             }
             .store(in: &cancellables)
+
+        environment.remindersPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] reminders in
+                self?.send(.remindersLoaded(reminders))
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: Action dispatch
@@ -343,6 +395,8 @@ final class AppModel: ObservableObject {
              .dismissNearestMeeting, .undismissMeeting, .clearDismissedMeetings,
              .snoozeMeeting:
             handleMeetingAction(action)
+        case .remindersLoaded, .completeReminder, .snoozeReminder, .refreshReminders:
+            handleReminderAction(action)
         case .onboardingCompleted, .openRoute:
             handleExternalAction(action)
         case .reconcileNotifications:
@@ -509,6 +563,42 @@ final class AppModel: ObservableObject {
         }
     }
 
+    private func handleReminderAction(_ action: AppAction) {
+        switch action {
+        case .remindersLoaded(let reminders):
+            state.reminders = reminders
+        case .completeReminder(let id):
+            let environment = environment
+            scheduleReminderWrite(key: "complete-\(id)") {
+                await environment.completeReminder(id)
+            }
+        case .snoozeReminder(let id, let option):
+            // The new due date is pure math (ReminderSnoozePolicy); the host only
+            // performs the resulting reschedule.
+            let newDueDate = ReminderSnoozePolicy.newDueDate(
+                from: environment.clock.now(),
+                option: option,
+                calendar: .current
+            )
+            let environment = environment
+            scheduleReminderWrite(key: "snooze-\(id)") {
+                await environment.rescheduleReminder(id, newDueDate)
+            }
+        case .refreshReminders:
+            environment.triggerRemindersRefresh()
+        default:
+            break
+        }
+    }
+
+    private func scheduleReminderWrite(
+        key: String,
+        _ perform: @escaping @MainActor () async -> Void
+    ) {
+        reminderTasks[key]?.cancel()
+        reminderTasks[key] = Task { await perform() }
+    }
+
     private func handleExternalAction(_ action: AppAction) {
         switch action {
         case .onboardingCompleted(let provider):
@@ -612,6 +702,8 @@ final class AppModel: ObservableObject {
         notificationReconcileTask = nil
         snoozeTasks.values.forEach { $0.cancel() }
         snoozeTasks.removeAll()
+        reminderTasks.values.forEach { $0.cancel() }
+        reminderTasks.removeAll()
         cancellables.removeAll()
     }
 }

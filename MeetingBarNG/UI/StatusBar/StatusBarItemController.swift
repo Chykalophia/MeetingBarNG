@@ -112,6 +112,7 @@ final class StatusBarItemController {
             .menuBarTokens, .menuBarCountdownStyle, .menuBarDateStyle,
             .menuBarProgressStyle, .menuBarWorldClockTimeZone, .menuBarWorldClockLabel,
             .showGreetingInMenu, .greetingName,
+            .showRemindersInMenu, .remindersIncludeOverdue,
             options: []
         )
         .receive(on: DispatchQueue.main)
@@ -330,10 +331,17 @@ final class StatusBarItemController {
                     subdueEmptyState: menuState.todayEvents.isEmpty
                         && !menuState.tomorrowEvents.isEmpty
                 )
+                statusItemMenu.items += builder.buildRemindersRows(
+                    reminders: menuState.todayReminders
+                )
             case .today_n_tomorrow:
                 statusItemMenu.items += builder.buildDateSection(
                     date: today, title: "status_bar_section_today".loco(),
                     events: menuState.todayEvents)
+
+                statusItemMenu.items += builder.buildRemindersRows(
+                    reminders: menuState.todayReminders
+                )
 
                 statusItemMenu.addItem(NSMenuItem.separator())
 
@@ -446,6 +454,33 @@ final class StatusBarItemController {
         // (ical://ekevent/… for EventKit, htmlLink for Google).
         if let url = sender.representedObject as? URL {
             url.openInDefaultBrowser()
+        }
+    }
+
+    // MARK: - Reminders (Dot parity)
+
+    @objc
+    func toggleReminderComplete(sender: NSMenuItem) {
+        guard let reminder = sender.representedObject as? MBReminder else { return }
+        dependencies.send(.completeReminder(id: reminder.id))
+    }
+
+    @objc
+    func snoozeReminder(sender: NSMenuItem) {
+        guard let command = sender.representedObject as? ReminderSnoozeCommand else { return }
+        dependencies.send(.snoozeReminder(id: command.reminderID, option: command.option))
+    }
+
+    @objc
+    func openReminderInApp(sender: NSMenuItem) {
+        guard let reminder = sender.representedObject as? MBReminder else { return }
+        // Try the reminder's deep link first; fall back to just opening Reminders.
+        if let deepLink = URL(string: "x-apple-reminderkit://REMCDReminder/\(reminder.id)") {
+            NSWorkspace.shared.open(deepLink)
+        } else if let appURL = NSWorkspace.shared.urlForApplication(
+            withBundleIdentifier: "com.apple.reminders"
+        ) {
+            NSWorkspace.shared.open(appURL)
         }
     }
 
@@ -620,4 +655,11 @@ enum NextEventState {
     case none
     case afterThreshold(MBEvent)
     case nextEvent(MBEvent)
+}
+
+/// Carries a reminder + chosen snooze option through a menu item's
+/// `representedObject` to the `snoozeReminder(sender:)` action.
+struct ReminderSnoozeCommand {
+    let reminderID: String
+    let option: ReminderSnoozeOption
 }
