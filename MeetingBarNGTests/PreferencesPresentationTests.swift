@@ -47,6 +47,7 @@ final class PreferencesPresentationTests: XCTestCase {
                 .calendars,
                 .meetingOpening,
                 .menuBar,
+                .menuBuilder,
                 .notifications,
                 .advanced
             ]
@@ -58,6 +59,7 @@ final class PreferencesPresentationTests: XCTestCase {
                 "preferences_tab_calendars",
                 "preferences_tab_meeting_opening",
                 "preferences_tab_menu_bar",
+                "preferences_tab_menu_builder",
                 "preferences_tab_notifications",
                 "preferences_tab_advanced"
             ]
@@ -69,6 +71,7 @@ final class PreferencesPresentationTests: XCTestCase {
                 "calendar",
                 "arrow.up.right.square",
                 "menubar.rectangle",
+                "slider.horizontal.below.rectangle",
                 "bell",
                 "slider.horizontal.3"
             ]
@@ -96,7 +99,7 @@ final class PreferencesPresentationTests: XCTestCase {
             PreferencesSidebarSection.allCases.map(\.tabs),
             [
                 [.general, .calendars, .meetingOpening],
-                [.menuBar, .notifications],
+                [.menuBar, .menuBuilder, .notifications],
                 [.advanced]
             ]
         )

@@ -6,8 +6,9 @@
 //  Copyright © 2020 Andrii Leitsius. All rights reserved.
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
-//  add persistence keys for the composable menu bar and Apple Reminders in the
-//  menu; remove the StoreKit patronage keys (patronageDuration,
+//  add persistence keys for the composable menu bar, the composable menu
+//  dropdown (dropdownModuleOrder + per-module enabled bools), and Apple
+//  Reminders in the menu; remove the StoreKit patronage keys (patronageDuration,
 //  processedPatronageTransactionIDs, isInstalledFromAppStore) along with the
 //  removed patronage feature.
 //
@@ -101,6 +102,21 @@ extension Defaults.Keys {
     // name-less greeting.
     static let showGreetingInMenu = Key<Bool>("showGreetingInMenu", default: true)
     static let greetingName = Key<String>("greetingName", default: "")
+
+    // Composable menu dropdown (MeetingBarNG)
+    // Ordered `DropdownModule` raw values driving the dropdown's section order.
+    // Empty ⇒ standard order (`DropdownCompositionPolicy` reappends any missing
+    // modules), so existing installs render exactly as before. Stored as strings
+    // so unknown/renamed modules degrade gracefully.
+    static let dropdownModuleOrder = Key<[String]>(
+        "dropdownModuleOrder", default: DropdownComposition.standard.modules.map(\.rawValue))
+    // Per-module enabled state. greeting/timeline reuse the existing keys above
+    // (showGreetingInMenu / showTimelineInMenu); these cover the rest. All
+    // default true so the dropdown looks unchanged until the user customizes it.
+    static let showMeetingControlInMenu = Key<Bool>("showMeetingControlInMenu", default: true)
+    static let showAgendaInMenu = Key<Bool>("showAgendaInMenu", default: true)
+    static let showJoinSectionInMenu = Key<Bool>("showJoinSectionInMenu", default: true)
+    static let showBookmarksInMenu = Key<Bool>("showBookmarksInMenu", default: true)
 
     // Menu Appearance
     static let showTimelineInMenu = Key<Bool>("showTimelineInMenu", default: true)

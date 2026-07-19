@@ -8,7 +8,9 @@
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
 //  render the status-bar title through the composable menu-bar presenter when
 //  the user has set a custom token composition, and observe its Defaults keys;
-//  remove the "Rate App" action that opened the original App Store listing.
+//  assemble the dropdown from the composable-dropdown block-join (toggleable +
+//  reorderable modules); remove the "Rate App" action that opened the original
+//  App Store listing.
 //
 
 import Cocoa
@@ -113,6 +115,8 @@ final class StatusBarItemController {
             .menuBarProgressStyle, .menuBarWorldClockTimeZone, .menuBarWorldClockLabel,
             .showGreetingInMenu, .greetingName,
             .showRemindersInMenu, .remindersIncludeOverdue,
+            .dropdownModuleOrder, .showMeetingControlInMenu,
+            .showAgendaInMenu, .showJoinSectionInMenu, .showBookmarksInMenu,
             options: []
         )
         .receive(on: DispatchQueue.main)
@@ -369,57 +373,68 @@ final class StatusBarItemController {
             target: self, state: menuState, installationDate: installationDate)
 
         statusItemMenu.autoenablesItems = false
-        statusItemMenu.removeAllItems()
 
-        if menuState.shouldShowGreetingHeader {
-            statusItemMenu.items += builder.buildGreetingHeaderSection()
-        }
-        statusItemMenu.items += builder.buildTopSection()
-
-        if menuState.hasSelectedCalendars {
-            let today = Calendar.current.startOfDay(for: Date())
-            let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
-
-            switch menuState.events.showEventsForPeriod {
-            case .today:
-                statusItemMenu.items += builder.buildDateSection(
-                    date: today, title: "status_bar_section_today".loco(),
-                    events: menuState.todayEvents,
-                    subdueEmptyState: menuState.todayEvents.isEmpty
-                        && !menuState.tomorrowEvents.isEmpty
-                )
-                statusItemMenu.items += builder.buildRemindersRows(
-                    reminders: menuState.todayReminders
-                )
-            case .today_n_tomorrow:
-                statusItemMenu.items += builder.buildDateSection(
-                    date: today, title: "status_bar_section_today".loco(),
-                    events: menuState.todayEvents)
-
-                statusItemMenu.items += builder.buildRemindersRows(
-                    reminders: menuState.todayReminders
-                )
-
-                statusItemMenu.addItem(NSMenuItem.separator())
-
-                statusItemMenu.items += builder.buildDateSection(
-                    date: tomorrow, title: "status_bar_section_tomorrow".loco(),
-                    events: menuState.tomorrowEvents)
-            }
-        }
-        statusItemMenu.addItem(NSMenuItem.separator())
-        statusItemMenu.items += builder.buildJoinSection(
-            nextEvent: menuState.nextEvent,
-            includeJoinAction: false
+        // Composable dropdown: each module produces a separator-free block; the
+        // enabled modules (in the user's stored order) are joined below with a
+        // single separator between non-empty blocks. With the default order +
+        // all toggles on, this reproduces the classic dropdown layout exactly.
+        let modules = DropdownCompositionPolicy.resolve(
+            order: Defaults[.dropdownModuleOrder],
+            enabled: enabledDropdownModuleRawValues(menuState)
         )
 
-        if !menuState.meetings.bookmarks.isEmpty {
-            statusItemMenu.addItem(NSMenuItem.separator())
-            statusItemMenu.items += builder.buildBookmarksSection(bookmarks: menuState.meetings.bookmarks)
+        var blocks: [[NSMenuItem]] = []
+        for module in modules {
+            switch module {
+            case .greeting:
+                if menuState.shouldShowGreetingHeader {
+                    blocks.append(builder.buildGreetingHeaderBlock())
+                }
+            case .timeline:
+                blocks.append(builder.buildTimelineBlock())
+            case .meeting:
+                blocks.append(builder.buildMeetingControlSection())
+            case .agenda:
+                if menuState.hasSelectedCalendars {
+                    blocks.append(builder.buildAgendaBlock())
+                }
+            case .join:
+                blocks.append(builder.buildJoinSection(
+                    nextEvent: menuState.nextEvent,
+                    includeJoinAction: false
+                ))
+            case .bookmarks:
+                if !menuState.meetings.bookmarks.isEmpty {
+                    blocks.append(builder.buildBookmarksSection(
+                        bookmarks: menuState.meetings.bookmarks))
+                }
+            }
         }
-        statusItemMenu.addItem(NSMenuItem.separator())
+        // The Preferences footer is pinned, never a module, so the user can't
+        // hide Settings/Quit.
+        blocks.append(builder.buildPreferencesSection())
 
-        statusItemMenu.items += builder.buildPreferencesSection()
+        statusItemMenu.removeAllItems()
+        for block in blocks where !block.isEmpty {
+            if !statusItemMenu.items.isEmpty {
+                statusItemMenu.addItem(.separator())
+            }
+            statusItemMenu.items += block
+        }
+    }
+
+    /// The raw values of the dropdown modules whose enabled toggle is on, used as
+    /// the `enabled` set for `DropdownCompositionPolicy.resolve`. greeting/timeline
+    /// reuse the existing preferences; the rest use the MeetingBarNG toggles.
+    private func enabledDropdownModuleRawValues(_ menuState: StatusBarMenuState) -> Set<String> {
+        var enabled = Set<String>()
+        if menuState.showGreetingHeader { enabled.insert(DropdownModule.greeting.rawValue) }
+        if menuState.menu.showTimelineInMenu { enabled.insert(DropdownModule.timeline.rawValue) }
+        if menuState.menu.showMeetingControlInMenu { enabled.insert(DropdownModule.meeting.rawValue) }
+        if menuState.menu.showAgendaInMenu { enabled.insert(DropdownModule.agenda.rawValue) }
+        if menuState.menu.showJoinSectionInMenu { enabled.insert(DropdownModule.join.rawValue) }
+        if menuState.menu.showBookmarksInMenu { enabled.insert(DropdownModule.bookmarks.rawValue) }
+        return enabled
     }
 
     /*

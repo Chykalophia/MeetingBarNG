@@ -41,6 +41,7 @@ let package = Package(
                 // UI/StatusBar
                 "UI/StatusBar/StatusBarPresentation.swift",
                 "UI/StatusBar/DaySummaryGreeting.swift",
+                "UI/StatusBar/DropdownComposition.swift",
                 // UI/CommandBar (hostless core only; View/Window/ViewModel are app-target)
                 "UI/CommandBar/CommandBarModels.swift",
                 "UI/CommandBar/CommandBarSearch.swift",

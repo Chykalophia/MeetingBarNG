@@ -142,6 +142,8 @@ private func preferencesTabContent(_ tab: PreferencesTab) -> some View {
         LinksTab()
     case .menuBar:
         AppearanceTab()
+    case .menuBuilder:
+        MenuBuilderTab()
     case .notifications:
         NotificationsTab()
     case .advanced:

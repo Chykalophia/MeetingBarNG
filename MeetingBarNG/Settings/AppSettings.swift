@@ -57,6 +57,16 @@ struct MenuSettings: Equatable {
     var showRemindersInMenu: Bool
     /// When true, overdue reminders are included alongside those due today.
     var remindersIncludeOverdue: Bool
+    // Composable menu dropdown module toggles (MeetingBarNG). greeting/timeline
+    // reuse showGreetingInMenu / showTimelineInMenu; these cover the rest.
+    /// When true, the next/current meeting control card is shown.
+    var showMeetingControlInMenu: Bool
+    /// When true, the today/tomorrow agenda (dates + reminders) is shown.
+    var showAgendaInMenu: Bool
+    /// When true, the join / create / quick-actions section is shown.
+    var showJoinSectionInMenu: Bool
+    /// When true, the saved bookmarks section is shown.
+    var showBookmarksInMenu: Bool
 }
 
 struct NotificationSettings: Equatable {
@@ -223,7 +233,11 @@ extension AppSettings {
                 showEventCalendarColor: Defaults[.showEventCalendarColor],
                 hideFinishedEventsInMenu: Defaults[.hideFinishedEventsInMenu],
                 showRemindersInMenu: Defaults[.showRemindersInMenu],
-                remindersIncludeOverdue: Defaults[.remindersIncludeOverdue]
+                remindersIncludeOverdue: Defaults[.remindersIncludeOverdue],
+                showMeetingControlInMenu: Defaults[.showMeetingControlInMenu],
+                showAgendaInMenu: Defaults[.showAgendaInMenu],
+                showJoinSectionInMenu: Defaults[.showJoinSectionInMenu],
+                showBookmarksInMenu: Defaults[.showBookmarksInMenu]
             ),
             notifications: NotificationSettings(
                 joinEventNotification: Defaults[.joinEventNotification],
@@ -299,7 +313,11 @@ extension AppSettings {
                 showEventCalendarColor: true,
                 hideFinishedEventsInMenu: true,
                 showRemindersInMenu: false,
-                remindersIncludeOverdue: true
+                remindersIncludeOverdue: true,
+                showMeetingControlInMenu: true,
+                showAgendaInMenu: true,
+                showJoinSectionInMenu: true,
+                showBookmarksInMenu: true
             ),
             notifications: NotificationSettings(
                 joinEventNotification: true,

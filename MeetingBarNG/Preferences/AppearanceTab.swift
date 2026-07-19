@@ -6,8 +6,9 @@
 //  Copyright © 2021 Andrii Leitsius. All rights reserved.
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
-//  add the composable menu-bar composer section; adopt the shared
-//  `.preferenceIndent()` modifier for dependent-row indents.
+//  add the composable menu-bar composer section (its `MenuBarComposerSection`
+//  struct lives here but is now rendered by the Menu Builder tab); adopt the
+//  shared `.preferenceIndent()` modifier for dependent-row indents.
 //
 
 import Defaults
@@ -18,7 +19,6 @@ struct AppearanceTab: View {
         PreferencesGroupedForm {
             EventsSection()
             StatusBarSection()
-            MenuBarComposerSection()
             MenuSection()
         }
     }

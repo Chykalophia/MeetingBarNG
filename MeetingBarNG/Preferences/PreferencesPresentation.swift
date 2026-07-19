@@ -56,6 +56,7 @@ enum PreferencesTab: CaseIterable, Hashable {
     case calendars
     case meetingOpening
     case menuBar
+    case menuBuilder
     case notifications
     case advanced
 
@@ -73,6 +74,8 @@ enum PreferencesTab: CaseIterable, Hashable {
             "preferences_tab_meeting_opening"
         case .menuBar:
             "preferences_tab_menu_bar"
+        case .menuBuilder:
+            "preferences_tab_menu_builder"
         case .notifications:
             "preferences_tab_notifications"
         case .advanced:
@@ -90,6 +93,8 @@ enum PreferencesTab: CaseIterable, Hashable {
             "arrow.up.right.square"
         case .menuBar:
             "menubar.rectangle"
+        case .menuBuilder:
+            "slider.horizontal.below.rectangle"
         case .notifications:
             "bell"
         case .advanced:
@@ -120,7 +125,7 @@ enum PreferencesSidebarSection: CaseIterable {
         case .setup:
             [.general, .calendars, .meetingOpening]
         case .experience:
-            [.menuBar, .notifications]
+            [.menuBar, .menuBuilder, .notifications]
         case .advanced:
             [.advanced]
         }

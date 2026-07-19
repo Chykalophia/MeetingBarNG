@@ -8,7 +8,8 @@
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
 //  remove the "Rate App" menu item (pointed at the original App Store listing);
 //  add Apple Reminders rows (checkbox complete + snooze submenu + open in
-//  Reminders) under the Today section.
+//  Reminders) under the Today section; split the dropdown into separator-free
+//  blocks (greeting/timeline/agenda) for the composable-dropdown block-join.
 //
 
 import Cocoa
@@ -40,7 +41,9 @@ struct MenuBuilder {
     /// Non-clickable day-summary greeting rendered at the very top of the
     /// dropdown (Dot parity). Returns `[]` unless a summary snapshot exists; the
     /// controller additionally gates on `state.shouldShowGreetingHeader`.
-    func buildGreetingHeaderSection() -> [NSMenuItem] {
+    ///
+    /// Separator-free: the controller's block-join adds the trailing separator.
+    func buildGreetingHeaderBlock() -> [NSMenuItem] {
         guard let summary = state.daySummary else { return [] }
 
         let item = NSMenuItem()
@@ -59,7 +62,14 @@ struct MenuBuilder {
         )
         hosting.autoresizingMask = [.width]
         item.view = hosting
-        return [item, .separator()]
+        return [item]
+    }
+
+    /// Back-compat wrapper: the greeting block plus its trailing separator, as
+    /// the classic (pre block-join) assembly produced it.
+    func buildGreetingHeaderSection() -> [NSMenuItem] {
+        let block = buildGreetingHeaderBlock()
+        return block.isEmpty ? [] : block + [.separator()]
     }
 
     private func greetingLine(_ timeOfDay: GreetingTimeOfDay, name: String?) -> String {
@@ -159,13 +169,49 @@ struct MenuBuilder {
 
     // MARK: Top section ------------------------------------------------------
 
+    /// The day-relative timeline bar as a separator-free block. Returns `[]`
+    /// unless the timeline should show (`state.shouldShowTimeline`, checked
+    /// inside `makeTimelineItem`). The controller's block-join adds separators.
+    func buildTimelineBlock() -> [NSMenuItem] {
+        guard let timelineItem = makeTimelineItem() else { return [] }
+        return [timelineItem]
+    }
+
+    /// Back-compat wrapper: timeline block + meeting control + trailing
+    /// separator, as the classic (pre block-join) assembly produced it.
     func buildTopSection() -> [NSMenuItem] {
+        buildTimelineBlock() + buildMeetingControlSection() + [.separator()]
+    }
+
+    // MARK: Agenda block -----------------------------------------------------
+
+    /// Today's (and, per `showEventsForPeriod`, tomorrow's) date sections plus
+    /// today's reminders, as a separator-free block at its edges. The internal
+    /// separator between the today and tomorrow sections is preserved. The
+    /// controller gates this on `state.hasSelectedCalendars`.
+    func buildAgendaBlock() -> [NSMenuItem] {
+        let today = Calendar.current.startOfDay(for: now)
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+
         var items: [NSMenuItem] = []
-        if let timelineItem = makeTimelineItem() {
-            items.append(timelineItem)
+        switch state.events.showEventsForPeriod {
+        case .today:
+            items += buildDateSection(
+                date: today, title: "status_bar_section_today".loco(),
+                events: state.todayEvents,
+                subdueEmptyState: state.todayEvents.isEmpty && !state.tomorrowEvents.isEmpty
+            )
+            items += buildRemindersRows(reminders: state.todayReminders)
+        case .today_n_tomorrow:
+            items += buildDateSection(
+                date: today, title: "status_bar_section_today".loco(),
+                events: state.todayEvents)
+            items += buildRemindersRows(reminders: state.todayReminders)
+            items.append(.separator())
+            items += buildDateSection(
+                date: tomorrow, title: "status_bar_section_tomorrow".loco(),
+                events: state.tomorrowEvents)
         }
-        items.append(contentsOf: buildMeetingControlSection())
-        items.append(.separator())
         return items
     }
 

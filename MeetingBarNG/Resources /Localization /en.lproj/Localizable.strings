@@ -48,6 +48,7 @@
 "preferences_tab_calendars" = "Calendars";
 "preferences_tab_meeting_opening" = "Meeting Links";
 "preferences_tab_menu_bar" = "Display & Events";
+"preferences_tab_menu_builder" = "Menu Builder";
 "preferences_tab_notifications" = "Notifications";
 "preferences_tab_advanced" = "Advanced";
 "preferences_sidebar_setup" = "Setup";
@@ -223,6 +224,19 @@
 "preferences_appearance_menu_bar_world_clock_label_title" = "Label";
 "preferences_appearance_menu_bar_world_clock_label_placeholder" = "e.g. SF";
 "preferences_appearance_menu_bar_week_number_prefix" = "W";
+
+// MARK: - Menu Builder (composable dropdown, MeetingBarNG)
+
+"preferences_menu_builder_dropdown_title" = "Menu dropdown";
+"preferences_menu_builder_dropdown_hint" = "Choose which sections appear in the menu dropdown, and in what order. The Preferences footer is always pinned to the bottom.";
+"preferences_menu_builder_dropdown_add" = "Add section";
+"preferences_menu_builder_dropdown_module_greeting" = "Greeting";
+"preferences_menu_builder_dropdown_module_timeline" = "Timeline";
+"preferences_menu_builder_dropdown_module_meeting" = "Meeting card";
+"preferences_menu_builder_dropdown_module_agenda" = "Agenda";
+"preferences_menu_builder_dropdown_module_join" = "Join & actions";
+"preferences_menu_builder_dropdown_module_bookmarks" = "Bookmarks";
+"preferences_menu_builder_dropdown_module_preferences" = "Preferences";
 
 // MARK: - Preferences Services
 
