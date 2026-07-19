@@ -1,0 +1,43 @@
+MeetingBarNG/App/WindowCoordinator.swift
+  s_8821c3fb11800f::t_bce68d22a86be2 165-169,187
+  s_8821c3fb11800f::t_dca3c9f06d477b 107-113
+  s_8821c3fb11800f::t_b0ad9ef0afc888 90-106,114-116,120-125
+  s_8821c3fb11800f::t_39cba66bf2591a 117-119
+  s_8821c3fb11800f::t_096dd9fa4e2162 162-164,170-186,188-214
+MeetingBarNG/Extensions/KeyboardShortcutsNames.swift
+  s_8821c3fb11800f::t_53a8a7ad1d7f80 17
+MeetingBarNG/UI/CommandBar/CommandBarViewModel.swift
+  s_8821c3fb11800f::t_d4c255f10d6ef4 1-18,23-225
+  s_8821c3fb11800f::t_ae3a6914c357ab 19-22
+MeetingBarNG/UI/CommandBar/CommandBarView.swift
+  s_8821c3fb11800f::t_f87020015098dd 86
+  s_8821c3fb11800f::t_075af692402785 67
+  s_8821c3fb11800f::t_9c3528cab912ec 1-22,27-66,68-85,87-142
+  s_8821c3fb11800f::t_da1238c6fde1dd 23-26
+MeetingBarNG/App/AppDelegate.swift
+  s_8821c3fb11800f::t_e92a51fed147ff 148
+  s_8821c3fb11800f::t_d6e6d570592c61 273-284
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_fbf31f09830a83 91-108
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_8821c3fb11800f::t_d97cd1056f05c7 187-190
+  s_8821c3fb11800f::t_5c3f71e84765f6 48
+MeetingBarNG/Preferences/GeneralTab.swift
+  s_8821c3fb11800f::t_9cd255e8c73a49 79-82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "4c7aabf22944dba8765450da16261f7dfc61be97",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
