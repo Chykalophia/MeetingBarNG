@@ -1,0 +1,54 @@
+MeetingBarNG/Calendar/MonthGridLayout.swift
+  s_8821c3fb11800f::t_8c2ba736b07523 1-102
+MeetingBarNG/UI/StatusBar/MenuBuilder.swift
+  s_8821c3fb11800f::t_650c964ab3c262 12-13
+  s_8821c3fb11800f::t_2938b5ef580309 147-150
+  s_8821c3fb11800f::t_838a41535e253e 146
+MeetingBarLogicTests/MonthGridLayoutTests.swift
+  s_8821c3fb11800f::t_56b3d614afd23c 1-122,129-202
+  s_8821c3fb11800f::t_e465647468156d 123-128
+MeetingBarNG/UI/Calendar/CalendarGridViewModel.swift
+  s_8821c3fb11800f::t_6eb37021ea5465 1-155
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_8821c3fb11800f::t_78c83a75efd640 198-201
+  s_8821c3fb11800f::t_92f148aa65185e 634-638
+  s_8821c3fb11800f::t_0b5bff90aa7abb 52
+  s_8821c3fb11800f::t_d5cdd48057065d 13-14
+MeetingBarNG/Extensions/KeyboardShortcutsNames.swift
+  s_8821c3fb11800f::t_5422acc0b867d2 18
+MeetingBarNG/Utilities/Constants.swift
+  s_8821c3fb11800f::t_2071d588fda571 192
+Package.swift
+  s_8821c3fb11800f::t_98db96539a563a 34
+MeetingBarNG/App/AppDelegate.swift
+  s_8821c3fb11800f::t_ae7e8cd0296a82 303-329
+  s_8821c3fb11800f::t_06247411ea6397 9-11
+  s_8821c3fb11800f::t_c296d246d03bb7 160
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_f9add8fd962c36 94
+  s_8821c3fb11800f::t_9c3e5799b44eaf 113-119
+  s_8821c3fb11800f::t_e2dee2bdb5d466 124
+  s_8821c3fb11800f::t_a625dce4a9312a 43
+MeetingBarNG/App/WindowCoordinator.swift
+  s_8821c3fb11800f::t_88eb7aee94a8a3 163-209
+MeetingBarNG/Preferences/GeneralTab.swift
+  s_8821c3fb11800f::t_240b2be201dfb2 83-86
+MeetingBarNG/UI/Calendar/CalendarGridView.swift
+  s_8821c3fb11800f::t_b8790f0a353786 1-327
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "58f7e6ab29736568b51e91c5ad297b5622d2f209",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
