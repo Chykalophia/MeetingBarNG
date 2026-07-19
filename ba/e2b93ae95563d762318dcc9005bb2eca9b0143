@@ -1,0 +1,32 @@
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_e5c950836b02f0 109-116
+MeetingBarNG/UI/StatusBar/MenuBuilder.swift
+  s_8821c3fb11800f::t_62ccd6586aefbb 108-159
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_8821c3fb11800f::t_ffde1d9dd370cb 199-200,213-268
+  s_2607a225650db6::t_0738e1345d7b01 269
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "bae2b93ae95563d762318dcc9005bb2eca9b0143",
+  "prompts": {},
+  "sessions": {
+    "s_2607a225650db6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3ee6038a-8fab-468d-abea-6a6164872f59",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    },
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
