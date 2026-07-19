@@ -162,6 +162,7 @@ final class WindowCoordinator {
     private weak var commandBarWindow: NSWindow?
     private weak var calendarWindow: NSWindow?
     private weak var eventEditorWindow: NSWindow?
+    private weak var cameraPreviewWindow: NSWindow?
 
     /// Opens the month calendar window, or brings it forward if it is already
     /// open. A standard titled/resizable window (like Preferences) held by a
@@ -207,6 +208,58 @@ final class WindowCoordinator {
         window.orderFrontRegardless()
 
         calendarWindow = window
+    }
+
+    /// Opens the camera/mic pre-call preview ("mirror check") window, or brings
+    /// it forward if already open. A standard titled/resizable window held by a
+    /// weak ref, like the calendar window. The `CameraPreviewController` lives in
+    /// the SwiftUI view as a `@StateObject`, so the capture session is created
+    /// when the window's content is built and — critically — the session is
+    /// stopped and the camera released on the view's `onDisappear` (and the
+    /// controller's `deinit`) when the window closes, so the camera light turns
+    /// off. The coordinator injects the real `dismiss` (close) closure since it
+    /// owns the window.
+    func openCameraPreviewWindow(handlers: CameraPreviewHandlers) {
+        if let cameraPreviewWindow {
+            if cameraPreviewWindow.isMiniaturized {
+                cameraPreviewWindow.deminiaturize(nil)
+            }
+            NSApplication.shared.activate(ignoringOtherApps: true)
+            cameraPreviewWindow.makeKeyAndOrderFront(nil)
+            cameraPreviewWindow.orderFrontRegardless()
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(
+                x: 0,
+                y: 0,
+                width: CameraPreviewLayout.contentSize.width,
+                height: CameraPreviewLayout.contentSize.height
+            ),
+            styleMask: [.closable, .titled, .resizable, .miniaturizable],
+            backing: .buffered,
+            defer: false
+        )
+
+        var resolvedHandlers = handlers
+        resolvedHandlers.dismiss = { [weak window] in window?.close() }
+
+        window.title = WindowTitles.cameraPreview
+        window.contentView = NSHostingView(rootView: CameraPreviewView(handlers: resolvedHandlers))
+        window.minSize = CameraPreviewLayout.minimumSize
+
+        let controller = NSWindowController(window: window)
+        controller.showWindow(self)
+        window.center()
+
+        // LSUIElement accessory app: activate before keying so the window opens
+        // focused rather than merely ordered to the front.
+        NSApplication.shared.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
+
+        cameraPreviewWindow = window
     }
 
     /// Opens the in-app event editor for `mode` (create or edit). A standard

@@ -40,6 +40,7 @@ let package = Package(
                 // Meetings
                 "Meetings/MeetingLinkDetector.swift",
                 "Meetings/MeetingProvider.swift",
+                "Meetings/MicLevel.swift",
                 // UI/StatusBar
                 "UI/StatusBar/StatusBarPresentation.swift",
                 "UI/StatusBar/DaySummaryGreeting.swift",

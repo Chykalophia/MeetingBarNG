@@ -34,6 +34,8 @@ enum Links {
     static let github = URL(string: "https://github.com/Chykalophia/MeetingBarNG")!
     static let emailMe = URL(string: "mailto:peter@chykalophia.com?subject=MeetingBarNG")!
     static let calendarPreferences = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars")!
+    static let cameraPreferences = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera")!
+    static let microphonePreferences = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!
 }
 
 enum TimeFormat: String, Defaults.Serializable, Codable, CaseIterable {
@@ -191,6 +193,7 @@ enum WindowTitles {
     static let changelog = "windows_title_changelog".loco()
     static let calendar = "window_title_calendar".loco()
     static let eventEditor = "window_title_event_editor".loco()
+    static let cameraPreview = "window_title_camera_preview".loco()
 }
 
 enum notificationIDs {

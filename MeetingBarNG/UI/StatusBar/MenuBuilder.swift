@@ -12,7 +12,8 @@
 //  blocks (greeting/timeline/agenda) for the composable-dropdown block-join;
 //  add an "Open calendar" item to the right-click quick-actions menu; add a
 //  "New event…" quick action and per-event "Edit…"/"Delete…" submenu items
-//  (EventKit provider only).
+//  (EventKit provider only); add a "Camera check…" quick action and a per-event
+//  "Preview camera" submenu item for the pre-call camera/mic preview.
 //
 
 import Cocoa
@@ -157,6 +158,11 @@ struct MenuBuilder {
         menu.addItem(quickItem(
             "status_bar_quick_action_open_calendar",
             #selector(StatusBarItemController.openCalendarAction)
+        ))
+
+        menu.addItem(quickItem(
+            "status_bar_quick_action_camera_check",
+            #selector(StatusBarItemController.openCameraPreviewAction)
         ))
 
         menu.addItem(quickItem(
@@ -1553,6 +1559,14 @@ struct MenuBuilder {
             to: menu,
             title: "status_bar_submenu_email_attendees".loco(),
             action: #selector(StatusBarItemController.emailAttendees),
+            representedObject: event
+        )
+        // Pre-call camera/mic check for this event, so the preview's "Join
+        // meeting" button is contextual to it.
+        addEventAction(
+            to: menu,
+            title: "status_bar_submenu_preview_camera".loco(),
+            action: #selector(StatusBarItemController.previewCameraForEventAction(sender:)),
             representedObject: event
         )
         // Only offer "Open in Calendar" when the source provides a usable URL

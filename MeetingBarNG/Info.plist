@@ -52,6 +52,10 @@
 		<true />
 		<key>NSCalendarsUsageDescription</key>
 		<string>To get events to show on status bar</string>
+		<key>NSCameraUsageDescription</key>
+		<string>MeetingBarNG shows a live preview of your camera so you can check your appearance before joining a meeting.</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>MeetingBarNG shows your microphone input level so you can check your audio before joining a meeting.</string>
 		<key>NSRemindersFullAccessUsageDescription</key>
 		<string>MeetingBarNG shows your reminders that are due today alongside your meetings, and lets you check them off or snooze them.</string>
 		<key>NSHumanReadableCopyright</key>

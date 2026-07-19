@@ -14,7 +14,9 @@
 //  keyboard shortcut, and @objc handler) for the month calendar window; add the
 //  in-app event editor entry points (new/edit/delete dependency closures, the
 //  .newEventShortcut registration, and @objc handlers, with a destructive NSAlert
-//  before delete).
+//  before delete); add the camera/mic pre-call preview entry points (the
+//  openCameraPreview dependency closure, the .cameraPreviewShortcut registration,
+//  and the standalone/per-event @objc handlers).
 //
 
 import Cocoa
@@ -53,6 +55,7 @@ struct StatusBarDependencies {
     var openChangelog: @MainActor () -> Void = {}
     var openCommandBar: @MainActor () -> Void = {}
     var openCalendar: @MainActor () -> Void = {}
+    var openCameraPreview: @MainActor (MBEvent?) -> Void = { _ in }
     var newEvent: @MainActor () -> Void = {}
     var editEvent: @MainActor (MBEvent) -> Void = { _ in }
     var deleteEvent: @MainActor (MBEvent) -> Void = { _ in }
@@ -204,6 +207,10 @@ final class StatusBarItemController {
 
         KeyboardShortcuts.onKeyUp(for: .calendarShortcut) {
             Task { @MainActor in self.dependencies.openCalendar() }
+        }
+
+        KeyboardShortcuts.onKeyUp(for: .cameraPreviewShortcut) {
+            Task { @MainActor in self.dependencies.openCameraPreview(nil) }
         }
 
         KeyboardShortcuts.onKeyUp(for: .newEventShortcut) {
@@ -644,6 +651,22 @@ final class StatusBarItemController {
     @objc
     func openCalendarAction() {
         dependencies.openCalendar()
+    }
+
+    /// Opens the camera/mic pre-call preview standalone (no event → no Join
+    /// button). Reached from the right-click "Camera check…" quick action and the
+    /// keyboard shortcut.
+    @objc
+    func openCameraPreviewAction() {
+        dependencies.openCameraPreview(nil)
+    }
+
+    /// Opens the camera/mic preview for a specific event so the preview shows a
+    /// contextual "Join meeting" button. Reached from the per-event submenu.
+    @objc
+    func previewCameraForEventAction(sender: NSMenuItem) {
+        guard let event = sender.representedObject as? MBEvent else { return }
+        dependencies.openCameraPreview(event)
     }
 
     // MARK: - Event editing (Dot parity)

@@ -11,6 +11,8 @@
 //  openCalendar into the status-bar dependencies); add the in-app event editor
 //  entry points (build create/update/delete handlers over the EventKit writer,
 //  refresh the sync after each write, and wire newEvent/editEvent/deleteEvent
+//  into the status-bar dependencies); add the camera/mic pre-call preview entry
+//  point (builds the join handlers over the AppModel and wires openCameraPreview
 //  into the status-bar dependencies).
 //
 
@@ -161,6 +163,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             openChangelog: { [weak self] in self?.openChangelogWindow(nil) },
             openCommandBar: { [weak self] in self?.openCommandBarWindow() },
             openCalendar: { [weak self] in self?.openCalendarWindow() },
+            openCameraPreview: { [weak self] event in self?.openCameraPreviewWindow(event: event) },
             newEvent: { [weak self] in self?.openNewEventWindow() },
             editEvent: { [weak self] event in self?.openEditEventWindow(event) },
             deleteEvent: { [weak self] event in self?.deleteEvent(event) },
@@ -326,6 +329,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         for: selected, from: from, to: to
                     )
                 },
+                join: { [weak model] eventID in
+                    model?.send(.joinMeeting(eventID: eventID))
+                }
+            )
+        )
+    }
+
+    /// Opens the camera/mic pre-call preview ("mirror check"). When `event` is
+    /// non-nil the preview shows a contextual "Join meeting" button that forwards
+    /// to the AppModel's join action; opened standalone (event == nil) there is no
+    /// Join button. Camera/mic access is requested lazily inside the preview
+    /// controller on first open, never here.
+    func openCameraPreviewWindow(event: MBEvent?) {
+        let model = appModel
+        windowCoordinator.openCameraPreviewWindow(
+            handlers: CameraPreviewHandlers(
+                joinEventID: event?.id,
                 join: { [weak model] eventID in
                     model?.send(.joinMeeting(eventID: eventID))
                 }

@@ -16,4 +16,5 @@ enum MeetingBarLogger {
     static let onboarding = Logger(subsystem: subsystem, category: "onboarding")
     static let diagnostics = Logger(subsystem: subsystem, category: "diagnostics")
     static let lifecycle = Logger(subsystem: subsystem, category: "lifecycle-tasks")
+    static let camera = Logger(subsystem: subsystem, category: "camera-preview")
 }
