@@ -1,0 +1,85 @@
+MeetingBarNG/Preferences/GeneralTab.swift
+  s_8821c3fb11800f::t_434f7da819db85 88-90
+  s_2607a225650db6::t_980f18f1424c74 87
+MeetingBarLogicTests/MicLevelTests.swift
+  s_8821c3fb11800f::t_a0801f3fefcbfb 1-58
+MeetingBarNG/Extensions/KeyboardShortcutsNames.swift
+  s_8821c3fb11800f::t_9c46d1e8955e1f 8-10,23
+MeetingBarNG/MeetingBarNG.entitlements
+  s_8821c3fb11800f::t_4e506baaae3b8a 9-12
+MeetingBarNG/UI/StatusBar/MenuBuilder.swift
+  s_8821c3fb11800f::t_691d685b56a899 1564-1569
+  s_8821c3fb11800f::t_84ce6467df37a8 164-167
+  s_8821c3fb11800f::t_92212b25b13440 15-16
+  s_2607a225650db6::t_37958da2a59173 163,1570-1571
+MeetingBarNG/Meetings/CameraPreviewController.swift
+  s_8821c3fb11800f::t_ba23f863e8e291 1-18,20-358
+  s_8821c3fb11800f::t_ad08afbe9fc3bc 19
+MeetingBarNG/UI/CameraPreview/CameraPreviewView.swift
+  s_8821c3fb11800f::t_ceb14200ad53ac 1-275
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_82b933a2c96b63 412
+  s_8821c3fb11800f::t_b6f5e5c924d30a 97
+  s_8821c3fb11800f::t_2be7f4cbf3ec8d 45
+  s_8821c3fb11800f::t_4bb562bf0c2488 130
+  s_8821c3fb11800f::t_879611b513cd75 553-568
+Package.swift
+  s_8821c3fb11800f::t_8a8f13be4d6b51 43
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_8821c3fb11800f::t_8f226f02d061ad 58
+  s_8821c3fb11800f::t_ed7017bf86667d 656-670
+  s_8821c3fb11800f::t_a34f821610aac9 213
+  s_8821c3fb11800f::t_9170dbca0fbdf2 17-19
+  s_8821c3fb11800f::t_33f1d09c555450 212,214-215
+  s_8821c3fb11800f::t_4a3b4885166183 671
+MeetingBarNG/App/AppDelegate.swift
+  s_8821c3fb11800f::t_acafe3fa2ee6c1 14-15
+  s_8821c3fb11800f::t_05a5be15718759 339-348
+  s_8821c3fb11800f::t_a60de31a7261d9 166
+  s_cef0814d5e85a3::t_27ade37cec5c77 349-355
+MeetingBarNG/Meetings/MicLevel.swift
+  s_8821c3fb11800f::t_e9b835ef4393ee 1-38
+MeetingBarNG/Utilities/Constants.swift
+  s_8821c3fb11800f::t_3aa2640b90ba41 196
+  s_8821c3fb11800f::t_ca10fc5abfc918 37-38
+MeetingBarNG/App/WindowCoordinator.swift
+  s_8821c3fb11800f::t_7ff4dfaaa9f3ba 213-262
+  s_8821c3fb11800f::t_2c304df0d7d604 165
+  s_2607a225650db6::t_1d2450c96a3755 263-264
+MeetingBarNG/Info.plist
+  s_8821c3fb11800f::t_1c3741cbba00fc 55-58
+MeetingBarNG/Utilities/MeetingBarLogger.swift
+  s_8821c3fb11800f::t_ed9535b3fbca10 19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "ac1a97bcb202466b6288f1f5ea316d6f631829e8",
+  "prompts": {},
+  "sessions": {
+    "s_2607a225650db6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3ee6038a-8fab-468d-abea-6a6164872f59",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    },
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    },
+    "s_cef0814d5e85a3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b7d3a4cc-1f7b-4b8e-a37a-a4ed2537dfb2",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
