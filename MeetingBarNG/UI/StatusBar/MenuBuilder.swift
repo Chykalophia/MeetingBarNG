@@ -105,6 +105,58 @@ struct MenuBuilder {
         return "\(mins)m"
     }
 
+    // MARK: Quick actions (right-click) --------------------------------------
+
+    /// Compact quick-actions menu shown when the user right-clicks the status
+    /// item — power-user actions without opening the full agenda. Items target
+    /// the controller's existing @objc handlers.
+    func buildQuickActionsMenu() -> NSMenu {
+        let menu = NSMenu()
+        menu.autoenablesItems = false
+
+        let join = quickItem(
+            "status_bar_quick_action_join_next",
+            #selector(StatusBarItemController.joinNextMeeting)
+        )
+        join.isEnabled = state.nextEvent?.meetingLink != nil
+        menu.addItem(join)
+
+        menu.addItem(quickItem(
+            "status_bar_quick_action_create_meeting",
+            #selector(StatusBarItemController.createMeetingAction)
+        ))
+        menu.addItem(quickItem(
+            "status_bar_quick_action_copy_agenda",
+            #selector(StatusBarItemController.copyTodayAgendaAction)
+        ))
+
+        menu.addItem(.separator())
+
+        menu.addItem(quickItem(
+            "status_bar_quick_action_refresh",
+            #selector(StatusBarItemController.handleManualRefresh)
+        ))
+        menu.addItem(quickItem(
+            "status_bar_quick_action_preferences",
+            #selector(StatusBarItemController.openPreferencesAction)
+        ))
+
+        menu.addItem(.separator())
+
+        menu.addItem(quickItem(
+            "status_bar_quick_action_quit",
+            #selector(StatusBarItemController.quitAction)
+        ))
+
+        return menu
+    }
+
+    private func quickItem(_ titleKey: String, _ action: Selector) -> NSMenuItem {
+        let item = NSMenuItem(title: titleKey.loco(), action: action, keyEquivalent: "")
+        item.target = target
+        return item
+    }
+
     // MARK: Top section ------------------------------------------------------
 
     func buildTopSection() -> [NSMenuItem] {

@@ -106,6 +106,14 @@
 "command_bar_action_refresh_keywords" = "refresh reload sync calendars";
 "command_bar_action_open_preferences" = "Open Preferences";
 "command_bar_action_open_preferences_keywords" = "preferences settings options";
+
+// MARK: - Status bar quick actions (right-click)
+"status_bar_quick_action_join_next" = "Join next meeting";
+"status_bar_quick_action_create_meeting" = "Create meeting";
+"status_bar_quick_action_copy_agenda" = "Copy today's agenda";
+"status_bar_quick_action_refresh" = "Refresh calendars";
+"status_bar_quick_action_preferences" = "Preferences…";
+"status_bar_quick_action_quit" = "Quit MeetingBarNG";
 "preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_general_external_contact" = "Contact";
 "preferences_general_whats_new" = "What's New";

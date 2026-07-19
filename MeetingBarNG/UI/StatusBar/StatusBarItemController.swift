@@ -196,8 +196,8 @@ final class StatusBarItemController {
         let event = NSApp.currentEvent
 
         if event?.type == .rightMouseUp {
-            // Right button click
-            joinNextMeeting()
+            // Right button click → compact quick-actions menu.
+            showQuickActionsMenu()
         } else if event == nil || event?.type == .leftMouseDown || event?.type == .leftMouseUp {
             // show the menu as normal
             openMenu()
@@ -208,6 +208,63 @@ final class StatusBarItemController {
         statusItem.menu = statusItemMenu
         statusItem.button?.performClick(nil)  // ...and click
         statusItem.menu = nil
+    }
+
+    /// Pops up the right-click quick-actions menu at the status item.
+    func showQuickActionsMenu() {
+        var appState = dependencies.appState()
+        appState.events = events
+        let menuState = StatusBarMenuState.make(from: appState)
+        let builder = MenuBuilder(target: self, state: menuState, installationDate: installationDate)
+        let menu = builder.buildQuickActionsMenu()
+        statusItem.menu = menu
+        statusItem.button?.performClick(nil)
+        statusItem.menu = nil
+    }
+
+    /// Copies today's agenda to the pasteboard (same text the Command Bar's
+    /// "Copy agenda" produces), reachable without a shortcut via right-click.
+    @objc func copyTodayAgendaAction() {
+        let now = Date()
+        let calendar = Calendar.current
+        let todays = events
+            .filter { calendar.isDate($0.startDate, inSameDayAs: now) }
+            .sorted { $0.startDate < $1.startDate }
+        let entries = todays.map { event in
+            CommandBarAgendaEntry(
+                title: event.title,
+                timeRange: event.isAllDay ? "" : agendaTimeRange(event),
+                isAllDay: event.isAllDay
+            )
+        }
+        let header = "command_bar_agenda_header".loco(agendaDateText(now, calendar: calendar))
+        let text = CommandBarAgenda.text(
+            for: entries,
+            header: header,
+            emptyPlaceholder: "command_bar_agenda_empty".loco()
+        )
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
+    }
+
+    private func agendaTimeRange(_ event: MBEvent) -> String {
+        "\(agendaClock(event.startDate)) – \(agendaClock(event.endDate))"
+    }
+
+    private func agendaClock(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = I18N.instance.locale
+        formatter.setLocalizedDateFormatFromTemplate(Defaults[.timeFormat] == .military ? "Hmm" : "hmma")
+        return formatter.string(from: date)
+    }
+
+    private func agendaDateText(_ date: Date, calendar: Calendar) -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.locale = I18N.instance.locale
+        formatter.setLocalizedDateFormatFromTemplate("EEEMMMd")
+        return formatter.string(from: date)
     }
 
     func configure(dependencies: StatusBarDependencies) {
