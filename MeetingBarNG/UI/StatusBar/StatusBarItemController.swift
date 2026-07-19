@@ -11,7 +11,10 @@
 //  assemble the dropdown from the composable-dropdown block-join (toggleable +
 //  reorderable modules); remove the "Rate App" action that opened the original
 //  App Store listing; add an "Open calendar" entry point (dependency closure,
-//  keyboard shortcut, and @objc handler) for the month calendar window.
+//  keyboard shortcut, and @objc handler) for the month calendar window; add the
+//  in-app event editor entry points (new/edit/delete dependency closures, the
+//  .newEventShortcut registration, and @objc handlers, with a destructive NSAlert
+//  before delete).
 //
 
 import Cocoa
@@ -50,6 +53,9 @@ struct StatusBarDependencies {
     var openChangelog: @MainActor () -> Void = {}
     var openCommandBar: @MainActor () -> Void = {}
     var openCalendar: @MainActor () -> Void = {}
+    var newEvent: @MainActor () -> Void = {}
+    var editEvent: @MainActor (MBEvent) -> Void = { _ in }
+    var deleteEvent: @MainActor (MBEvent) -> Void = { _ in }
     var quit: @MainActor () -> Void = {}
 }
 
@@ -198,6 +204,10 @@ final class StatusBarItemController {
 
         KeyboardShortcuts.onKeyUp(for: .calendarShortcut) {
             Task { @MainActor in self.dependencies.openCalendar() }
+        }
+
+        KeyboardShortcuts.onKeyUp(for: .newEventShortcut) {
+            Task { @MainActor in self.dependencies.newEvent() }
         }
     }
 
@@ -634,6 +644,37 @@ final class StatusBarItemController {
     @objc
     func openCalendarAction() {
         dependencies.openCalendar()
+    }
+
+    // MARK: - Event editing (Dot parity)
+
+    @objc
+    func newEventAction() {
+        dependencies.newEvent()
+    }
+
+    @objc
+    func editEventAction(sender: NSMenuItem) {
+        guard let event = sender.representedObject as? MBEvent else { return }
+        dependencies.editEvent(event)
+    }
+
+    /// Destructive: confirm via NSAlert BEFORE deleting. The actual delete +
+    /// refresh runs through the injected dependency (EventKit writer).
+    @objc
+    func deleteEventAction(sender: NSMenuItem) {
+        guard let event = sender.representedObject as? MBEvent else { return }
+
+        let alert = NSAlert()
+        alert.messageText = "event_editor_delete_confirm_title".loco()
+        alert.informativeText = "event_editor_delete_confirm_message".loco(event.title)
+        alert.alertStyle = .warning
+        let deleteButton = alert.addButton(withTitle: "event_editor_delete".loco())
+        deleteButton.hasDestructiveAction = true
+        alert.addButton(withTitle: "event_editor_cancel".loco())
+
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        dependencies.deleteEvent(event)
     }
 
     private var stateProvider: EventStoreProvider {

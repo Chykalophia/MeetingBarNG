@@ -10,7 +10,9 @@
 //  add Apple Reminders rows (checkbox complete + snooze submenu + open in
 //  Reminders) under the Today section; split the dropdown into separator-free
 //  blocks (greeting/timeline/agenda) for the composable-dropdown block-join;
-//  add an "Open calendar" item to the right-click quick-actions menu.
+//  add an "Open calendar" item to the right-click quick-actions menu; add a
+//  "New event…" quick action and per-event "Edit…"/"Delete…" submenu items
+//  (EventKit provider only).
 //
 
 import Cocoa
@@ -136,6 +138,15 @@ struct MenuBuilder {
             "status_bar_quick_action_create_meeting",
             #selector(StatusBarItemController.createMeetingAction)
         ))
+        // In-app event creation (EventKit only). Google-backed calendars are
+        // written through the macOS Calendar app's sync, so the write path is
+        // EventKit-only; hide the entry for the Google provider.
+        if state.activeProvider == .macOSEventKit {
+            menu.addItem(quickItem(
+                "status_bar_quick_action_new_event",
+                #selector(StatusBarItemController.newEventAction)
+            ))
+        }
         menu.addItem(quickItem(
             "status_bar_quick_action_copy_agenda",
             #selector(StatusBarItemController.copyTodayAgendaAction)
@@ -1561,6 +1572,24 @@ struct MenuBuilder {
                 to: menu,
                 title: "status_bar_submenu_open_in_fantastical".loco(),
                 action: #selector(StatusBarItemController.openEventInFantastical),
+                representedObject: event
+            )
+        }
+
+        // In-app Edit / Delete (Dot parity). EventKit only: the writer targets
+        // EKEventStore.shared, so a Google-provider event would not resolve.
+        if state.activeProvider == .macOSEventKit {
+            menu.addItem(.separator())
+            addEventAction(
+                to: menu,
+                title: "status_bar_submenu_edit_event".loco(),
+                action: #selector(StatusBarItemController.editEventAction(sender:)),
+                representedObject: event
+            )
+            addEventAction(
+                to: menu,
+                title: "status_bar_submenu_delete_event".loco(),
+                action: #selector(StatusBarItemController.deleteEventAction(sender:)),
                 representedObject: event
             )
         }

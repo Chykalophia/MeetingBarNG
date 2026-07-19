@@ -35,6 +35,7 @@ let package = Package(
                 "Calendar/EventSearch.swift",
                 "Calendar/EventSelection.swift",
                 "Calendar/ReminderSelection.swift",
+                "Calendar/EventDraftValidation.swift",
                 "Calendar/Providers/Google/GoogleCalendarPolicy.swift",
                 // Meetings
                 "Meetings/MeetingLinkDetector.swift",

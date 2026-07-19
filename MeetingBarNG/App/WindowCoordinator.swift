@@ -161,6 +161,7 @@ final class WindowCoordinator {
     private weak var onboardingHandler: OnboardingHandler?
     private weak var commandBarWindow: NSWindow?
     private weak var calendarWindow: NSWindow?
+    private weak var eventEditorWindow: NSWindow?
 
     /// Opens the month calendar window, or brings it forward if it is already
     /// open. A standard titled/resizable window (like Preferences) held by a
@@ -206,6 +207,47 @@ final class WindowCoordinator {
         window.orderFrontRegardless()
 
         calendarWindow = window
+    }
+
+    /// Opens the in-app event editor for `mode` (create or edit). A standard
+    /// titled/resizable window (like Preferences) held by a weak ref. Any open
+    /// editor is replaced so the form always reflects the requested mode. The
+    /// coordinator owns the window, so it injects the real `dismiss` (close)
+    /// closure into the handlers before building the view model.
+    func openEventEditorWindow(mode: EventEditorMode, handlers: EventEditorHandlers) {
+        eventEditorWindow?.close()
+
+        let window = NSWindow(
+            contentRect: NSRect(
+                x: 0,
+                y: 0,
+                width: EventEditorWindowPresentationPolicy.contentRect.width,
+                height: EventEditorWindowPresentationPolicy.contentRect.height
+            ),
+            styleMask: [.closable, .titled, .resizable, .miniaturizable],
+            backing: .buffered,
+            defer: false
+        )
+
+        var resolvedHandlers = handlers
+        resolvedHandlers.dismiss = { [weak window] in window?.close() }
+        let viewModel = EventEditorViewModel(mode: mode, handlers: resolvedHandlers)
+
+        window.title = WindowTitles.eventEditor
+        window.contentView = NSHostingView(rootView: EventEditorView(viewModel: viewModel))
+        window.minSize = EventEditorWindowPresentationPolicy.minimumSize
+
+        let controller = NSWindowController(window: window)
+        controller.showWindow(self)
+        window.center()
+
+        // LSUIElement accessory app: activate before keying so the editor opens
+        // focused rather than merely ordered to the front.
+        NSApplication.shared.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
+
+        eventEditorWindow = window
     }
 
     /// Opens the Command Bar, or closes it if it's already open (toggle). The

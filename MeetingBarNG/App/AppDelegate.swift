@@ -8,7 +8,10 @@
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
 //  remove the StoreKit patronage service and its lifecycle wiring; add the month
 //  calendar window entry point (builds the fetch/join handlers and wires
-//  openCalendar into the status-bar dependencies).
+//  openCalendar into the status-bar dependencies); add the in-app event editor
+//  entry points (build create/update/delete handlers over the EventKit writer,
+//  refresh the sync after each write, and wire newEvent/editEvent/deleteEvent
+//  into the status-bar dependencies).
 //
 
 import AppKit
@@ -158,6 +161,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             openChangelog: { [weak self] in self?.openChangelogWindow(nil) },
             openCommandBar: { [weak self] in self?.openCommandBarWindow() },
             openCalendar: { [weak self] in self?.openCalendarWindow() },
+            newEvent: { [weak self] in self?.openNewEventWindow() },
+            editEvent: { [weak self] event in self?.openEditEventWindow(event) },
+            deleteEvent: { [weak self] event in self?.deleteEvent(event) },
             quit: { [weak self] in self?.quit(nil) }
         ))
 
@@ -324,6 +330,62 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     model?.send(.joinMeeting(eventID: eventID))
                 }
             )
+        )
+    }
+
+    /// Opens the in-app event editor to create a new event (EventKit write path).
+    func openNewEventWindow() {
+        windowCoordinator.openEventEditorWindow(
+            mode: .create,
+            handlers: makeEventEditorHandlers()
+        )
+    }
+
+    /// Opens the in-app event editor prefilled to edit `event`.
+    func openEditEventWindow(_ event: MBEvent) {
+        windowCoordinator.openEventEditorWindow(
+            mode: .edit(event),
+            handlers: makeEventEditorHandlers()
+        )
+    }
+
+    /// Deletes `event` via the EventKit writer and refreshes the menu. Called
+    /// from the per-event "Delete…" menu item after its NSAlert confirmation.
+    func deleteEvent(_ event: MBEvent) {
+        let sync = calendarSync
+        Task {
+            do {
+                try await EventKitEventWriter.shared.delete(id: event.scriptIdentifier)
+                sync?.refreshSubject.send()
+            } catch {
+                MeetingBarLogger.calendar.error(
+                    "Event delete failed: \(String(describing: error), privacy: .private)"
+                )
+            }
+        }
+    }
+
+    /// Builds the editor handlers: each write forwards to the EventKit writer and,
+    /// on success, triggers a `CalendarSync` refresh so the menu updates. The
+    /// `dismiss` here is a placeholder — `WindowCoordinator` injects the real
+    /// window-close closure since it owns the window.
+    private func makeEventEditorHandlers() -> EventEditorHandlers {
+        let sync = calendarSync
+        return EventEditorHandlers(
+            create: { draft in
+                _ = try await EventKitEventWriter.shared.create(draft: draft)
+                sync?.refreshSubject.send()
+            },
+            update: { id, draft in
+                try await EventKitEventWriter.shared.update(id: id, draft: draft)
+                sync?.refreshSubject.send()
+            },
+            delete: { id in
+                try await EventKitEventWriter.shared.delete(id: id)
+                sync?.refreshSubject.send()
+            },
+            writableCalendars: { EventKitEventWriter.shared.writableCalendars() },
+            dismiss: {}
         )
     }
 

@@ -190,6 +190,7 @@ enum WindowTitles {
     static let preferences = "window_title_preferences".loco()
     static let changelog = "windows_title_changelog".loco()
     static let calendar = "window_title_calendar".loco()
+    static let eventEditor = "window_title_event_editor".loco()
 }
 
 enum notificationIDs {

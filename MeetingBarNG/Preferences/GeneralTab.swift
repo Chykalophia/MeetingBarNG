@@ -84,6 +84,10 @@ struct ShortcutsSection: View {
             title: "preferences_general_shortcut_calendar".loco(),
             recorder: KeyboardShortcuts.Recorder(for: .calendarShortcut)
         )
+        ShortcutRow(
+            title: "preferences_general_shortcut_new_event".loco(),
+            recorder: KeyboardShortcuts.Recorder(for: .newEventShortcut)
+        )
     }
 }
 

@@ -16,4 +16,5 @@ extension KeyboardShortcuts.Name {
     static let toggleMeetingTitleVisibilityShortcut = Self("toggleMeetingTitleVisibilityShortcut")
     static let commandBarShortcut = Self("commandBarShortcut")
     static let calendarShortcut = Self("calendarShortcut")
+    static let newEventShortcut = Self("newEventShortcut")
 }
