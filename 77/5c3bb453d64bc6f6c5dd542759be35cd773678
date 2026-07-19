@@ -1,0 +1,59 @@
+MeetingBarNG/Extensions/KeyboardShortcutsNames.swift
+  s_8821c3fb11800f::t_a3621bbe0e9504 19
+MeetingBarNG/Utilities/Constants.swift
+  s_8821c3fb11800f::t_b2a41b6f7b2d88 193
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_8821c3fb11800f::t_c110b2c9663a2c 208-211
+  s_8821c3fb11800f::t_8e2aabcaf4b7d6 56-58
+  s_8821c3fb11800f::t_6af7f436eba88c 649-679
+  s_8821c3fb11800f::t_731c7395c579f5 14-17
+MeetingBarNG/UI/StatusBar/MenuBuilder.swift
+  s_8821c3fb11800f::t_6f59e16417c649 141-149
+  s_8821c3fb11800f::t_7f189cd061c30b 13-15
+  s_8821c3fb11800f::t_fe34b000a88315 1578-1595
+MeetingBarNG/Calendar/Providers/EventKit/EventKitEventWriter.swift
+  s_8821c3fb11800f::t_9045f1188e580d 1-160
+MeetingBarLogicTests/EventDraftValidationTests.swift
+  s_8821c3fb11800f::t_9c486d69af13f8 1-12,14-16,18-40,42-46,48-51,53-56,58-62,64-67,69-72,74-77,79-84
+  s_8821c3fb11800f::t_1517b3a9b683bb 13,17
+  s_8821c3fb11800f::t_31ef151600c456 41,47,52,57,63,68,73,78
+MeetingBarNG/UI/EventEditor/EventEditorViewModel.swift
+  s_8821c3fb11800f::t_e2993c5e9883df 1-214
+MeetingBarNG/Calendar/EventDraftValidation.swift
+  s_8821c3fb11800f::t_d38903116456a4 1-87
+MeetingBarNG/UI/EventEditor/EventEditorView.swift
+  s_8821c3fb11800f::t_388b265116e02c 1-160
+MeetingBarNG/App/WindowCoordinator.swift
+  s_8821c3fb11800f::t_f50be4112f4854 164
+  s_8821c3fb11800f::t_0138586b3df075 212-252
+MeetingBarNG/App/AppDelegate.swift
+  s_8821c3fb11800f::t_3715e8c6bba83b 11-14
+  s_8821c3fb11800f::t_bc9334c4e98ae9 164-166
+  s_8821c3fb11800f::t_e302708bb19b4b 336-391
+MeetingBarNG/Preferences/GeneralTab.swift
+  s_8821c3fb11800f::t_ee46ee94e27946 87-90
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_26485fe62f3deb 44
+  s_8821c3fb11800f::t_4917c048016874 96
+  s_8821c3fb11800f::t_da3be4b9cc0001 407-408
+  s_8821c3fb11800f::t_c072268d18f8cf 414-437
+  s_8821c3fb11800f::t_a817994e659a68 125
+Package.swift
+  s_8821c3fb11800f::t_37242b3bab564d 38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "775c3bb453d64bc6f6c5dd542759be35cd773678",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
