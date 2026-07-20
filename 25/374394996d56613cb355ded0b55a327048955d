@@ -1,0 +1,22 @@
+Makefile
+  s_8821c3fb11800f::t_19137901a1db98 15-27
+  s_8821c3fb11800f::t_ef508f7b3bcb23 35-50
+XCConfig/LocalSigning.entitlements
+  s_8821c3fb11800f::t_b73e770526e085 1-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "25374394996d56613cb355ded0b55a327048955d",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
