@@ -49,6 +49,11 @@ struct DisplayPreviewPane: View {
     @Default(.showBookmarksInMenu) private var showBookmarksInMenu
     @Default(.greetingName) private var greetingName
 
+    // Dropdown "More options" toggles that live beside this preview — reflected
+    // in the mock so toggling them visibly changes the preview.
+    @Default(.hideFinishedEventsInMenu) private var hideFinishedEventsInMenu
+    @Default(.showRemindersInMenu) private var showRemindersInMenu
+
     /// The dropdown mock is drawn at the real dropdown width so the sample rows,
     /// summary card, greeting and timeline all share one visual scale.
     private var cardWidth: CGFloat { MeetingSummaryView.preferredWidth }
@@ -337,14 +342,24 @@ struct DisplayPreviewPane: View {
 
     private var agendaBlock: some View {
         VStack(alignment: .leading, spacing: 2) {
+            // A finished (past) meeting — shown dimmed/struck when "Hide finished
+            // meetings" is off, and removed when it's on, so toggling that setting
+            // visibly changes the preview.
+            if !hideFinishedEventsInMenu {
+                agendaRow(finishedSampleEvent, finished: true)
+            }
             ForEach(sampleEvents) { event in
-                agendaRow(event)
+                agendaRow(event, finished: false)
+            }
+            // A sample reminder row when "Show today's reminders" is on.
+            if showRemindersInMenu {
+                reminderRow
             }
         }
         .padding(.vertical, 2)
     }
 
-    private func agendaRow(_ event: SampleEvent) -> some View {
+    private func agendaRow(_ event: SampleEvent, finished: Bool) -> some View {
         HStack(spacing: 8) {
             Text(event.startTime)
                 .font(.system(size: 12))
@@ -353,6 +368,24 @@ struct DisplayPreviewPane: View {
                 .frame(width: 76, alignment: .leading)
             Circle().fill(event.color).frame(width: 7, height: 7)
             Text(event.title)
+                .font(.system(size: MenuStyleConstants.defaultFontSize))
+                .foregroundStyle(finished ? Color.secondary : Color.primary)
+                .lineLimit(1)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 3)
+        .frame(width: cardWidth, alignment: .leading)
+    }
+
+    /// A checkbox-style reminder row, shown when reminders are enabled in the menu.
+    private var reminderRow: some View {
+        HStack(spacing: 8) {
+            Spacer().frame(width: 76)
+            Image(systemName: "circle")
+                .font(.system(size: 12))
+                .foregroundStyle(.secondary)
+            Text("preferences_display_preview_sample_reminder".loco())
                 .font(.system(size: MenuStyleConstants.defaultFontSize))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
@@ -447,6 +480,23 @@ struct DisplayPreviewPane: View {
                 color: .orange
             )
         ]
+    }
+
+    /// A meeting that already ended, used to show the effect of "Hide finished
+    /// meetings" (dimmed/struck when shown; removed when the setting is on).
+    private var finishedSampleEvent: SampleEvent {
+        let now = Date()
+        let calendar = Calendar.current
+        let start = calendar.date(byAdding: .minute, value: -60, to: now) ?? now
+        let end = calendar.date(byAdding: .minute, value: -30, to: now) ?? now
+        return SampleEvent(
+            id: -1,
+            title: "preferences_display_preview_sample_finished".loco(),
+            startTime: timeString(start),
+            timeRange: "\(timeString(start)) – \(timeString(end))",
+            countdown: "",
+            color: .gray
+        )
     }
 
     /// Wall-clock time honoring the user's 12/24h preference + locale, matching

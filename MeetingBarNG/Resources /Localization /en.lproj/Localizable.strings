@@ -293,6 +293,8 @@
 "preferences_display_preview_greeting_summary" = "3 meetings today · 2h free";
 "preferences_display_preview_sample_event_2" = "1:1 with Sam";
 "preferences_display_preview_sample_event_3" = "Team standup";
+"preferences_display_preview_sample_finished" = "Morning kickoff";
+"preferences_display_preview_sample_reminder" = "Reply to Dana";
 
 // MARK: - Menu Builder (composable dropdown, MeetingBarNG)
 
