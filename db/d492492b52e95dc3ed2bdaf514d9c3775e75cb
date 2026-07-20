@@ -1,0 +1,53 @@
+Package.swift
+  s_8821c3fb11800f::t_b372c6b6cb2bf9 33
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_e6a564f805708c 182
+MeetingBarNG/UI/StatusBar/MenuBuilder.swift
+  s_8821c3fb11800f::t_59436718e1b868 1107-1109,1112
+  s_8821c3fb11800f::t_485a763f2fbe25 1382-1388
+  s_8821c3fb11800f::t_28805f6ffcbe3a 963
+  s_8821c3fb11800f::t_9f45008b0667ae 36-41
+  s_8821c3fb11800f::t_72cdcc20789677 1066
+  s_8821c3fb11800f::t_d9750c9ba37d5f 1022-1030
+  s_8821c3fb11800f::t_499785a8ce41be 1068-1071
+MeetingBarNG/Preferences/EventsTab.swift
+  s_8821c3fb11800f::t_859e56dbc4578e 43,58-62
+  s_8821c3fb11800f::t_67601e2d0b7fb3 63-64
+MeetingBarLogicTests/EventDeduplicationTests.swift
+  s_8821c3fb11800f::t_cfb17a5d612204 1-127
+MeetingBarNG/Calendar/CalendarSync.swift
+  s_8821c3fb11800f::t_6fc8f7731ff714 227-228,230-251,254,256
+  s_8821c3fb11800f::t_d9779e14bfa0e1 15-17
+MeetingBarNGTests/StatusBarItem/MenuBuilderTests.swift
+  s_8821c3fb11800f::t_8fc1d1273b5d86 769-772
+  s_8821c3fb11800f::t_314ecfa2564646 914-917
+MeetingBarNG/UI/StatusBar/MeetingSummaryView.swift
+  s_8821c3fb11800f::t_2340e9f24d50dc 35-38
+MeetingBarNG/Calendar/EventDeduplication.swift
+  s_8821c3fb11800f::t_dc8a589c420a62 1-62
+MeetingBarNG/Calendar/Providers/EventKit/EventKitEventStore.swift
+  s_8821c3fb11800f::t_f52f28b7cad393 8-12
+  s_8821c3fb11800f::t_c8d7bd33454e0c 180-183
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_8821c3fb11800f::t_4eaba92a6dc938 146-151
+MeetingBarNG/Calendar/MBEvent.swift
+  s_8821c3fb11800f::t_fa6967b7c6515e 97-102
+  s_8821c3fb11800f::t_ccd232fe7f2d5e 122-123,125
+  s_8821c3fb11800f::t_e7882e204980d7 8-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "dbd492492b52e95dc3ed2bdaf514d9c3775e75cb",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
