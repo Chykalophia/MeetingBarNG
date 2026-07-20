@@ -83,6 +83,22 @@ struct CalendarsTab: View {
                 .foregroundStyle(.secondary)
                 .font(.caption)
 
+                // macOS Calendar reliability notice: the app shows whatever the
+                // macOS Calendar app has synced. Its account access, sync
+                // frequency and data freshness are macOS's to control, not
+                // ours — so if events look wrong, the fix is upstream (refresh /
+                // re-authenticate the account here or in Calendar.app).
+                if appModel.state.activeProvider == .macOSEventKit {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "info.circle")
+                        Text("preferences_calendar_macos_notice".loco())
+                            .fixedSize(horizontal: false, vertical: true)
+                        Spacer(minLength: 0)
+                    }
+                    .foregroundStyle(.secondary)
+                    .font(.caption)
+                }
+
                 if let error = appModel.state.providerHealth.lastErrorDescription {
                     Text(error)
                         .foregroundStyle(.red)
