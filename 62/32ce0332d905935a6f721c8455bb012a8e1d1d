@@ -1,0 +1,41 @@
+MeetingBarNG/UI/StatusBar/DropdownComposition.swift
+  s_8821c3fb11800f::t_dbb99b01e515ff 82-83,92
+  s_8821c3fb11800f::t_2fe5e72fc4b9ed 75,77-81,84-91,93-101
+  s_8821c3fb11800f::t_9ba6d1a225db28 76
+MeetingBarNG/Preferences/DisplayTab.swift
+  s_8821c3fb11800f::t_cce2a07c95d28a 522-529
+  s_8821c3fb11800f::t_e46f706125d6f5 775
+  s_8821c3fb11800f::t_3ead47359c49f0 17-19,27-46
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_ecda28330d8ee4 270-280
+MeetingBarNG/Preferences/Preferences.swift
+  s_8821c3fb11800f::t_782b648c3691b0 11-12
+  s_8821c3fb11800f::t_0c7f1323dcdec0 70-71
+  s_8821c3fb11800f::t_b3a165f5a7d9bc 96-97
+  s_8821c3fb11800f::t_10f1ea38fd515b 190
+MeetingBarNG/App/WindowCoordinator.swift
+  s_8821c3fb11800f::t_4638600578c3df 539-541,546
+MeetingBarNG/Preferences/DisplayPreviewPane.swift
+  s_8821c3fb11800f::t_68c4182e8596ab 1-491
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_8821c3fb11800f::t_6b9d83b686b18c 12-15
+  s_8821c3fb11800f::t_8d685322eb1ca5 476-483
+MeetingBarLogicTests/DropdownCompositionTests.swift
+  s_8821c3fb11800f::t_d6d8706382b392 99-141
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "6232ce0332d905935a6f721c8455bb012a8e1d1d",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
