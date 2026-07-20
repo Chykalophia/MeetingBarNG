@@ -1,149 +1,41 @@
 //
-//  AppearanceTab.swift
-//  MeetingBar
+//  DisplayTab.swift
+//  MeetingBarNG
 //
-//  Created by Andrii Leitsius on 13.01.2021.
-//  Copyright © 2021 Andrii Leitsius. All rights reserved.
+//  The "Display" preferences tab: how MeetingBarNG presents itself in the menu
+//  bar and its dropdown. Phase 1 of the Preferences IA overhaul merges the
+//  former menu-bar appearance tab (StatusBarSection) with the composable
+//  menu-bar / dropdown builders and the dropdown display toggles.
 //
-//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
-//  add the composable menu-bar composer section (its `MenuBarComposerSection`
-//  struct lives here but is now rendered by the Menu Builder tab); adopt the
-//  shared `.preferenceIndent()` modifier for dependent-row indents.
+//  StatusBarSection and MenuBarComposerSection were moved here from
+//  AppearanceTab.swift; DropdownComposerSection was moved here from
+//  MenuBuilderTab.swift, originally:
+//    Created by Andrii Leitsius on 13.01.2021.
+//    Copyright © 2021 Andrii Leitsius. All rights reserved.
+//  Licensed under the Apache License, Version 2.0. Modified for MeetingBarNG by
+//  Peter Krzyzek / Chykalophia, 2026: relocated into the Display tab and split
+//  the dropdown display toggles into `DropdownDisplaySection`.
 //
 
 import Defaults
 import SwiftUI
 
-struct AppearanceTab: View {
+struct DisplayTab: View {
     var body: some View {
         PreferencesGroupedForm {
-            EventsSection()
+            // "Menu bar" — the classic status-bar icon/title/time controls.
             StatusBarSection()
-            MenuSection()
+            // "Menu bar layout" — composable menu-bar token builder.
+            MenuBarComposerSection()
+            // "Dropdown layout" — composable dropdown section builder.
+            DropdownComposerSection()
+            // "Dropdown" — dropdown display toggles (timeline, greeting, …).
+            DropdownDisplaySection()
         }
     }
 }
 
-// MARK: - Events
-
-struct EventsSection: View {
-    @Default(.declinedEventsAppereance) var declinedEventsAppereance
-    @Default(.personalEventsAppereance) var personalEventsAppereance
-    @Default(.pastEventsAppereance) var pastEventsAppereance
-    @Default(.allDayEvents) var allDayEvents
-    @Default(.nonAllDayEvents) var nonAllDayEvents
-    @Default(.showPendingEvents) var showPendingEvents
-    @Default(.showTentativeEvents) var showTentativeEvents
-    @Default(.showEventsForPeriod) var showEventsForPeriod
-
-    var body: some View {
-        Section(header: Text("preferences_appearance_events_title".loco())) {
-            Picker(
-                preferenceLabel("preferences_appearance_events_show_events_for_title"),
-                selection: $showEventsForPeriod
-            ) {
-                Text("preferences_appearance_events_show_events_for_today_value".loco())
-                    .tag(ShowEventsForPeriod.today)
-                Text("preferences_appearance_events_show_events_for_today_tomorrow_value".loco())
-                    .tag(ShowEventsForPeriod.today_n_tomorrow)
-            }
-        }
-
-        Section {
-            Picker(
-                preferenceLabel("preferences_appearance_events_all_day_title"),
-                selection: $allDayEvents
-            ) {
-                Text("preferences_appearance_events_value_show".loco())
-                    .tag(AlldayEventsAppereance.show)
-                Text("preferences_appearance_events_value_only_with_link".loco())
-                    .tag(AlldayEventsAppereance.show_with_meeting_link_only)
-                Text("preferences_appearance_events_value_hide".loco())
-                    .tag(AlldayEventsAppereance.hide)
-            }
-
-            Picker(
-                preferenceLabel("preferences_appearance_events_no_meeting_link_title"),
-                selection: $nonAllDayEvents
-            ) {
-                Text("preferences_appearance_events_value_show".loco())
-                    .tag(NonAlldayEventsAppereance.show)
-                Text("preferences_appearance_events_value_as_inactive".loco())
-                    .tag(NonAlldayEventsAppereance.show_inactive_without_meeting_link)
-                Text("preferences_appearance_events_value_hide".loco())
-                    .tag(NonAlldayEventsAppereance.hide_without_meeting_link)
-            }
-
-            Picker(
-                preferenceLabel("preferences_appearance_events_without_guest_title"),
-                selection: $personalEventsAppereance
-            ) {
-                Text("preferences_appearance_events_value_show".loco())
-                    .tag(PastEventsAppereance.show_active)
-                Text("preferences_appearance_events_value_as_inactive".loco())
-                    .tag(PastEventsAppereance.show_inactive)
-                Text("preferences_appearance_events_value_hide".loco())
-                    .tag(PastEventsAppereance.hide)
-            }
-        }
-
-        Section {
-            Picker(
-                preferenceLabel("preferences_appearance_events_pending_title"),
-                selection: $showPendingEvents
-            ) {
-                Text("preferences_appearance_events_value_show".loco())
-                    .tag(PendingEventsAppereance.show)
-                Text("preferences_appearance_events_value_as_underlined".loco())
-                    .tag(PendingEventsAppereance.show_underlined)
-                Text("preferences_appearance_events_value_as_inactive".loco())
-                    .tag(PendingEventsAppereance.show_inactive)
-                Text("preferences_appearance_events_value_hide".loco())
-                    .tag(PendingEventsAppereance.hide)
-            }
-
-            Picker(
-                preferenceLabel("preferences_appearance_events_tentative_title"),
-                selection: $showTentativeEvents
-            ) {
-                Text("preferences_appearance_events_value_show".loco())
-                    .tag(TentativeEventsAppereance.show)
-                Text("preferences_appearance_events_value_as_underlined".loco())
-                    .tag(TentativeEventsAppereance.show_underlined)
-                Text("preferences_appearance_events_value_as_inactive".loco())
-                    .tag(TentativeEventsAppereance.show_inactive)
-                Text("preferences_appearance_events_value_hide".loco())
-                    .tag(TentativeEventsAppereance.hide)
-            }
-
-            Picker(
-                preferenceLabel("preferences_appearance_events_declined_title"),
-                selection: $declinedEventsAppereance
-            ) {
-                Text("preferences_appearance_events_value_with_strikethrough".loco())
-                    .tag(DeclinedEventsAppereance.strikethrough)
-                Text("preferences_appearance_events_value_as_inactive".loco())
-                    .tag(DeclinedEventsAppereance.show_inactive)
-                Text("preferences_appearance_events_value_hide".loco())
-                    .tag(DeclinedEventsAppereance.hide)
-            }
-
-            Picker(
-                preferenceLabel("preferences_appearance_events_past_title"),
-                selection: $pastEventsAppereance
-            ) {
-                Text("preferences_appearance_events_value_show".loco())
-                    .tag(PastEventsAppereance.show_active)
-                Text("preferences_appearance_events_value_as_inactive".loco())
-                    .tag(PastEventsAppereance.show_inactive)
-                Text("preferences_appearance_events_value_hide".loco())
-                    .tag(PastEventsAppereance.hide)
-            }
-        }
-    }
-}
-
-// MARK: - Status bar
+// MARK: - Status bar (menu bar)
 
 struct StatusBarSection: View {
     @Default(.eventTitleIconFormat) var eventTitleIconFormat
@@ -573,15 +465,229 @@ struct MenuBarComposerSection: View {
     }
 }
 
-// MARK: - Menu
+// MARK: - Composable menu dropdown (MeetingBarNG)
 
-struct MenuSection: View {
-    @Default(.shortenEventTitle) var shortenEventTitle
-    @Default(.menuEventTitleLength) var menuEventTitleLength
-    @Default(.showEventEndTime) var showEventEndTime
-    @Default(.showEventDetails) var showEventDetails
-    @Default(.showMeetingServiceIcon) var showMeetingServiceIcon
-    @Default(.showEventCalendarColor) var showEventCalendarColor
+/// Lets the user toggle and reorder the sections shown in the menu dropdown,
+/// with a live preview. Mirrors `MenuBarComposerSection`'s UX: ordered rows with
+/// up/down/remove buttons and an "Add section" menu. The stored order
+/// (`dropdownModuleOrder`) is the full canonical order of every module; the
+/// per-module bools drive which are visible. The Preferences footer is pinned
+/// (not a module) so the user can never lock themselves out of Settings/Quit.
+struct DropdownComposerSection: View {
+    @Default(.dropdownModuleOrder) var dropdownModuleOrder
+    @Default(.showGreetingInMenu) var showGreetingInMenu
+    @Default(.showTimelineInMenu) var showTimelineInMenu
+    @Default(.showMeetingControlInMenu) var showMeetingControlInMenu
+    @Default(.showAgendaInMenu) var showAgendaInMenu
+    @Default(.showJoinSectionInMenu) var showJoinSectionInMenu
+    @Default(.showBookmarksInMenu) var showBookmarksInMenu
+
+    /// The full canonical order of every module: the stored order parsed +
+    /// de-duped, with any missing module reappended in standard position.
+    private var fullOrder: [DropdownModule] {
+        var seen = Set<DropdownModule>()
+        var ordered: [DropdownModule] = []
+        for raw in dropdownModuleOrder {
+            guard let module = DropdownModule(rawValue: raw), seen.insert(module).inserted else {
+                continue
+            }
+            ordered.append(module)
+        }
+        for module in DropdownComposition.standard.modules where seen.insert(module).inserted {
+            ordered.append(module)
+        }
+        return ordered
+    }
+
+    /// The visible (enabled) modules, in order — the same resolution the status
+    /// bar controller uses, so the preview matches the real dropdown.
+    private var visibleModules: [DropdownModule] {
+        DropdownCompositionPolicy.resolve(order: dropdownModuleOrder, enabled: enabledRawValues)
+    }
+
+    private var enabledRawValues: Set<String> {
+        Set(DropdownModule.allCases.filter { isEnabled($0) }.map(\.rawValue))
+    }
+
+    /// Modules currently hidden — offered in the "Add section" menu, in standard order.
+    private var hiddenModules: [DropdownModule] {
+        DropdownComposition.standard.modules.filter { !isEnabled($0) }
+    }
+
+    var body: some View {
+        Section(header: Text("preferences_menu_builder_dropdown_title".loco())) {
+            Text("preferences_menu_builder_dropdown_hint".loco())
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+
+        Section {
+            ForEach(Array(visibleModules.enumerated()), id: \.element) { pair in
+                moduleRow(module: pair.element, index: pair.offset)
+            }
+            if !hiddenModules.isEmpty {
+                Menu {
+                    ForEach(hiddenModules, id: \.self) { module in
+                        Button {
+                            setEnabled(module, true)
+                        } label: {
+                            Label(moduleName(module), systemImage: moduleSymbol(module))
+                        }
+                    }
+                } label: {
+                    Label(
+                        "preferences_menu_builder_dropdown_add".loco(),
+                        systemImage: "plus"
+                    )
+                }
+            }
+        }
+
+        Section(header: Text("preferences_appearance_menu_bar_composer_preview_label".loco())) {
+            previewCard
+        }
+    }
+
+    // MARK: Rows
+
+    private func moduleRow(module: DropdownModule, index: Int) -> some View {
+        HStack {
+            Label(moduleName(module), systemImage: moduleSymbol(module))
+            Spacer()
+            Button { move(from: index, by: -1) } label: {
+                Image(systemName: "chevron.up")
+            }
+            .buttonStyle(.borderless)
+            .disabled(index == 0)
+            .help("preferences_appearance_menu_bar_composer_move_up".loco())
+
+            Button { move(from: index, by: 1) } label: {
+                Image(systemName: "chevron.down")
+            }
+            .buttonStyle(.borderless)
+            .disabled(index == visibleModules.count - 1)
+            .help("preferences_appearance_menu_bar_composer_move_down".loco())
+
+            Button { setEnabled(module, false) } label: {
+                Image(systemName: "minus.circle")
+            }
+            .buttonStyle(.borderless)
+            .help("preferences_appearance_menu_bar_composer_remove".loco())
+        }
+    }
+
+    @ViewBuilder
+    private var previewCard: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ForEach(visibleModules, id: \.self) { module in
+                previewRow(symbol: moduleSymbol(module), name: moduleName(module), pinned: false)
+            }
+            // The Preferences footer is pinned, never a module — shown here so the
+            // preview matches the real dropdown and the safety guarantee is visible.
+            previewRow(
+                symbol: "gearshape",
+                name: "preferences_menu_builder_dropdown_module_preferences".loco(),
+                pinned: true
+            )
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(Color.primary.opacity(0.06))
+        )
+    }
+
+    private func previewRow(symbol: String, name: String, pinned: Bool) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: symbol)
+                .frame(width: 18)
+                .foregroundStyle(pinned ? .secondary : .primary)
+            Text(name)
+                .foregroundStyle(pinned ? .secondary : .primary)
+            if pinned {
+                Image(systemName: "pin.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .font(.system(size: MenuStyleConstants.defaultFontSize))
+    }
+
+    // MARK: Data
+
+    private func moduleName(_ module: DropdownModule) -> String {
+        switch module {
+        case .greeting: return "preferences_menu_builder_dropdown_module_greeting".loco()
+        case .timeline: return "preferences_menu_builder_dropdown_module_timeline".loco()
+        case .meeting: return "preferences_menu_builder_dropdown_module_meeting".loco()
+        case .agenda: return "preferences_menu_builder_dropdown_module_agenda".loco()
+        case .join: return "preferences_menu_builder_dropdown_module_join".loco()
+        case .bookmarks: return "preferences_menu_builder_dropdown_module_bookmarks".loco()
+        }
+    }
+
+    private func moduleSymbol(_ module: DropdownModule) -> String {
+        switch module {
+        case .greeting: return "hand.wave"
+        case .timeline: return "chart.bar.xaxis"
+        case .meeting: return "video"
+        case .agenda: return "calendar"
+        case .join: return "arrow.up.right.square"
+        case .bookmarks: return "bookmark"
+        }
+    }
+
+    private func isEnabled(_ module: DropdownModule) -> Bool {
+        switch module {
+        case .greeting: return showGreetingInMenu
+        case .timeline: return showTimelineInMenu
+        case .meeting: return showMeetingControlInMenu
+        case .agenda: return showAgendaInMenu
+        case .join: return showJoinSectionInMenu
+        case .bookmarks: return showBookmarksInMenu
+        }
+    }
+
+    // MARK: Mutation
+
+    private func setEnabled(_ module: DropdownModule, _ value: Bool) {
+        switch module {
+        case .greeting: showGreetingInMenu = value
+        case .timeline: showTimelineInMenu = value
+        case .meeting: showMeetingControlInMenu = value
+        case .agenda: showAgendaInMenu = value
+        case .join: showJoinSectionInMenu = value
+        case .bookmarks: showBookmarksInMenu = value
+        }
+    }
+
+    /// Reorders the visible module at display `index` by `offset`, then rewrites
+    /// the stored full order so hidden modules keep their existing slots.
+    private func move(from index: Int, by offset: Int) {
+        var visible = visibleModules
+        let target = index + offset
+        guard visible.indices.contains(index), visible.indices.contains(target) else { return }
+        visible.swapAt(index, target)
+
+        // Rebuild the full order: fill each enabled slot from the new visible
+        // sequence, leaving disabled modules exactly where they were.
+        var iterator = visible.makeIterator()
+        let rebuilt = fullOrder.map { module -> DropdownModule in
+            isEnabled(module) ? (iterator.next() ?? module) : module
+        }
+        dropdownModuleOrder = rebuilt.map(\.rawValue)
+    }
+}
+
+// MARK: - Dropdown display
+
+/// The dropdown display toggles that are not part of the composable builder:
+/// timeline, hide-finished, the greeting header + name, and the Reminders
+/// toggles. Split out of the former `MenuSection` (AppearanceTab.swift) so the
+/// event-row detail toggles can live on the Events tab instead.
+struct DropdownDisplaySection: View {
     @Default(.showTimelineInMenu) var showTimelineInMenu
     @Default(.hideFinishedEventsInMenu) var hideFinishedEventsInMenu
     @Default(.showGreetingInMenu) var showGreetingInMenu
@@ -624,50 +730,6 @@ struct MenuSection: View {
             .preferenceIndent()
             .disabled(!showRemindersInMenu)
         }
-
-        Section(header: Text(preferenceLabel("preferences_appearance_menu_show_event_title"))) {
-            Toggle(
-                preferenceLabel("preferences_appearance_menu_show_event_end_time_value"),
-                isOn: $showEventEndTime
-            )
-            Toggle(
-                preferenceLabel("preferences_appearance_menu_show_event_icon_value"),
-                isOn: $showMeetingServiceIcon
-            )
-            Toggle(
-                preferenceLabel("preferences_appearance_menu_show_event_calendar_color_value"),
-                isOn: $showEventCalendarColor
-            )
-            Toggle(
-                preferenceLabel("preferences_appearance_menu_show_event_details_value"),
-                isOn: $showEventDetails
-            )
-        }
-
-        Section {
-            Toggle(
-                preferenceLabel("preferences_appearance_menu_shorten_event_title_toggle"),
-                isOn: $shortenEventTitle
-            )
-
-            HStack {
-                Spacer()
-                Stepper(
-                    value: $menuEventTitleLength,
-                    in: 20 ... 100,
-                    step: 5
-                ) {
-                    Text(
-                        "preferences_appearance_menu_shorten_event_title_stepper".loco(
-                            menuEventTitleLength)
-                    )
-                    .monospacedDigit()
-                }
-                .fixedSize()
-            }
-            .preferenceIndent()
-            .disabled(!shortenEventTitle)
-        }
     }
 
     /// Enabling the feature first requests Reminders access; the setting only
@@ -690,5 +752,5 @@ struct MenuSection: View {
 }
 
 #Preview {
-    AppearanceTab().frame(width: 700, height: 620)
+    DisplayTab().frame(width: 700, height: 620)
 }

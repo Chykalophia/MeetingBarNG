@@ -45,9 +45,9 @@ final class PreferencesPresentationTests: XCTestCase {
             [
                 .general,
                 .calendars,
-                .meetingOpening,
-                .menuBar,
-                .menuBuilder,
+                .display,
+                .events,
+                .meetings,
                 .notifications,
                 .advanced
             ]
@@ -57,9 +57,9 @@ final class PreferencesPresentationTests: XCTestCase {
             [
                 "preferences_tab_general",
                 "preferences_tab_calendars",
-                "preferences_tab_meeting_opening",
-                "preferences_tab_menu_bar",
-                "preferences_tab_menu_builder",
+                "preferences_tab_display",
+                "preferences_tab_events",
+                "preferences_tab_meetings",
                 "preferences_tab_notifications",
                 "preferences_tab_advanced"
             ]
@@ -69,9 +69,9 @@ final class PreferencesPresentationTests: XCTestCase {
             [
                 "gearshape",
                 "calendar",
-                "arrow.up.right.square",
                 "menubar.rectangle",
-                "slider.horizontal.below.rectangle",
+                "list.bullet.rectangle",
+                "video",
                 "bell",
                 "slider.horizontal.3"
             ]
@@ -98,8 +98,8 @@ final class PreferencesPresentationTests: XCTestCase {
         XCTAssertEqual(
             PreferencesSidebarSection.allCases.map(\.tabs),
             [
-                [.general, .calendars, .meetingOpening],
-                [.menuBar, .menuBuilder, .notifications],
+                [.general, .calendars],
+                [.display, .events, .meetings, .notifications],
                 [.advanced]
             ]
         )

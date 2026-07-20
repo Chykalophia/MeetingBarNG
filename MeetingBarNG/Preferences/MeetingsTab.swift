@@ -1,5 +1,5 @@
 //
-//  LinksTab.swift
+//  MeetingsTab.swift
 //  MeetingBar
 //
 //  Created by Andrii Leitsius on 13.01.2021.
@@ -7,13 +7,14 @@
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
 //  replace the legacy NSImage template icons and the "x" bookmark delete
-//  button with SF Symbols.
+//  button with SF Symbols; renamed from `LinksTab` to `MeetingsTab` for the
+//  Preferences IA overhaul (Phase 1). Internal sections are unchanged.
 //
 
 import Defaults
 import SwiftUI
 
-struct LinksTab: View {
+struct MeetingsTab: View {
     @Default(.browserForCreateMeeting) var browserForCreateMeeting
     @Default(.defaultBrowser) var defaultBrowser
     @Default(.createMeetingServiceUrl) var createMeetingServiceUrl
@@ -356,5 +357,5 @@ struct AddBookmarkModal: View {
 }
 
 #Preview {
-    LinksTab().padding().frame(width: 700, height: 620)
+    MeetingsTab().padding().frame(width: 700, height: 620)
 }

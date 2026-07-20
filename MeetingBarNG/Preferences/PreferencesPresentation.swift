@@ -54,9 +54,9 @@ struct CalendarSourcePresentation: Equatable, Identifiable {
 enum PreferencesTab: CaseIterable, Hashable {
     case general
     case calendars
-    case meetingOpening
-    case menuBar
-    case menuBuilder
+    case display
+    case events
+    case meetings
     case notifications
     case advanced
 
@@ -70,12 +70,12 @@ enum PreferencesTab: CaseIterable, Hashable {
             "preferences_tab_general"
         case .calendars:
             "preferences_tab_calendars"
-        case .meetingOpening:
-            "preferences_tab_meeting_opening"
-        case .menuBar:
-            "preferences_tab_menu_bar"
-        case .menuBuilder:
-            "preferences_tab_menu_builder"
+        case .display:
+            "preferences_tab_display"
+        case .events:
+            "preferences_tab_events"
+        case .meetings:
+            "preferences_tab_meetings"
         case .notifications:
             "preferences_tab_notifications"
         case .advanced:
@@ -89,12 +89,12 @@ enum PreferencesTab: CaseIterable, Hashable {
             "gearshape"
         case .calendars:
             "calendar"
-        case .meetingOpening:
-            "arrow.up.right.square"
-        case .menuBar:
+        case .display:
             "menubar.rectangle"
-        case .menuBuilder:
-            "slider.horizontal.below.rectangle"
+        case .events:
+            "list.bullet.rectangle"
+        case .meetings:
+            "video"
         case .notifications:
             "bell"
         case .advanced:
@@ -123,9 +123,9 @@ enum PreferencesSidebarSection: CaseIterable {
     var tabs: [PreferencesTab] {
         switch self {
         case .setup:
-            [.general, .calendars, .meetingOpening]
+            [.general, .calendars]
         case .experience:
-            [.menuBar, .menuBuilder, .notifications]
+            [.display, .events, .meetings, .notifications]
         case .advanced:
             [.advanced]
         }

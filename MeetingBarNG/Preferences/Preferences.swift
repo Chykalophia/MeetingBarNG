@@ -138,12 +138,12 @@ private func preferencesTabContent(_ tab: PreferencesTab) -> some View {
         GeneralTab()
     case .calendars:
         CalendarsTab()
-    case .meetingOpening:
-        LinksTab()
-    case .menuBar:
-        AppearanceTab()
-    case .menuBuilder:
-        MenuBuilderTab()
+    case .display:
+        DisplayTab()
+    case .events:
+        EventsTab()
+    case .meetings:
+        MeetingsTab()
     case .notifications:
         NotificationsTab()
     case .advanced:
