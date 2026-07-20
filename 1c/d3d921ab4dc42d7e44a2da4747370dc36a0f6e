@@ -1,0 +1,50 @@
+MeetingBarNG/Utilities/Constants.swift
+  s_8821c3fb11800f::t_75ca73d44bc119 41-47
+  s_8821c3fb11800f::t_61e39fb2582f80 10-12
+MeetingBarNG/Preferences/CalendarsTab.swift
+  s_8821c3fb11800f::t_170abdf6727375 12-16
+  s_8821c3fb11800f::t_41b2d15451e472 57-71
+  s_8821c3fb11800f::t_a64449fb7af6ee 116-125,131-135,140-147
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_0815f674a5cb53 86-89
+MeetingBarNG/Calendar/CalendarSync.swift
+  s_8821c3fb11800f::t_8472ab13aa79ca 301-304
+  s_8821c3fb11800f::t_2ee0fb2d59bafc 171-215
+  s_8821c3fb11800f::t_c2e6e75bebabfb 154-155
+  s_8821c3fb11800f::t_454f53c21ae983 8-16
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_8821c3fb11800f::t_457f768b3825ec 21-24
+  s_8821c3fb11800f::t_2a2728d9beb47a 245,251-258,261
+MeetingBarNG/Preferences/PreferencesPresentation.swift
+  s_8821c3fb11800f::t_407d879746722b 193-202
+  s_8821c3fb11800f::t_def0f2e77bd11b 303-305
+MeetingBarNG/Calendar/ProviderHealth.swift
+  s_8821c3fb11800f::t_c6921ff75c20a0 8-13,23-28,35-36,43,48,54-55,69-72
+MeetingBarNGTests/PreferencesPresentationTests.swift
+  s_8821c3fb11800f::t_941e27323047d0 360-418
+MeetingBarNGTests/CalendarSyncTests.swift
+  s_8821c3fb11800f::t_116b3a114a5b13 795-850
+MeetingBarNG/App/AppModel.swift
+  s_8821c3fb11800f::t_5df48d2df1d125 172-177
+  s_8821c3fb11800f::t_b6f701f8fe5595 402-404
+  s_8821c3fb11800f::t_237b802aa5cca6 103-107
+  s_8821c3fb11800f::t_c268362f0a2a53 514-515
+  s_8821c3fb11800f::t_fb34691ab14cb0 269-271
+  s_8821c3fb11800f::t_cc5a8785d4e836 492-494,501-504
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "1cd3d921ab4dc42d7e44a2da4747370dc36a0f6e",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
