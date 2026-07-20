@@ -1,0 +1,23 @@
+MeetingBarNG/Preferences/DisplayPreviewPane.swift
+  s_8821c3fb11800f::t_81efdf5ac54a8d 345-350,352-356,362,371-388
+  s_8821c3fb11800f::t_ff6351341c1065 485-501
+  s_8821c3fb11800f::t_d6b8fbc12b8d76 52-56
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_04e16b58fcbf2b 296-297
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "ce7621cf43bef93f3f9fe3ed18cf8f65f01fdd27",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
