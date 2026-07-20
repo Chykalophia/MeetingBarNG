@@ -16,7 +16,11 @@
 //  Peter Krzyzek / Chykalophia, 2026: relocated into the Display tab and split
 //  the dropdown display toggles into `DropdownDisplaySection` (Phase 1); wrap the
 //  settings sections in a two-pane layout with a sticky `DisplayPreviewPane` live
-//  preview on the right (Phase 2).
+//  preview on the right (Phase 2); Phase 3 legibility pass — plain-language
+//  labels, `PresetNumberPicker` chips for the menu-bar title length and the
+//  look-ahead threshold, and dropped the greeting/timeline on/off toggles from
+//  `DropdownDisplaySection` (the composer's module list is now their single
+//  source of truth).
 //
 
 import Defaults
@@ -115,23 +119,17 @@ struct StatusBarSection: View {
                     .tag(EventTitleFormat.none)
             }
 
-            HStack {
-                Spacer()
-                Stepper(
-                    value: $statusbarEventTitleLength,
-                    in: statusbarEventTitleLengthLimits.min ... statusbarEventTitleLengthLimits.max,
-                    step: 5
-                ) {
-                    Text(
-                        "preferences_appearance_status_bar_title_shorten_stepper".loco(
-                            statusbarEventTitleLength)
-                    )
-                    .monospacedDigit()
-                }
-                .fixedSize()
-            }
-            .preferenceIndent()
-            .disabled(eventTitleFormat != .show)
+            PresetNumberPicker(
+                presets: [20, 30, 50, 80],
+                presetLabel: { "\($0)" },
+                customLabel: "preferences_preset_custom".loco(),
+                value: $statusbarEventTitleLength,
+                range: statusbarEventTitleLengthLimits.min ... statusbarEventTitleLengthLimits.max,
+                step: 5,
+                stepperLabel: { "preferences_appearance_status_bar_title_shorten_stepper".loco($0) },
+                example: "preferences_appearance_status_bar_title_shorten_example".loco(),
+                isEnabled: eventTitleFormat == .show
+            )
 
             Picker(
                 preferenceLabel("preferences_appearance_status_bar_time_title"),
@@ -149,23 +147,17 @@ struct StatusBarSection: View {
                 isOn: $showEventMaxTimeUntilEventEnabled
             )
 
-            HStack {
-                Spacer()
-                Stepper(
-                    value: $showEventMaxTimeUntilEventThreshold,
-                    in: 5 ... 720,
-                    step: 5
-                ) {
-                    Text(
-                        "preferences_appearance_status_bar_next_event_stepper".loco(
-                            showEventMaxTimeUntilEventThreshold)
-                    )
-                    .monospacedDigit()
-                }
-                .fixedSize()
-            }
-            .preferenceIndent()
-            .disabled(!showEventMaxTimeUntilEventEnabled)
+            PresetNumberPicker(
+                presets: [15, 30, 60, 120, 240],
+                presetLabel: minutesPresetLabel,
+                customLabel: "preferences_preset_custom".loco(),
+                value: $showEventMaxTimeUntilEventThreshold,
+                range: 5 ... 720,
+                step: 5,
+                stepperLabel: { "preferences_appearance_status_bar_next_event_stepper".loco($0) },
+                example: "preferences_appearance_status_bar_next_event_example".loco(),
+                isEnabled: showEventMaxTimeUntilEventEnabled
+            )
 
             Picker(
                 preferenceLabel("preferences_appearance_status_bar_ongoing_title"),
@@ -185,6 +177,13 @@ struct StatusBarSection: View {
         let icon = NSImage(named: iconName)
         icon!.size = NSSize(width: 16, height: 16)
         return icon!
+    }
+
+    /// Renders a look-ahead preset as a short duration chip: "15m", "1h", "2h".
+    func minutesPresetLabel(_ minutes: Int) -> String {
+        minutes < 60
+            ? "preferences_preset_minutes_short".loco(minutes)
+            : "preferences_preset_hours_short".loco(minutes / 60)
     }
 }
 
@@ -703,13 +702,17 @@ struct DropdownComposerSection: View {
 
 // MARK: - Dropdown display
 
-/// The dropdown display toggles that are not part of the composable builder:
-/// timeline, hide-finished, the greeting header + name, and the Reminders
-/// toggles. Split out of the former `MenuSection` (AppearanceTab.swift) so the
-/// event-row detail toggles can live on the Events tab instead.
+/// Dropdown settings that are NOT plain on/off duplicates of a composer module:
+/// hide-finished, the greeting NAME field, and the Reminders toggles. The
+/// greeting and timeline *visibility* toggles were dropped here in Phase 3 —
+/// `DropdownComposerSection`'s module list is now their single source of truth,
+/// so they are no longer rendered twice. Reminders is not a composer module, so
+/// its on/off toggle stays here (it is also the only place that requests
+/// Reminders access).
 struct DropdownDisplaySection: View {
-    @Default(.showTimelineInMenu) var showTimelineInMenu
     @Default(.hideFinishedEventsInMenu) var hideFinishedEventsInMenu
+    // Read-only here: the greeting section is shown/hidden in "Dropdown layout"
+    // above; this key only gates whether the greeting NAME field is editable.
     @Default(.showGreetingInMenu) var showGreetingInMenu
     @Default(.greetingName) var greetingName
     @Default(.showRemindersInMenu) var showRemindersInMenu
@@ -718,24 +721,21 @@ struct DropdownDisplaySection: View {
     var body: some View {
         Section(header: Text("preferences_appearance_menu_title".loco())) {
             Toggle(
-                preferenceLabel("preferences_appearance_menu_show_timeline_toggle"),
-                isOn: $showTimelineInMenu
-            )
-            Toggle(
                 preferenceLabel("preferences_appearance_menu_hide_finished_toggle"),
                 isOn: $hideFinishedEventsInMenu
             )
-            Toggle(
-                preferenceLabel("preferences_appearance_menu_show_greeting_toggle"),
-                isOn: $showGreetingInMenu
-            )
+
+            // The greeting NAME. The greeting section itself is toggled in
+            // "Dropdown layout" above; this field is disabled while it is hidden.
             TextField(
                 preferenceLabel("preferences_appearance_menu_greeting_name_title"),
                 text: $greetingName,
                 prompt: Text("preferences_appearance_menu_greeting_name_placeholder".loco())
             )
-            .preferenceIndent()
             .disabled(!showGreetingInMenu)
+            Text("preferences_appearance_menu_greeting_name_help".loco())
+                .font(.caption)
+                .foregroundStyle(.secondary)
 
             // Reminders (Dot parity). Turning this on is the ONLY place that
             // requests Reminders access — the setting only flips on if granted.

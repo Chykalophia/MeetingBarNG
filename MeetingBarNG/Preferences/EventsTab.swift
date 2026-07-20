@@ -12,7 +12,9 @@
 //    Created by Andrii Leitsius on 13.01.2021.
 //    Copyright © 2021 Andrii Leitsius. All rights reserved.
 //  Licensed under the Apache License, Version 2.0. Modified for MeetingBarNG by
-//  Peter Krzyzek / Chykalophia, 2026: relocated into the Events tab.
+//  Peter Krzyzek / Chykalophia, 2026: relocated into the Events tab; Phase 3
+//  legibility pass — plain-language labels and a `PresetNumberPicker` for the
+//  dropdown title-length setting.
 //
 
 import Defaults
@@ -195,23 +197,17 @@ struct EventDetailSection: View {
                 isOn: $shortenEventTitle
             )
 
-            HStack {
-                Spacer()
-                Stepper(
-                    value: $menuEventTitleLength,
-                    in: 20 ... 100,
-                    step: 5
-                ) {
-                    Text(
-                        "preferences_appearance_menu_shorten_event_title_stepper".loco(
-                            menuEventTitleLength)
-                    )
-                    .monospacedDigit()
-                }
-                .fixedSize()
-            }
-            .preferenceIndent()
-            .disabled(!shortenEventTitle)
+            PresetNumberPicker(
+                presets: [20, 30, 50, 80],
+                presetLabel: { "\($0)" },
+                customLabel: "preferences_preset_custom".loco(),
+                value: $menuEventTitleLength,
+                range: 20 ... 100,
+                step: 5,
+                stepperLabel: { "preferences_appearance_menu_shorten_event_title_stepper".loco($0) },
+                example: "preferences_appearance_menu_shorten_event_title_example".loco(),
+                isEnabled: shortenEventTitle
+            )
         }
     }
 }
