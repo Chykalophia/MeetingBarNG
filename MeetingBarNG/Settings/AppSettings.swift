@@ -49,6 +49,10 @@ struct MenuSettings: Equatable {
     var showEventDetails: Bool
     var showMeetingServiceIcon: Bool
     var showEventCalendarColor: Bool
+    /// When true, reference links found in an event's invite (Figma, Notion,
+    /// GitHub, Google Docs/Sheets/Slides, generic URLs) are surfaced as clickable
+    /// rows in the event detail submenu. ON by default.
+    var showMeetingPrepLinks: Bool
     /// When true, the menu's day list starts at "now" — meetings that ended more
     /// than the grace period ago are hidden. When false, the full day is shown.
     var hideFinishedEventsInMenu: Bool
@@ -231,6 +235,7 @@ extension AppSettings {
                 showEventDetails: Defaults[.showEventDetails],
                 showMeetingServiceIcon: Defaults[.showMeetingServiceIcon],
                 showEventCalendarColor: Defaults[.showEventCalendarColor],
+                showMeetingPrepLinks: Defaults[.showMeetingPrepLinks],
                 hideFinishedEventsInMenu: Defaults[.hideFinishedEventsInMenu],
                 showRemindersInMenu: Defaults[.showRemindersInMenu],
                 remindersIncludeOverdue: Defaults[.remindersIncludeOverdue],
@@ -311,6 +316,7 @@ extension AppSettings {
                 showEventDetails: false,
                 showMeetingServiceIcon: true,
                 showEventCalendarColor: true,
+                showMeetingPrepLinks: true,
                 hideFinishedEventsInMenu: true,
                 showRemindersInMenu: false,
                 remindersIncludeOverdue: true,

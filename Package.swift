@@ -40,6 +40,7 @@ let package = Package(
                 "Calendar/Providers/Google/GoogleCalendarPolicy.swift",
                 // Meetings
                 "Meetings/MeetingLinkDetector.swift",
+                "Meetings/MeetingPrepLinks.swift",
                 "Meetings/MeetingProvider.swift",
                 "Meetings/MicLevel.swift",
                 // UI/StatusBar

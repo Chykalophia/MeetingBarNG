@@ -137,6 +137,12 @@ extension Defaults.Keys {
     static let showMeetingServiceIcon = Key<Bool>("showMeetingServiceIcon", default: true)
     static let showEventCalendarColor = Key<Bool>("showEventCalendarColor", default: true)
 
+    // Meeting-prep links (Dot parity, MeetingBarNG). Surfaces the useful links
+    // buried in an invite (Figma, Notion, GitHub, Google Docs/Sheets/Slides,
+    // generic URLs) as clickable rows in the event detail submenu, excluding the
+    // meeting-join link. ON by default so the links appear without opt-in.
+    static let showMeetingPrepLinks = Key<Bool>("showMeetingPrepLinks", default: true)
+
     // Apple Reminders in the menu (MeetingBarNG). OFF by default so existing
     // installs never see a surprise permission prompt — the Reminders access
     // request only fires when the user turns this on in Preferences.

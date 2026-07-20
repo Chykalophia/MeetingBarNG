@@ -17,7 +17,11 @@
 //  "World clock…" quick action for the multi-zone world-clock panel window;
 //  render the `.noCalendarsAvailable` empty state (provider connected but zero
 //  available calendars) with an "Open Calendars in Preferences" action so the
-//  dropdown never shows "no meetings today" when there is no usable calendar.
+//  dropdown never shows "no meetings today" when there is no usable calendar;
+//  add a "Prep links" subsection to the event detail submenu that surfaces the
+//  reference links buried in an invite (Figma, Notion, GitHub, Google
+//  Docs/Sheets/Slides, generic URLs), classified via the pure `MeetingPrepLinks`
+//  extractor and opened via `NSWorkspace`, excluding the meeting-join link.
 //
 
 import Cocoa
@@ -1399,6 +1403,7 @@ struct MenuBuilder {
         addEventLocation(to: menu, event: event)
         addEventOrganizer(to: menu, event: event)
         addEventNotes(to: menu, event: event)
+        addEventPrepLinks(to: menu, event: event)
         addEventAttendees(to: menu, event: event)
         addEventActions(to: menu, event: event)
     }
@@ -1504,6 +1509,63 @@ struct MenuBuilder {
         let notesItem = menu.addItem(withTitle: "", action: nil, keyEquivalent: "")
         notesItem.view = createNSViewFromText(text: notes, maxWidth: 420)
         menu.addItem(NSMenuItem.separator())
+    }
+
+    /// Meeting-prep links (Dot parity): the useful reference URLs buried in the
+    /// invite (Figma, Notion, GitHub, Google Docs/Sheets/Slides, generic links),
+    /// surfaced as clickable rows. The meeting-join link and event URL are
+    /// excluded so this never duplicates the "Join" action. Gated on the
+    /// `showMeetingPrepLinks` preference (default on).
+    private func addEventPrepLinks(to menu: NSMenu, event: MBEvent) {
+        guard state.menu.showMeetingPrepLinks else { return }
+
+        let links = MeetingPrepLinks.extract(
+            notes: event.notes,
+            location: event.location,
+            excluding: [event.meetingLink?.url, event.url].compactMap { $0?.absoluteString }
+        )
+        guard !links.isEmpty else { return }
+
+        menu.addItem(
+            withTitle: "status_bar_submenu_prep_links_title".loco(),
+            action: nil,
+            keyEquivalent: ""
+        )
+        for link in links {
+            guard let url = URL(string: link.url) else { continue }
+            let item = menu.addItem(
+                withTitle: link.displayTitle,
+                action: #selector(StatusBarItemController.openPrepLink(sender:)),
+                keyEquivalent: ""
+            )
+            item.target = target
+            item.representedObject = url
+            item.image = Self.prepLinkIcon(for: link.kind)
+            item.toolTip = link.url
+        }
+        menu.addItem(NSMenuItem.separator())
+    }
+
+    /// SF Symbol for a prep-link kind. Returns a template image sized to the menu
+    /// icon column; `nil` (unknown symbol) simply leaves the icon column empty.
+    private static func prepLinkIcon(for kind: PrepLinkKind) -> NSImage? {
+        let symbolName: String
+        switch kind {
+        case .figma: symbolName = "paintbrush"
+        case .notion, .googleDoc: symbolName = "doc.text"
+        case .github: symbolName = "chevron.left.forwardslash.chevron.right"
+        case .googleSheet: symbolName = "tablecells"
+        case .googleSlides: symbolName = "rectangle.on.rectangle"
+        case .googleDrive: symbolName = "folder"
+        case .loom: symbolName = "video"
+        case .linear: symbolName = "list.bullet.rectangle"
+        case .jira: symbolName = "ladybug"
+        case .confluence: symbolName = "doc.richtext"
+        case .generic: symbolName = "link"
+        }
+        let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)
+        image?.size = MenuStyleConstants.iconSize
+        return image
     }
 
     private func addEventAttendees(to menu: NSMenu, event: MBEvent) {

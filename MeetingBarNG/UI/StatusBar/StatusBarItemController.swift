@@ -126,7 +126,7 @@ final class StatusBarItemController {
             .showEventMaxTimeUntilEventEnabled, .showEventDetails,
             .shortenEventTitle, .menuEventTitleLength,
             .showEventEndTime, .showMeetingServiceIcon,
-            .showEventCalendarColor,
+            .showEventCalendarColor, .showMeetingPrepLinks,
             .timeFormat, .bookmarks,
             .personalEventsAppereance, .pastEventsAppereance,
             .declinedEventsAppereance, .ongoingEventVisibility,
@@ -570,6 +570,16 @@ final class StatusBarItemController {
     func openEventInCalendar(sender: NSMenuItem) {
         // The menu attaches the provider-specific calendar URL directly
         // (ical://ekevent/… for EventKit, htmlLink for Google).
+        if let url = sender.representedObject as? URL {
+            url.openInDefaultBrowser()
+        }
+    }
+
+    @objc
+    func openPrepLink(sender: NSMenuItem) {
+        // The menu attaches a meeting-prep reference URL (Figma, Notion, GitHub,
+        // Google Docs/…, generic) extracted from the invite. Open it in the
+        // default browser, like the other reference-link actions.
         if let url = sender.representedObject as? URL {
             url.openInDefaultBrowser()
         }

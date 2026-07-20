@@ -170,6 +170,7 @@ struct EventDetailSection: View {
     @Default(.showEventDetails) var showEventDetails
     @Default(.showMeetingServiceIcon) var showMeetingServiceIcon
     @Default(.showEventCalendarColor) var showEventCalendarColor
+    @Default(.showMeetingPrepLinks) var showMeetingPrepLinks
 
     var body: some View {
         Section(header: Text(preferenceLabel("preferences_appearance_menu_show_event_title"))) {
@@ -188,6 +189,10 @@ struct EventDetailSection: View {
             Toggle(
                 preferenceLabel("preferences_appearance_menu_show_event_details_value"),
                 isOn: $showEventDetails
+            )
+            Toggle(
+                preferenceLabel("preferences_appearance_menu_show_prep_links_value"),
+                isOn: $showMeetingPrepLinks
             )
         }
 

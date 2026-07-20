@@ -239,6 +239,7 @@
 "preferences_appearance_menu_show_event_icon_value" = "Show the meeting app's icon";
 "preferences_appearance_menu_show_event_calendar_color_value" = "Show the calendar's color dot";
 "preferences_appearance_menu_show_event_details_value" = "Show event details in a submenu";
+"preferences_appearance_menu_show_prep_links_value" = "Show prep links (Figma, Docs, GitHub…) from the invite";
 "preferences_appearance_menu_show_reminders_toggle" = "Show today's reminders in the dropdown";
 "preferences_appearance_menu_reminders_include_overdue_toggle" = "Include overdue reminders";
 
@@ -455,6 +456,7 @@
 "status_bar_submenu_location_title" = "Location:";
 "status_bar_submenu_organizer_title" = "Organizer: %@";
 "status_bar_submenu_notes_title" = "Notes:";
+"status_bar_submenu_prep_links_title" = "Prep links:";
 "status_bar_submenu_attendees_title" = "Attendees (%d)";
 "status_bar_submenu_attendees_no_name" = "Anonymous attendee";
 "status_bar_submenu_attendees_you" = "%@ (you)";
