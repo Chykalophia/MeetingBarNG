@@ -12,6 +12,19 @@ HOST_ARCH := $(shell uname -m)
 DESTINATION ?= platform=macOS,arch=$(HOST_ARCH)
 XCODEBUILD_FLAGS := -project $(PROJECT) -scheme $(SCHEME) -destination '$(DESTINATION)' -derivedDataPath $(DERIVED_DATA_DIR) -clonedSourcePackagesDirPath $(XCODE_SOURCE_PACKAGES_DIR) -onlyUsePackageVersionsFromResolvedFile
 LOCAL_CODESIGN_FLAGS := CODE_SIGN_IDENTITY="" CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+
+# Local self-signed re-sign so macOS TCC grants (Calendar, Reminders, Camera/Mic)
+# PERSIST across rebuilds. The xcodebuild build stays unsigned (avoids the
+# DEVELOPMENT_TEAM / dependency-target entitlement problems); afterwards the built
+# .app bundle is re-signed with a stable local identity + a profile-free
+# entitlements set (XCConfig/LocalSigning.entitlements — the app's entitlements
+# minus the Apple-profile-gated time-sensitive-notifications key). Without a
+# stable signature every rebuild changes the binary and macOS invalidates the
+# prior grant, so the app reads as "granted" while EventKit returns nothing.
+#   make run-local                 # build + sign + launch
+#   make sign-local                # re-sign the already-built app
+LOCAL_SIGN_IDENTITY ?= MeetingBarNG-Local
+LOCAL_APP := $(DERIVED_DATA_DIR)/Build/Products/Debug/MeetingBarNG.app
 LOGIC_COVERAGE_SOURCES := MeetingBarNG/Calendar MeetingBarNG/Meetings MeetingBarNG/Notifications MeetingBarNG/UI/StatusBar MeetingBarNG/Utilities/Diagnostics
 
 # Pipe xcodebuild through xcbeautify when available; otherwise grep for the lines that matter.
@@ -19,7 +32,22 @@ XCFILTER := $(shell command -v xcbeautify >/dev/null 2>&1 && echo 'xcbeautify --
 # Append a JUnit report to app-hosted test runs when xcbeautify is available.
 JUNIT_REPORT := $(shell command -v xcbeautify >/dev/null 2>&1 && echo '--report junit --report-path $(BUILD_DIR)/test-results')
 
-.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings
+.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings sign-local run-local
+
+sign-local:
+	@if ! security find-identity -p codesigning 2>/dev/null | grep -q "$(LOCAL_SIGN_IDENTITY)"; then \
+		echo "No code-signing identity '$(LOCAL_SIGN_IDENTITY)' found. Create a self-signed"; \
+		echo "Code Signing certificate in Keychain Access (Certificate Assistant ->"; \
+		echo "Create a Certificate -> Self-Signed Root -> Code Signing), or override"; \
+		echo "LOCAL_SIGN_IDENTITY=<name>."; \
+		exit 1; \
+	fi
+	codesign --force --deep --sign "$(LOCAL_SIGN_IDENTITY)" \
+		--entitlements XCConfig/LocalSigning.entitlements "$(LOCAL_APP)"
+	codesign --verify --deep --strict --verbose=2 "$(LOCAL_APP)"
+
+run-local: build sign-local
+	open "$(LOCAL_APP)"
 
 build:
 	@mkdir -p $(BUILD_DIR)
