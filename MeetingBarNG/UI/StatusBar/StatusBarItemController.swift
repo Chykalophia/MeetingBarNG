@@ -9,7 +9,10 @@
 //  render the status-bar title through the composable menu-bar presenter when
 //  the user has set a custom token composition, and observe its Defaults keys;
 //  assemble the dropdown from the composable-dropdown block-join (toggleable +
-//  reorderable modules); remove the "Rate App" action that opened the original
+//  reorderable modules, with the enabled-module set resolved through the shared
+//  DropdownCompositionPolicy.enabledRawValues helper so the Display-tab live
+//  preview and the real menu can never drift); remove the "Rate App" action that
+//  opened the original
 //  App Store listing; add an "Open calendar" entry point (dependency closure,
 //  keyboard shortcut, and @objc handler) for the month calendar window; add the
 //  in-app event editor entry points (new/edit/delete dependency closures, the
@@ -470,14 +473,14 @@ final class StatusBarItemController {
     /// the `enabled` set for `DropdownCompositionPolicy.resolve`. greeting/timeline
     /// reuse the existing preferences; the rest use the MeetingBarNG toggles.
     private func enabledDropdownModuleRawValues(_ menuState: StatusBarMenuState) -> Set<String> {
-        var enabled = Set<String>()
-        if menuState.showGreetingHeader { enabled.insert(DropdownModule.greeting.rawValue) }
-        if menuState.menu.showTimelineInMenu { enabled.insert(DropdownModule.timeline.rawValue) }
-        if menuState.menu.showMeetingControlInMenu { enabled.insert(DropdownModule.meeting.rawValue) }
-        if menuState.menu.showAgendaInMenu { enabled.insert(DropdownModule.agenda.rawValue) }
-        if menuState.menu.showJoinSectionInMenu { enabled.insert(DropdownModule.join.rawValue) }
-        if menuState.menu.showBookmarksInMenu { enabled.insert(DropdownModule.bookmarks.rawValue) }
-        return enabled
+        DropdownCompositionPolicy.enabledRawValues(
+            greeting: menuState.showGreetingHeader,
+            timeline: menuState.menu.showTimelineInMenu,
+            meeting: menuState.menu.showMeetingControlInMenu,
+            agenda: menuState.menu.showAgendaInMenu,
+            join: menuState.menu.showJoinSectionInMenu,
+            bookmarks: menuState.menu.showBookmarksInMenu
+        )
     }
 
     /*

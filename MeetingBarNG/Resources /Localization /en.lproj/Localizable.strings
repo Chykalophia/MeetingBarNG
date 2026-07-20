@@ -267,6 +267,17 @@
 "preferences_appearance_menu_bar_world_clock_label_placeholder" = "e.g. SF";
 "preferences_appearance_menu_bar_week_number_prefix" = "W";
 
+// MARK: - Display tab live preview (MeetingBarNG)
+
+"preferences_display_preview_title" = "Preview";
+"preferences_display_preview_menu_bar_label" = "Menu bar";
+"preferences_display_preview_dropdown_label" = "Dropdown";
+"preferences_display_preview_caption" = "Sample data — updates as you change the settings.";
+"preferences_display_preview_greeting_name" = "Alex";
+"preferences_display_preview_greeting_summary" = "3 meetings today · 2h free";
+"preferences_display_preview_sample_event_2" = "1:1 with Sam";
+"preferences_display_preview_sample_event_3" = "Team standup";
+
 // MARK: - Menu Builder (composable dropdown, MeetingBarNG)
 
 "preferences_menu_builder_dropdown_title" = "Dropdown layout";

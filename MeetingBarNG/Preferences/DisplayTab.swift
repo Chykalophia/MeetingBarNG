@@ -14,7 +14,9 @@
 //    Copyright © 2021 Andrii Leitsius. All rights reserved.
 //  Licensed under the Apache License, Version 2.0. Modified for MeetingBarNG by
 //  Peter Krzyzek / Chykalophia, 2026: relocated into the Display tab and split
-//  the dropdown display toggles into `DropdownDisplaySection`.
+//  the dropdown display toggles into `DropdownDisplaySection` (Phase 1); wrap the
+//  settings sections in a two-pane layout with a sticky `DisplayPreviewPane` live
+//  preview on the right (Phase 2).
 //
 
 import Defaults
@@ -22,15 +24,26 @@ import SwiftUI
 
 struct DisplayTab: View {
     var body: some View {
-        PreferencesGroupedForm {
-            // "Menu bar" — the classic status-bar icon/title/time controls.
-            StatusBarSection()
-            // "Menu bar layout" — composable menu-bar token builder.
-            MenuBarComposerSection()
-            // "Dropdown layout" — composable dropdown section builder.
-            DropdownComposerSection()
-            // "Dropdown" — dropdown display toggles (timeline, greeting, …).
-            DropdownDisplaySection()
+        // Two-pane: the settings sections scroll on the left; a fixed-width live
+        // preview stays pinned on the right. Only the Display tab gets a preview.
+        HStack(spacing: 0) {
+            PreferencesGroupedForm {
+                // "Menu bar" — the classic status-bar icon/title/time controls.
+                StatusBarSection()
+                // "Menu bar layout" — composable menu-bar token builder.
+                MenuBarComposerSection()
+                // "Dropdown layout" — composable dropdown section builder.
+                DropdownComposerSection()
+                // "Dropdown" — dropdown display toggles (timeline, greeting, …).
+                DropdownDisplaySection()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            Divider()
+
+            DisplayPreviewPane()
+                .frame(width: 340)
+                .frame(maxHeight: .infinity)
         }
     }
 }
@@ -506,7 +519,14 @@ struct DropdownComposerSection: View {
     }
 
     private var enabledRawValues: Set<String> {
-        Set(DropdownModule.allCases.filter { isEnabled($0) }.map(\.rawValue))
+        DropdownCompositionPolicy.enabledRawValues(
+            greeting: showGreetingInMenu,
+            timeline: showTimelineInMenu,
+            meeting: showMeetingControlInMenu,
+            agenda: showAgendaInMenu,
+            join: showJoinSectionInMenu,
+            bookmarks: showBookmarksInMenu
+        )
     }
 
     /// Modules currently hidden — offered in the "Add section" menu, in standard order.
@@ -752,5 +772,5 @@ struct DropdownDisplaySection: View {
 }
 
 #Preview {
-    DisplayTab().frame(width: 700, height: 620)
+    DisplayTab().frame(width: 940, height: 620)
 }

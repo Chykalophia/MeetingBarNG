@@ -72,4 +72,31 @@ enum DropdownCompositionPolicy {
 
         return ordered.filter { enabled.contains($0.rawValue) }
     }
+
+    // swiftlint:disable function_parameter_count
+    /// The raw values of the dropdown modules whose per-module toggle is on — the
+    /// `enabled` set fed to `resolve(order:enabled:)`. Shared by the status-bar
+    /// controller (which builds the real NSMenu) and the Display-tab live preview
+    /// so the preview can never drift from what the menu actually renders.
+    /// `greeting`/`timeline` reuse the existing preferences; the rest use the
+    /// MeetingBarNG per-module toggles. One boolean per module keeps call sites
+    /// self-documenting.
+    static func enabledRawValues(
+        greeting: Bool,
+        timeline: Bool,
+        meeting: Bool,
+        agenda: Bool,
+        join: Bool,
+        bookmarks: Bool
+    ) -> Set<String> {
+        // swiftlint:enable function_parameter_count
+        var enabled = Set<String>()
+        if greeting { enabled.insert(DropdownModule.greeting.rawValue) }
+        if timeline { enabled.insert(DropdownModule.timeline.rawValue) }
+        if meeting { enabled.insert(DropdownModule.meeting.rawValue) }
+        if agenda { enabled.insert(DropdownModule.agenda.rawValue) }
+        if join { enabled.insert(DropdownModule.join.rawValue) }
+        if bookmarks { enabled.insert(DropdownModule.bookmarks.rawValue) }
+        return enabled
+    }
 }

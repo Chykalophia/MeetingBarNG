@@ -536,11 +536,14 @@ final class WindowCoordinator {
         }
 
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 860, height: 620),
+            // Opens wide enough for the Display tab's two-pane layout (settings +
+            // ~340pt live preview); minSize below keeps both panes usable on resize.
+            contentRect: NSRect(x: 0, y: 0, width: 940, height: 620),
             styleMask: [.closable, .titled, .resizable],
             backing: .buffered,
             defer: false
         )
+        window.minSize = NSSize(width: 940, height: 520)
 
         window.title = WindowTitles.preferences
         window.contentView = NSHostingView(rootView: contentView)

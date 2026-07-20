@@ -8,7 +8,8 @@
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
 //  drop the StoreKit patronage service threaded through the preferences window;
 //  pin the NavigationSplitView sidebar open (non-collapsible) and adopt the
-//  shared PreferencesDesign card/callout/indent language.
+//  shared PreferencesDesign card/callout/indent language; widen the window
+//  minimum size so the Display tab's two-pane settings + live preview fit.
 //
 import SwiftUI
 
@@ -66,7 +67,8 @@ struct PreferencesView: View {
             preferencesTabContent(selectedTab)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(minWidth: 700, minHeight: 500)
+        // Wide enough for the Display tab's two-pane (settings + ~340pt preview).
+        .frame(minWidth: 940, minHeight: 520)
     }
 }
 
@@ -91,7 +93,8 @@ private struct ModernPreferencesLayout: View {
                 .navigationTitle(selectedTab.titleKey.loco())
         }
         .navigationSplitViewStyle(.balanced)
-        .frame(minWidth: 760, minHeight: 520)
+        // Wide enough for the Display tab's two-pane (settings + ~340pt preview).
+        .frame(minWidth: 940, minHeight: 520)
     }
 
     // The native sidebar list: `List(selection:)` provides the System Settings
@@ -184,5 +187,5 @@ struct PreferencesGroupedForm<Content: View>: View {
 
 #Preview {
     PreferencesView()
-        .frame(width: 860, height: 620)
+        .frame(width: 960, height: 620)
 }

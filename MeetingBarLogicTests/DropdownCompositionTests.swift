@@ -96,4 +96,47 @@ final class DropdownCompositionTests: XCTestCase {
         )
         XCTAssertTrue(resolved.isEmpty)
     }
+
+    // MARK: - enabledRawValues (shared by the controller + Display-tab preview)
+
+    func testEnabledRawValuesReflectsEachToggle() {
+        XCTAssertEqual(
+            DropdownCompositionPolicy.enabledRawValues(
+                greeting: true, timeline: false, meeting: true,
+                agenda: false, join: true, bookmarks: false
+            ),
+            ["greeting", "meeting", "join"]
+        )
+    }
+
+    func testEnabledRawValuesAllOnMatchesEveryModule() {
+        XCTAssertEqual(
+            DropdownCompositionPolicy.enabledRawValues(
+                greeting: true, timeline: true, meeting: true,
+                agenda: true, join: true, bookmarks: true
+            ),
+            allEnabled
+        )
+    }
+
+    func testEnabledRawValuesAllOffIsEmpty() {
+        XCTAssertTrue(
+            DropdownCompositionPolicy.enabledRawValues(
+                greeting: false, timeline: false, meeting: false,
+                agenda: false, join: false, bookmarks: false
+            ).isEmpty
+        )
+    }
+
+    /// The controller resolves the real dropdown by feeding `enabledRawValues`
+    /// into `resolve`; the preview must produce the identical module list from the
+    /// same toggles, so exercise the two together.
+    func testEnabledRawValuesFeedsResolveDeterministically() {
+        let enabled = DropdownCompositionPolicy.enabledRawValues(
+            greeting: true, timeline: false, meeting: true,
+            agenda: true, join: false, bookmarks: false
+        )
+        let resolved = DropdownCompositionPolicy.resolve(order: standardOrderRaw, enabled: enabled)
+        XCTAssertEqual(resolved, [.greeting, .meeting, .agenda])
+    }
 }
