@@ -83,6 +83,10 @@
 "preferences_status_reconnect" = "Reconnect";
 "preferences_status_grant_access" = "Grant Calendar Access";
 "preferences_status_open_calendar_settings" = "Open Calendar Settings";
+"preferences_status_force_sync" = "Force Sync";
+"preferences_status_fix_account" = "Re-authenticate Account…";
+"preferences_status_last_change" = "Most recent calendar change: %@";
+"preferences_status_sync_help" = "MeetingBarNG shows what macOS Calendar has synced. If events look outdated, macOS Calendar may need to re-sync — try Force Sync, or re-authenticate the account if its credentials expired.";
 "preferences_status_copy_diagnostics" = "Copy diagnostics";
 
 // MARK: - Preferences General

@@ -100,6 +100,11 @@ enum AppAction {
     // Calendar
     case calendarStoreChanged
     case refreshCalendars
+    /// Aggressively nudge macOS to sync (EventKit `refreshSourcesIfNecessary()`)
+    /// then re-fetch. Debounced inside `CalendarSync`. Raised on status-menu
+    /// open / wake / unlock so stalled macOS syncs surface (and self-correct)
+    /// sooner than the periodic 180s timer would allow.
+    case forceCalendarSync
     case calendarsLoaded([MBCalendar], provider: EventStoreProvider)
     case eventsLoaded([MBEvent])
     case selectedCalendarsChanged([String])
@@ -163,6 +168,12 @@ struct AppEnvironment {
     /// Trigger a fresh calendar + event fetch from the active provider.
     /// Results flow back through `eventsPublisher` / `calendarsPublisher`.
     var triggerRefresh: @MainActor () -> Void
+
+    /// Aggressively nudge the active provider to sync now (EventKit:
+    /// `refreshSourcesIfNecessary()`) then re-fetch. Debounced inside
+    /// `CalendarSync`. Defaulted to a no-op so existing test call sites that
+    /// build `AppEnvironment` via the memberwise initializer keep compiling.
+    var forceSync: @MainActor () -> Void = {}
 
     /// Reconcile system notification requests with the current event plan.
     var reconcileNotifications: @MainActor ([MBEvent]) async -> Void
@@ -254,6 +265,9 @@ struct AppEnvironment {
             .eraseToAnyPublisher(),
             triggerRefresh: {
                 calendarSync.refreshSubject.send()
+            },
+            forceSync: {
+                calendarSync.forceSyncIfDebounceElapsed()
             },
             reconcileNotifications: { events in
                 await notificationScheduler.reconcile(
@@ -385,9 +399,9 @@ final class AppModel: ObservableObject {
         case .launched, .willTerminate, .screenLocked, .screenUnlocked,
              .didWake, .systemClockChanged, .timezoneChanged, .dayChanged:
             handleLifecycleAction(action)
-        case .calendarStoreChanged, .refreshCalendars, .calendarsLoaded,
-             .eventsLoaded, .selectedCalendarsChanged, .providerHealthChanged,
-             .calendarRefreshFailed, .providerChanged,
+        case .calendarStoreChanged, .refreshCalendars, .forceCalendarSync,
+             .calendarsLoaded, .eventsLoaded, .selectedCalendarsChanged,
+             .providerHealthChanged, .calendarRefreshFailed, .providerChanged,
              .selectCalendar, .changeProvider, .settingsChanged,
              .toggleMeetingTitleVisibility:
             handleCalendarAction(action)
@@ -475,12 +489,19 @@ final class AppModel: ObservableObject {
         case .screenUnlocked:
             state.screenIsLocked = false
             scheduleRefresh()
+            // Credentials/sync may have lapsed while locked: nudge macOS to
+            // sync (debounced) so stalled data surfaces and self-corrects.
+            environment.forceSync()
         case .systemClockChanged, .timezoneChanged:
             state.timeContextRevision += 1
             reconcileNotificationsFromState()
             scheduleRefresh()
         case .didWake, .dayChanged:
             scheduleRefresh()
+            // After sleep the account may be behind: force an aggressive sync.
+            if case .didWake = action {
+                environment.forceSync()
+            }
         default:
             break
         }
@@ -490,6 +511,8 @@ final class AppModel: ObservableObject {
         switch action {
         case .calendarStoreChanged, .refreshCalendars, .settingsChanged:
             scheduleRefresh()
+        case .forceCalendarSync:
+            environment.forceSync()
         case .toggleMeetingTitleVisibility:
             environment.toggleMeetingTitleVisibility()
         case .calendarsLoaded(let calendars, let provider):

@@ -18,7 +18,10 @@
 //  openCameraPreview dependency closure, the .cameraPreviewShortcut registration,
 //  and the standalone/per-event @objc handlers); add a "World clock" entry point
 //  (the openWorldClock dependency closure, the .worldClockShortcut registration,
-//  and the @objc handler) for the multi-zone world-clock panel window.
+//  and the @objc handler) for the multi-zone world-clock panel window; kick a
+//  debounced aggressive calendar force-sync (.forceCalendarSync) whenever the
+//  status-menu is about to show, so a stalled macOS Calendar sync surfaces (and
+//  self-corrects) on menu open.
 //
 
 import Cocoa
@@ -239,13 +242,23 @@ final class StatusBarItemController {
     }
 
     func openMenu() {
+        nudgeCalendarForceSync()
         statusItem.menu = statusItemMenu
         statusItem.button?.performClick(nil)  // ...and click
         statusItem.menu = nil
     }
 
+    /// Opening the menu is a strong "the user wants current data now" signal, so
+    /// proactively nudge macOS to sync (EventKit `refreshSourcesIfNecessary()`)
+    /// via `CalendarSync`. Debounced there (~30s) so repeated menu-opens don't
+    /// hammer EventKit.
+    private func nudgeCalendarForceSync() {
+        dependencies.send(.forceCalendarSync)
+    }
+
     /// Pops up the right-click quick-actions menu at the status item.
     func showQuickActionsMenu() {
+        nudgeCalendarForceSync()
         var appState = dependencies.appState()
         appState.events = events
         let menuState = StatusBarMenuState.make(from: appState)

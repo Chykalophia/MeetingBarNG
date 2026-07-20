@@ -357,6 +357,65 @@ final class PreferencesPresentationTests: XCTestCase {
         XCTAssertEqual(presentation.statusTextKey, "preferences_status_state_stale")
     }
 
+    func testPresentationCarriesNewestSyncedChangeFromProviderHealth() {
+        // The "most recent calendar change" staleness signal flows from
+        // ProviderHealth.lastSyncedChange straight onto the presentation.
+        let refreshedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        let newestChange = Date(timeIntervalSince1970: 1_699_000_000)
+        var state = AppState()
+        state.activeProvider = .macOSEventKit
+        state.calendars = [makeFakeCalendar(id: "work")]
+        state.selectedCalendarIDs = ["work"]
+        state.providerHealth = ProviderHealth.success(
+            attempted: refreshedAt,
+            lastSyncedChange: newestChange
+        )
+
+        let presentation = PreferencesCalendarPresentation.make(
+            from: state,
+            authorizationStatus: .authorized
+        )
+
+        XCTAssertEqual(presentation.lastSyncedChange, newestChange)
+    }
+
+    func testPresentationHasNoSyncedChangeWhenProviderHealthLacksOne() {
+        // No event carried a modification date: the tab hides the line, so the
+        // presentation must expose nil rather than fabricate a timestamp.
+        let refreshedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        var state = AppState()
+        state.activeProvider = .macOSEventKit
+        state.calendars = [makeFakeCalendar(id: "work")]
+        state.providerHealth = ProviderHealth.success(attempted: refreshedAt)
+
+        let presentation = PreferencesCalendarPresentation.make(from: state)
+
+        XCTAssertNil(presentation.lastSyncedChange)
+    }
+
+    func testEventKitOffersReauthenticateAccountAffordance() {
+        // The "Re-authenticate Account…" fix-path (System Settings ▸ Internet
+        // Accounts) is offered for macOS EventKit, the provider whose underlying
+        // accounts can hold expired credentials that stall sync silently.
+        var state = AppState()
+        state.activeProvider = .macOSEventKit
+
+        let presentation = PreferencesCalendarPresentation.make(from: state)
+
+        XCTAssertTrue(presentation.canReauthenticateAccount)
+    }
+
+    func testGoogleProviderDoesNotOfferReauthenticateAccountAffordance() {
+        // The native Google provider has its own Reconnect flow; the Internet
+        // Accounts affordance is EventKit-only.
+        var state = AppState()
+        state.activeProvider = .googleCalendar
+
+        let presentation = PreferencesCalendarPresentation.make(from: state)
+
+        XCTAssertFalse(presentation.canReauthenticateAccount)
+    }
+
     func testProviderPickerRequestsOnlyTransactionalProviderChanges() {
         XCTAssertFalse(
             ProviderPickerSelectionPolicy.shouldRequestChange(

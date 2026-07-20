@@ -9,7 +9,11 @@
 //  tidy the provider status/metadata/actions into a cleaner presentation
 //  (presentation logic and calendar toggles unchanged); thread the live
 //  EventKit authorization status into the presentation and add a prominent
-//  "Grant Calendar Access" button shown while access is still undetermined.
+//  "Grant Calendar Access" button shown while access is still undetermined;
+//  surface a "Most recent calendar change" staleness signal and add fix-path
+//  affordances (a "Force Sync" button plus a "Re-authenticate Account…" button
+//  that opens System Settings ▸ Internet Accounts) with a caption explaining the
+//  app shows what macOS Calendar has synced.
 //
 
 import Defaults
@@ -48,6 +52,21 @@ struct CalendarsTab: View {
                             .font(.caption)
                     }
                     Spacer()
+                }
+
+                // Staleness signal: the newest calendar change we saw synced. If
+                // this reads far older than the user knows their calendar to be,
+                // macOS Calendar's own sync has stalled — surfaced, not judged.
+                // Hidden entirely when no event carried a modification date.
+                if let lastSyncedChange = presentation.lastSyncedChange {
+                    HStack(spacing: 6) {
+                        Text("preferences_status_last_change".loco(
+                            lastSyncedChange.formatted(.relative(presentation: .named))
+                        ))
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                        Spacer()
+                    }
                 }
 
                 // Provider metadata.
@@ -94,16 +113,38 @@ struct CalendarsTab: View {
                         }
                         .disabled(appModel.state.providerChangeInProgress)
                     }
+                    if presentation.canReauthenticateAccount {
+                        // Expired CalDAV/Google/Exchange credentials cause macOS
+                        // Calendar to silently serve stale data. Re-signing in
+                        // (System Settings ▸ Internet Accounts) is the real fix.
+                        Button("preferences_status_fix_account".loco()) {
+                            if !NSWorkspace.shared.open(Links.internetAccountsPreferences) {
+                                NSWorkspace.shared.open(Links.systemSettings)
+                            }
+                        }
+                    }
                     if presentation.canOpenCalendarSettings {
                         Button("preferences_status_open_calendar_settings".loco()) {
                             NSWorkspace.shared.open(Links.calendarPreferences)
                         }
                     }
-                    Button("general_refresh".loco()) {
+                    // Force Sync always re-fetches (and updates the "most recent
+                    // change" line) so the user gets immediate feedback; the
+                    // automatic menu-open/wake/unlock nudges do the aggressive
+                    // macOS refreshSources() pass.
+                    Button("preferences_status_force_sync".loco()) {
                         appModel.send(.refreshCalendars)
                     }
                     .disabled(appModel.state.providerChangeInProgress)
                 }
+
+                // The app shows what macOS Calendar has synced. If events look
+                // outdated, macOS Calendar may need to re-sync or the account
+                // re-authenticated — spell that out so the buttons make sense.
+                Text("preferences_status_sync_help".loco())
+                    .foregroundStyle(.secondary)
+                    .font(.caption)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             if appModel.state.calendars.isEmpty {

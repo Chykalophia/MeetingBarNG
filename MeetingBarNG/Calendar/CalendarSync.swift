@@ -5,6 +5,15 @@
 //  Created by Andrii Leitsius on 12.05.2025.
 //  Copyright © 2025 Andrii Leitsius. All rights reserved.
 //
+//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
+//  add a debounced aggressive force-sync (`forceSyncIfDebounceElapsed`) that
+//  proactively nudges macOS to sync (EventKit `refreshSourcesIfNecessary()`,
+//  which also makes macOS surface its own stalled-sync error sooner) on
+//  status-menu open / system wake / unlock, at most once per ~30s; and compute
+//  `newestEventChange` (the newest event `lastModifiedDate`) each refresh and
+//  thread it onto `ProviderHealth.lastSyncedChange` for the Calendars-tab
+//  staleness signal.
+//
 import Cocoa
 import Combine
 import Defaults
@@ -142,6 +151,8 @@ public class CalendarSync: ObservableObject {
     }
 
     public func stop() {
+        forcedSyncTask?.cancel()
+        forcedSyncTask = nil
         storeChangeRefreshTask?.cancel()
         storeChangeRefreshTask = nil
         refreshCycleTask?.cancel()
@@ -155,6 +166,51 @@ public class CalendarSync: ObservableObject {
     public func refreshSources() async throws {
         await repository.refreshSources()
         refreshSubject.send()
+    }
+
+    // MARK: - Aggressive force-sync
+
+    /// Minimum spacing between forced syncs. Menu-open / wake / unlock can each
+    /// fire in quick succession; without this guard, opening the menu repeatedly
+    /// would hammer EventKit's `refreshSourcesIfNecessary()`.
+    private static let forcedSyncDebounceInterval: TimeInterval = 30
+    /// Timestamp of the last forced sync we actually dispatched.
+    private var lastForcedSyncAt: Date?
+    private var forcedSyncTask: Task<Void, Never>?
+
+    /// Aggressively nudge the underlying provider to sync now — for EventKit this
+    /// reaches `EKEventStore.refreshSourcesIfNecessary()`, which both pulls fresh
+    /// data and makes macOS surface its own stalled-sync error sooner — then
+    /// re-fetch via `refreshSources()`. Debounced to at most one dispatch per
+    /// `forcedSyncDebounceInterval` so status-menu-open spam and back-to-back
+    /// wake/unlock notifications don't overload EventKit. The periodic 180s timer
+    /// and the manual Refresh path are unaffected.
+    public func forceSyncIfDebounceElapsed(now: Date = Date()) {
+        if let lastForcedSyncAt,
+           now.timeIntervalSince(lastForcedSyncAt) < Self.forcedSyncDebounceInterval {
+            MeetingBarLogger.calendar.debug("Skipping forced calendar sync (debounced)")
+            return
+        }
+        lastForcedSyncAt = now
+        MeetingBarLogger.calendar.info("Forcing calendar sync (nudging provider to refresh sources)")
+        forcedSyncTask?.cancel()
+        forcedSyncTask = Task { [weak self] in
+            do {
+                try await self?.refreshSources()
+            } catch {
+                let errorDescription = String(describing: error)
+                MeetingBarLogger.calendar.error(
+                    "Forced calendar sync failed: \(errorDescription, privacy: .private)"
+                )
+            }
+        }
+    }
+
+    /// Newest `lastModifiedDate` across the given events, or `nil` when none of
+    /// them carry a modification date (or there are no events). Pure so it can be
+    /// unit-tested and threaded onto `ProviderHealth.lastSyncedChange`.
+    static func newestEventChange(in events: [MBEvent]) -> Date? {
+        events.compactMap(\.lastModifiedDate).max()
     }
 
     /// Fetches events for the selected calendars within the specified date range
@@ -242,7 +298,10 @@ public class CalendarSync: ObservableObject {
                                 let cals = try await self.repository.fetchAllCalendars()
                                 try Task.checkCancellation()
                                 let evts = try await self.fetchEvents(fromCalendars: cals)
-                                let health = ProviderHealth.success(attempted: attempted)
+                                let health = ProviderHealth.success(
+                                    attempted: attempted,
+                                    lastSyncedChange: Self.newestEventChange(in: evts)
+                                )
                                 promise(.success(RefreshResult(
                                     calendars: cals,
                                     events: evts,

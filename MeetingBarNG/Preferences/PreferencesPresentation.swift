@@ -190,6 +190,16 @@ struct PreferencesCalendarPresentation: Equatable {
     let providerAccountScopeKey: String
     let statusTextKey: String
     let emptyStateTextKey: String
+    /// Newest event `lastModifiedDate` from the last successful fetch, carried
+    /// over from `ProviderHealth.lastSyncedChange`. `nil` when there are no
+    /// events / no modification dates — the Calendars tab hides the line then.
+    /// The user eyeballs this for staleness; it is surfaced, never auto-judged.
+    let lastSyncedChange: Date?
+    /// Offer the "Re-authenticate Account…" affordance (System Settings ▸
+    /// Internet Accounts). EventKit-only: that is where the underlying
+    /// CalDAV/Google/Exchange accounts whose expired credentials cause silent
+    /// stale data are re-signed-in.
+    let canReauthenticateAccount: Bool
 
     /// - Parameter authorizationStatus: the live EventKit calendar
     ///   authorization (from `PermissionReporter.calendarAuthorizationStatus()`).
@@ -290,7 +300,9 @@ struct PreferencesCalendarPresentation: Equatable {
             providerDataSourceKey: calendarSource.dataSourceKey,
             providerAccountScopeKey: calendarSource.accountScopeKey,
             statusTextKey: statusTextKey,
-            emptyStateTextKey: emptyStateTextKey
+            emptyStateTextKey: emptyStateTextKey,
+            lastSyncedChange: state.providerHealth.lastSyncedChange,
+            canReauthenticateAccount: state.activeProvider == .macOSEventKit
         )
     }
 }

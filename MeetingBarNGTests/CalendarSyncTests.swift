@@ -792,3 +792,59 @@ final class ProviderHealthTests: BaseTestCase {
         XCTAssertTrue(manager.providerHealth.authRequired)
     }
 }
+
+@MainActor
+final class NewestEventChangeTests: BaseTestCase {
+    func test_newestEventChangeReturnsMaxLastModifiedDate() {
+        let older = Date(timeIntervalSince1970: 1_000_000)
+        let newer = Date(timeIntervalSince1970: 2_000_000)
+        let events = [
+            makeFakeEvent(
+                id: "A",
+                start: Date(),
+                end: Date().addingTimeInterval(60),
+                lastModifiedDate: older
+            ),
+            makeFakeEvent(
+                id: "B",
+                start: Date(),
+                end: Date().addingTimeInterval(60),
+                lastModifiedDate: newer
+            )
+        ]
+
+        XCTAssertEqual(CalendarSync.newestEventChange(in: events), newer)
+    }
+
+    func test_newestEventChangeIsNilForEmptyEventList() {
+        XCTAssertNil(CalendarSync.newestEventChange(in: []))
+    }
+
+    func test_successfulRefreshThreadsNewestChangeOntoProviderHealth() async throws {
+        let calendar = MBCalendar(title: "C", id: "c1", source: nil, email: nil, color: .black)
+        let modified = Date(timeIntervalSince1970: 1_650_000_000)
+        let event = makeFakeEvent(
+            id: "sync",
+            start: Date().addingTimeInterval(60),
+            end: Date().addingTimeInterval(3600),
+            lastModifiedDate: modified
+        )
+        let store = FakeEventStore(calendars: [calendar], events: [event])
+        Defaults[.selectedCalendarIDs] = [calendar.id]
+        let manager = CalendarSync(provider: store, refreshInterval: 0)
+
+        let exp = expectation(description: "health carries newest change")
+        manager.$providerHealth
+            .drop(while: { $0.lastSyncedChange == nil })
+            .first()
+            .sink { health in
+                XCTAssertEqual(health.lastSyncedChange, modified)
+                exp.fulfill()
+            }
+            .store(in: &cancellables)
+
+        await fulfillment(of: [exp], timeout: 1.0)
+    }
+
+    private var cancellables = Set<AnyCancellable>()
+}

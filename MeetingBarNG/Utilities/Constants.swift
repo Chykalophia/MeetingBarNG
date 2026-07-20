@@ -7,7 +7,9 @@
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
 //  remove the original author's donation/support/rate links and repoint the
-//  GitHub and contact links to the MeetingBarNG fork.
+//  GitHub and contact links to the MeetingBarNG fork; add the Internet-Accounts
+//  and System-Settings deep links used by the Calendars-tab "Re-authenticate
+//  Account…" fix-path.
 //
 
 import Cocoa
@@ -36,6 +38,13 @@ enum Links {
     static let calendarPreferences = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars")!
     static let cameraPreferences = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera")!
     static let microphonePreferences = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!
+    /// System Settings ▸ Internet Accounts — where expired CalDAV/Google/Exchange
+    /// credentials are re-authenticated. When an account's sync stalls, macOS
+    /// Calendar serves stale data silently; re-signing in here is the real fix.
+    static let internetAccountsPreferences = URL(string: "x-apple.systempreferences:com.apple.Internet-Accounts-Settings.extension")!
+    /// Bare System Settings, used as a fallback if the Internet-Accounts pane
+    /// scheme fails to open (pane identifiers drift across macOS releases).
+    static let systemSettings = URL(string: "x-apple.systempreferences:")!
 }
 
 enum TimeFormat: String, Defaults.Serializable, Codable, CaseIterable {
