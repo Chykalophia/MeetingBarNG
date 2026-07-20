@@ -5,6 +5,11 @@
 //  Created by Andrii Leitsius on 12.06.2020.
 //  Copyright © 2020 Andrii Leitsius. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0. Modified for MeetingBarNG by
+//  Peter Krzyzek / Chykalophia, 2026: thread `calendarItemExternalIdentifier`
+//  onto `MBEvent.externalIdentifier` so the same event appearing on multiple
+//  calendars/accounts can be collapsed by the cross-calendar deduplicator.
+//
 import Defaults
 import EventKit
 
@@ -172,7 +177,10 @@ func mbEvent(from rawEvent: EKEvent, calendar: MBCalendar, customRegexes: [Strin
         isAllDay: rawEvent.isAllDay,
         recurrent: rawEvent.hasRecurrenceRules,
         calendar: calendar,
-        customRegexes: customRegexes
+        customRegexes: customRegexes,
+        // Shared across copies of the same event in different calendars/accounts,
+        // so it keys cross-calendar duplicate detection in CalendarSync.
+        externalIdentifier: rawEvent.calendarItemExternalIdentifier
     )
 }
 

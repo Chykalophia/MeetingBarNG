@@ -33,6 +33,12 @@ struct MenuBuilder {
         "MeetingBar.StatusBar.MeetingSummary"
     )
 
+    /// Hard cap applied to event-row titles when the user has turned OFF
+    /// "shorten event title". A plain NSMenuItem sizes the menu to its widest
+    /// title, so without a cap one long event could stretch the whole dropdown
+    /// well past the narrow (~330) card. Chosen to keep the widest row ≈330–360px.
+    static let uncappedEventTitleFallbackLimit = 40
+
     /// All menu items created will forward their action to this object.
     let target: AnyObject
     /// Snapshot of all events, settings, and pre-computed flags used while
@@ -954,8 +960,7 @@ struct MenuBuilder {
         let time = eventTimePresentation(for: event)
         let itemTitle = eventItemAttributedTitle(
             eventTitle: menuTitle,
-            time: time,
-            isAllDay: event.isAllDay
+            time: time
         )
         let eventItem = makeBaseEventItem(event: event, title: itemTitle.plain)
 
@@ -1014,6 +1019,15 @@ struct MenuBuilder {
                 limit: state.menu.menuEventTitleLength,
                 noTitle: "status_bar_no_title".loco()
             )
+        } else {
+            // Even opted out of shortening, cap the title so a single long row
+            // can't stretch the narrow dropdown; the row still truncates
+            // visually, but a plain NSMenuItem sizes the menu to its widest title.
+            title = StatusBarTitlePolicy.shortenTitle(
+                event.title,
+                limit: Self.uncappedEventTitleFallbackLimit,
+                noTitle: "status_bar_no_title".loco()
+            )
         }
         if isDismissed(event) {
             title = "[\("status_bar_event_dismissed_mark".loco())] \(title)"
@@ -1049,17 +1063,12 @@ struct MenuBuilder {
 
     private func eventItemAttributedTitle(
         eventTitle: String,
-        time: EventTimePresentation,
-        isAllDay: Bool
+        time: EventTimePresentation
     ) -> EventItemTitle {
-        let timeColumn: String
-        if isAllDay {
-            timeColumn = time.start
-        } else if state.statusBar.showEventEndTime {
-            timeColumn = "\(time.start)–\(time.end)"
-        } else {
-            timeColumn = time.start
-        }
+        // Compact time column: the start time only. A full "2:30 PM–3:00 PM"
+        // range is too wide for the narrow (~330) dropdown, so the end time
+        // moves to the event's detail submenu (duration) and its hover tooltip.
+        let timeColumn = time.start
 
         let timeFont = NSFont.monospacedDigitSystemFont(
             ofSize: MenuStyleConstants.defaultFontSize,
@@ -1077,15 +1086,6 @@ struct MenuBuilder {
         )
         let timeRange = NSRange(location: 0, length: (timeColumn as NSString).length)
         attributed.addAttribute(.font, value: timeFont, range: timeRange)
-        if !isAllDay, state.statusBar.showEventEndTime {
-            // De-emphasize the dash and end time so the start time leads the row.
-            let startLength = (time.start as NSString).length
-            attributed.addAttribute(
-                .foregroundColor,
-                value: NSColor.secondaryLabelColor,
-                range: NSRange(location: startLength, length: timeRange.length - startLength)
-            )
-        }
 
         let titleStart = timeRange.length + 1
         return EventItemTitle(
@@ -1104,9 +1104,12 @@ struct MenuBuilder {
         case .military:
             timeTemplate = "88:88"
         }
+        // Rows show the start time only, so the tab stop only needs room for a
+        // single time (or the localized "All day" label), keeping the title
+        // column tight against the narrow dropdown.
         let templates = [
             "status_bar_event_start_time_all_day".loco(),
-            state.statusBar.showEventEndTime ? "\(timeTemplate)–\(timeTemplate)" : timeTemplate
+            timeTemplate
         ]
         let width = templates
             .map { ($0 as NSString).size(withAttributes: [.font: font]).width }
@@ -1376,7 +1379,13 @@ struct MenuBuilder {
         time: EventTimePresentation
     ) {
         guard state.menu.showEventDetails else {
-            item.toolTip = event.title
+            // Rows show the start time only; surface the end time on hover when
+            // the user asked to see it (and it's a timed, non-all-day event).
+            if !event.isAllDay, state.statusBar.showEventEndTime {
+                item.toolTip = "\(event.title) · \(time.start)–\(time.end)"
+            } else {
+                item.toolTip = event.title
+            }
             return
         }
 

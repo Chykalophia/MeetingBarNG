@@ -40,6 +40,7 @@ struct EventsSection: View {
     @Default(.showPendingEvents) var showPendingEvents
     @Default(.showTentativeEvents) var showTentativeEvents
     @Default(.showEventsForPeriod) var showEventsForPeriod
+    @Default(.deduplicateEvents) var deduplicateEvents
 
     var body: some View {
         Section(header: Text("preferences_appearance_events_title".loco())) {
@@ -52,6 +53,13 @@ struct EventsSection: View {
                 Text("preferences_appearance_events_show_events_for_today_tomorrow_value".loco())
                     .tag(ShowEventsForPeriod.today_n_tomorrow)
             }
+        }
+
+        Section {
+            Toggle(
+                preferenceLabel("preferences_events_dedup_toggle"),
+                isOn: $deduplicateEvents
+            )
         }
 
         Section {

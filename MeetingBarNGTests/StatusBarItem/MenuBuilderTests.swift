@@ -766,8 +766,10 @@ final class MenuBuilderTests: BaseTestCase {
             snapshot,
             [
                 "Today (\(dateFormatter.string(from: today)))",
-                "00:30–01:00\tEvent S1",
-                "02:00–02:15\tEvent S2",
+                // Rows now show the start time only (end time moved to the
+                // detail submenu/tooltip) so the narrow dropdown stays tight.
+                "00:30\tEvent S1",
+                "02:00\tEvent S2",
                 "status_bar_section_join_next_meeting".loco(),
                 "status_bar_section_join_create_meeting".loco(),
                 "status_bar_quick_actions".loco()
@@ -909,7 +911,10 @@ final class MenuBuilderEventItemTests: BaseTestCase {
         let item = try XCTUnwrap(buildItem(event: event))
 
         XCTAssertNil(item.submenu)
-        XCTAssertEqual(item.toolTip, event.title)
+        // With "show end time" on (the default) and the row showing only the
+        // start time, the end time now lives in the tooltip after the title.
+        XCTAssertEqual(item.toolTip?.hasPrefix(event.title), true)
+        XCTAssertEqual(item.toolTip?.contains("–"), true)
     }
 
     func test_eventDetailsPreserveEstablishedFieldsAndActions() throws {

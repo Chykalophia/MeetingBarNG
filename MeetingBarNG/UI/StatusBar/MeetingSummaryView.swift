@@ -32,7 +32,10 @@ struct MeetingSummaryView: View {
 
     @State private var isHovered = false
 
-    static let preferredWidth: CGFloat = 380
+    // Narrower, modern menu-bar-dropdown width. DaySummaryHeaderView and the
+    // timeline's NSHostingView both size off this constant, so the greeting,
+    // timeline, summary card, and event rows all share one ~330 width.
+    static let preferredWidth: CGFloat = 330
     static let preferredHeight: CGFloat = 66
 
     var body: some View {

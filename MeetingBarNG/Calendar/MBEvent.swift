@@ -5,6 +5,12 @@
 //  Created by Andrii Leitsius on 09.04.2022.
 //  Copyright © 2022 Andrii Leitsius. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0. Modified for MeetingBarNG by
+//  Peter Krzyzek / Chykalophia, 2026: add `externalIdentifier` (EventKit's
+//  `EKCalendarItem.calendarItemExternalIdentifier`, shared across copies of the
+//  same underlying event in different calendars/accounts) so cross-calendar
+//  duplicate events can be collapsed by a stable shared key.
+//
 
 import Foundation
 
@@ -88,6 +94,12 @@ public struct MBEvent: Identifiable, Hashable, Sendable {
     public let endDate: Date
     public var isAllDay: Bool
     public let recurrent: Bool
+    /// EventKit's `EKCalendarItem.calendarItemExternalIdentifier`: a stable
+    /// identifier shared across copies of the same underlying event that appear
+    /// on multiple calendars/accounts. Used to collapse cross-calendar
+    /// duplicates. `nil` for providers that don't expose it (Google) or for
+    /// events without one.
+    public let externalIdentifier: String?
     public var attendees: [MBEventAttendee] = []
 
     init(id: String,
@@ -107,8 +119,10 @@ public struct MBEvent: Identifiable, Hashable, Sendable {
          isAllDay: Bool,
          recurrent: Bool,
          calendar: MBCalendar,
-         customRegexes: [String] = []) {
+         customRegexes: [String] = [],
+         externalIdentifier: String? = nil) {
         self.calendar = calendar
+        self.externalIdentifier = externalIdentifier
         self.id = id
         self.scriptIdentifier = scriptIdentifier ?? id
         self.lastModifiedDate = lastModifiedDate

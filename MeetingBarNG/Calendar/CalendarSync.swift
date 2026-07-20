@@ -12,7 +12,9 @@
 //  status-menu open / system wake / unlock, at most once per ~30s; and compute
 //  `newestEventChange` (the newest event `lastModifiedDate`) each refresh and
 //  thread it onto `ProviderHealth.lastSyncedChange` for the Calendars-tab
-//  staleness signal.
+//  staleness signal. Also collapse cross-calendar duplicate events (same event
+//  arriving on two selected calendars/accounts) via `EventDeduplication`,
+//  gated on `Defaults[.deduplicateEvents]`.
 //
 import Cocoa
 import Combine
@@ -222,14 +224,36 @@ public class CalendarSync: ObservableObject {
             throw CalendarSyncError.eventFetchFailed(error)
         }
 
-        let deduplicatedEvents = Dictionary(
+        // First collapse exact per-occurrence duplicates (same internal id).
+        let deduplicatedEvents = Array(Dictionary(
             rawEvents.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first }
-        ).values
+        ).values)
+
+        // Then collapse cross-calendar duplicates: the same underlying event
+        // arriving on two selected calendars/accounts survives the id-keyed pass
+        // (each copy has its own per-occurrence id) but shares an external
+        // identifier, so the pure deduplicator catches it. Opt-out preserved.
+        let events: [MBEvent]
+        if Defaults[.deduplicateEvents] {
+            let candidates = deduplicatedEvents.enumerated().map { index, event in
+                DeduplicationEvent(
+                    sourceIndex: index,
+                    externalIdentifier: event.externalIdentifier,
+                    title: event.title,
+                    startDate: event.startDate,
+                    endDate: event.endDate,
+                    isAllDay: event.isAllDay
+                )
+            }
+            events = EventDeduplication.keptIndices(candidates).map { deduplicatedEvents[$0] }
+        } else {
+            events = deduplicatedEvents
+        }
 
         if !AppSettings.current.events.dismissedEvents.isEmpty {
-            AppSettings.refreshDismissedEvents(using: Array(deduplicatedEvents))
+            AppSettings.refreshDismissedEvents(using: events)
         }
-        return Array(deduplicatedEvents).filtered().sorted { $0.startDate < $1.startDate }
+        return events.filtered().sorted { $0.startDate < $1.startDate }
     }
 
     private func setupPublishers() {

@@ -30,6 +30,7 @@ let package = Package(
                 "Notifications/EventActionPolicy.swift",
                 "Notifications/NotificationPlanner.swift",
                 // Calendar
+                "Calendar/EventDeduplication.swift",
                 "Calendar/EventFiltering.swift",
                 "Calendar/MonthGridLayout.swift",
                 "Calendar/EventSearch.swift",

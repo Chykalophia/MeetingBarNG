@@ -143,6 +143,12 @@ extension Defaults.Keys {
     static let showRemindersInMenu = Key<Bool>("showRemindersInMenu", default: false)
     static let remindersIncludeOverdue = Key<Bool>("remindersIncludeOverdue", default: true)
 
+    // Collapse the same underlying event when it appears on more than one
+    // selected calendar/account (or as duplicate EventKit copies). On by
+    // default so the dropdown stops showing visible duplicates; opt out to see
+    // every calendar's copy.
+    static let deduplicateEvents = Key<Bool>("deduplicateEvents", default: true)
+
     static let declinedEventsAppereance = Key<DeclinedEventsAppereance>(
         "declinedEventsAppereance", default: .strikethrough)
     static let pastEventsAppereance = Key<PastEventsAppereance>(
