@@ -1,0 +1,43 @@
+MeetingBarNG/Utilities/Diagnostics/PermissionReporter.swift
+  s_8821c3fb11800f::t_51f839d76c78b1 33-38
+  s_8821c3fb11800f::t_9b2737d72bed10 17
+MeetingBarNG/Preferences/PreferencesPresentation.swift
+  s_8821c3fb11800f::t_8b08283f224bd3 266-276,285,287
+  s_8821c3fb11800f::t_74cde7692d9cae 186,194-202
+MeetingBarNG/App/AppDelegate.swift
+  s_8821c3fb11800f::t_af769c7a2ad4e7 228,238-262
+  s_8821c3fb11800f::t_dbd3181618a1ac 17-20
+  s_d390aa5c673682::t_b0730d34441717 263-264
+MeetingBarNGTests/PreferencesPresentationTests.swift
+  s_8821c3fb11800f::t_765f165c7d3e47 181-298
+MeetingBarNG/Preferences/CalendarsTab.swift
+  s_8821c3fb11800f::t_b46fbc852eea19 22-28
+  s_8821c3fb11800f::t_f2e11c87569eaa 78-89
+  s_8821c3fb11800f::t_ca9c65d2905483 10-12
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_07d2e651db32e7 84
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "43a2ce2501ab40341e85e462524bc3fe93c71cef",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    },
+    "s_d390aa5c673682": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "08e78cac-7829-4ca6-866a-c1e63eb8a906",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
