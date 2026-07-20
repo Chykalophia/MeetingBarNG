@@ -1,0 +1,50 @@
+MeetingBarNGTests/PreferencesPresentationTests.swift
+  s_8821c3fb11800f::t_a158cd94690d64 153-180
+MeetingBarNG/Preferences/PreferencesPresentation.swift
+  s_8821c3fb11800f::t_e8ad29538dc61f 195-196
+  s_8821c3fb11800f::t_71e3bb96ab34bd 226-238,247-249,266
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_1d99bbc43e4cc3 333
+  s_8821c3fb11800f::t_e014ffd3c81f0d 396-397
+  s_8821c3fb11800f::t_7d27afb612785f 77
+MeetingBarNG/UI/StatusBar/StatusBarMenuState.swift
+  s_8821c3fb11800f::t_3c88ecaed9e2a2 236-237,241,243
+  s_8821c3fb11800f::t_078792e77e21f5 296-301,304-305,319-322
+  s_8821c3fb11800f::t_90cf211896ed1e 64-68
+  s_8821c3fb11800f::t_02c3048da47c95 193-199
+  s_8821c3fb11800f::t_5e5daa83393081 21-23
+  s_8821c3fb11800f::t_c8fd89b519d24c 77-82
+MeetingBarNG/UI/StatusBar/MenuBuilder.swift
+  s_8821c3fb11800f::t_b002d35f0a7e83 383-386
+  s_8821c3fb11800f::t_5ee5ee463a055d 17-20
+MeetingBarNGTests/StatusBarItem/MenuBuilderTests.swift
+  s_8821c3fb11800f::t_2a80c68aae8c1f 37,51
+  s_8821c3fb11800f::t_6d508cb093397a 91-92,94,99-128,134,140,519
+  s_8821c3fb11800f::t_6f199f48f85a94 518,521-536
+  s_8821c3fb11800f::t_b21eeb27d4ff93 153
+  s_d390aa5c673682::t_c48e304e715582 520
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "fe7e414d97af2b5d8cd47d4358755814c394d566",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    },
+    "s_d390aa5c673682": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "08e78cac-7829-4ca6-866a-c1e63eb8a906",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
