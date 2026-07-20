@@ -150,6 +150,34 @@ final class PreferencesPresentationTests: XCTestCase {
         XCTAssertFalse(presentation.canReconnect)
     }
 
+    func testConnectedProviderWithoutCalendarsReportsNoCalendars() {
+        // Refresh succeeded but the provider exposes zero calendars: surface a
+        // warning ("No calendars found") instead of "Up to date", and keep the
+        // Calendar-settings shortcut so the user can connect an account.
+        let refreshedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        var state = AppState()
+        state.activeProvider = .macOSEventKit
+        state.calendars = []
+        state.selectedCalendarIDs = ["stale"]
+        state.providerHealth = ProviderHealth.success(attempted: refreshedAt)
+
+        let presentation = PreferencesCalendarPresentation.make(from: state)
+
+        XCTAssertEqual(presentation.connectionState, .connected)
+        XCTAssertEqual(presentation.statusTone, .warning)
+        XCTAssertEqual(
+            presentation.statusTextKey,
+            "preferences_status_state_no_calendars"
+        )
+        XCTAssertEqual(presentation.availableCalendarCount, 0)
+        XCTAssertEqual(presentation.selectedCalendarCount, 0)
+        XCTAssertTrue(presentation.canOpenCalendarSettings)
+        XCTAssertEqual(
+            presentation.emptyStateTextKey,
+            "preferences_calendars_empty_no_accounts"
+        )
+    }
+
     func testGoogleAuthRequiredPresentationOffersReconnect() {
         var state = AppState()
         state.activeProvider = .googleCalendar

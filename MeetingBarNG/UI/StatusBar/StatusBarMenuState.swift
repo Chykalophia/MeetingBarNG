@@ -18,6 +18,9 @@ enum StatusBarProviderStatus: Equatable {
 enum StatusBarEmptyStateReason: Equatable {
     case authRequired
     case permissionRequired
+    /// Provider is connected/authorized but exposes zero available calendars
+    /// (no calendar accounts / data source), so there is nothing to select.
+    case noCalendarsAvailable
     case noCalendarsSelected
     case refreshFailed
     case noUpcomingMeetings
@@ -58,6 +61,11 @@ struct StatusBarMenuState: Equatable {
     var emptyStateReason: StatusBarEmptyStateReason?
     var selectedCalendarIDs: [String] = []
 
+    /// Number of calendars the active provider currently exposes. Zero means
+    /// there are no calendar accounts / data sources to select from, which is
+    /// distinct from "calendars exist but none are selected".
+    var availableCalendarCount: Int = 0
+
     // MARK: - Settings snapshot
 
     /// Full settings snapshot. `MenuBuilder` reads display/filter settings from
@@ -66,7 +74,12 @@ struct StatusBarMenuState: Equatable {
 
     // MARK: - Pre-computed display flags
 
-    /// Whether any calendars are selected (drives the "no calendars" empty state).
+    /// Whether at least one selected calendar ID resolves to a currently
+    /// available calendar (the intersection of the user's selection and the
+    /// provider's available calendars is non-empty). This is `false` when there
+    /// are zero available calendars, or when every selected ID is stale — which
+    /// drives the honest "no usable calendar" empty state instead of a bare
+    /// "no meetings today".
     var hasSelectedCalendars: Bool = false
 
     /// Whether more than one calendar is selected (controls calendar-name display
@@ -177,6 +190,13 @@ extension StatusBarMenuState {
         }
 
         let selectedCount = selectedCalendarIDs.count
+        // A selection is only "usable" when it points at a calendar the provider
+        // currently exposes. Zero available calendars, or a selection made up
+        // entirely of stale IDs, both collapse to "no usable calendar".
+        let availableCalendarIDs = appState.calendars.map(\.id)
+        let availableCalendarCount = availableCalendarIDs.count
+        let availableIDSet = Set(availableCalendarIDs)
+        let hasUsableSelection = selectedCalendarIDs.contains { availableIDSet.contains($0) }
         let nextEvent = events.nextEvent(now: now)
         let providerStatus = providerStatus(
             provider: activeProvider,
@@ -213,12 +233,14 @@ extension StatusBarMenuState {
             providerWarning: providerWarning(for: providerStatus),
             emptyStateReason: emptyStateReason(
                 providerStatus: providerStatus,
-                hasSelectedCalendars: selectedCount > 0,
+                availableCalendarCount: availableCalendarCount,
+                hasUsableSelection: hasUsableSelection,
                 hasUpcomingMeeting: nextEvent != nil
             ),
             selectedCalendarIDs: selectedCalendarIDs,
+            availableCalendarCount: availableCalendarCount,
             settings: settings,
-            hasSelectedCalendars: selectedCount > 0,
+            hasSelectedCalendars: hasUsableSelection,
             hasMultipleSelectedCalendars: selectedCount > 1,
             showTimeline: settings.menu.showTimelineInMenu,
             daySummary: daySummary,
@@ -271,9 +293,16 @@ extension StatusBarMenuState {
         return .initializing
     }
 
+    /// Deterministic mapping from provider status + calendar availability to the
+    /// reason the meeting-control section is empty. Provider-level problems win
+    /// first; then, for an otherwise-healthy provider, zero available calendars
+    /// (`.noCalendarsAvailable`) is distinguished from a calendar list with no
+    /// usable selection (`.noCalendarsSelected`), and only a usable selection
+    /// with no next event yields `.noUpcomingMeetings`.
     private static func emptyStateReason(
         providerStatus: StatusBarProviderStatus,
-        hasSelectedCalendars: Bool,
+        availableCalendarCount: Int,
+        hasUsableSelection: Bool,
         hasUpcomingMeeting: Bool
     ) -> StatusBarEmptyStateReason? {
         switch providerStatus {
@@ -287,7 +316,10 @@ extension StatusBarMenuState {
             break
         }
 
-        if !hasSelectedCalendars {
+        if availableCalendarCount == 0 {
+            return .noCalendarsAvailable
+        }
+        if !hasUsableSelection {
             return .noCalendarsSelected
         }
         if !hasUpcomingMeeting {

@@ -192,8 +192,8 @@ struct PreferencesCalendarPresentation: Equatable {
 
     static func make(from state: AppState) -> PreferencesCalendarPresentation {
         let connectionState: PreferencesProviderConnectionState
-        let statusTone: PreferencesStatusTone
-        let statusTextKey: String
+        var statusTone: PreferencesStatusTone
+        var statusTextKey: String
 
         if state.providerHealth.authRequired {
             connectionState = .authRequired
@@ -223,6 +223,19 @@ struct PreferencesCalendarPresentation: Equatable {
             statusTextKey = "preferences_status_state_initializing"
         }
 
+        let availableCalendarCount = state.calendars.count
+
+        // The provider refreshed successfully but exposes zero calendars (no
+        // calendar accounts / data sources synced on this Mac). That is not
+        // "Up to date" — report it honestly so the user knows to connect an
+        // account, and keep the Calendar-settings shortcut available.
+        let connectedWithoutCalendars = connectionState == .connected
+            && availableCalendarCount == 0
+        if connectedWithoutCalendars {
+            statusTone = .warning
+            statusTextKey = "preferences_status_state_no_calendars"
+        }
+
         let calendarSource = CalendarSourcePresentation.make(for: state.activeProvider)
 
         let emptyStateTextKey = switch connectionState {
@@ -231,10 +244,11 @@ struct PreferencesCalendarPresentation: Equatable {
         case .permissionRequired:
             "onboarding_calendar_selection_permission"
         case .initializing, .connected, .stale, .error:
-            "onboarding_calendar_selection_empty"
+            connectedWithoutCalendars
+                ? "preferences_calendars_empty_no_accounts"
+                : "onboarding_calendar_selection_empty"
         }
 
-        let availableCalendarCount = state.calendars.count
         let availableIDs = Set(state.calendars.map(\.id))
         let selectedCalendarCount = state.selectedCalendarIDs.filter {
             availableIDs.contains($0)
@@ -249,7 +263,7 @@ struct PreferencesCalendarPresentation: Equatable {
             canReconnect: state.activeProvider == .googleCalendar
                 && connectionState == .authRequired,
             canOpenCalendarSettings: state.activeProvider == .macOSEventKit
-                && connectionState == .permissionRequired,
+                && (connectionState == .permissionRequired || connectedWithoutCalendars),
             providerTitleKey: calendarSource.titleKey,
             providerDataSourceKey: calendarSource.dataSourceKey,
             providerAccountScopeKey: calendarSource.accountScopeKey,

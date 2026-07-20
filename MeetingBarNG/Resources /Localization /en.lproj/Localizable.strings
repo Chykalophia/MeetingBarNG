@@ -74,6 +74,7 @@
 // MARK: - Preferences Status
 
 "preferences_status_state_ok" = "Up to date";
+"preferences_status_state_no_calendars" = "No calendars found";
 "preferences_status_state_stale" = "Showing cached data";
 "preferences_status_state_error" = "Last refresh failed";
 "preferences_status_state_auth_required" = "Authorization required";
@@ -329,6 +330,7 @@
 
 "preferences_calendars_select_calendars_title" = "Select calendars to show meetings in the menu bar";
 "preferences_calendars_provider_gcalendar_change_account" = "Change Google Account";
+"preferences_calendars_empty_no_accounts" = "No calendars found. Add a calendar account in the macOS Calendar app, or check MeetingBarNG's calendar access in System Settings, then refresh.";
 
 // MARK: - Preferences Advanced
 
@@ -391,6 +393,8 @@
 "status_bar_control_grant_permission" = "Grant Calendar Permission";
 "status_bar_control_no_calendars" = "No calendars selected";
 "status_bar_control_select_calendars" = "Select Calendars in Preferences";
+"status_bar_control_no_calendars_available" = "No calendars connected";
+"status_bar_control_open_calendar_preferences" = "Open Calendars in Preferences";
 "status_bar_control_refresh_failed" = "Calendar refresh failed";
 "status_bar_control_no_upcoming" = "No upcoming meetings";
 "status_bar_section_bookmarks_title" = "Bookmarks";

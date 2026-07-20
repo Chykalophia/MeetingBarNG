@@ -34,6 +34,7 @@ final class MenuBuilderTests: BaseTestCase {
         )
         var appState = AppState()
         appState.events = [event]
+        appState.calendars = [makeFakeCalendar(id: "calendar")]
         appState.selectedCalendarIDs = ["calendar"]
         appState.activeProvider = .googleCalendar
         appState.providerHealth = .success(attempted: now)
@@ -47,6 +48,7 @@ final class MenuBuilderTests: BaseTestCase {
         XCTAssertEqual(state.nextEvent, event)
         XCTAssertEqual(state.activeProvider, .googleCalendar)
         XCTAssertEqual(state.providerStatus, .connected(lastRefresh: now))
+        XCTAssertTrue(state.hasSelectedCalendars)
         XCTAssertNil(state.emptyStateReason)
     }
 
@@ -86,21 +88,56 @@ final class MenuBuilderTests: BaseTestCase {
     }
 
     func testMenuStateMapsNoCalendarsSelected() {
+        // Calendars are available but the user has selected none of them: this is
+        // "nothing selected", distinct from "no calendars connected".
         var appState = AppState()
+        appState.calendars = [makeFakeCalendar(id: "available")]
         appState.providerHealth = .success(attempted: Date())
 
         let state = StatusBarMenuState.make(from: appState, settings: .empty)
 
+        XCTAssertFalse(state.hasSelectedCalendars)
+        XCTAssertEqual(state.availableCalendarCount, 1)
+        XCTAssertEqual(state.emptyStateReason, .noCalendarsSelected)
+    }
+
+    func testMenuStateMapsNoCalendarsAvailableWhenProviderHasZeroCalendars() {
+        // Provider reports a successful refresh but exposes zero calendars — even
+        // a stale selected ID must not be treated as usable.
+        var appState = AppState()
+        appState.selectedCalendarIDs = ["stale"]
+        appState.providerHealth = .success(attempted: Date())
+
+        let state = StatusBarMenuState.make(from: appState, settings: .empty)
+
+        XCTAssertEqual(state.availableCalendarCount, 0)
+        XCTAssertFalse(state.hasSelectedCalendars)
+        XCTAssertEqual(state.emptyStateReason, .noCalendarsAvailable)
+    }
+
+    func testMenuStateTreatsStaleSelectionAsNoUsableSelection() {
+        // A selection that resolves to none of the available calendars is not a
+        // usable selection, so the user is guided to (re)select in Preferences.
+        var appState = AppState()
+        appState.calendars = [makeFakeCalendar(id: "available")]
+        appState.selectedCalendarIDs = ["stale-id"]
+        appState.providerHealth = .success(attempted: Date())
+
+        let state = StatusBarMenuState.make(from: appState, settings: .empty)
+
+        XCTAssertFalse(state.hasSelectedCalendars)
         XCTAssertEqual(state.emptyStateReason, .noCalendarsSelected)
     }
 
     func testMenuStateMapsNoUpcomingMeetings() {
         var appState = AppState()
+        appState.calendars = [makeFakeCalendar(id: "calendar")]
         appState.selectedCalendarIDs = ["calendar"]
         appState.providerHealth = .success(attempted: Date())
 
         let state = StatusBarMenuState.make(from: appState, settings: .empty)
 
+        XCTAssertTrue(state.hasSelectedCalendars)
         XCTAssertEqual(state.emptyStateReason, .noUpcomingMeetings)
     }
 
@@ -113,6 +150,7 @@ final class MenuBuilderTests: BaseTestCase {
         )
         var appState = AppState()
         appState.events = [event]
+        appState.calendars = [makeFakeCalendar(id: "calendar")]
         appState.selectedCalendarIDs = ["calendar"]
         appState.providerHealth = ProviderHealth(
             lastSuccessfulRefresh: now.addingTimeInterval(-300),
@@ -475,6 +513,25 @@ final class MenuBuilderTests: BaseTestCase {
         let items = MenuBuilder(target: Dummy(), state: state)
             .buildMeetingControlSection()
 
+        XCTAssertTrue(items.contains {
+            $0.action == #selector(StatusBarItemController.openPreferencesAction)
+        })
+    }
+
+    func testMeetingControlNoCalendarsAvailableOffersPreferences() {
+        var state = StatusBarMenuState()
+        state.emptyStateReason = .noCalendarsAvailable
+
+        let items = MenuBuilder(target: Dummy(), state: state)
+            .buildMeetingControlSection()
+
+        // Honest info line — not "no meetings today" — plus a route to fix it.
+        XCTAssertTrue(items.contains {
+            $0.title == "status_bar_control_no_calendars_available".loco()
+        })
+        XCTAssertFalse(items.contains {
+            $0.title == "status_bar_control_no_upcoming".loco()
+        })
         XCTAssertTrue(items.contains {
             $0.action == #selector(StatusBarItemController.openPreferencesAction)
         })

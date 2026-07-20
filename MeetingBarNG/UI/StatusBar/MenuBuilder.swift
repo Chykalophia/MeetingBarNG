@@ -14,7 +14,10 @@
 //  "New event…" quick action and per-event "Edit…"/"Delete…" submenu items
 //  (EventKit provider only); add a "Camera check…" quick action and a per-event
 //  "Preview camera" submenu item for the pre-call camera/mic preview; add a
-//  "World clock…" quick action for the multi-zone world-clock panel window.
+//  "World clock…" quick action for the multi-zone world-clock panel window;
+//  render the `.noCalendarsAvailable` empty state (provider connected but zero
+//  available calendars) with an "Open Calendars in Preferences" action so the
+//  dropdown never shows "no meetings today" when there is no usable calendar.
 //
 
 import Cocoa
@@ -377,6 +380,10 @@ struct MenuBuilder {
             title = "status_bar_control_permission_required".loco()
             actionTitle = "status_bar_control_grant_permission".loco()
             action = #selector(StatusBarItemController.openCalendarPermissionsAction)
+        case .noCalendarsAvailable:
+            title = "status_bar_control_no_calendars_available".loco()
+            actionTitle = "status_bar_control_open_calendar_preferences".loco()
+            action = #selector(StatusBarItemController.openPreferencesAction)
         case .noCalendarsSelected:
             title = "status_bar_control_no_calendars".loco()
             actionTitle = "status_bar_control_select_calendars".loco()
