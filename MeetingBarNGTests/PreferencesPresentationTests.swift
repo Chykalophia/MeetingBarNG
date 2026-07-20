@@ -178,6 +178,124 @@ final class PreferencesPresentationTests: XCTestCase {
         )
     }
 
+    func testNotDeterminedEventKitOffersGrantAccessAndHidesSettings() {
+        // Fresh post-onboarding launch: macOS EventKit is active but access is
+        // still undetermined. Offer the "Grant Calendar Access" affordance and
+        // suppress the Calendar-settings shortcut (a request still prompts).
+        var state = AppState()
+        state.activeProvider = .macOSEventKit
+        state.calendars = []
+
+        let presentation = PreferencesCalendarPresentation.make(
+            from: state,
+            authorizationStatus: .notDetermined
+        )
+
+        XCTAssertTrue(presentation.canRequestAccess)
+        XCTAssertFalse(presentation.canOpenCalendarSettings)
+        XCTAssertFalse(presentation.canReconnect)
+    }
+
+    func testNotDeterminedEventKitKeepsGrantAccessEvenAfterPermissionError() {
+        // A denied/aborted first prompt records an error → permissionRequired.
+        // While the OS still reports `.notDetermined`, keep offering Grant
+        // Access rather than the Calendar-settings shortcut.
+        var state = AppState()
+        state.activeProvider = .macOSEventKit
+        state.calendars = []
+        state.providerHealth = ProviderHealth(
+            lastAttemptedRefresh: Date(timeIntervalSince1970: 1_700_000_000),
+            lastErrorDescription: "Access denied",
+            isStale: true
+        )
+
+        let presentation = PreferencesCalendarPresentation.make(
+            from: state,
+            authorizationStatus: .notDetermined
+        )
+
+        XCTAssertEqual(presentation.connectionState, .permissionRequired)
+        XCTAssertTrue(presentation.canRequestAccess)
+        XCTAssertFalse(presentation.canOpenCalendarSettings)
+    }
+
+    func testDeniedEventKitOffersOpenSettingsNotGrantAccess() {
+        // Once denied, a request no longer prompts: hide Grant Access and fall
+        // back to the Calendar-settings shortcut.
+        var state = AppState()
+        state.activeProvider = .macOSEventKit
+        state.calendars = [makeFakeCalendar(id: "cached")]
+        state.providerHealth = ProviderHealth(
+            lastAttemptedRefresh: Date(timeIntervalSince1970: 1_700_000_000),
+            lastErrorDescription: "Access denied",
+            isStale: true
+        )
+
+        let presentation = PreferencesCalendarPresentation.make(
+            from: state,
+            authorizationStatus: .denied
+        )
+
+        XCTAssertEqual(presentation.connectionState, .permissionRequired)
+        XCTAssertFalse(presentation.canRequestAccess)
+        XCTAssertTrue(presentation.canOpenCalendarSettings)
+    }
+
+    func testAuthorizedEventKitDoesNotOfferGrantAccess() {
+        // Access granted with calendars present: no Grant Access, no settings
+        // shortcut — the connected happy path is unchanged.
+        let refreshedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        var state = AppState()
+        state.activeProvider = .macOSEventKit
+        state.calendars = [makeFakeCalendar(id: "work")]
+        state.selectedCalendarIDs = ["work"]
+        state.providerHealth = ProviderHealth.success(attempted: refreshedAt)
+
+        let presentation = PreferencesCalendarPresentation.make(
+            from: state,
+            authorizationStatus: .authorized
+        )
+
+        XCTAssertFalse(presentation.canRequestAccess)
+        XCTAssertFalse(presentation.canOpenCalendarSettings)
+    }
+
+    func testAuthorizedEventKitWithoutCalendarsKeepsSettingsNotGrantAccess() {
+        // Granted but empty: keep the Calendar-settings shortcut (and Refresh),
+        // never Grant Access.
+        let refreshedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        var state = AppState()
+        state.activeProvider = .macOSEventKit
+        state.calendars = []
+        state.providerHealth = ProviderHealth.success(attempted: refreshedAt)
+
+        let presentation = PreferencesCalendarPresentation.make(
+            from: state,
+            authorizationStatus: .authorized
+        )
+
+        XCTAssertFalse(presentation.canRequestAccess)
+        XCTAssertTrue(presentation.canOpenCalendarSettings)
+        XCTAssertEqual(
+            presentation.statusTextKey,
+            "preferences_status_state_no_calendars"
+        )
+    }
+
+    func testGoogleProviderNeverOffersGrantAccess() {
+        // Grant Access is EventKit-only, even if a status is somehow undetermined.
+        var state = AppState()
+        state.activeProvider = .googleCalendar
+        state.calendars = []
+
+        let presentation = PreferencesCalendarPresentation.make(
+            from: state,
+            authorizationStatus: .notDetermined
+        )
+
+        XCTAssertFalse(presentation.canRequestAccess)
+    }
+
     func testGoogleAuthRequiredPresentationOffersReconnect() {
         var state = AppState()
         state.activeProvider = .googleCalendar

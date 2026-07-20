@@ -183,6 +183,7 @@ struct PreferencesCalendarPresentation: Equatable {
     let selectedCalendarCount: Int
     let availableCalendarCount: Int
     let canReconnect: Bool
+    let canRequestAccess: Bool
     let canOpenCalendarSettings: Bool
     let providerTitleKey: String
     let providerDataSourceKey: String
@@ -190,7 +191,15 @@ struct PreferencesCalendarPresentation: Equatable {
     let statusTextKey: String
     let emptyStateTextKey: String
 
-    static func make(from state: AppState) -> PreferencesCalendarPresentation {
+    /// - Parameter authorizationStatus: the live EventKit calendar
+    ///   authorization (from `PermissionReporter.calendarAuthorizationStatus()`).
+    ///   Passed in rather than read here so `make` stays pure/testable. Defaults
+    ///   to `.authorized` so it does not surface a "Grant Access" affordance for
+    ///   non-EventKit providers or call sites that predate the parameter.
+    static func make(
+        from state: AppState,
+        authorizationStatus: PermissionSnapshot.CalendarAccess = .authorized
+    ) -> PreferencesCalendarPresentation {
         let connectionState: PreferencesProviderConnectionState
         var statusTone: PreferencesStatusTone
         var statusTextKey: String
@@ -254,6 +263,17 @@ struct PreferencesCalendarPresentation: Equatable {
             availableIDs.contains($0)
         }.count
 
+        // EventKit is the only provider that can be in `.notDetermined`: a
+        // normal post-onboarding launch never runs the provider switch that
+        // prompts, so the app can silently hold no calendar access. Surface an
+        // explicit "Grant Calendar Access" affordance in that state. Once the
+        // status is `.denied`/`.restricted` a request no longer prompts, so we
+        // fall back to the Calendar-settings shortcut instead — hence
+        // `canOpenCalendarSettings` is suppressed while a request can still
+        // prompt (`.notDetermined`).
+        let canRequestAccess = state.activeProvider == .macOSEventKit
+            && authorizationStatus == .notDetermined
+
         return PreferencesCalendarPresentation(
             activeProvider: state.activeProvider,
             connectionState: connectionState,
@@ -262,7 +282,9 @@ struct PreferencesCalendarPresentation: Equatable {
             availableCalendarCount: availableCalendarCount,
             canReconnect: state.activeProvider == .googleCalendar
                 && connectionState == .authRequired,
+            canRequestAccess: canRequestAccess,
             canOpenCalendarSettings: state.activeProvider == .macOSEventKit
+                && !canRequestAccess
                 && (connectionState == .permissionRequired || connectedWithoutCalendars),
             providerTitleKey: calendarSource.titleKey,
             providerDataSourceKey: calendarSource.dataSourceKey,

@@ -7,7 +7,9 @@
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
 //  tidy the provider status/metadata/actions into a cleaner presentation
-//  (presentation logic and calendar toggles unchanged).
+//  (presentation logic and calendar toggles unchanged); thread the live
+//  EventKit authorization status into the presentation and add a prominent
+//  "Grant Calendar Access" button shown while access is still undetermined.
 //
 
 import Defaults
@@ -17,7 +19,13 @@ struct CalendarsTab: View {
     @EnvironmentObject var appModel: AppModel
 
     var body: some View {
-        let presentation = PreferencesCalendarPresentation.make(from: appModel.state)
+        // Read the live EventKit authorization here (cheap, synchronous) and
+        // pass it into the pure presentation so the "Grant Calendar Access"
+        // affordance appears while access is still `.notDetermined`.
+        let presentation = PreferencesCalendarPresentation.make(
+            from: appModel.state,
+            authorizationStatus: PermissionReporter.calendarAuthorizationStatus()
+        )
 
         PreferencesGroupedForm {
             Section(header: Text("preferences_calendar_source_title".loco())) {
@@ -67,6 +75,18 @@ struct CalendarsTab: View {
                 // Actions.
                 HStack {
                     Spacer()
+                    if presentation.canRequestAccess {
+                        // EventKit access is undetermined: request it directly.
+                        // Reuse the provider-change path (switchProvider → signIn
+                        // → requestFullAccessToEvents) so macOS prompts and the
+                        // app registers with TCC.
+                        Button("preferences_status_grant_access".loco()) {
+                            appModel.send(
+                                .changeProvider(presentation.activeProvider, signOut: false))
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(appModel.state.providerChangeInProgress)
+                    }
                     if presentation.canReconnect {
                         Button("preferences_status_reconnect".loco()) {
                             appModel.send(

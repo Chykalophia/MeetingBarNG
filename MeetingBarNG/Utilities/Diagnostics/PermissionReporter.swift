@@ -14,7 +14,7 @@ import UserNotifications
 enum PermissionReporter {
     @MainActor
     static func current(provider: EventStoreProvider) async -> PermissionSnapshot {
-        let calendarAccess = calendarAuthStatus()
+        let calendarAccess = calendarAuthorizationStatus()
         let notificationAccess = await notificationAuthStatus()
         let googleAuthStatus: PermissionSnapshot.GoogleAuthStatus = provider == .googleCalendar
             ? (GCEventStore.shared.isAuthorized ? .authorized : .notAuthorized)
@@ -30,7 +30,12 @@ enum PermissionReporter {
         )
     }
 
-    private static func calendarAuthStatus() -> PermissionSnapshot.CalendarAccess {
+    /// Current EventKit calendar authorization, mapped onto the hostless
+    /// `PermissionSnapshot.CalendarAccess` enum. Exposed so launch-time
+    /// (`AppDelegate.setup`) and preferences (`CalendarsTab`) code can gate a
+    /// permission request on `.notDetermined` without importing EventKit or
+    /// re-implementing the macOS 14 authorization-enum split.
+    static func calendarAuthorizationStatus() -> PermissionSnapshot.CalendarAccess {
         if #available(macOS 14, *) {
             switch EKEventStore.authorizationStatus(for: .event) {
             case .notDetermined: return .notDetermined

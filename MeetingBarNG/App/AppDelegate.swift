@@ -14,7 +14,10 @@
 //  into the status-bar dependencies); add the camera/mic pre-call preview entry
 //  point (builds the join handlers over the AppModel and wires openCameraPreview
 //  into the status-bar dependencies); add the multi-zone world-clock panel window
-//  entry point (wires openWorldClock into the status-bar dependencies).
+//  entry point (wires openWorldClock into the status-bar dependencies); request
+//  EventKit calendar access on a normal post-onboarding launch when it is still
+//  undetermined, so the app prompts and registers with TCC instead of silently
+//  holding no access.
 //
 
 import AppKit
@@ -222,6 +225,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         if triggerInitialRefresh {
             model.handleLaunch()
+            requestCalendarAccessIfNeeded(model: model)
             // Only fetch reminders at launch when the feature is enabled AND
             // access is already granted — the permission prompt is exclusively
             // triggered from the preferences toggle, never here.
@@ -229,6 +233,33 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 sync.refreshSubject.send()
             }
         }
+    }
+
+    /// On a normal (post-onboarding) launch the provider switch that would
+    /// otherwise trigger the EventKit permission prompt never runs, so a fresh
+    /// install / TCC reset / newly code-signed binary can silently hold no
+    /// calendar access — and, because the app never registers with TCC, there
+    /// is nothing to toggle in System Settings ▸ Privacy ▸ Calendars.
+    ///
+    /// When macOS Calendar is the active provider and its authorization is still
+    /// `.notDetermined`, request access now by routing through the existing
+    /// `.changeProvider` action (switchProvider → signIn →
+    /// requestFullAccessToEvents), so macOS prompts, the app registers with TCC,
+    /// and the resulting calendar/event fetch + state wiring all run.
+    ///
+    /// No-op when access is already granted (`.authorized`, a redundant prompt)
+    /// or `.denied`/`.restricted` (a request would not prompt — the user must
+    /// grant it in System Settings). Fires once per launch: `setup()` guards on
+    /// `appModel == nil`, and this only runs on the initial-refresh path.
+    private func requestCalendarAccessIfNeeded(model: AppModel) {
+        guard model.state.activeProvider == .macOSEventKit,
+              PermissionReporter.calendarAuthorizationStatus() == .notDetermined else {
+            return
+        }
+        MeetingBarLogger.calendar.info(
+            "Requesting EventKit calendar access on launch (authorization not determined)"
+        )
+        model.send(.changeProvider(model.state.activeProvider, signOut: false))
     }
 
     /*

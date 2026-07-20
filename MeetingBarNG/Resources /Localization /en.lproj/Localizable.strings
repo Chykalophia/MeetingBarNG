@@ -81,6 +81,7 @@
 "preferences_status_state_permission_required" = "Calendar permission required";
 "preferences_status_state_initializing" = "Initializing";
 "preferences_status_reconnect" = "Reconnect";
+"preferences_status_grant_access" = "Grant Calendar Access";
 "preferences_status_open_calendar_settings" = "Open Calendar Settings";
 "preferences_status_copy_diagnostics" = "Copy diagnostics";
 
