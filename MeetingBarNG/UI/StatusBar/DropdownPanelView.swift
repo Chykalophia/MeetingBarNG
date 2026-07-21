@@ -403,7 +403,6 @@ struct DropdownPanelView: View {
             let presentation = meetingSummaryPresentation(for: event)
             MeetingSummaryView(
                 presentation: presentation,
-                providerIcon: getIconForMeetingService(presentation.meetingService),
                 onJoin: event.meetingLink == nil
                     ? nil
                     : { handlers.joinEvent(event); handlers.dismiss() }

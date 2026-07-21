@@ -247,8 +247,8 @@
 "preferences_appearance_menu_show_prep_links_value" = "Show prep links (Figma, Docs, GitHub…) from the invite";
 "preferences_appearance_menu_show_reminders_toggle" = "Show today's reminders in the dropdown";
 "preferences_appearance_menu_reminders_include_overdue_toggle" = "Include overdue reminders";
-"preferences_appearance_menu_swiftui_dropdown_toggle" = "Use the new SwiftUI dropdown (preview)";
-"preferences_appearance_menu_swiftui_dropdown_help" = "An in-progress preview of the redesigned dropdown: the same sections, drawn as a custom panel with hover highlights. Turn it off to go back to the classic menu.";
+"preferences_appearance_menu_swiftui_dropdown_toggle" = "Use the redesigned dropdown";
+"preferences_appearance_menu_swiftui_dropdown_help" = "On by default. The redesigned dropdown adds hover actions, inline event details, and keyboard navigation. Turn it off to fall back to the plain system menu.";
 "preferences_appearance_calendar_window_title" = "Calendar window";
 "preferences_appearance_calendar_dim_weekends_toggle" = "Dim weekends in the calendar";
 "preferences_appearance_calendar_dim_weekends_help" = "Saturdays and Sundays are shown in lighter gray so the work week stands out. Today and the day you picked stay highlighted.";
@@ -269,7 +269,6 @@
 "preferences_appearance_menu_bar_composer_move_up" = "Move up";
 "preferences_appearance_menu_bar_composer_move_down" = "Move down";
 "preferences_appearance_menu_bar_composer_remove" = "Remove";
-"preferences_appearance_menu_bar_composer_preview_label" = "Preview";
 "preferences_appearance_menu_bar_preview_sample_event" = "Design review";
 "preferences_menu_bar_preset_title" = "Layout";
 "preferences_menu_bar_preset_classic" = "Classic";

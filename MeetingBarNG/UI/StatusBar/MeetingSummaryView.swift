@@ -27,10 +27,18 @@ struct MeetingSummaryPresentation: Equatable {
 
 struct MeetingSummaryView: View {
     let presentation: MeetingSummaryPresentation
-    let providerIcon: NSImage
     var onJoin: (() -> Void)?
 
     @State private var isHovered = false
+
+    /// Derived rather than passed in: every call site computed exactly this, and
+    /// letting them differ was how the card ended up indenting a title behind an
+    /// invisible icon. `nil` when the event has no online meeting — the icon is
+    /// then omitted entirely and the title sits flush, instead of reserving a
+    /// gutter for the blank "no_online_session" placeholder.
+    private var providerIcon: NSImage? {
+        presentation.meetingService.map { getIconForMeetingService($0) }
+    }
 
     // Narrower, modern menu-bar-dropdown width. DaySummaryHeaderView and the
     // timeline's NSHostingView both size off this constant, so the greeting,
@@ -46,10 +54,12 @@ struct MeetingSummaryView: View {
                     .foregroundStyle(.secondary)
 
                 HStack(spacing: 7) {
-                    Image(nsImage: providerIcon)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 16, height: 16)
+                    if let providerIcon {
+                        Image(nsImage: providerIcon)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 16, height: 16)
+                    }
 
                     Text(presentation.eventTitle)
                         .font(.system(size: 14, weight: .semibold))
@@ -108,7 +118,6 @@ struct MeetingSummaryView: View {
             meetingService: .zoom,
             countdown: "in 25m"
         ),
-        providerIcon: getIconForMeetingService(.zoom),
         onJoin: {}
     )
 }

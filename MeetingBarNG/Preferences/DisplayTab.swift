@@ -341,9 +341,9 @@ struct MenuBarComposerSection: View {
                 }
             }
 
-            Section(header: Text("preferences_appearance_menu_bar_composer_preview_label".loco())) {
-                previewChip
-            }
+            // No preview section here: the live preview pane beside this form
+            // already renders the composed menu-bar strip from the same tokens.
+            // A second, lesser preview inside the form was pure duplication.
         }
     }
 
@@ -375,45 +375,6 @@ struct MenuBarComposerSection: View {
         }
     }
 
-    @ViewBuilder
-    private var previewChip: some View {
-        let presentation = previewPresentation
-        HStack(spacing: 4) {
-            if presentation.iconPosition == .leading {
-                previewIcon(presentation.icon)
-            }
-            if !presentation.title.isEmpty {
-                Text(presentation.title)
-                    .font(.system(size: MenuStyleConstants.defaultFontSize))
-            }
-            if presentation.iconPosition == .trailing {
-                previewIcon(presentation.icon)
-            }
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(
-            RoundedRectangle(cornerRadius: 6)
-                .fill(Color.primary.opacity(0.08))
-        )
-    }
-
-    @ViewBuilder
-    private func previewIcon(_ icon: StatusBarIcon) -> some View {
-        switch icon {
-        case .asset(let name):
-            Image(nsImage: MenuStyleConstants.iconNamed(name))
-                .resizable()
-                .frame(width: 16, height: 16)
-        case .meetingService(let service):
-            Image(nsImage: getIconForMeetingService(service))
-                .resizable()
-                .frame(width: 16, height: 16)
-        case .none:
-            EmptyView()
-        }
-    }
-
     // MARK: Data
 
     private func tokenName(_ token: MenuBarTokenKind) -> String {
@@ -427,28 +388,6 @@ struct MenuBarComposerSection: View {
         case .weekNumber: return "preferences_appearance_menu_bar_token_week_number".loco()
         case .worldClock: return "preferences_appearance_menu_bar_token_world_clock".loco()
         }
-    }
-
-    private var previewPresentation: StatusBarPresentation {
-        let now = Date()
-        var calendar = Calendar.current
-        calendar.locale = I18N.instance.locale
-        let sample = StatusBarEventPresentationInput(
-            title: "preferences_appearance_menu_bar_preview_sample_event".loco(),
-            startDate: now.addingTimeInterval(25 * 60),
-            endDate: now.addingTimeInterval(55 * 60),
-            // A representative service so the "event type" icon format previews a
-            // real glyph rather than the no-session fallback.
-            meetingService: .zoom,
-            participation: .normal
-        )
-        return StatusBarPresenter.composedPresentation(
-            nextEvent: sample,
-            composition: MenuBarComposition(tokens: tokens),
-            settings: .current,
-            now: now,
-            calendar: calendar
-        )
     }
 
     // MARK: Mutation
@@ -616,9 +555,10 @@ struct DropdownComposerSection: View {
             }
         }
 
-        Section(header: Text("preferences_appearance_menu_bar_composer_preview_label".loco())) {
-            previewCard
-        }
+        // No preview section here: the live preview pane beside this form already
+        // draws the real dropdown from this same resolved module list, including
+        // the pinned Preferences footer. A second, text-only preview inside the
+        // form was the "two previews" duplication.
     }
 
     // MARK: Rows
@@ -647,44 +587,6 @@ struct DropdownComposerSection: View {
             .buttonStyle(.borderless)
             .help("preferences_appearance_menu_bar_composer_remove".loco())
         }
-    }
-
-    @ViewBuilder
-    private var previewCard: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            ForEach(visibleModules, id: \.self) { module in
-                previewRow(symbol: moduleSymbol(module), name: moduleName(module), pinned: false)
-            }
-            // The Preferences footer is pinned, never a module — shown here so the
-            // preview matches the real dropdown and the safety guarantee is visible.
-            previewRow(
-                symbol: "gearshape",
-                name: "preferences_menu_builder_dropdown_module_preferences".loco(),
-                pinned: true
-            )
-        }
-        .padding(10)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(Color.primary.opacity(0.06))
-        )
-    }
-
-    private func previewRow(symbol: String, name: String, pinned: Bool) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: symbol)
-                .frame(width: 18)
-                .foregroundStyle(pinned ? .secondary : .primary)
-            Text(name)
-                .foregroundStyle(pinned ? .secondary : .primary)
-            if pinned {
-                Image(systemName: "pin.fill")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .font(.system(size: MenuStyleConstants.defaultFontSize))
     }
 
     // MARK: Data
@@ -804,8 +706,8 @@ struct DropdownDisplaySection: View {
             .preferenceIndent()
             .disabled(!showRemindersInMenu)
 
-            // Opt-in preview of the custom SwiftUI dropdown panel. OFF by
-            // default: the classic NSMenu stays the shipping dropdown.
+            // The SwiftUI panel is the default dropdown; this is the escape
+            // hatch back to the plain NSMenu.
             Toggle(
                 preferenceLabel("preferences_appearance_menu_swiftui_dropdown_toggle"),
                 isOn: $useSwiftUIDropdown

@@ -122,11 +122,12 @@ extension Defaults.Keys {
     // Per-module enabled state. greeting/timeline reuse the existing keys above
     // (showGreetingInMenu / showTimelineInMenu); these cover the rest. All
     // default true so the dropdown looks unchanged until the user customizes it.
-    // Opt-in preview of the custom SwiftUI dropdown panel (MeetingBarNG).
-    // OFF by default: left-clicking the status item keeps opening the classic
-    // NSMenu until the user turns this on in Preferences ▸ Display. The panel is
-    // additive — nothing about the NSMenu path changes while this is false.
-    static let useSwiftUIDropdown = Key<Bool>("useSwiftUIDropdown", default: false)
+    // The custom SwiftUI dropdown panel (MeetingBarNG) is now the default
+    // dropdown: it reached functional parity with the NSMenu and goes past it
+    // (hover affordances, inline detail expansion, keyboard navigation) in ways
+    // an NSMenu structurally cannot. The classic NSMenu remains behind this
+    // switch as a fallback for anyone who hits a problem with the panel.
+    static let useSwiftUIDropdown = Key<Bool>("useSwiftUIDropdown", default: true)
 
     static let showMeetingControlInMenu = Key<Bool>("showMeetingControlInMenu", default: true)
     static let showAgendaInMenu = Key<Bool>("showAgendaInMenu", default: true)

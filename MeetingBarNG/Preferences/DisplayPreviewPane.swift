@@ -298,30 +298,28 @@ struct DisplayPreviewPane: View {
         )
     }
 
-    /// A slim, representative timeline bar (not the real hour-grid view). The
-    /// timeline module is a binary show/hide, so a lightweight mock suffices.
+    /// The REAL timeline view, fed sample segments — not a look-alike. This used
+    /// to be a hand-drawn strip of coloured capsules, which is why the preview
+    /// and the live dropdown visibly disagreed about what a timeline looks like.
+    /// Rendering the actual view means the two cannot drift again.
     private var timelineBlock: some View {
-        let trackWidth = cardWidth - 28
-        return ZStack(alignment: .leading) {
-            Capsule().fill(Color.primary.opacity(0.10))
-                .frame(height: 6)
-            Capsule().fill(Color.blue.opacity(0.35))
-                .frame(width: trackWidth * 0.18, height: 6)
-                .offset(x: trackWidth * 0.08)
-            Capsule().fill(Color.green.opacity(0.55))
-                .frame(width: trackWidth * 0.22, height: 6)
-                .offset(x: trackWidth * 0.46)
-            Capsule().fill(Color.orange.opacity(0.35))
-                .frame(width: trackWidth * 0.14, height: 6)
-                .offset(x: trackWidth * 0.80)
-            Rectangle().fill(Color.accentColor)
-                .frame(width: 2, height: 14)
-                .offset(x: trackWidth * 0.40)
-        }
-        .frame(width: trackWidth, height: 16)
-        .padding(.horizontal, 14)
-        .padding(.vertical, 6)
-        .frame(width: cardWidth, alignment: .leading)
+        let timeline = DayRelativeTimelineView(
+            segments: sampleEvents.enumerated().map { index, event in
+                DaySegment(
+                    id: String(event.id),
+                    start: event.start,
+                    end: event.end,
+                    color: event.color,
+                    isHighlighted: index == 0,
+                    title: event.title
+                )
+            },
+            currentDate: Date(),
+            timeFormat: Defaults[.timeFormat]
+        )
+        return timeline
+            .frame(width: cardWidth, height: timeline.preferredHeight)
+            .allowsHitTesting(false)
     }
 
     private var meetingBlock: some View {
@@ -333,7 +331,6 @@ struct DisplayPreviewPane: View {
                 meetingService: .zoom,
                 countdown: "status_bar_event_status_in".loco(sampleEvents[0].countdown)
             ),
-            providerIcon: getIconForMeetingService(.zoom),
             onJoin: nil
         )
         .frame(width: cardWidth)
@@ -446,6 +443,10 @@ struct DisplayPreviewPane: View {
         let timeRange: String
         let countdown: String
         let color: Color
+        /// Real dates as well as the formatted strings, so the preview can feed
+        /// the *actual* `DayRelativeTimelineView` rather than a look-alike mock.
+        let start: Date
+        let end: Date
     }
 
     private var sampleEvents: [SampleEvent] {
@@ -461,7 +462,9 @@ struct DisplayPreviewPane: View {
                 startTime: timeString(at(25)),
                 timeRange: "\(timeString(at(25))) – \(timeString(at(55)))",
                 countdown: "25m",
-                color: .blue
+                color: .blue,
+                start: at(25),
+                end: at(55)
             ),
             SampleEvent(
                 id: 1,
@@ -469,7 +472,9 @@ struct DisplayPreviewPane: View {
                 startTime: timeString(at(90)),
                 timeRange: "\(timeString(at(90))) – \(timeString(at(150)))",
                 countdown: "1h 30m",
-                color: .green
+                color: .green,
+                start: at(90),
+                end: at(150)
             ),
             SampleEvent(
                 id: 2,
@@ -477,7 +482,9 @@ struct DisplayPreviewPane: View {
                 startTime: timeString(at(240)),
                 timeRange: "\(timeString(at(240))) – \(timeString(at(300)))",
                 countdown: "4h",
-                color: .orange
+                color: .orange,
+                start: at(240),
+                end: at(300)
             )
         ]
     }
@@ -495,7 +502,9 @@ struct DisplayPreviewPane: View {
             startTime: timeString(start),
             timeRange: "\(timeString(start)) – \(timeString(end))",
             countdown: "",
-            color: .gray
+            color: .gray,
+            start: start,
+            end: end
         )
     }
 

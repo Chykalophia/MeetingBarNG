@@ -482,7 +482,6 @@ struct MenuBuilder {
         let presentation = meetingSummaryPresentation(for: event)
         let summary = MeetingSummaryView(
             presentation: presentation,
-            providerIcon: getIconForMeetingService(presentation.meetingService),
             onJoin: onJoin
         )
         let hosting = NSHostingView(rootView: summary)
