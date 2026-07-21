@@ -1,0 +1,29 @@
+docs/PREFERENCES-UX-PLAN.md
+  s_8821c3fb11800f::t_06c6bf9cbe108d 116-117
+  s_8821c3fb11800f::t_c9a55dbc2e119f 213-214
+  s_8821c3fb11800f::t_fe14738b45e3c8 114-115
+  s_8821c3fb11800f::t_123e305ab21605 809
+  s_8821c3fb11800f::t_b23dd3b969a6b7 772-777
+  s_8821c3fb11800f::t_d65347ef640779 8-47
+  s_8821c3fb11800f::t_58c98ebde9cb04 1-7,48-105,107-110,112-113,118-123,126-190,192-207,209-212,215-220,230,232-287,289-290,292-564,566-569,571-771,778-803,805-808,810-815
+  s_8821c3fb11800f::t_52ef944f142813 106,191,208,221-229,231,288,291,565,570
+  s_8821c3fb11800f::t_fee05bbe3bc048 804
+  s_8821c3fb11800f::t_9b15bb91c73758 124-125
+  s_8821c3fb11800f::t_cd6fe3d5aed412 111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "f2019999fabe538c0819075788878152c4adb34e",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
