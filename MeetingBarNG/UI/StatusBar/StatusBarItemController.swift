@@ -650,6 +650,18 @@ final class StatusBarItemController {
         }
     }
 
+    /// Quick-copy (Dot parity): any detail row carrying a string in
+    /// `representedObject` — location, organizer, attendee — copies it to the
+    /// pasteboard when clicked.
+    @objc
+    func copyDetailAction(sender: NSMenuItem) {
+        guard let value = (sender.representedObject as? String)?
+            .trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty
+        else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(value, forType: .string)
+    }
+
     @objc
     func copyEventMeetingLink(sender: NSMenuItem) {
         if let event: MBEvent = sender.representedObject as? MBEvent {

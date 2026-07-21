@@ -1475,11 +1475,15 @@ struct MenuBuilder {
     private func addEventLocation(to menu: NSMenu, event: MBEvent) {
         guard let location = event.location, !location.isEmpty else { return }
 
-        menu.addItem(
+        // Quick-copy (Dot parity): the header row copies the location.
+        let header = menu.addItem(
             withTitle: "status_bar_submenu_location_title".loco(),
-            action: nil,
+            action: #selector(StatusBarItemController.copyDetailAction),
             keyEquivalent: ""
         )
+        header.target = target
+        header.representedObject = location
+        header.toolTip = "status_bar_submenu_click_to_copy".loco()
         let locationItem = menu.addItem(withTitle: "", action: nil, keyEquivalent: "")
         locationItem.view = createNSViewFromText(text: location, maxWidth: 420)
         menu.addItem(NSMenuItem.separator())
@@ -1488,11 +1492,15 @@ struct MenuBuilder {
     private func addEventOrganizer(to menu: NSMenu, event: MBEvent) {
         guard let organizer = event.organizer else { return }
 
-        menu.addItem(
+        // Quick-copy: copies the organizer's email when present, else their name.
+        let item = menu.addItem(
             withTitle: "status_bar_submenu_organizer_title".loco(organizer.name),
-            action: nil,
+            action: #selector(StatusBarItemController.copyDetailAction),
             keyEquivalent: ""
         )
+        item.target = target
+        item.representedObject = organizer.email ?? organizer.name
+        item.toolTip = "status_bar_submenu_click_to_copy".loco()
         menu.addItem(NSMenuItem.separator())
     }
 
@@ -1604,7 +1612,15 @@ struct MenuBuilder {
         }
 
         let title = "- \(name)\(roleMark) \(status)"
-        let item = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+        // Quick-copy: copies the attendee's email when present, else their name.
+        let item = NSMenuItem(
+            title: title,
+            action: #selector(StatusBarItemController.copyDetailAction),
+            keyEquivalent: ""
+        )
+        item.target = target
+        item.representedObject = attendee.email ?? attendee.name
+        item.toolTip = "status_bar_submenu_click_to_copy".loco()
         item.attributedTitle = NSAttributedString(string: title, attributes: attributes)
         return item
     }
