@@ -111,6 +111,61 @@ final class StatusBarTickPolicyTests: XCTestCase {
         XCTAssertLessThanOrEqual(fire.timeIntervalSince(now), StatusBarTickPolicy.maximumInterval)
     }
 
+    // MARK: - Agenda transitions (a whole rendered list, not one meeting)
+
+    func testAgendaTransitionsCoverEveryRowsStartAndEnd() {
+        let transitions = StatusBarTickPolicy.transitionDates(
+            boundaries: [
+                .init(start: at(13, 30), end: at(13, 45)),
+                .init(start: at(14, 0), end: at(15, 0))
+            ]
+        )
+        XCTAssertEqual(
+            Set(transitions),
+            Set([at(13, 30), at(13, 45), at(14, 0), at(15, 0)])
+        )
+    }
+
+    /// With "hide finished meetings" on, a row also disappears some minutes
+    /// after it ends — a third transition per row, and one the list would
+    /// otherwise notice up to a minute late.
+    func testAgendaTransitionsIncludeTheHideFinishedExpiry() {
+        let transitions = StatusBarTickPolicy.transitionDates(
+            boundaries: [.init(start: at(13, 30), end: at(13, 45))],
+            hideFinishedAfter: 300
+        )
+        XCTAssertEqual(Set(transitions), Set([at(13, 30), at(13, 45), at(13, 50)]))
+    }
+
+    func testAgendaTransitionsOmitTheHideFinishedExpiryWhenFinishedRowsStay() {
+        let transitions = StatusBarTickPolicy.transitionDates(
+            boundaries: [.init(start: at(13, 30), end: at(13, 45))],
+            hideFinishedAfter: nil
+        )
+        XCTAssertEqual(Set(transitions), Set([at(13, 30), at(13, 45)]))
+    }
+
+    func testAnEmptyAgendaYieldsNoTransitions() {
+        XCTAssertTrue(
+            StatusBarTickPolicy.transitionDates(boundaries: [], hideFinishedAfter: 300).isEmpty
+        )
+    }
+
+    /// The point of feeding a whole day in: a row further down the list flips to
+    /// "running" before the next minute boundary, and the redraw lands on it.
+    func testTheEarliestAgendaBoundaryDrivesTheNextFire() {
+        let transitions = StatusBarTickPolicy.transitionDates(
+            boundaries: [
+                .init(start: at(13, 0), end: at(13, 31, 58)),
+                .init(start: at(14, 0), end: at(15, 0))
+            ]
+        )
+        XCTAssertEqual(
+            StatusBarTickPolicy.nextFireDate(now: now, transitions: transitions, calendar: calendar),
+            at(13, 31, 58)
+        )
+    }
+
     // MARK: - Delay
 
     func testDelayIsTheDistanceToTheFireDate() {

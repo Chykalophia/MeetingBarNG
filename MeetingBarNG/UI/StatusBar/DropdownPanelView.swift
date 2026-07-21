@@ -46,11 +46,27 @@
 //  out through an injected `DropdownPanelHandlers` closure, so the view has no
 //  dependency on the status-bar controller.
 //
+//  Two consequences of this panel becoming the DEFAULT dropdown, fixed together:
+//    • the NSMenu's "Quick Actions" subsection had no counterpart here, so five
+//      actions (dismiss / remove all dismissals / open link from clipboard /
+//      toggle the menu-bar meeting title / refresh sources) were reachable only
+//      by keyboard shortcut. They are back — behind ONE "More actions" row in
+//      the Join block, as a SwiftUI `Menu`, rather than five more top-level rows
+//      in a panel whose whole point is that it is quiet. Camera check and World
+//      clock ride along from the right-click quick-actions menu, since that is
+//      the only other place they appear;
+//    • `now` was a plain stored property, so while the panel was OPEN nothing
+//      advanced: the countdown, the "in 25m" line, the timeline's now-marker and
+//      the running/past row styling all froze at the instant it opened. `now` is
+//      now the SEED for a live clock driven by the same `StatusBarTickPolicy`
+//      that ticks the menu bar. Presentation only — it never refetches.
+//
 //  Original work for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026.
 //
 
 import AppKit
 import Defaults
+import KeyboardShortcuts
 import SwiftUI
 
 /// Everything the panel can *do*, injected by `StatusBarItemController` so the
@@ -73,6 +89,22 @@ struct DropdownPanelHandlers {
     var openChangelog: @MainActor () -> Void = {}
     var quit: @MainActor () -> Void = {}
     var dismiss: @MainActor () -> Void = {}
+
+    // MARK: - Utility actions (the NSMenu's "Quick Actions" subsection)
+
+    /// Detects a meeting link on the pasteboard and opens it — the NSMenu's
+    /// "Open meeting from clipboard".
+    var openLinkFromClipboard: @MainActor () -> Void = {}
+    /// Flips `eventTitleFormat` between `.show` and `.generic`, i.e. hides or
+    /// reveals the meeting title in the MENU BAR (not in this panel).
+    var toggleMeetingTitleVisibility: @MainActor () -> Void = {}
+    /// Opens the camera/mic pre-call preview with no event attached.
+    var openCameraPreview: @MainActor () -> Void = {}
+    var openWorldClock: @MainActor () -> Void = {}
+    /// Dismisses the current/next meeting — the same action the NSMenu's
+    /// quick-actions subsection offers, acting on the selected meeting.
+    var dismissNextMeeting: @MainActor () -> Void = {}
+    var undismissAllMeetings: @MainActor () -> Void = {}
 
     // MARK: - Per-event actions (NSMenu parity)
 
@@ -101,8 +133,10 @@ struct DropdownPanelHandlers {
 struct DropdownPanelView: View {
     let state: StatusBarMenuState
     let handlers: DropdownPanelHandlers
-    /// Injected so the panel formats times against the snapshot's moment (and so
-    /// previews/tests are deterministic).
+    /// SEED for the panel's clock, injected so the first frame is drawn against
+    /// the snapshot's moment (and so previews/tests are deterministic). Read
+    /// `clock`, never this, for anything time-dependent — while the panel is open
+    /// the clock advances and this does not.
     var now: Date = Date()
 
     /// The stored module order. Read here (rather than passed in) so the panel
@@ -118,6 +152,9 @@ struct DropdownPanelView: View {
     /// Drives the panel's key focus so Up/Down/Return reach `onMoveCommand` /
     /// `onKeyPress`. The window itself already becomes key on open.
     @FocusState private var isPanelFocused: Bool
+    /// The advancing clock, published by `panelClock()`. `nil` until the first
+    /// tick, which is what keeps the very first frame identical to `now`.
+    @State private var tickedNow: Date?
 
     /// Nothing in the panel consulted this before Phase 1, despite five separate
     /// `easeOut(0.12)` animations.
@@ -205,7 +242,69 @@ struct DropdownPanelView: View {
         // macOS 14+ key-press reporting; the app's floor is macOS 15.
         // https://developer.apple.com/documentation/swiftui/view/onkeypress(_:action:)
         .onKeyPress(.return) { activateSelection() ? .handled : .ignored }
+        .task { await panelClock() }
     }
+
+    // MARK: - The panel's clock
+
+    /// Advances `tickedNow` for as long as the panel is on screen.
+    ///
+    /// Structured concurrency rather than a `Timer`: `.task` cancels this the
+    /// moment the view leaves the hierarchy, and the panel's window is BUILT PER
+    /// OPEN and released after close (`WindowCoordinator.openDropdownPanel`), so
+    /// closing the panel tears the view down and cancels the sleep. There is no
+    /// timer object to retain, nothing to invalidate, and no wake-up while the
+    /// panel is hidden — the previous panel is gone, not paused.
+    ///
+    /// The cadence is `StatusBarTickPolicy`, the same one the menu bar's clock
+    /// uses, so the two can't drift into two different definitions of "a
+    /// meaningful moment": every rendered row's start and end, each finished
+    /// row's drop-out instant, and otherwise the next wall-clock minute.
+    private func panelClock() async {
+        // Distance between the injected seed and the real clock: ~0 in
+        // production (the snapshot is built microseconds before the panel
+        // opens), large in a preview or test that injects a fixed date — which
+        // is what keeps such a panel advancing from ITS day instead of jumping
+        // to today on the first tick.
+        let seedOffset = now.timeIntervalSinceNow
+        let transitions = tickTransitions
+
+        while !Task.isCancelled {
+            let current = clock
+            let delay = StatusBarTickPolicy.delay(
+                now: current,
+                until: StatusBarTickPolicy.nextFireDate(now: current, transitions: transitions)
+            )
+            do {
+                try await Task.sleep(for: .seconds(delay))
+            } catch {
+                // Cancelled: the panel closed. Nothing to clean up.
+                return
+            }
+            withAnimation(revealAnimation) {
+                tickedNow = Date().addingTimeInterval(seedOffset)
+            }
+        }
+    }
+
+    /// What this panel is rendering, described as instants: the boundaries of
+    /// every event it can draw (today, tomorrow, and the meeting card's event,
+    /// which the day lists need not contain).
+    private var tickTransitions: [Date] {
+        let events = state.todayEvents + state.tomorrowEvents + [state.nextEvent].compactMap { $0 }
+        return StatusBarTickPolicy.transitionDates(
+            boundaries: events.map {
+                StatusBarTickPolicy.EventBoundary(start: $0.startDate, end: $0.endDate)
+            },
+            hideFinishedAfter: state.menu.hideFinishedEventsInMenu
+                ? EventListWindow.endedGracePeriod
+                : nil
+        )
+    }
+
+    /// The instant everything time-dependent is drawn against: the injected seed
+    /// until the first tick, the live clock afterwards.
+    private var clock: Date { tickedNow ?? now }
 
     // MARK: - Composition
 
@@ -398,7 +497,7 @@ struct DropdownPanelView: View {
     private var timelineBlock: some View {
         let timeline = DayRelativeTimelineView(
             segments: timelineSegments,
-            currentDate: now,
+            currentDate: clock,
             timeFormat: state.timeFormat
         )
         return timeline
@@ -406,8 +505,8 @@ struct DropdownPanelView: View {
     }
 
     private var timelineSegments: [DaySegment] {
-        let startOfDay = Calendar.current.startOfDay(for: now)
-        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay) ?? now
+        let startOfDay = Calendar.current.startOfDay(for: clock)
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay) ?? clock
         let highlightedEventID = state.nextEvent?.id
         return visibleEvents(state.todayEvents).map { event in
             DaySegment(
@@ -458,7 +557,7 @@ struct DropdownPanelView: View {
             target: NSNull(),
             state: state,
             isFantasticalInstalled: false,
-            now: now
+            now: clock
         )
         .meetingSummaryPresentation(for: event)
         // `showMeetingServiceIcon` governs the meeting card too. Cleared here
@@ -543,7 +642,7 @@ struct DropdownPanelView: View {
         VStack(alignment: .leading, spacing: 0) {
             dateSection(
                 title: "status_bar_section_today".loco(),
-                date: now,
+                date: clock,
                 events: visibleEvents(state.todayEvents)
             )
             remindersRows
@@ -551,7 +650,7 @@ struct DropdownPanelView: View {
                 separator
                 dateSection(
                     title: "status_bar_section_tomorrow".loco(),
-                    date: Calendar.current.date(byAdding: .day, value: 1, to: now) ?? now,
+                    date: Calendar.current.date(byAdding: .day, value: 1, to: clock) ?? clock,
                     events: visibleEvents(state.tomorrowEvents)
                 )
             }
@@ -763,7 +862,7 @@ struct DropdownPanelView: View {
 
     private func rowAppearance(for event: MBEvent) -> EventRowAppearance {
         var appearance = EventRowAppearance()
-        appearance.isRunning = event.startDate <= now && event.endDate > now
+        appearance.isRunning = event.startDate <= clock && event.endDate > clock
 
         if isDeclined(event) {
             if state.events.declinedEventsAppearance == .show_inactive {
@@ -800,7 +899,7 @@ struct DropdownPanelView: View {
 
         // Past events dim only when asked to. The panel used to dim every
         // finished row unconditionally, so `.show_active` did nothing.
-        if event.endDate < now, state.events.pastEventsAppearance == .show_inactive {
+        if event.endDate < clock, state.events.pastEventsAppearance == .show_inactive {
             appearance.isDimmed = true
         }
 
@@ -1220,7 +1319,7 @@ struct DropdownPanelView: View {
         if let nextEvent = joinSectionEvent {
             actionRow(
                 symbol: "video.fill",
-                title: nextEvent.startDate < now
+                title: nextEvent.startDate < clock
                     ? "status_bar_section_join_current_meeting".loco()
                     : "status_bar_section_join_next_meeting".loco(),
                 row: .joinNext(nextEvent.id),
@@ -1233,6 +1332,100 @@ struct DropdownPanelView: View {
             row: .createMeeting,
             action: perform(handlers.createMeeting)
         )
+        moreActionsRow
+    }
+
+    // MARK: - More actions
+
+    /// ONE row for the whole utility set. The NSMenu puts these behind a "Quick
+    /// Actions" submenu of the Join section; this panel got neither, so once it
+    /// became the default dropdown they were reachable only by keyboard shortcut.
+    ///
+    /// Deliberately a nested `Menu` rather than five more rows: the resting panel
+    /// keeps exactly one extra line, and everything inside stays one click away.
+    /// Each row displays its global shortcut (when the user has recorded one) via
+    /// `globalKeyboardShortcut(_:)`, which shows the key equivalent WITHOUT
+    /// re-triggering the action — the shortcut is already registered app-wide, so
+    /// this is discovery, not a second binding.
+    /// Source: KeyboardShortcuts `ViewModifiers.swift` — `View.globalKeyboardShortcut(_:)`,
+    /// "mostly useful to have the keyboard shortcut show for a Button in a Menu…
+    /// It does not trigger the control's action." (macOS 12.3+; app floor is 15.)
+    ///
+    /// Not in `DropdownPanelNavigation`'s row list on purpose: Return can only
+    /// *run* a row, and there is no way to ask a SwiftUI `Menu` to open itself,
+    /// so a selectable-but-inert row would be worse than an unselectable one.
+    /// Everything behind it already has a global shortcut of its own.
+    private var moreActionsRow: some View {
+        PanelMenuRow(
+            symbol: "ellipsis.circle",
+            title: "dropdown_panel_more_actions".loco()
+        ) {
+            moreActionsContent
+        }
+    }
+
+    @ViewBuilder
+    private var moreActionsContent: some View {
+        // Grouped so the menu never opens on a stray leading separator, which is
+        // the common case: no meeting selected and nothing dismissed.
+        if state.nextEvent != nil || !state.events.dismissedEvents.isEmpty {
+            if state.nextEvent != nil {
+                Button(dismissNextMeetingTitle, action: perform(handlers.dismissNextMeeting))
+            }
+            if !state.events.dismissedEvents.isEmpty {
+                Button(
+                    "status_bar_menu_remove_all_dismissals".loco(),
+                    action: perform(handlers.undismissAllMeetings)
+                )
+            }
+            Divider()
+        }
+        Button(
+            "status_bar_section_join_from_clipboard".loco(),
+            action: perform(handlers.openLinkFromClipboard)
+        )
+        .globalKeyboardShortcut(.openClipboardShortcut)
+        if let meetingTitleVisibilityTitle {
+            Button(
+                meetingTitleVisibilityTitle,
+                action: perform(handlers.toggleMeetingTitleVisibility)
+            )
+            .globalKeyboardShortcut(.toggleMeetingTitleVisibilityShortcut)
+        }
+        Divider()
+        // Both open a window, so the panel goes away FIRST — it floats at the
+        // pop-up-menu level and would otherwise sit on top of what it opened.
+        Button(
+            "status_bar_quick_action_camera_check".loco(),
+            action: dismissThen(handlers.openCameraPreview)
+        )
+        .globalKeyboardShortcut(.cameraPreviewShortcut)
+        Button(
+            "status_bar_quick_action_world_clock".loco(),
+            action: dismissThen(handlers.openWorldClock)
+        )
+        .globalKeyboardShortcut(.worldClockShortcut)
+        Divider()
+        Button("status_bar_section_refresh_sources".loco(), action: perform(handlers.refresh))
+    }
+
+    /// Mirrors `MenuBuilder.buildJoinSection`: the meeting card's dismiss row
+    /// says "current" once the meeting has started.
+    private var dismissNextMeetingTitle: String {
+        guard let start = state.nextEvent?.startDate, start < clock else {
+            return "status_bar_menu_dismiss_next_meeting".loco()
+        }
+        return "status_bar_menu_dismiss_curent_meeting".loco()
+    }
+
+    /// `nil` — i.e. no row — unless the menu bar is actually showing a title to
+    /// hide (or a generic one to reveal), exactly as the NSMenu gates it.
+    private var meetingTitleVisibilityTitle: String? {
+        switch state.statusBar.eventTitleFormat {
+        case .show: "status_bar_hide_meeting_names".loco()
+        case .generic: "status_bar_show_meeting_names".loco()
+        case .dot, .none: nil
+        }
     }
 
     // MARK: - Bookmarks
@@ -1361,13 +1554,13 @@ struct DropdownPanelView: View {
     /// — while the shipping dropdown kept showing them.
     private func shouldRenderEvent(_ event: MBEvent) -> Bool {
         if state.menu.hideFinishedEventsInMenu,
-            !EventListWindow.isVisible(endDate: event.endDate, now: now) {
+            !EventListWindow.isVisible(endDate: event.endDate, now: clock) {
             return false
         }
         if isDeclined(event), state.events.declinedEventsAppearance == .hide {
             return false
         }
-        if event.endDate < now, state.events.pastEventsAppearance == .hide {
+        if event.endDate < clock, state.events.pastEventsAppearance == .hide {
             return false
         }
         if event.attendees.isEmpty, state.events.personalEventsAppearance == .hide {
@@ -1453,6 +1646,63 @@ private struct PanelRow<Content: View>: View {
         if isSelected { return Color.accentColor.opacity(0.22) }
         if isHovered, action != nil { return Color.accentColor.opacity(0.18) }
         return .clear
+    }
+}
+
+/// A row that opens a menu instead of running an action: same symbol + title
+/// layout, same paddings and hover highlight as `PanelRow`, but a SwiftUI `Menu`
+/// so the utility actions live one level down rather than as five more rows.
+///
+/// Not `PanelRow` with a `Menu` inside it: `PanelRow` claims the whole row with
+/// an `onTapGesture`, which would fight the menu's own click handling.
+private struct PanelMenuRow<Content: View>: View {
+    let symbol: String
+    let title: String
+    @ViewBuilder let content: () -> Content
+
+    @State private var isHovered = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private static var metrics: DropdownMetrics { .standard }
+
+    var body: some View {
+        Menu {
+            content()
+        } label: {
+            HStack(spacing: Self.metrics.columnSpacing) {
+                Image(systemName: symbol)
+                    .font(.system(size: 12))
+                    .frame(width: Self.metrics.actionSymbolWidth)
+                    .foregroundStyle(.secondary)
+                Text(title)
+                    .font(.system(size: MenuStyleConstants.defaultFontSize))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                Spacer(minLength: 0)
+            }
+            // Greedy label so the menu — and therefore the click target — spans
+            // the whole row, like every `PanelRow` around it.
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        // Borderless + no indicator so the row reads as a menu row, not a
+        // pop-up button. https://developer.apple.com/documentation/swiftui/view/menuindicator(_:)
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .padding(.horizontal, Self.metrics.rowInnerPadding)
+        .padding(.vertical, Self.metrics.rowVerticalPadding)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(isHovered ? Color.accentColor.opacity(0.18) : .clear)
+        )
+        .padding(.horizontal, Self.metrics.rowOuterPadding)
+        .pointerStyle(.link)
+        .onHover { hovering in
+            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.12)) {
+                isHovered = hovering
+            }
+        }
     }
 }
 

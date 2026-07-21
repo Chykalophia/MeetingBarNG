@@ -45,6 +45,45 @@ enum StatusBarTickPolicy {
         return dates
     }
 
+    /// One rendered row's time boundaries — the instants at which that row
+    /// changes appearance without anything about the calendar changing.
+    struct EventBoundary: Hashable, Sendable {
+        let start: Date
+        let end: Date
+
+        init(start: Date, end: Date) {
+            self.start = start
+            self.end = end
+        }
+    }
+
+    /// Transitions for a whole rendered *agenda* rather than for the one meeting
+    /// the menu bar shows: every row's start (upcoming → running) and end
+    /// (running → past), plus — when finished rows are hidden — the instant each
+    /// finished row drops out of the list.
+    ///
+    /// The menu bar renders a single meeting, so
+    /// `transitionDates(eventStart:eventEnd:ongoingGracePeriod:)` covers it. The
+    /// dropdown panel draws the whole day: while it is open ANY row can flip, a
+    /// countdown ticks and the timeline's now-marker crosses each boundary, so it
+    /// needs the whole set. Same policy, so there is one cadence in the app.
+    ///
+    /// Returned unsorted-safe, like the single-event overload: callers hand the
+    /// result to `nextFireDate(now:transitions:)`, which takes the earliest
+    /// strictly-future one.
+    static func transitionDates(
+        boundaries: [EventBoundary],
+        hideFinishedAfter: TimeInterval? = nil
+    ) -> [Date] {
+        boundaries.flatMap { boundary -> [Date] in
+            var dates = [boundary.start, boundary.end]
+            if let hideFinishedAfter {
+                dates.append(boundary.end.addingTimeInterval(hideFinishedAfter))
+            }
+            return dates
+        }
+    }
+
     /// The next moment worth redrawing at: the earliest of the upcoming
     /// transitions and the next minute boundary, never further out than
     /// `maximumInterval` and never in the past.

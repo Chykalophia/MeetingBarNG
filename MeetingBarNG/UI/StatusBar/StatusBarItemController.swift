@@ -33,7 +33,11 @@
 //  confirmAndDeleteEvent, copyDetail, copyMeetingLink, openReferenceURL,
 //  emailAttendees, undismiss, completeReminder, snoozeReminder,
 //  openReminderInApp) so the SwiftUI panel's handlers run the SAME code path as
-//  the NSMenu items rather than a reimplementation.
+//  the NSMenu items rather than a reimplementation; wire the panel's "More
+//  actions" menu (open link from clipboard, toggle the menu-bar meeting title,
+//  camera check, world clock, dismiss / remove all dismissals) to those same
+//  @objc handlers, since the panel became the default dropdown and the NSMenu's
+//  quick-actions subsection had no counterpart there.
 //
 
 import Cocoa
@@ -317,6 +321,15 @@ final class StatusBarItemController {
             openCommandBar: { [weak self] in self?.dependencies.openCommandBar() },
             openChangelog: { [weak self] in self?.dependencies.openChangelog() },
             quit: { [weak self] in self?.dependencies.quit() },
+            // The panel's "More actions" menu. Each of these runs the SAME @objc
+            // handler the NSMenu's quick-actions items target, so restoring them
+            // in the panel reimplements nothing.
+            openLinkFromClipboard: { [weak self] in self?.openLinkFromClipboardAction() },
+            toggleMeetingTitleVisibility: { [weak self] in self?.toggleMeetingTitleVisibility() },
+            openCameraPreview: { [weak self] in self?.openCameraPreviewAction() },
+            openWorldClock: { [weak self] in self?.openWorldClockAction() },
+            dismissNextMeeting: { [weak self] in self?.dismissNextMeetingAction() },
+            undismissAllMeetings: { [weak self] in self?.undismissMeetingsActions() },
             editEvent: { [weak self] event in self?.editEvent(event) },
             deleteEvent: { [weak self] event in self?.confirmAndDeleteEvent(event) },
             copyText: { [weak self] value in self?.copyDetail(value) },

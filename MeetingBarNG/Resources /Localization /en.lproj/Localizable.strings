@@ -493,6 +493,11 @@
 "dropdown_panel_show_details" = "Show details";
 "dropdown_panel_hide_details" = "Hide details";
 
+// The one row that holds the whole utility set (clipboard, meeting-title
+// toggle, camera check, world clock, dismissals, refresh) so the panel doesn't
+// grow five more lines. The actions themselves reuse the menu keys above.
+"dropdown_panel_more_actions" = "More actions…";
+
 // MARK: - Event Editor (in-app create / edit / delete)
 
 "event_editor_new_title" = "New Event";
