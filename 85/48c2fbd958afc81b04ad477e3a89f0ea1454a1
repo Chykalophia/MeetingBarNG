@@ -1,0 +1,48 @@
+MeetingBarLogicTests/MonthGridLayoutTests.swift
+  s_8821c3fb11800f::t_0546bdc11f8f87 192-293
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_8821c3fb11800f::t_ead12e8e638d4a 11-12
+  s_8821c3fb11800f::t_79e05885c5b42b 129-135
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_bee00d8812c7fb 137,141-145
+  s_8821c3fb11800f::t_99f5cb2a8276c8 250-252
+MeetingBarNG/Preferences/DisplayTab.swift
+  s_8821c3fb11800f::t_805c5bfbb5cf22 44-45
+  s_8821c3fb11800f::t_b507e2eacb8457 23-24
+  s_8821c3fb11800f::t_cbb08f8b80829c 826-848
+MeetingBarNG/Calendar/MonthGridLayout.swift
+  s_8821c3fb11800f::t_c6f71f2c7771fb 63-103
+  s_8821c3fb11800f::t_ba2d975387775c 8-10
+MeetingBarNG/UI/Calendar/CalendarGridView.swift
+  s_8821c3fb11800f::t_1d0b5229c7ff56 5-10
+  s_8821c3fb11800f::t_5b554aa242f6a0 205-210
+  s_8821c3fb11800f::t_9715a387718ff5 288-290
+  s_8821c3fb11800f::t_564c1ec4089f04 23
+  s_8821c3fb11800f::t_b5828fd50526cf 86-104
+  s_8821c3fb11800f::t_916ebeb59891f1 144-145
+  s_8821c3fb11800f::t_05c1f032f03de6 48,54-55,67-68,72-73
+  s_8821c3fb11800f::t_0440b2d86d6aef 218-255
+  s_8821c3fb11800f::t_4b4d6f302808ea 322
+MeetingBarNG/UI/Calendar/CalendarGridViewModel.swift
+  s_8821c3fb11800f::t_53a122b3c36bd2 35,37-38,52-53,58,60-62
+  s_8821c3fb11800f::t_86094f7ff1a607 5-11,14,17-22
+  s_8821c3fb11800f::t_2072425353f01d 75-96,99-101,104-123,129-131
+  s_8821c3fb11800f::t_eb64c338169134 160-162,164-187
+  s_8821c3fb11800f::t_0255328ae970c9 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "8548c2fbd958afc81b04ad477e3a89f0ea1454a1",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
