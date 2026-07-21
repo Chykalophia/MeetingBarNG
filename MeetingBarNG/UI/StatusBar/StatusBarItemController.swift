@@ -106,6 +106,10 @@ final class StatusBarItemController {
 
     private var cancellables = Set<AnyCancellable>()
 
+    /// One-shot redraw timer, re-armed on every `updateTitle()`. See
+    /// `scheduleNextTick(now:event:)` — this is the app's only UI clock.
+    private var tickTimer: Timer?
+
     init() {
         statusItem = NSStatusBar.system.statusItem(
             withLength: NSStatusItem.variableLength
@@ -408,7 +412,13 @@ final class StatusBarItemController {
 
     func updateTitle() {
         let now = Date()
-        let nextEvent = events.nextEvent().map(StatusBarEventPresentationInput.init)
+        let selectedEvent = events.nextEvent()
+        let nextEvent = selectedEvent.map(StatusBarEventPresentationInput.init)
+        // Re-arm the clock against whatever meeting is now current. Doing it
+        // here (rather than only on a fixed interval) means the redraw lands
+        // exactly on the next state change, and re-arms itself whenever the
+        // calendar, the settings, or the selected meeting change.
+        scheduleNextTick(now: now, event: selectedEvent)
 
         let presentation: StatusBarPresentation
         if let composition = MenuBarComposition.currentIfEnabled {
@@ -435,6 +445,43 @@ final class StatusBarItemController {
         }
 
         renderStatusBar(presentation)
+    }
+
+    // MARK: - The clock
+
+    /// Re-arms the redraw timer for the next instant at which the menu bar's
+    /// contents change *because time passed* — a meeting starting or ending,
+    /// the "hide the current meeting N minutes after it starts" point, or
+    /// simply the next minute so a countdown stays honest.
+    ///
+    /// Before this existed the app had no clock: redraws were a side effect of
+    /// a Defaults change or of the 180-second calendar poll, so a meeting could
+    /// begin and the menu bar would keep showing the previous one for minutes.
+    /// One-shot and re-armed on every redraw, so it always targets the *current*
+    /// next meeting and never accumulates timers.
+    private func scheduleNextTick(now: Date, event: MBEvent?) {
+        tickTimer?.invalidate()
+
+        let fireDate = StatusBarTickPolicy.nextFireDate(
+            now: now,
+            transitions: StatusBarTickPolicy.transitionDates(
+                eventStart: event?.startDate,
+                eventEnd: event?.endDate,
+                ongoingGracePeriod: Defaults[.ongoingEventVisibility].gracePeriod
+            ),
+            calendar: statusBarCalendar()
+        )
+
+        let timer = Timer(
+            timeInterval: StatusBarTickPolicy.delay(now: now, until: fireDate),
+            repeats: false
+        ) { [weak self] _ in
+            DispatchQueue.main.async { self?.updateTitle() }
+        }
+        // .common so the countdown keeps advancing while a menu is tracking or
+        // a window is being resized, which .default would stall.
+        RunLoop.main.add(timer, forMode: .common)
+        tickTimer = timer
     }
 
     func renderStatusBar(_ presentation: StatusBarPresentation) {
