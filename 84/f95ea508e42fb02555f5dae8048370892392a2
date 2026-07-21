@@ -1,0 +1,45 @@
+Package.swift
+  s_8821c3fb11800f::t_30d92820f60ee2 51
+MeetingBarLogicTests/DropdownPanelNavigationTests.swift
+  s_8821c3fb11800f::t_f119cca2300e5b 1-138
+MeetingBarNG/UI/StatusBar/DropdownPanelView.swift
+  s_8821c3fb11800f::t_1926aeada2fe42 651
+  s_8821c3fb11800f::t_173a7fede9d8af 26-27
+  s_8821c3fb11800f::t_a0c5690534ecfd 5-9,18-25,28-34,57,100-108,121-125,127-145,164-181,232-313,412-422,456-457,462-470,506-509,518,544-545,547-561,564-580,582-594,596-611,634-636,638-650,652-818,824-866,872-914,918-929,934-939,942,948-949,955-956,965,969-970,978-983,986-993,997-998,1003-1004,1014,1017,1030,1042-1050,1061-1071,1112-1115,1117,1119,1124,1130,1144-1149
+  s_8821c3fb11800f::t_2876d8accddb03 46-49,60,63-85
+  s_8821c3fb11800f::t_4368e11fe26b25 581
+  s_8821c3fb11800f::t_b02fc252b697fd 612-633,637
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_8821c3fb11800f::t_f1fa22b5bf8eba 30-35
+  s_8821c3fb11800f::t_c4c9af591527c6 803,853-856,865-866,868-871
+  s_8821c3fb11800f::t_0ec3076a932ae2 668,672-678,684-687,697-700,704-707
+  s_8821c3fb11800f::t_4221ee05d38315 748,752-759,765-773,775,781-790,797,801-802
+  s_8821c3fb11800f::t_5246532ebcb92f 313-327
+  s_8821c3fb11800f::t_16493d55d43325 804
+MeetingBarNG/UI/StatusBar/MenuBuilder.swift
+  s_8821c3fb11800f::t_273d5e94f53b29 1661-1664
+MeetingBarNGTests/StatusBarItem/MenuBuilderTests.swift
+  s_8821c3fb11800f::t_ccf7f9d59ae480 1004,1127
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_5878dba4e1dc75 496-503
+MeetingBarNG/UI/StatusBar/DropdownPanelNavigation.swift
+  s_8821c3fb11800f::t_aa9ff6f8c92d89 1-124
+MeetingBarNG/Preferences/Preferences.swift
+  s_8821c3fb11800f::t_027a4bf4756b53 190
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "84f95ea508e42fb02555f5dae8048370892392a2",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
