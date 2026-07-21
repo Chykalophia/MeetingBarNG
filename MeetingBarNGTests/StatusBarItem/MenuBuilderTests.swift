@@ -1001,7 +1001,7 @@ final class MenuBuilderEventItemTests: BaseTestCase {
             $0.action == #selector(StatusBarItemController.dismissEvent)
         })
         XCTAssertTrue(submenuItems.contains {
-            $0.action == #selector(StatusBarItemController.emailAttendees)
+            $0.action == #selector(StatusBarItemController.emailAttendees(sender:))
         })
         XCTAssertEqual(
             submenuItems.first {
@@ -1124,7 +1124,7 @@ final class MenuBuilderEventItemTests: BaseTestCase {
             $0.action == #selector(StatusBarItemController.dismissEvent)
         })
         let emailItem = try XCTUnwrap(subItems.first {
-            $0.action == #selector(StatusBarItemController.emailAttendees)
+            $0.action == #selector(StatusBarItemController.emailAttendees(sender:))
         })
         let openItem = try XCTUnwrap(subItems.first {
             $0.action == #selector(StatusBarItemController.openEventInCalendar)

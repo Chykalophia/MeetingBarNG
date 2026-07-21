@@ -1658,7 +1658,10 @@ struct MenuBuilder {
         addEventAction(
             to: menu,
             title: "status_bar_submenu_email_attendees".loco(),
-            action: #selector(StatusBarItemController.emailAttendees),
+            // Fully qualified: the controller now also exposes a value-taking
+            // `emailAttendees(for:)` that the SwiftUI panel calls, so the bare
+            // base name would be an ambiguous selector.
+            action: #selector(StatusBarItemController.emailAttendees(sender:)),
             representedObject: event
         )
         // Pre-call camera/mic check for this event, so the preview's "Join

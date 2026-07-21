@@ -27,7 +27,12 @@
 //  self-corrects) on menu open; route a left-click to the opt-in SwiftUI
 //  dropdown panel (openDropdownPanel dependency + handlers) when
 //  Defaults[.useSwiftUIDropdown] is on, leaving the classic NSMenu as the
-//  default path.
+//  default path; split each per-event / per-reminder @objc menu action into a
+//  thin sender-unwrapping wrapper over a value-taking method (editEvent,
+//  confirmAndDeleteEvent, copyDetail, copyMeetingLink, openReferenceURL,
+//  emailAttendees, undismiss, completeReminder, snoozeReminder,
+//  openReminderInApp) so the SwiftUI panel's handlers run the SAME code path as
+//  the NSMenu items rather than a reimplementation.
 //
 
 import Cocoa
@@ -305,7 +310,21 @@ final class StatusBarItemController {
             openPreferences: { [weak self] in self?.dependencies.openPreferences() },
             openCalendar: { [weak self] in self?.dependencies.openCalendar() },
             openCommandBar: { [weak self] in self?.dependencies.openCommandBar() },
-            quit: { [weak self] in self?.dependencies.quit() }
+            openChangelog: { [weak self] in self?.dependencies.openChangelog() },
+            quit: { [weak self] in self?.dependencies.quit() },
+            editEvent: { [weak self] event in self?.editEvent(event) },
+            deleteEvent: { [weak self] event in self?.confirmAndDeleteEvent(event) },
+            copyText: { [weak self] value in self?.copyDetail(value) },
+            copyMeetingLink: { [weak self] event in self?.copyMeetingLink(for: event) },
+            openURL: { [weak self] url in self?.openReferenceURL(url) },
+            emailAttendees: { [weak self] event in self?.emailAttendees(for: event) },
+            dismissEvent: { [weak self] event in self?.dismiss(event: event) },
+            undismissEvent: { [weak self] event in self?.undismiss(event: event) },
+            completeReminder: { [weak self] reminder in self?.completeReminder(reminder) },
+            snoozeReminder: { [weak self] reminder, option in
+                self?.snoozeReminder(reminder, option: option)
+            },
+            openReminderInApp: { [weak self] reminder in self?.openReminderInApp(reminder) }
         )
     }
 
@@ -646,8 +665,15 @@ final class StatusBarItemController {
         // Google Docs/…, generic) extracted from the invite. Open it in the
         // default browser, like the other reference-link actions.
         if let url = sender.representedObject as? URL {
-            url.openInDefaultBrowser()
+            openReferenceURL(url)
         }
+    }
+
+    /// Opens a reference URL (prep link, alternate meeting link) in the default
+    /// browser. Shared by the NSMenu's `openPrepLink(sender:)` and the SwiftUI
+    /// panel's `openURL` handler.
+    func openReferenceURL(_ url: URL) {
+        url.openInDefaultBrowser()
     }
 
     // MARK: - Reminders (Dot parity)
@@ -655,6 +681,10 @@ final class StatusBarItemController {
     @objc
     func toggleReminderComplete(sender: NSMenuItem) {
         guard let reminder = sender.representedObject as? MBReminder else { return }
+        completeReminder(reminder)
+    }
+
+    func completeReminder(_ reminder: MBReminder) {
         dependencies.send(.completeReminder(id: reminder.id))
     }
 
@@ -664,9 +694,17 @@ final class StatusBarItemController {
         dependencies.send(.snoozeReminder(id: command.reminderID, option: command.option))
     }
 
+    func snoozeReminder(_ reminder: MBReminder, option: ReminderSnoozeOption) {
+        dependencies.send(.snoozeReminder(id: reminder.id, option: option))
+    }
+
     @objc
     func openReminderInApp(sender: NSMenuItem) {
         guard let reminder = sender.representedObject as? MBReminder else { return }
+        openReminderInApp(reminder)
+    }
+
+    func openReminderInApp(_ reminder: MBReminder) {
         // Try the reminder's deep link first; fall back to just opening Reminders.
         if let deepLink = URL(string: "x-apple-reminderkit://REMCDReminder/\(reminder.id)") {
             NSWorkspace.shared.open(deepLink)
@@ -707,12 +745,16 @@ final class StatusBarItemController {
     @objc
     func undismissEvent(sender: NSMenuItem) {
         if let event: MBEvent = sender.representedObject as? MBEvent {
-            dependencies.send(.undismissMeeting(eventID: event.id))
-
-            updateTitle()
-            updateMenu()
-            reconcileNotifications()
+            undismiss(event: event)
         }
+    }
+
+    func undismiss(event: MBEvent) {
+        dependencies.send(.undismissMeeting(eventID: event.id))
+
+        updateTitle()
+        updateMenu()
+        reconcileNotifications()
     }
 
     /// Quick-copy (Dot parity): any detail row carrying a string in
@@ -720,30 +762,44 @@ final class StatusBarItemController {
     /// pasteboard when clicked.
     @objc
     func copyDetailAction(sender: NSMenuItem) {
-        guard let value = (sender.representedObject as? String)?
-            .trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty
-        else { return }
+        guard let value = sender.representedObject as? String else { return }
+        copyDetail(value)
+    }
+
+    /// Copies a trimmed detail string to the pasteboard, ignoring blanks. Shared
+    /// by the NSMenu's quick-copy rows and the panel's `copyText` handler.
+    func copyDetail(_ value: String) {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(value, forType: .string)
+        NSPasteboard.general.setString(trimmed, forType: .string)
     }
 
     @objc
     func copyEventMeetingLink(sender: NSMenuItem) {
         if let event: MBEvent = sender.representedObject as? MBEvent {
-            if let meetingLink = event.meetingLink {
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(meetingLink.url.absoluteString, forType: .string)
-            } else {
-                AppMessageCenter.shared.post(.meetingLinkMissing(title: event.title))
-            }
+            copyMeetingLink(for: event)
+        }
+    }
+
+    func copyMeetingLink(for event: MBEvent) {
+        if let meetingLink = event.meetingLink {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(meetingLink.url.absoluteString, forType: .string)
+        } else {
+            AppMessageCenter.shared.post(.meetingLinkMissing(title: event.title))
         }
     }
 
     @objc
     func emailAttendees(sender: NSMenuItem) {
         if let event: MBEvent = sender.representedObject as? MBEvent {
-            MeetingOpener.emailAttendees(for: event)
+            emailAttendees(for: event)
         }
+    }
+
+    func emailAttendees(for event: MBEvent) {
+        MeetingOpener.emailAttendees(for: event)
     }
 
     @objc
@@ -794,6 +850,10 @@ final class StatusBarItemController {
     @objc
     func editEventAction(sender: NSMenuItem) {
         guard let event = sender.representedObject as? MBEvent else { return }
+        editEvent(event)
+    }
+
+    func editEvent(_ event: MBEvent) {
         dependencies.editEvent(event)
     }
 
@@ -802,7 +862,13 @@ final class StatusBarItemController {
     @objc
     func deleteEventAction(sender: NSMenuItem) {
         guard let event = sender.representedObject as? MBEvent else { return }
+        confirmAndDeleteEvent(event)
+    }
 
+    /// The destructive delete flow shared by the NSMenu item and the SwiftUI
+    /// panel: an NSAlert confirmation (with the recurring this-event /
+    /// this-and-future choice) before the injected EventKit write.
+    func confirmAndDeleteEvent(_ event: MBEvent) {
         let alert = NSAlert()
         alert.messageText = "event_editor_delete_confirm_title".loco()
         alert.informativeText = "event_editor_delete_confirm_message".loco(event.title)

@@ -187,5 +187,5 @@ struct PreferencesGroupedForm<Content: View>: View {
 
 #Preview {
     PreferencesView()
-        .frame(width: 960, height: 620)
+        .frame(width: 1180, height: 680)
 }
