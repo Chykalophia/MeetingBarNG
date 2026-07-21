@@ -200,6 +200,11 @@ struct MenuBarComposerSection: View {
     @Default(.menuBarWorldClockTimeZone) var menuBarWorldClockTimeZone
     @Default(.menuBarWorldClockLabel) var menuBarWorldClockLabel
 
+    // Sticky "Custom" override: the token editor stays revealed once the user
+    // picks Custom, even if their current tokens happen to match a named preset.
+    // (`MenuBarPreset.detect` alone would otherwise snap the picker back.)
+    @State private var forceCustom = false
+
     private var tokens: [MenuBarTokenKind] {
         var seen = Set<MenuBarTokenKind>()
         return menuBarTokens
@@ -211,6 +216,13 @@ struct MenuBarComposerSection: View {
 
     private var availableTokens: [MenuBarTokenKind] {
         MenuBarTokenKind.allCases.filter { !tokens.contains($0) }
+    }
+
+    /// The layout preset currently reflected by the picker. A named preset is
+    /// derived from the live tokens; `.custom` is shown once the user forces it
+    /// (see `forceCustom`) so the manual token editor stays revealed.
+    private var selectedPreset: MenuBarPreset {
+        forceCustom ? .custom : MenuBarPreset.detect(tokens: tokens)
     }
 
     var body: some View {
@@ -226,19 +238,37 @@ struct MenuBarComposerSection: View {
 
         if isEnabled {
             Section {
-                ForEach(Array(tokens.enumerated()), id: \.element) { pair in
-                    tokenRow(token: pair.element, index: pair.offset)
+                Picker(
+                    preferenceLabel("preferences_menu_bar_preset_title"),
+                    selection: presetBinding
+                ) {
+                    Text("preferences_menu_bar_preset_classic".loco()).tag(MenuBarPreset.classic)
+                    Text("preferences_menu_bar_preset_minimal".loco()).tag(MenuBarPreset.minimal)
+                    Text("preferences_menu_bar_preset_agenda".loco()).tag(MenuBarPreset.agenda)
+                    Text("preferences_menu_bar_preset_info".loco()).tag(MenuBarPreset.info)
+                    Text("preferences_menu_bar_preset_custom".loco()).tag(MenuBarPreset.custom)
                 }
-                if !availableTokens.isEmpty {
-                    Menu {
-                        ForEach(availableTokens, id: \.self) { token in
-                            Button(tokenName(token)) { add(token) }
+                .pickerStyle(.segmented)
+            }
+
+            // The manual token editor is shown only for the "Custom" preset; the
+            // named presets are kept simple (preview + preset chips are enough).
+            if selectedPreset == .custom {
+                Section {
+                    ForEach(Array(tokens.enumerated()), id: \.element) { pair in
+                        tokenRow(token: pair.element, index: pair.offset)
+                    }
+                    if !availableTokens.isEmpty {
+                        Menu {
+                            ForEach(availableTokens, id: \.self) { token in
+                                Button(tokenName(token)) { add(token) }
+                            }
+                        } label: {
+                            Label(
+                                "preferences_appearance_menu_bar_composer_add".loco(),
+                                systemImage: "plus"
+                            )
                         }
-                    } label: {
-                        Label(
-                            "preferences_appearance_menu_bar_composer_add".loco(),
-                            systemImage: "plus"
-                        )
                     }
                 }
             }
@@ -449,7 +479,26 @@ struct MenuBarComposerSection: View {
                 if isOn {
                     if tokens.isEmpty { write(MenuBarComposition.derivedFromLegacy.tokens) }
                 } else {
+                    forceCustom = false
                     menuBarTokens = []
+                }
+            }
+        )
+    }
+
+    /// Layout-preset picker binding. Selecting a named preset writes its token
+    /// list (which also keeps the composable path active, since the list is
+    /// non-empty). Selecting "Custom" writes nothing — it reveals the token
+    /// editor seeded from the current tokens.
+    private var presetBinding: Binding<MenuBarPreset> {
+        Binding(
+            get: { selectedPreset },
+            set: { preset in
+                if preset == .custom {
+                    forceCustom = true
+                } else {
+                    forceCustom = false
+                    write(preset.tokens)
                 }
             }
         )

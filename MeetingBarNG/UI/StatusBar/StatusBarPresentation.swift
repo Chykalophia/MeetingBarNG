@@ -490,6 +490,39 @@ struct MenuBarComposition: Equatable {
     static let standard = MenuBarComposition(tokens: [.icon, .title, .countdown])
 }
 
+/// One-click starting points for the composable menu bar (Dot parity). Each
+/// named case maps to a fixed, ordered token list the existing composition
+/// pipeline already understands — presets never introduce new behavior, they
+/// just WRITE token lists. `.custom` is a sentinel meaning "user-defined
+/// order"; its `tokens` is empty and must never be applied.
+enum MenuBarPreset: String, CaseIterable, Codable {
+    case classic
+    case minimal
+    case agenda
+    case info
+    case custom
+
+    /// The ordered tokens each preset writes. `.custom` returns `[]` (sentinel).
+    var tokens: [MenuBarTokenKind] {
+        switch self {
+        case .classic: return [.icon, .title, .countdown]
+        case .minimal: return [.icon, .title]
+        case .agenda: return [.title, .countdown]
+        case .info: return [.icon, .date, .clock]
+        case .custom: return []
+        }
+    }
+
+    /// The named preset whose `tokens` exactly equals the given ordered list,
+    /// else `.custom`. An empty/unset list detects as `.classic`: the derived
+    /// legacy default ≈ icon+title+countdown, so an unconfigured menu bar reads
+    /// as the classic preset rather than an empty custom one.
+    static func detect(tokens: [MenuBarTokenKind]) -> MenuBarPreset {
+        if tokens.isEmpty { return .classic }
+        return allCases.first { $0 != .custom && $0.tokens == tokens } ?? .custom
+    }
+}
+
 /// Everything the composed presenter needs beyond the classic title/mode
 /// snapshots. Built in the `+MeetingBar` adapter from `Defaults`.
 struct MenuBarComposedSettings: Equatable {

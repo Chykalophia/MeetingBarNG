@@ -261,6 +261,12 @@
 "preferences_appearance_menu_bar_composer_remove" = "Remove";
 "preferences_appearance_menu_bar_composer_preview_label" = "Preview";
 "preferences_appearance_menu_bar_preview_sample_event" = "Design review";
+"preferences_menu_bar_preset_title" = "Layout";
+"preferences_menu_bar_preset_classic" = "Classic";
+"preferences_menu_bar_preset_minimal" = "Minimal";
+"preferences_menu_bar_preset_agenda" = "Agenda";
+"preferences_menu_bar_preset_info" = "Info";
+"preferences_menu_bar_preset_custom" = "Custom";
 "preferences_appearance_menu_bar_token_icon" = "Icon";
 "preferences_appearance_menu_bar_token_title" = "Event title";
 "preferences_appearance_menu_bar_token_countdown" = "Countdown";
