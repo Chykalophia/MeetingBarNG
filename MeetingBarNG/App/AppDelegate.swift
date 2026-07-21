@@ -14,7 +14,9 @@
 //  into the status-bar dependencies); add the camera/mic pre-call preview entry
 //  point (builds the join handlers over the AppModel and wires openCameraPreview
 //  into the status-bar dependencies); add the multi-zone world-clock panel window
-//  entry point (wires openWorldClock into the status-bar dependencies); request
+//  entry point (wires openWorldClock into the status-bar dependencies); wire the
+//  opt-in SwiftUI dropdown panel (openDropdownPanel) into the status-bar
+//  dependencies; request
 //  EventKit calendar access on a normal post-onboarding launch when it is still
 //  undetermined, so the app prompts and registers with TCC instead of silently
 //  holding no access.
@@ -166,6 +168,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             openPreferences: { [weak self] in self?.openPreferencesWindow(nil) },
             openChangelog: { [weak self] in self?.openChangelogWindow(nil) },
             openCommandBar: { [weak self] in self?.openCommandBarWindow() },
+            openDropdownPanel: { [weak self] state, handlers, anchor in
+                self?.windowCoordinator.openDropdownPanel(
+                    state: state,
+                    handlers: handlers,
+                    relativeTo: anchor
+                )
+            },
             openCalendar: { [weak self] in self?.openCalendarWindow() },
             openWorldClock: { [weak self] in self?.openWorldClockWindow() },
             openCameraPreview: { [weak self] event in self?.openCameraPreviewWindow(event: event) },

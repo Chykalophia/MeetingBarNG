@@ -9,7 +9,8 @@
 //  add persistence keys for the composable menu bar, the composable menu
 //  dropdown (dropdownModuleOrder + per-module enabled bools), and Apple
 //  Reminders in the menu; add the calendar-window keys (calendarGridMode,
-//  dimWeekendsInCalendar); remove the StoreKit patronage keys (patronageDuration,
+//  dimWeekendsInCalendar); add the opt-in SwiftUI dropdown-panel preview flag
+//  (useSwiftUIDropdown); remove the StoreKit patronage keys (patronageDuration,
 //  processedPatronageTransactionIDs, isInstalledFromAppStore) along with the
 //  removed patronage feature.
 //
@@ -121,6 +122,12 @@ extension Defaults.Keys {
     // Per-module enabled state. greeting/timeline reuse the existing keys above
     // (showGreetingInMenu / showTimelineInMenu); these cover the rest. All
     // default true so the dropdown looks unchanged until the user customizes it.
+    // Opt-in preview of the custom SwiftUI dropdown panel (MeetingBarNG).
+    // OFF by default: left-clicking the status item keeps opening the classic
+    // NSMenu until the user turns this on in Preferences ▸ Display. The panel is
+    // additive — nothing about the NSMenu path changes while this is false.
+    static let useSwiftUIDropdown = Key<Bool>("useSwiftUIDropdown", default: false)
+
     static let showMeetingControlInMenu = Key<Bool>("showMeetingControlInMenu", default: true)
     static let showAgendaInMenu = Key<Bool>("showAgendaInMenu", default: true)
     static let showJoinSectionInMenu = Key<Bool>("showJoinSectionInMenu", default: true)

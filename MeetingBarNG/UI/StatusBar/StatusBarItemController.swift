@@ -24,7 +24,10 @@
 //  and the @objc handler) for the multi-zone world-clock panel window; kick a
 //  debounced aggressive calendar force-sync (.forceCalendarSync) whenever the
 //  status-menu is about to show, so a stalled macOS Calendar sync surfaces (and
-//  self-corrects) on menu open.
+//  self-corrects) on menu open; route a left-click to the opt-in SwiftUI
+//  dropdown panel (openDropdownPanel dependency + handlers) when
+//  Defaults[.useSwiftUIDropdown] is on, leaving the classic NSMenu as the
+//  default path.
 //
 
 import Cocoa
@@ -62,6 +65,11 @@ struct StatusBarDependencies {
     var openPreferences: @MainActor () -> Void = {}
     var openChangelog: @MainActor () -> Void = {}
     var openCommandBar: @MainActor () -> Void = {}
+    /// Opens (or toggles) the opt-in SwiftUI dropdown panel below the status
+    /// item. Receives a fresh menu-state snapshot, the panel's handlers, and the
+    /// status-item button's rect in screen coordinates.
+    var openDropdownPanel: @MainActor (StatusBarMenuState, DropdownPanelHandlers, NSRect) -> Void =
+        { _, _, _ in }
     var openCalendar: @MainActor () -> Void = {}
     var openWorldClock: @MainActor () -> Void = {}
     var openCameraPreview: @MainActor (MBEvent?) -> Void = { _ in }
@@ -236,12 +244,69 @@ final class StatusBarItemController {
         let event = NSApp.currentEvent
 
         if event?.type == .rightMouseUp {
-            // Right button click → compact quick-actions menu.
+            // Right button click → compact quick-actions menu (both modes).
             showQuickActionsMenu()
-        } else if event == nil || event?.type == .leftMouseDown || event?.type == .leftMouseUp {
-            // show the menu as normal
-            openMenu()
+            return
         }
+        guard event == nil || event?.type == .leftMouseDown || event?.type == .leftMouseUp else {
+            return
+        }
+        // Opt-in preview: the classic NSMenu stays the default.
+        guard Defaults[.useSwiftUIDropdown] else {
+            openMenu()
+            return
+        }
+        // The status-item button sends its action on BOTH left-mouse-down and
+        // left-mouse-up. The NSMenu path swallows the -up inside its tracking
+        // loop; the panel does not, so a single click would toggle it twice.
+        // Act on the down edge (and on the shortcut's synthetic nil event) only.
+        guard event?.type != .leftMouseUp else { return }
+        toggleDropdownPanel()
+    }
+
+    /// Opens (or closes, when already open) the SwiftUI dropdown panel with a
+    /// freshly built state snapshot — the same snapshot `updateMenu()` renders
+    /// the NSMenu from — anchored to the status-item button.
+    func toggleDropdownPanel() {
+        nudgeCalendarForceSync()
+
+        var appState = dependencies.appState()
+        appState.events = events
+        let menuState = StatusBarMenuState.make(from: appState)
+
+        guard let button = statusItem.button, let window = button.window else {
+            MeetingBarLogger.lifecycle.error(
+                "SwiftUI dropdown panel: status-item button has no window; skipping"
+            )
+            return
+        }
+        let anchor = window.convertToScreen(button.convert(button.bounds, to: nil))
+        dependencies.openDropdownPanel(menuState, dropdownPanelHandlers(), anchor)
+    }
+
+    /// The panel's side effects, routed through the same dependency closures the
+    /// NSMenu's @objc actions use, so both dropdowns share one behavior surface.
+    /// `dismiss` is filled in by the window host.
+    private func dropdownPanelHandlers() -> DropdownPanelHandlers {
+        DropdownPanelHandlers(
+            joinEvent: { [weak self] event in
+                self?.dependencies.send(.joinMeeting(eventID: event.id))
+            },
+            openBookmark: { bookmark in
+                MeetingOpener.open(
+                    meetingLink: MeetingLink(
+                        service: MeetingServices(rawValue: bookmark.service),
+                        url: bookmark.url
+                    )
+                )
+            },
+            createMeeting: { createMeeting() },
+            refresh: { [weak self] in self?.dependencies.send(.refreshCalendars) },
+            openPreferences: { [weak self] in self?.dependencies.openPreferences() },
+            openCalendar: { [weak self] in self?.dependencies.openCalendar() },
+            openCommandBar: { [weak self] in self?.dependencies.openCommandBar() },
+            quit: { [weak self] in self?.dependencies.quit() }
+        )
     }
 
     func openMenu() {

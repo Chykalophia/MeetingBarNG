@@ -247,6 +247,8 @@
 "preferences_appearance_menu_show_prep_links_value" = "Show prep links (Figma, Docs, GitHub…) from the invite";
 "preferences_appearance_menu_show_reminders_toggle" = "Show today's reminders in the dropdown";
 "preferences_appearance_menu_reminders_include_overdue_toggle" = "Include overdue reminders";
+"preferences_appearance_menu_swiftui_dropdown_toggle" = "Use the new SwiftUI dropdown (preview)";
+"preferences_appearance_menu_swiftui_dropdown_help" = "An in-progress preview of the redesigned dropdown: the same sections, drawn as a custom panel with hover highlights. Turn it off to go back to the classic menu.";
 "preferences_appearance_calendar_window_title" = "Calendar window";
 "preferences_appearance_calendar_dim_weekends_toggle" = "Dim weekends in the calendar";
 "preferences_appearance_calendar_dim_weekends_help" = "Saturdays and Sundays are shown in lighter gray so the work week stands out. Today and the day you picked stay highlighted.";

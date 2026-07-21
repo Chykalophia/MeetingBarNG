@@ -113,6 +113,57 @@ final class CommandBarWindow: NSWindow {
     }
 }
 
+/// Borderless host for the opt-in SwiftUI dropdown panel (MeetingBarNG). Behaves
+/// like a menu: floats at the pop-up-menu level, closes on Escape and on
+/// click-away (`resignKey`), and never appears in the window cycle.
+final class DropdownPanelWindow: NSWindow {
+    /// Invoked exactly once, just before the window closes, so the coordinator
+    /// can record the dismissal (see the toggle suppression in
+    /// `openDropdownPanel`). Cleared after firing — `isReleasedWhenClosed` means
+    /// the window may be gone immediately after `super.close()`.
+    var onClose: (() -> Void)?
+
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { false }
+
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == 53 { // Escape
+            close()
+            return
+        }
+        super.keyDown(with: event)
+    }
+
+    override func cancelOperation(_: Any?) {
+        close()
+    }
+
+    /// Click-away dismiss (menu behavior). Only fires after the window has been
+    /// key, so the open sequence (which *gains* key) never self-closes.
+    override func resignKey() {
+        super.resignKey()
+        close()
+    }
+
+    override func close() {
+        let handler = onClose
+        onClose = nil
+        handler?()
+        super.close()
+    }
+}
+
+enum DropdownPanelPresentationPolicy {
+    /// Menus float above ordinary windows; match that so the panel is never
+    /// hidden behind the frontmost app.
+    static let level: NSWindow.Level = .popUpMenu
+
+    /// Clicking the status item while the panel is open first resigns key (which
+    /// closes the panel) and only then delivers the button's action. Without a
+    /// short suppression window that same click would immediately reopen it.
+    static let reopenSuppressionInterval: TimeInterval = 0.3
+}
+
 enum CommandBarWindowPresentationPolicy {
     static let width: CGFloat = 640
     static let height: CGFloat = 440
@@ -164,6 +215,96 @@ final class WindowCoordinator {
     private weak var worldClockWindow: NSWindow?
     private weak var eventEditorWindow: NSWindow?
     private weak var cameraPreviewWindow: NSWindow?
+    private weak var dropdownPanel: DropdownPanelWindow?
+    private var dropdownPanelClosedAt: Date?
+
+    /// Opens the opt-in SwiftUI dropdown panel below the status item, or closes
+    /// it if it is already open (toggle) — the NSMenu path is untouched and stays
+    /// the default (`Defaults[.useSwiftUIDropdown]`).
+    ///
+    /// `anchor` is the status-item button's rect in screen coordinates; the
+    /// window is placed by the hostless `DropdownPanelPlacement` so it hangs
+    /// under the item and stays inside the screen's visible frame. Like the
+    /// Command Bar, the window is self-releasing (`isReleasedWhenClosed`) with no
+    /// NSWindowController, so the weak ref nils on close and the next click opens
+    /// a fresh panel with a fresh state snapshot.
+    func openDropdownPanel(
+        state: StatusBarMenuState,
+        handlers: DropdownPanelHandlers,
+        relativeTo anchor: NSRect
+    ) {
+        if let existing = dropdownPanel {
+            existing.close()
+            return
+        }
+        if let closedAt = dropdownPanelClosedAt,
+           Date().timeIntervalSince(closedAt)
+           < DropdownPanelPresentationPolicy.reopenSuppressionInterval {
+            return
+        }
+
+        let window = DropdownPanelWindow(
+            contentRect: NSRect(
+                x: 0,
+                y: 0,
+                width: DropdownPanelView.preferredWidth,
+                height: DropdownPanelView.maximumHeight
+            ),
+            styleMask: [.borderless],
+            backing: .buffered,
+            defer: false
+        )
+
+        var resolvedHandlers = handlers
+        resolvedHandlers.dismiss = { [weak window] in window?.close() }
+
+        let hosting = NSHostingView(
+            rootView: DropdownPanelView(state: state, handlers: resolvedHandlers)
+        )
+        window.title = ""
+        window.isReleasedWhenClosed = true
+        window.contentView = hosting
+        window.isMovableByWindowBackground = false
+        window.collectionBehavior = [.moveToActiveSpace, .transient, .ignoresCycle]
+        window.hidesOnDeactivate = false
+        WindowStylePolicy.applyRoundedCorners(to: window, radius: DropdownPanelView.cornerRadius)
+        window.level = DropdownPanelPresentationPolicy.level
+        window.setFrame(
+            DropdownPanelPlacement.frame(
+                for: anchor,
+                // The hosting view reports the SwiftUI content's height, already
+                // clamped by the view's own max height.
+                panelSize: NSSize(
+                    width: DropdownPanelView.preferredWidth,
+                    height: hosting.fittingSize.height
+                ),
+                screen: visibleFrame(containing: anchor)
+            ),
+            display: false
+        )
+        window.onClose = { [weak self] in
+            self?.dropdownPanel = nil
+            self?.dropdownPanelClosedAt = Date()
+        }
+
+        // LSUIElement accessory app: activate before keying so the panel takes
+        // keyboard focus (Escape to dismiss) and accent controls render filled.
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
+
+        dropdownPanel = window
+    }
+
+    /// The visible frame of the screen the status item lives on, falling back to
+    /// the main screen (and finally to a sane rect when there is no screen at
+    /// all, e.g. in tests).
+    private func visibleFrame(containing anchor: NSRect) -> NSRect {
+        let screen = NSScreen.screens.first { $0.frame.intersects(anchor) }
+            ?? NSScreen.main
+            ?? NSScreen.screens.first
+        return screen?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 875)
+    }
 
     /// Opens the month calendar window, or brings it forward if it is already
     /// open. A standard titled/resizable window (like Preferences) held by a

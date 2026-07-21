@@ -21,7 +21,8 @@
 //  look-ahead threshold, and dropped the greeting/timeline on/off toggles from
 //  `DropdownDisplaySection` (the composer's module list is now their single
 //  source of truth); added `CalendarWindowDisplaySection` for the calendar
-//  window's dim-weekends preference.
+//  window's dim-weekends preference; added the opt-in "new SwiftUI dropdown
+//  (preview)" toggle (`useSwiftUIDropdown`) to `DropdownDisplaySection`.
 //
 
 import Defaults
@@ -763,6 +764,7 @@ struct DropdownComposerSection: View {
 /// Reminders access).
 struct DropdownDisplaySection: View {
     @Default(.hideFinishedEventsInMenu) var hideFinishedEventsInMenu
+    @Default(.useSwiftUIDropdown) var useSwiftUIDropdown
     // Read-only here: the greeting section is shown/hidden in "Dropdown layout"
     // above; this key only gates whether the greeting NAME field is editable.
     @Default(.showGreetingInMenu) var showGreetingInMenu
@@ -801,6 +803,17 @@ struct DropdownDisplaySection: View {
             )
             .preferenceIndent()
             .disabled(!showRemindersInMenu)
+
+            // Opt-in preview of the custom SwiftUI dropdown panel. OFF by
+            // default: the classic NSMenu stays the shipping dropdown.
+            Toggle(
+                preferenceLabel("preferences_appearance_menu_swiftui_dropdown_toggle"),
+                isOn: $useSwiftUIDropdown
+            )
+            Text("preferences_appearance_menu_swiftui_dropdown_help".loco())
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
