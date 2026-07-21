@@ -6,12 +6,16 @@
 //  Copyright © 2021 Andrii Leitsius. All rights reserved.
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
-//  adopt the shared `.preferenceIndent()` modifier for dependent-row indents.
+//  adopt the shared `.preferenceIndent()` modifier for dependent-row indents;
+//  Preferences UX overhaul Phase 0 replaces the synchronous, main-thread-blocking
+//  `checkNotificationSettings()` with the cached async `NotificationSettingsMonitor`.
 //
 
+import AppKit
 import Defaults
 import Foundation
 import LaunchAtLogin
+import Observation
 import SwiftUI
 import UserNotifications
 
@@ -86,12 +90,25 @@ struct JoinEventNotificationPicker: View {
     @Default(.joinEventNotification) var joinEventNotification
     @Default(.joinEventNotificationTime) var joinEventNotificationTime
 
-    var notificationSettings: (noAlertStyle: Bool, disabled: Bool) {
-        checkNotificationSettings()
+    /// Cached, asynchronously refreshed. Reading it never blocks the render.
+    private let monitor = NotificationSettingsMonitor.shared
+
+    private var notificationSettings: (noAlertStyle: Bool, disabled: Bool) {
+        (monitor.noAlertStyle, monitor.notificationsDisabled)
     }
 
     var body: some View {
         Toggle("shared_send_notification_toggle".loco(), isOn: $joinEventNotification)
+            .task { await monitor.refresh() }
+            // macOS can change the alert style while Preferences is open, so
+            // re-read whenever the app comes back to the front.
+            .onReceive(
+                NotificationCenter.default.publisher(
+                    for: NSApplication.didBecomeActiveNotification
+                )
+            ) { _ in
+                Task { await monitor.refresh() }
+            }
 
         TimeBeforeEventPickerRow(selection: $joinEventNotificationTime)
             .disabled(!joinEventNotification)
@@ -134,39 +151,29 @@ struct EndEventNotificationPicker: View {
     }
 }
 
-func checkNotificationSettings() -> (Bool, Bool) {
-    let center = UNUserNotificationCenter.current()
-    let group = DispatchGroup()
-    let result = NotificationSettingsResult()
-    group.enter()
+/// The macOS notification settings the two advisory captions on the Alerts rows
+/// depend on, read **asynchronously** and cached.
+///
+/// This replaced a synchronous helper that did `DispatchGroup.wait()` on the main
+/// thread from a computed property SwiftUI re-evaluates on every body render —
+/// which blocked the render pass and made the captions flicker. The values are
+/// stable between app activations, so one cached copy refreshed on
+/// `didBecomeActive` is both correct and free.
+@MainActor
+@Observable
+final class NotificationSettingsMonitor {
+    static let shared = NotificationSettingsMonitor()
 
-    center.getNotificationSettings { notificationSettings in
-        result.update(
-            noAlertStyle: notificationSettings.alertStyle != .alert,
-            notificationsDisabled: notificationSettings.authorizationStatus == .denied
-        )
-        group.leave()
-    }
+    private(set) var noAlertStyle = false
+    private(set) var notificationsDisabled = false
 
-    group.wait()
-    return result.value
-}
+    private init() {}
 
-/// `UNUserNotificationCenter.getNotificationSettings` invokes a Sendable
-/// callback. This tiny holder keeps the synchronous Preferences helper
-/// warning-free while the callback writes its result.
-private final class NotificationSettingsResult: @unchecked Sendable {
-    private let lock = NSLock()
-    private var storedValue = (noAlertStyle: false, notificationsDisabled: false)
-
-    var value: (Bool, Bool) {
-        lock.withLock { storedValue }
-    }
-
-    func update(noAlertStyle: Bool, notificationsDisabled: Bool) {
-        lock.withLock {
-            storedValue = (noAlertStyle, notificationsDisabled)
-        }
+    func refresh() async {
+        // https://developer.apple.com/documentation/usernotifications/unusernotificationcenter/notificationsettings()
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
+        noAlertStyle = settings.alertStyle != .alert
+        notificationsDisabled = settings.authorizationStatus == .denied
     }
 }
 

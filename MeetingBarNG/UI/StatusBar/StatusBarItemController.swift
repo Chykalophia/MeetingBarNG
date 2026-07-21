@@ -24,10 +24,11 @@
 //  and the @objc handler) for the multi-zone world-clock panel window; kick a
 //  debounced aggressive calendar force-sync (.forceCalendarSync) whenever the
 //  status-menu is about to show, so a stalled macOS Calendar sync surfaces (and
-//  self-corrects) on menu open; route a left-click to the opt-in SwiftUI
-//  dropdown panel (openDropdownPanel dependency + handlers) when
-//  Defaults[.useSwiftUIDropdown] is on, leaving the classic NSMenu as the
-//  default path; split each per-event / per-reminder @objc menu action into a
+//  self-corrects) on menu open; route a left-click to the SwiftUI dropdown
+//  panel (openDropdownPanel dependency + handlers) when
+//  Defaults[.useSwiftUIDropdown] is on — which it is BY DEFAULT — leaving the
+//  classic NSMenu as the fallback path; split each per-event / per-reminder
+//  @objc menu action into a
 //  thin sender-unwrapping wrapper over a value-taking method (editEvent,
 //  confirmAndDeleteEvent, copyDetail, copyMeetingLink, openReferenceURL,
 //  emailAttendees, undismiss, completeReminder, snoozeReminder,
@@ -70,7 +71,7 @@ struct StatusBarDependencies {
     var openPreferences: @MainActor () -> Void = {}
     var openChangelog: @MainActor () -> Void = {}
     var openCommandBar: @MainActor () -> Void = {}
-    /// Opens (or toggles) the opt-in SwiftUI dropdown panel below the status
+    /// Opens (or toggles) the SwiftUI dropdown panel below the status
     /// item. Receives a fresh menu-state snapshot, the panel's handlers, and the
     /// status-item button's rect in screen coordinates.
     var openDropdownPanel: @MainActor (StatusBarMenuState, DropdownPanelHandlers, NSRect) -> Void =
@@ -140,7 +141,7 @@ final class StatusBarItemController {
             .shortenEventTitle, .menuEventTitleLength,
             .showEventEndTime, .showMeetingServiceIcon,
             .showEventCalendarColor, .showMeetingPrepLinks,
-            .timeFormat, .bookmarks,
+            .timeFormat, .bookmarks, .deduplicateEvents,
             .personalEventsAppereance, .pastEventsAppereance,
             .declinedEventsAppereance, .ongoingEventVisibility,
             .showTimelineInMenu, .hideFinishedEventsInMenu,

@@ -14,7 +14,8 @@
 //  thread it onto `ProviderHealth.lastSyncedChange` for the Calendars-tab
 //  staleness signal. Also collapse cross-calendar duplicate events (same event
 //  arriving on two selected calendars/accounts) via `EventDeduplication`,
-//  gated on `Defaults[.deduplicateEvents]`.
+//  gated on `Defaults[.deduplicateEvents]`; Preferences UX overhaul Phase 0 adds
+//  that key to the Defaults refresh trigger so the toggle takes effect at once.
 //
 import Cocoa
 import Combine
@@ -266,6 +267,10 @@ public class CalendarSync: ObservableObject {
             .showPendingEvents,
             .showTentativeEvents,
             .allDayEvents,
+            // Deduplication happens inside this fetch (`processEvents`), so
+            // without this key flipping the setting changed nothing until the
+            // next scheduled refresh — it read as broken.
+            .deduplicateEvents,
             .nonAllDayEvents, options: []).map { _ in () }.eraseToAnyPublisher()
 
         // B) Periodic timer trigger

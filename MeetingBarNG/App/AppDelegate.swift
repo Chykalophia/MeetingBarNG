@@ -15,8 +15,8 @@
 //  point (builds the join handlers over the AppModel and wires openCameraPreview
 //  into the status-bar dependencies); add the multi-zone world-clock panel window
 //  entry point (wires openWorldClock into the status-bar dependencies); wire the
-//  opt-in SwiftUI dropdown panel (openDropdownPanel) into the status-bar
-//  dependencies; request
+//  SwiftUI dropdown panel (openDropdownPanel — the default dropdown) into the
+//  status-bar dependencies; request
 //  EventKit calendar access on a normal post-onboarding launch when it is still
 //  undetermined, so the app prompts and registers with TCC instead of silently
 //  holding no access.

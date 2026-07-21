@@ -58,12 +58,6 @@
 "preferences_tab_display" = "Display";
 "preferences_tab_events" = "Events";
 "preferences_tab_meetings" = "Meetings";
-// Retained for translation history; no longer referenced after the Phase 1
-// Preferences IA overhaul (meeting_opening -> meetings, menu_bar + menu_builder
-// -> display + events).
-"preferences_tab_meeting_opening" = "Meeting Links";
-"preferences_tab_menu_bar" = "Display & Events";
-"preferences_tab_menu_builder" = "Menu Builder";
 "preferences_tab_notifications" = "Notifications";
 "preferences_tab_advanced" = "Advanced";
 "preferences_sidebar_setup" = "Setup";
@@ -100,9 +94,13 @@
 "preferences_calendar_macos_notice" = "MeetingBarNG shows whatever the macOS Calendar app has synced. Account access, sync frequency, and data freshness are controlled by macOS — not MeetingBarNG — so if events look outdated or missing, refresh or re-authenticate the account (here or in the Calendar app). A direct Google Calendar connection is coming for more reliable, real-time data.";
 "preferences_status_sync_help" = "MeetingBarNG shows what macOS Calendar has synced. If events look outdated, macOS Calendar may need to re-sync — try Force Sync, or re-authenticate the account if its credentials expired.";
 "preferences_status_copy_diagnostics" = "Copy diagnostics";
+"preferences_status_copy_diagnostics_copied" = "Copied";
 
 // MARK: - Preferences General
 
+"preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
+"preferences_general_external_contact" = "Contact";
+"preferences_general_whats_new" = "What's New";
 "preferences_general_option_login_launch" = "Open MeetingBarNG automatically when you log in";
 "preferences_general_option_preferred_language_title" = "Language:";
 "preferences_general_option_preferred_language_system_value" = "System";
@@ -167,9 +165,6 @@
 "status_bar_quick_action_refresh" = "Refresh calendars";
 "status_bar_quick_action_preferences" = "Preferences…";
 "status_bar_quick_action_quit" = "Quit MeetingBarNG";
-"preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
-"preferences_general_external_contact" = "Contact";
-"preferences_general_whats_new" = "What's New";
 
 // MARK: - Preferences Appearance
 
@@ -217,9 +212,7 @@
 "preferences_appearance_status_bar_next_event_stepper" = "%d minutes";
 "preferences_appearance_status_bar_next_event_example" = "e.g. at 30m, a 2:00 meeting shows in the menu bar at 1:30 — before that you see an alarm icon.";
 "preferences_appearance_menu_title" = "More dropdown options";
-"preferences_appearance_menu_show_timeline_toggle" = "Show visual timeline of the day";
 "preferences_appearance_menu_hide_finished_toggle" = "Hide finished meetings from the dropdown";
-"preferences_appearance_menu_show_greeting_toggle" = "Show greeting header";
 "preferences_appearance_menu_greeting_name_title" = "Greeting name";
 "preferences_appearance_menu_greeting_name_placeholder" = "Your macOS account name";
 "preferences_appearance_menu_greeting_name_help" = "Used in the dropdown greeting, e.g. \"Good morning, Alex\". Add the greeting under Dropdown layout above.";
@@ -559,11 +552,8 @@
 "onboarding_continue" = "Continue";
 "onboarding_back" = "Back";
 "onboarding_done" = "Done";
-"onboarding_choose_different_source" = "Choose a different source";
 "onboarding_welcome_title" = "Welcome to MeetingBarNG";
 "onboarding_welcome_description" = "MeetingBarNG shows your next meeting in the menu bar and joins it in one click. It syncs the calendars already on this Mac — iCloud, Google, Exchange, and more — from the accounts in System Settings.";
-"onboarding_calendar_source_title" = "Choose your calendar source";
-"onboarding_calendar_source_description" = "Choose how MeetingBarNG reads calendar data. Both options can include Google calendars.";
 "onboarding_apple_calendar_title" = "macOS Calendar app";
 "onboarding_apple_calendar_description" = "Reads calendars from the Calendar app on this Mac, including every account configured there.";
 "onboarding_google_calendar_title" = "Google Calendar API";

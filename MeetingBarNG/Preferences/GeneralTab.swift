@@ -8,7 +8,8 @@
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
 //  remove the StoreKit patronage / Patreon / Buy Me A Coffee monetization from
 //  the About card and re-brand it for MeetingBarNG; wrap the About block in the
-//  shared PreferencesCard and unify header typography.
+//  shared PreferencesCard and unify header typography; Preferences UX overhaul
+//  Phase 0 gives "Copy diagnostics" a visible confirmation.
 //
 
 import SwiftUI
@@ -115,6 +116,11 @@ private struct ShortcutRow<Recorder: View>: View {
 struct AboutAppSection: View {
     @EnvironmentObject var appModel: AppModel
 
+    /// Drives the transient "Copied" acknowledgement beside the diagnostics
+    /// button. Copying to the pasteboard is otherwise completely silent, so the
+    /// button read as broken.
+    @State private var didCopyDiagnostics = false
+
     var body: some View {
         // The whole About block is one PreferencesCard, matching the app's
         // Onboarding chrome. A single divider separates identity from the
@@ -160,14 +166,34 @@ struct AboutAppSection: View {
                     }
                     .buttonStyle(.link)
                     Spacer()
-                    Button("preferences_status_copy_diagnostics".loco()) {
-                        DiagnosticsClipboard.copy(
-                            snapshot: DiagnosticsSnapshot(appState: appModel.state)
+                    if didCopyDiagnostics {
+                        Label(
+                            "preferences_status_copy_diagnostics_copied".loco(),
+                            systemImage: "checkmark.circle.fill"
                         )
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .transition(.opacity)
+                        .accessibilityAddTraits(.isStaticText)
+                    }
+                    Button("preferences_status_copy_diagnostics".loco()) {
+                        copyDiagnostics()
                     }
                     .controlSize(.small)
                 }
+                .animation(.easeOut(duration: 0.15), value: didCopyDiagnostics)
             }
+        }
+    }
+
+    private func copyDiagnostics() {
+        Task {
+            await DiagnosticsClipboard.copy(
+                snapshot: DiagnosticsSnapshot(appState: appModel.state)
+            )
+            didCopyDiagnostics = true
+            try? await Task.sleep(for: .seconds(2))
+            didCopyDiagnostics = false
         }
     }
 }

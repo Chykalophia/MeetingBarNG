@@ -9,8 +9,10 @@
 //  add persistence keys for the composable menu bar, the composable menu
 //  dropdown (dropdownModuleOrder + per-module enabled bools), and Apple
 //  Reminders in the menu; add the calendar-window keys (calendarGridMode,
-//  dimWeekendsInCalendar); add the opt-in SwiftUI dropdown-panel preview flag
-//  (useSwiftUIDropdown); remove the StoreKit patronage keys (patronageDuration,
+//  dimWeekendsInCalendar); add the SwiftUI dropdown-panel flag
+//  (useSwiftUIDropdown, now defaulting ON — the panel is the shipping dropdown
+//  and the key is the escape hatch back to the classic NSMenu);
+//  remove the StoreKit patronage keys (patronageDuration,
 //  processedPatronageTransactionIDs, isInstalledFromAppStore) along with the
 //  removed patronage feature.
 //
@@ -256,8 +258,12 @@ extension Defaults.Keys {
 
     static let joinEventScriptLocation = Key<URL?>("joinEventScriptLocation", default: nil)
     static let runJoinEventScript = Key<Bool>("runAppleScriptWhenJoiningEvent", default: false)
-    static let joinEventScript = Key<String>(
-        "joinEventScript", default: "preferences_advanced_apple_script_placeholder".loco())
+    // Empty, NOT the localized placeholder: a `Key` declaration is evaluated at
+    // static-init time — before the app's language is resolved — so calling
+    // `.loco()` here baked one locale's placeholder into the *stored* default and
+    // froze it there for the life of the install. `EditScriptModal` seeds the
+    // localized placeholder at presentation time instead.
+    static let joinEventScript = Key<String>("joinEventScript", default: "")
 
     static let eventStartScriptLocation = Key<URL?>("eventStartScriptLocation", default: nil)
     static let runEventStartScript = Key<Bool>("runEventStartScript", default: false)

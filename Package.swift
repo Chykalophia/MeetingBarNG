@@ -48,6 +48,7 @@ let package = Package(
                 "UI/StatusBar/WorldClockPanel.swift",
                 "UI/StatusBar/DaySummaryGreeting.swift",
                 "UI/StatusBar/DropdownComposition.swift",
+                "UI/StatusBar/DropdownMetrics.swift",
                 "UI/StatusBar/DropdownPanelNavigation.swift",
                 "UI/StatusBar/DropdownPanelPlacement.swift",
                 // UI/CommandBar (hostless core only; View/Window/ViewModel are app-target)

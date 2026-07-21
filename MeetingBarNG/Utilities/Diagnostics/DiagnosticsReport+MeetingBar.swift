@@ -94,12 +94,15 @@ extension DiagnosticsContext {
 enum DiagnosticsClipboard {
     /// Copies the formatted diagnostics report to the system pasteboard.
     /// Single entry point so views don't reach into NSPasteboard directly.
-    static func copy(snapshot: DiagnosticsSnapshot) {
-        Task { @MainActor in
-            let context = await DiagnosticsContext.current(snapshot: snapshot)
-            let pasteboard = NSPasteboard.general
-            pasteboard.clearContents()
-            pasteboard.setString(DiagnosticsReport.text(from: context), forType: .string)
-        }
+    ///
+    /// `async` rather than fire-and-forget: gathering the context is itself
+    /// async, so the caller previously had no moment at which the copy was known
+    /// to have happened and could not acknowledge it. Awaiting this is what lets
+    /// the button show a visible "Copied" confirmation.
+    static func copy(snapshot: DiagnosticsSnapshot) async {
+        let context = await DiagnosticsContext.current(snapshot: snapshot)
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(DiagnosticsReport.text(from: context), forType: .string)
     }
 }

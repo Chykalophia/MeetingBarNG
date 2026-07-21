@@ -10,7 +10,9 @@ struct MeetingSummaryPresentation: Equatable {
     let sectionTitle: String
     let eventTitle: String
     let metadata: [String]
-    let meetingService: MeetingServices?
+    /// `var` so a renderer can clear it: the SwiftUI panel honours
+    /// `showMeetingServiceIcon` on the card, the classic NSMenu does not.
+    var meetingService: MeetingServices?
     /// Relative time until the meeting starts (e.g. "in 25m"); nil for
     /// running meetings, where the section title already says enough.
     var countdown: String?
@@ -42,8 +44,9 @@ struct MeetingSummaryView: View {
 
     // Narrower, modern menu-bar-dropdown width. DaySummaryHeaderView and the
     // timeline's NSHostingView both size off this constant, so the greeting,
-    // timeline, summary card, and event rows all share one ~330 width.
-    static let preferredWidth: CGFloat = 330
+    // timeline, summary card, and event rows all share one ~330 width — which is
+    // itself the panel width in the hostless `DropdownMetrics` grid.
+    static let preferredWidth: CGFloat = DropdownMetrics.standard.panelWidth
     static let preferredHeight: CGFloat = 66
 
     var body: some View {
@@ -96,15 +99,12 @@ struct MeetingSummaryView: View {
                 .fill(isHovered && onJoin != nil ? Color.primary.opacity(0.15) : Color.clear)
         )
         .contentShape(Rectangle())
-        .onHover { hovering in
-            isHovered = hovering
-            guard onJoin != nil else { return }
-            if hovering {
-                NSCursor.pointingHand.push()
-            } else {
-                NSCursor.pop()
-            }
-        }
+        // Scoped pointer style (macOS 15+, at the deployment floor). The previous
+        // NSCursor.push/pop pair is the pattern `PanelRow` documents as able to
+        // strand a pointing-hand cursor when the panel closes mid-hover.
+        // https://developer.apple.com/documentation/swiftui/view/pointerstyle(_:)
+        .pointerStyle(onJoin == nil ? nil : .link)
+        .onHover { hovering in isHovered = hovering }
         .onTapGesture { onJoin?() }
     }
 }

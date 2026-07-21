@@ -32,7 +32,7 @@ XCFILTER := $(shell command -v xcbeautify >/dev/null 2>&1 && echo 'xcbeautify --
 # Append a JUnit report to app-hosted test runs when xcbeautify is available.
 JUNIT_REPORT := $(shell command -v xcbeautify >/dev/null 2>&1 && echo '--report junit --report-path $(BUILD_DIR)/test-results')
 
-.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings sign-local run-local
+.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings lint-strings sign-local run-local
 
 sign-local:
 	@if ! security find-identity -p codesigning 2>/dev/null | grep -q "$(LOCAL_SIGN_IDENTITY)"; then \
@@ -143,6 +143,10 @@ open:
 
 validate-strings:
 	@bash Scripts/validate_localizations.sh
+
+# Two-way English key check: nothing used-but-undefined, nothing defined-but-orphaned.
+lint-strings:
+	@bash Scripts/strings-lint
 
 test-summary:
 	@bash Scripts/test_summary.sh $(XCODE_RESULT_BUNDLE)

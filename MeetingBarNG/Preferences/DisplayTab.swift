@@ -21,8 +21,9 @@
 //  look-ahead threshold, and dropped the greeting/timeline on/off toggles from
 //  `DropdownDisplaySection` (the composer's module list is now their single
 //  source of truth); added `CalendarWindowDisplaySection` for the calendar
-//  window's dim-weekends preference; added the opt-in "new SwiftUI dropdown
-//  (preview)" toggle (`useSwiftUIDropdown`) to `DropdownDisplaySection`.
+//  window's dim-weekends preference; added the `useSwiftUIDropdown` switch to
+//  `DropdownDisplaySection` — the SwiftUI panel is now the DEFAULT dropdown and
+//  the switch is the escape hatch back to the classic NSMenu, not an opt-in.
 //
 
 import Defaults

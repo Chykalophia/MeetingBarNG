@@ -3,10 +3,10 @@
 //  MeetingBarNG
 //
 //  The custom SwiftUI dropdown panel (Phases A + B of the dropdown
-//  modernization). An OPT-IN alternative to the classic `NSMenu` built by
-//  `MenuBuilder`: the menu stays the default and is untouched, and this panel
-//  only appears when the user turns on `Defaults[.useSwiftUIDropdown]` in
-//  Preferences ▸ Display.
+//  modernization). This is THE SHIPPING DROPDOWN: `Defaults[.useSwiftUIDropdown]`
+//  defaults to `true`, so every user gets this panel. The classic `NSMenu` built
+//  by `MenuBuilder` remains as the fallback behind that switch (Preferences ▸
+//  Display), untouched and un-degraded.
 //
 //  Renders the SAME resolved modules, in the same order, as the real menu —
 //  `DropdownCompositionPolicy.resolve(order:enabled:)` fed by the shared
@@ -28,6 +28,19 @@
 //    • functional reminder rows (checkbox complete + snooze + open in Reminders);
 //    • keyboard navigation over the flattened interactive rows, ordered by the
 //      hostless, unit-tested `DropdownPanelNavigation`.
+//
+//  Preferences UX overhaul Phase 1 makes the shipping renderer honest. Five
+//  preferences the NSMenu honours were read by nothing here — the calendar-colour
+//  dot was drawn unconditionally, no service icon was drawn at all, the time
+//  column only ever showed the start, titles were never shortened and
+//  `pastEventsAppereance = .hide` hid nothing. All five now run through the SAME
+//  shared code the menu uses (`StatusBarTitlePolicy.shortenTitle`,
+//  `MenuBuilder`'s render/appearance rules), and the five visual states the panel
+//  silently dropped — declined dim/strikethrough, past dim, pending/tentative,
+//  the [dismissed] marker and the running-meeting emphasis — are drawn here too,
+//  so freezing the classic menu later loses no capability. Geometry comes from
+//  the hostless `DropdownMetrics` / `AgendaRowLayout` instead of four unrelated
+//  literal grids.
 //
 //  Presentation-only: every side effect (join, copy, edit, delete, quit, …) goes
 //  out through an injected `DropdownPanelHandlers` closure, so the view has no
@@ -106,9 +119,22 @@ struct DropdownPanelView: View {
     /// `onKeyPress`. The window itself already becomes key on open.
     @FocusState private var isPanelFocused: Bool
 
+    /// Nothing in the panel consulted this before Phase 1, despite five separate
+    /// `easeOut(0.12)` animations.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// The single layout grid (time column, marker slot, icon slot, paddings and
+    /// gutter). Replaces four unrelated literal grids in one 330pt panel.
+    private static let metrics = DropdownMetrics.standard
+
     /// Same narrow width as the NSMenu dropdown's hosted rows, so the greeting,
     /// timeline and summary card keep their existing proportions.
     static var preferredWidth: CGFloat { MeetingSummaryView.preferredWidth }
+
+    /// `nil` under Reduce Motion: the state change still happens, instantly.
+    private var revealAnimation: Animation? {
+        reduceMotion ? nil : .easeOut(duration: 0.12)
+    }
 
     /// A long day scrolls inside the panel instead of growing past the screen.
     /// `DropdownPanelPlacement` trims this further when the display is short.
@@ -121,7 +147,7 @@ struct DropdownPanelView: View {
     /// Fixed width of the trailing affordance slot on an event row. Reserved
     /// whether or not the row is hovered, so revealing the Join button never
     /// shifts the row's layout.
-    private static let trailingAffordanceWidth: CGFloat = 48
+    private static var trailingAffordanceWidth: CGFloat { metrics.trailingAffordanceWidth }
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -141,7 +167,7 @@ struct DropdownPanelView: View {
             }
             .onChange(of: selectionIndex) { _, _ in
                 guard let selectedRow else { return }
-                withAnimation(.easeOut(duration: 0.12)) {
+                withAnimation(revealAnimation) {
                     proxy.scrollTo(selectedRow, anchor: .center)
                 }
             }
@@ -428,13 +454,20 @@ struct DropdownPanelView: View {
     /// title, metadata, countdown) is identical in both dropdowns. The builder's
     /// `target` is only used for NSMenuItem actions, which this path never makes.
     private func meetingSummaryPresentation(for event: MBEvent) -> MeetingSummaryPresentation {
-        MenuBuilder(
+        var presentation = MenuBuilder(
             target: NSNull(),
             state: state,
             isFantasticalInstalled: false,
             now: now
         )
         .meetingSummaryPresentation(for: event)
+        // `showMeetingServiceIcon` governs the meeting card too. Cleared here
+        // rather than in the shared builder so the classic NSMenu keeps the exact
+        // card it ships today (it is feature-frozen, not degraded).
+        if !state.menu.showMeetingServiceIcon {
+            presentation.meetingService = nil
+        }
+        return presentation
     }
 
     /// The honest reason there is no meeting to show, plus the one action that
@@ -447,7 +480,7 @@ struct DropdownPanelView: View {
             Text(emptyStateTitle(reason))
                 .font(.system(size: MenuStyleConstants.defaultFontSize, weight: .semibold))
                 .foregroundStyle(.primary)
-                .padding(.horizontal, 16)
+                .padding(.horizontal, Self.metrics.sectionHeaderInset)
                 .padding(.vertical, 4)
             actionRow(
                 symbol: emptyStateSymbol(reason),
@@ -532,7 +565,7 @@ struct DropdownPanelView: View {
             Text("status_bar_section_date_nothing".loco(title.lowercased()))
                 .font(.system(size: MenuStyleConstants.defaultFontSize))
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, 16)
+                .padding(.horizontal, Self.metrics.sectionHeaderInset)
                 .padding(.vertical, 4)
         }
         ForEach(events, id: \.id) { event in
@@ -558,27 +591,238 @@ struct DropdownPanelView: View {
     }
 
     private func eventRowContent(_ event: MBEvent, isHovered: Bool) -> some View {
-        let isFinished = event.endDate < now
-        let isRunning = event.startDate <= now && event.endDate > now
-        return HStack(spacing: 8) {
-            Text(eventStartText(event))
-                .font(.system(size: 12).monospacedDigit())
-                .foregroundStyle(.secondary)
-                .frame(width: 66, alignment: .leading)
-            Circle()
-                .fill(Color(nsColor: event.calendar.color))
-                .frame(width: 7, height: 7)
-            Text(event.title.isEmpty ? "status_bar_no_title".loco() : event.title)
-                .font(.system(
-                    size: MenuStyleConstants.defaultFontSize,
-                    weight: isRunning ? .semibold : .regular
-                ))
-                .foregroundStyle(isFinished ? Color.secondary : Color.primary)
-                .lineLimit(1)
+        let layout = agendaRowLayout
+        let appearance = rowAppearance(for: event)
+        return HStack(spacing: Self.metrics.columnSpacing) {
+            if layout.timeColumnWidth > 0 {
+                eventTimeColumn(event, width: layout.timeColumnWidth)
+            }
+            // Only the in-row position is DRAWN here. `AgendaRowLayout` already
+            // solves the far-left placement (a negative inset that escapes
+            // PanelRow's padding), but nothing sets that position until the
+            // Agenda gear ships, so there is no view code for it yet.
+            if layout.resolvedPosition == .betweenTimeAndTitle,
+                let markerFrame = layout.markerFrame {
+                calendarMarker(
+                    event,
+                    marker: layout.marker,
+                    frame: markerFrame,
+                    isHollow: appearance.markerIsHollow
+                )
+            }
+            if layout.serviceIconOrigin != nil {
+                serviceIcon(event)
+            }
+            eventTitle(event, appearance: appearance)
+            if appearance.isRunning, appearance.showsActiveEmphasis {
+                runningBadge
+            }
             Spacer(minLength: 0)
             trailingAffordance(event, isHovered: isHovered)
             disclosureChevron(event, isHovered: isHovered)
         }
+    }
+
+    /// The row grid for the current preferences. Marker SHAPE and POSITION are
+    /// not user-settable yet (Phase 6); `showEventCalendarColor` selects between
+    /// a dot and nothing, which is what that switch always claimed to do.
+    private var agendaRowLayout: AgendaRowLayout {
+        AgendaRowLayout.resolve(
+            metrics: Self.metrics,
+            marker: state.menu.showEventCalendarColor ? .dot : .none,
+            position: .betweenTimeAndTitle,
+            timeColumn: agendaTimeColumn,
+            showsServiceIcon: state.menu.showMeetingServiceIcon
+        )
+    }
+
+    private var agendaTimeColumn: AgendaTimeColumn {
+        state.statusBar.showEventEndTime ? .startAndEnd : .startOnly
+    }
+
+    /// Start time, with the end time stacked underneath when the user asked for
+    /// it. Stacked rather than "10:00 – 10:30" on one line: in 12-hour format
+    /// that single line costs ~125pt of a 298pt content box and the title becomes
+    /// unreadable. See `DropdownMetrics.timeColumnWidth(for:)`.
+    private func eventTimeColumn(_ event: MBEvent, width: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text(eventStartText(event))
+            if let endText = eventEndText(event) {
+                Text(endText)
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .font(.system(size: 12).monospacedDigit())
+        .foregroundStyle(.secondary)
+        .frame(width: width, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private func calendarMarker(
+        _ event: MBEvent,
+        marker: AgendaMarker,
+        frame: AgendaRowLayout.MarkerFrame,
+        isHollow: Bool
+    ) -> some View {
+        let color = Color(nsColor: event.calendar.color)
+        Group {
+            switch marker {
+            case .none:
+                EmptyView()
+            case .dot:
+                if isHollow {
+                    Circle().strokeBorder(color, lineWidth: 1.5)
+                } else {
+                    Circle().fill(color)
+                }
+            case .leftBorderBar:
+                Capsule().fill(color)
+            }
+        }
+        .frame(width: frame.width, height: frame.height)
+    }
+
+    /// The meeting service's logo. The slot is reserved for every row (the frame
+    /// is applied unconditionally) so titles stay on one grid whether or not a
+    /// given meeting has a link — but no "no online session" placeholder is
+    /// drawn, which is the one thing the NSMenu could not avoid.
+    private func serviceIcon(_ event: MBEvent) -> some View {
+        Group {
+            if let link = event.meetingLink {
+                Image(nsImage: getIconForMeetingService(link.service))
+                    .resizable()
+                    .scaledToFit()
+            }
+        }
+        .frame(width: Self.metrics.serviceIconWidth, height: Self.metrics.serviceIconWidth)
+    }
+
+    private func eventTitle(_ event: MBEvent, appearance: EventRowAppearance) -> some View {
+        Text(eventTitleText(event))
+            .font(.system(
+                size: MenuStyleConstants.defaultFontSize,
+                weight: appearance.isRunning && appearance.showsActiveEmphasis
+                    ? .semibold
+                    : .regular
+            ))
+            .foregroundStyle(appearance.isDimmed ? Color.secondary : Color.primary)
+            .strikethrough(appearance.isStruckThrough)
+            .lineLimit(1)
+    }
+
+    /// The running-meeting glyph the NSMenu appends to the title as a text
+    /// attachment (`MenuBuilder.applyRunningEventAppearance`). Weight alone is a
+    /// weak signal, and it is invisible next to an already-bold row.
+    private var runningBadge: some View {
+        Image(nsImage: MenuStyleConstants.iconNamed(MenuStyleConstants.runningIconName))
+            .resizable()
+            .scaledToFit()
+            .frame(width: 11, height: 11)
+            .accessibilityLabel("status_bar_control_current_meeting".loco())
+    }
+
+    /// Shortening runs through the SAME `StatusBarTitlePolicy.shortenTitle` the
+    /// NSMenu uses (`MenuBuilder.eventMenuTitle`), so the two dropdowns can never
+    /// disagree about what a shortened title looks like.
+    ///
+    /// The menu's extra "uncapped" fallback cap is deliberately NOT copied: it
+    /// exists only because an NSMenu sizes itself to its widest item. This panel
+    /// is a fixed 330pt and truncates visually, so "don't shorten" can mean it.
+    private func eventTitleText(_ event: MBEvent) -> String {
+        let rawTitle: String? = event.title.isEmpty ? nil : event.title
+        var title = state.menu.shortenEventTitle
+            ? StatusBarTitlePolicy.shortenTitle(
+                rawTitle,
+                limit: state.menu.menuEventTitleLength,
+                noTitle: "status_bar_no_title".loco()
+            )
+            : rawTitle ?? "status_bar_no_title".loco()
+        if isDismissed(event) {
+            title = "[\("status_bar_event_dismissed_mark".loco())] \(title)"
+        }
+        return title
+    }
+
+    // MARK: - Event row appearance (the five states the panel used to drop)
+
+    /// Mirrors `MenuBuilder.baseEventItemStyle` / `applyPastEventAppearance` /
+    /// `applyRunningEventAppearance`, translated from NSAttributedString
+    /// attributes into things SwiftUI can draw.
+    private struct EventRowAppearance {
+        var isDimmed = false
+        var isStruckThrough = false
+        var isRunning = false
+        /// False for declined and self-booked-inactive rows: the menu suppresses
+        /// the running badge and the bold weight for those.
+        var showsActiveEmphasis = true
+        /// Stands in for AppKit's dotted, by-word underline, which SwiftUI cannot
+        /// draw. A hollow marker is a SHAPE difference, so it also survives
+        /// greyscale and colour-vision deficiency — which the underline did not.
+        var markerIsHollow = false
+    }
+
+    private func rowAppearance(for event: MBEvent) -> EventRowAppearance {
+        var appearance = EventRowAppearance()
+        appearance.isRunning = event.startDate <= now && event.endDate > now
+
+        if isDeclined(event) {
+            if state.events.declinedEventsAppearance == .show_inactive {
+                appearance.isDimmed = true
+            } else {
+                appearance.isStruckThrough = true
+            }
+            appearance.showsActiveEmphasis = false
+        }
+
+        if !event.isAllDay,
+            state.events.nonAllDayEvents == .show_inactive_without_meeting_link,
+            event.meetingLink == nil {
+            appearance.isDimmed = true
+        }
+
+        applyParticipationStyle(
+            statusMatches: event.participationStatus == .pending,
+            showInactive: state.events.showPendingEvents == .show_inactive,
+            showUnderlined: state.events.showPendingEvents == .show_underlined,
+            to: &appearance
+        )
+        applyParticipationStyle(
+            statusMatches: event.participationStatus == .tentative,
+            showInactive: state.events.showTentativeEvents == .show_inactive,
+            showUnderlined: state.events.showTentativeEvents == .show_underlined,
+            to: &appearance
+        )
+
+        if event.attendees.isEmpty, state.events.personalEventsAppearance == .show_inactive {
+            appearance.isDimmed = true
+            appearance.showsActiveEmphasis = false
+        }
+
+        // Past events dim only when asked to. The panel used to dim every
+        // finished row unconditionally, so `.show_active` did nothing.
+        if event.endDate < now, state.events.pastEventsAppearance == .show_inactive {
+            appearance.isDimmed = true
+        }
+
+        return appearance
+    }
+
+    private func applyParticipationStyle(
+        statusMatches: Bool,
+        showInactive: Bool,
+        showUnderlined: Bool,
+        to appearance: inout EventRowAppearance
+    ) {
+        guard statusMatches else { return }
+        if showInactive {
+            appearance.isDimmed = true
+        } else if showUnderlined {
+            appearance.markerIsHollow = true
+        }
+    }
+
+    private func isDeclined(_ event: MBEvent) -> Bool {
+        event.participationStatus == .declined || event.status == .canceled
     }
 
     /// The hover-revealed Join button. The slot is a fixed width and the two
@@ -604,7 +848,7 @@ struct DropdownPanelView: View {
                     .onTapGesture(perform: perform { handlers.joinEvent(event) })
             }
             .frame(width: Self.trailingAffordanceWidth, alignment: .trailing)
-            .animation(.easeOut(duration: 0.12), value: revealed)
+            .animation(revealAnimation, value: revealed)
         }
     }
 
@@ -629,7 +873,7 @@ struct DropdownPanelView: View {
             .help(expanded
                 ? "dropdown_panel_hide_details".loco()
                 : "dropdown_panel_show_details".loco())
-            .animation(.easeOut(duration: 0.12), value: revealed)
+            .animation(revealAnimation, value: revealed)
     }
 
     private func isExpanded(_ event: MBEvent) -> Bool {
@@ -637,7 +881,7 @@ struct DropdownPanelView: View {
     }
 
     private func toggleExpansion(_ event: MBEvent) {
-        withAnimation(.easeOut(duration: 0.12)) {
+        withAnimation(revealAnimation) {
             if expandedEventIDs.contains(event.id) {
                 expandedEventIDs.remove(event.id)
             } else {
@@ -674,10 +918,45 @@ struct DropdownPanelView: View {
             }
             attendeeDetails(event)
             notesDetail(event)
+            prepLinkDetails(event)
         }
-        .padding(.leading, 32)
-        .padding(.trailing, 16)
+        .padding(.leading, Self.metrics.detailIndent)
+        .padding(.trailing, Self.metrics.sectionHeaderInset)
         .padding(.bottom, 4)
+    }
+
+    /// Meeting-prep links, inline. They were reachable only from the right-click
+    /// submenu — i.e. only if you already knew they existed. The context-menu
+    /// entry stays; this is an addition, not a move.
+    @ViewBuilder
+    private func prepLinkDetails(_ event: MBEvent) -> some View {
+        let links = prepLinks(for: event)
+        if !links.isEmpty {
+            detailLabel(sectionLabel("status_bar_submenu_prep_links_title"))
+            ForEach(links, id: \.url) { link in
+                if let url = URL(string: link.url) {
+                    prepLinkRow(title: link.displayTitle, url: url)
+                }
+            }
+        }
+    }
+
+    private func prepLinkRow(title: String, url: URL) -> some View {
+        HStack(alignment: .top, spacing: 6) {
+            Image(systemName: "link")
+                .font(.system(size: 10))
+                .foregroundStyle(.tertiary)
+                .frame(width: 12)
+            Text(title)
+                .font(.system(size: MenuStyleConstants.defaultFontSize - 1))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+            Spacer(minLength: 0)
+        }
+        .contentShape(Rectangle())
+        .pointerStyle(.link)
+        .onTapGesture(perform: perform { handlers.openURL(url) })
+        .help(url.absoluteString)
     }
 
     @ViewBuilder
@@ -879,11 +1158,11 @@ struct DropdownPanelView: View {
             isSelected: isSelected(row),
             action: perform { handlers.completeReminder(reminder) }
         ) { _ in
-            HStack(spacing: 8) {
+            HStack(spacing: Self.metrics.columnSpacing) {
                 Text(reminderTimeText(reminder))
                     .font(.system(size: 12).monospacedDigit())
                     .foregroundStyle(.secondary)
-                    .frame(width: 66, alignment: .leading)
+                    .frame(width: Self.metrics.timeColumnWidth, alignment: .leading)
                 Image(systemName: reminder.isCompleted ? "largecircle.fill.circle" : "circle")
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
@@ -1014,10 +1293,10 @@ struct DropdownPanelView: View {
         action: @escaping @MainActor () -> Void
     ) -> some View {
         PanelRow(isSelected: isSelected(row), action: action) { _ in
-            HStack(spacing: 8) {
+            HStack(spacing: Self.metrics.columnSpacing) {
                 Image(systemName: symbol)
                     .font(.system(size: 12))
-                    .frame(width: 18)
+                    .frame(width: Self.metrics.actionSymbolWidth)
                     .foregroundStyle(.secondary)
                 Text(title)
                     .font(.system(size: MenuStyleConstants.defaultFontSize))
@@ -1033,7 +1312,7 @@ struct DropdownPanelView: View {
         Text(title)
             .font(.system(size: MenuStyleConstants.defaultFontSize - 2, weight: .semibold))
             .foregroundStyle(.secondary)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, Self.metrics.sectionHeaderInset)
             .padding(.top, 4)
             .padding(.bottom, 2)
     }
@@ -1072,17 +1351,41 @@ struct DropdownPanelView: View {
 
     private func visibleEvents(_ events: [MBEvent]) -> [MBEvent] {
         events
-            .filter {
-                !state.menu.hideFinishedEventsInMenu
-                    || EventListWindow.isVisible(endDate: $0.endDate, now: now)
-            }
+            .filter(shouldRenderEvent)
             .sorted { $0.startDate < $1.startDate }
+    }
+
+    /// The panel's own hide-finished window PLUS `MenuBuilder.shouldRenderEvent`.
+    /// Only the first of these was applied before Phase 1, so choosing "hide" for
+    /// past / declined / self-booked meetings changed the NSMenu and nothing else
+    /// — while the shipping dropdown kept showing them.
+    private func shouldRenderEvent(_ event: MBEvent) -> Bool {
+        if state.menu.hideFinishedEventsInMenu,
+            !EventListWindow.isVisible(endDate: event.endDate, now: now) {
+            return false
+        }
+        if isDeclined(event), state.events.declinedEventsAppearance == .hide {
+            return false
+        }
+        if event.endDate < now, state.events.pastEventsAppearance == .hide {
+            return false
+        }
+        if event.attendees.isEmpty, state.events.personalEventsAppearance == .hide {
+            return false
+        }
+        return true
     }
 
     private func eventStartText(_ event: MBEvent) -> String {
         event.isAllDay
             ? "status_bar_event_start_time_all_day".loco()
             : clockText(event.startDate)
+    }
+
+    /// `nil` unless `showEventEndTime` is on and the event has a real end time.
+    private func eventEndText(_ event: MBEvent) -> String? {
+        guard agendaTimeColumn == .startAndEnd, !event.isAllDay else { return nil }
+        return clockText(event.endDate)
     }
 
     private func reminderTimeText(_ reminder: MBReminder) -> String {
@@ -1118,17 +1421,20 @@ private struct PanelRow<Content: View>: View {
     @ViewBuilder let content: (Bool) -> Content
 
     @State private var isHovered = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private static var metrics: DropdownMetrics { .standard }
 
     var body: some View {
         content(isHovered)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
+            .padding(.horizontal, Self.metrics.rowInnerPadding)
+            .padding(.vertical, Self.metrics.rowVerticalPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
                     .fill(highlight)
             )
-            .padding(.horizontal, 6)
+            .padding(.horizontal, Self.metrics.rowOuterPadding)
             .contentShape(Rectangle())
             // Scoped pointer style (macOS 15+): unlike NSCursor.push/pop it can't
             // strand a pointing-hand cursor when the panel closes mid-hover.
@@ -1136,7 +1442,9 @@ private struct PanelRow<Content: View>: View {
             .pointerStyle(action == nil ? nil : .link)
             .onHover { hovering in
                 guard action != nil else { return }
-                withAnimation(.easeOut(duration: 0.12)) { isHovered = hovering }
+                withAnimation(reduceMotion ? nil : .easeOut(duration: 0.12)) {
+                    isHovered = hovering
+                }
             }
             .onTapGesture { action?() }
     }

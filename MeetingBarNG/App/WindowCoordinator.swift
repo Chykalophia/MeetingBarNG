@@ -116,7 +116,7 @@ final class CommandBarWindow: NSWindow {
     }
 }
 
-/// Borderless host for the opt-in SwiftUI dropdown panel (MeetingBarNG). Behaves
+/// Borderless host for the SwiftUI dropdown panel (MeetingBarNG). Behaves
 /// like a menu: floats at the pop-up-menu level, closes on Escape and on
 /// click-away (`resignKey`), and never appears in the window cycle.
 final class DropdownPanelWindow: NSWindow {
@@ -232,9 +232,10 @@ final class WindowCoordinator {
     private var dropdownPanel: DropdownPanelWindow?
     private var dropdownPanelClosedAt: Date?
 
-    /// Opens the opt-in SwiftUI dropdown panel below the status item, or closes
-    /// it if it is already open (toggle) — the NSMenu path is untouched and stays
-    /// the default (`Defaults[.useSwiftUIDropdown]`).
+    /// Opens the SwiftUI dropdown panel below the status item, or closes it if
+    /// it is already open (toggle). This is the default path
+    /// (`Defaults[.useSwiftUIDropdown]` is `true`); the NSMenu is untouched and
+    /// remains available as the fallback.
     ///
     /// `anchor` is the status-item button's rect in screen coordinates; the
     /// window is placed by the hostless `DropdownPanelPlacement` so it hangs

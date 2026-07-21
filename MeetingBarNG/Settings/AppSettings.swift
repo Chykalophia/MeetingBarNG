@@ -350,7 +350,7 @@ extension AppSettings {
                 automaticEventJoinTime: .atStart,
                 runJoinEventScript: false,
                 joinEventScriptLocation: nil,
-                joinEventScript: "preferences_advanced_apple_script_placeholder".loco(),
+                joinEventScript: "",
                 runEventStartScript: false,
                 eventStartScriptLocation: nil,
                 eventStartScriptTime: .atStart,

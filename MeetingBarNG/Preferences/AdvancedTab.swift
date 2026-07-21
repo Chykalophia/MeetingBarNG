@@ -149,7 +149,13 @@ struct EditScriptModal: View {
             Spacer()
         }.padding()
             .frame(width: 500, height: 500)
-            .onAppear { self.editedScript = self.script }
+            // Seeded here, not in the Defaults key: the stored default must not
+            // bake in a localized string chosen at static-init time.
+            .onAppear {
+                self.editedScript = self.script.isEmpty
+                    ? "preferences_advanced_apple_script_placeholder".loco()
+                    : self.script
+            }
             .alert(isPresented: $showingAlert) {
                 Alert(
                     title: Text("preferences_advanced_wrong_location_title".loco()),

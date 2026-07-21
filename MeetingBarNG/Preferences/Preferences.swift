@@ -10,6 +10,11 @@
 //  pin the NavigationSplitView sidebar open (non-collapsible) and adopt the
 //  shared PreferencesDesign card/callout/indent language; widen the window
 //  minimum size so the Display tab's two-pane settings + live preview fit.
+//  Preferences UX overhaul Phase 0 (truth pass): the deployment floor is macOS 15
+//  (`Package.swift`), so the `#available(macOS 13/14, *)` dispatch, the macOS 12
+//  `legacyLayout`, the `PreferencesGroupedForm` ScrollView fallback and the
+//  `ModernPreferencesLayout` wrapper were all unreachable code and are deleted;
+//  the sidebar minimum widens 215 → 225 per the macOS 26 sidebar guidance.
 //
 import SwiftUI
 
@@ -18,75 +23,14 @@ struct PreferencesView: View {
     // An optional selection binding let NavigationSplitView seed the sidebar
     // highlight out of sync with the detail on first appearance.
     @State private var selectedTab: PreferencesTab = .defaultSelection
-
-    var body: some View {
-        if #available(macOS 13.0, *) {
-            // The modern split view owns a `NavigationSplitViewVisibility`
-            // (macOS 13+ only), so it lives in its own availability-gated view
-            // to keep the macOS 12 `legacyLayout` compiling.
-            ModernPreferencesLayout(selectedTab: $selectedTab)
-        } else {
-            legacyLayout
-        }
-    }
-
-    // macOS 12 fallback: NavigationSplitView is unavailable, so keep the manual
-    // split with hand-rolled selection styling. Already non-collapsible.
-    private var legacyLayout: some View {
-        HStack(spacing: 0) {
-            List {
-                ForEach(PreferencesSidebarSection.allCases, id: \.self) { section in
-                    Section(header: Text(section.titleKey.loco())) {
-                        ForEach(section.tabs, id: \.self) { tab in
-                            Button {
-                                selectedTab = tab
-                            } label: {
-                                Label(tab.titleKey.loco(), systemImage: tab.systemImage)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .contentShape(Rectangle())
-                                    .padding(.vertical, 5)
-                                    .padding(.horizontal, 7)
-                            }
-                            .buttonStyle(.plain)
-                            .foregroundStyle(selectedTab == tab ? Color.white : Color.primary)
-                            .listRowInsets(EdgeInsets())
-                            .listRowBackground(
-                                RoundedRectangle(cornerRadius: 5)
-                                    .fill(selectedTab == tab ? Color.accentColor : Color.clear)
-                                    .padding(.horizontal, 6)
-                            )
-                        }
-                    }
-                }
-            }
-            .listStyle(.sidebar)
-            .frame(minWidth: 180, idealWidth: 190, maxWidth: 220)
-
-            Divider()
-
-            preferencesTabContent(selectedTab)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        // Wide enough for the Display tab's two-pane (settings + ~340pt preview).
-        .frame(minWidth: 1100, minHeight: 560)
-    }
-}
-
-/// The macOS 13+ layout: a `NavigationSplitView` pinned open so the sidebar can
-/// never be collapsed. It owns the `NavigationSplitViewVisibility` state (a
-/// macOS 13-only type), so isolating it here keeps `PreferencesView`'s macOS 12
-/// `legacyLayout` compiling at the deployment floor.
-@available(macOS 13.0, *)
-private struct ModernPreferencesLayout: View {
-    @Binding var selectedTab: PreferencesTab
-    // Pinned to `.all`: on macOS 14+ the toggle button is removed entirely, and
-    // seeding the binding open keeps both columns visible on macOS 13.
+    // Pinned to `.all` so both columns are visible from the first frame; the
+    // sidebar toggle is removed below, so the sidebar can never be collapsed.
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
 
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             sidebar
-                .navigationSplitViewColumnWidth(min: 215, ideal: 230, max: 260)
+                .navigationSplitViewColumnWidth(min: 225, ideal: 235, max: 260)
         } detail: {
             preferencesTabContent(selectedTab)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -98,8 +42,9 @@ private struct ModernPreferencesLayout: View {
     }
 
     // The native sidebar list: `List(selection:)` provides the System Settings
-    // accent-pill selection and translucent material for free, so the custom
-    // Button / listRowBackground styling the legacy layout needs is gone here.
+    // accent-pill selection and translucent material for free. No custom
+    // `foregroundStyle` is applied to the labels — the pill supplies its own
+    // contrasting content colour, and overriding it broke the selected row.
     private var sidebar: some View {
         List(selection: $selectedTab) {
             ForEach(PreferencesSidebarSection.allCases, id: \.self) { section in
@@ -112,28 +57,14 @@ private struct ModernPreferencesLayout: View {
             }
         }
         .listStyle(.sidebar)
-        .pinnedSidebarToggleRemoved()
+        // Makes the sidebar truly non-collapsible (macOS 14+, below the floor).
+        // https://developer.apple.com/documentation/swiftui/view/toolbar(removing:)
+        .toolbar(removing: .sidebarToggle)
     }
 }
 
-@available(macOS 13.0, *)
-private extension View {
-    /// Removes the automatic sidebar-toggle button on macOS 14+ (making the
-    /// sidebar truly non-collapsible); on macOS 13 the API is unavailable, so
-    /// the view is returned unchanged and the pinned `columnVisibility` binding
-    /// keeps the sidebar open.
-    @ViewBuilder
-    func pinnedSidebarToggleRemoved() -> some View {
-        if #available(macOS 14.0, *) {
-            toolbar(removing: .sidebarToggle)
-        } else {
-            self
-        }
-    }
-}
-
-/// Builds the detail content for a preferences tab. Shared by the modern
-/// `NavigationSplitView` layout and the macOS 12 `legacyLayout`.
+/// Builds the detail content for a preferences tab.
+@MainActor
 @ViewBuilder
 private func preferencesTabContent(_ tab: PreferencesTab) -> some View {
     switch tab {
@@ -167,21 +98,16 @@ func preferenceLabel(_ key: String) -> String {
 }
 
 /// Shared container for preferences tabs: a grouped form matching the
-/// System Settings look on macOS 13+, with a plain scrollable form as the
-/// macOS 12 fallback. Tabs built on this manage their own scrolling.
+/// System Settings look. Tabs built on this manage their own scrolling.
+///
+/// Note for the builder work in later phases: this is a `Form`, not a `List`,
+/// so `ForEach(...).onMove` inside it is inert (see `MeetingsTab`'s bookmarks).
 struct PreferencesGroupedForm<Content: View>: View {
     @ViewBuilder var content: Content
 
     var body: some View {
-        if #available(macOS 13.0, *) {
-            Form { content }
-                .formStyle(.grouped)
-        } else {
-            ScrollView {
-                Form { content }
-                    .padding(20)
-            }
-        }
+        Form { content }
+            .formStyle(.grouped)
     }
 }
 
