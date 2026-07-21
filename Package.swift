@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "MeetingBarLogic",
     platforms: [
-        .macOS(.v12)
+        .macOS(.v15)
     ],
     products: [
         .library(name: "MeetingBarLogic", targets: ["MeetingBarLogic"])
