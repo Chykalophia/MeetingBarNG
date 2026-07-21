@@ -107,9 +107,12 @@ final class CommandBarWindow: NSWindow {
 
     /// Click-away dismiss (Spotlight behavior). Only fires after the window has
     /// been key, so the open sequence (which *gains* key) never self-closes.
+    ///
+    /// Deferred for the same reason as `DropdownPanelWindow.resignKey`: closing
+    /// inside AppKit's key-change callback over-releases the window.
     override func resignKey() {
         super.resignKey()
-        close()
+        DispatchQueue.main.async { [weak self] in self?.close() }
     }
 }
 
@@ -140,9 +143,16 @@ final class DropdownPanelWindow: NSWindow {
 
     /// Click-away dismiss (menu behavior). Only fires after the window has been
     /// key, so the open sequence (which *gains* key) never self-closes.
+    ///
+    /// The close is deferred to the next run-loop turn ON PURPOSE: closing
+    /// synchronously here tears the window down *inside* AppKit's key-change
+    /// processing, while AppKit still holds an autoreleased reference to it.
+    /// That over-releases the window and crashes with EXC_BAD_ACCESS in
+    /// `objc_release` when the autorelease pool drains (seen after a few
+    /// open/close cycles).
     override func resignKey() {
         super.resignKey()
-        close()
+        DispatchQueue.main.async { [weak self] in self?.close() }
     }
 
     override func close() {
@@ -215,7 +225,11 @@ final class WindowCoordinator {
     private weak var worldClockWindow: NSWindow?
     private weak var eventEditorWindow: NSWindow?
     private weak var cameraPreviewWindow: NSWindow?
-    private weak var dropdownPanel: DropdownPanelWindow?
+    /// Held STRONGLY (and released on the next run-loop turn after close) rather
+    /// than self-releasing via `isReleasedWhenClosed`: the panel closes from
+    /// inside `resignKey`, and letting AppKit free it there over-released it
+    /// (EXC_BAD_ACCESS in `objc_release` on autorelease-pool drain).
+    private var dropdownPanel: DropdownPanelWindow?
     private var dropdownPanelClosedAt: Date?
 
     /// Opens the opt-in SwiftUI dropdown panel below the status item, or closes
@@ -262,7 +276,10 @@ final class WindowCoordinator {
             rootView: DropdownPanelView(state: state, handlers: resolvedHandlers)
         )
         window.title = ""
-        window.isReleasedWhenClosed = true
+        // NOT self-releasing: the coordinator owns the panel and drops it a
+        // run-loop turn after close (see `dropdownPanel`), so AppKit is never
+        // holding a freed window.
+        window.isReleasedWhenClosed = false
         window.contentView = hosting
         window.isMovableByWindowBackground = false
         window.collectionBehavior = [.moveToActiveSpace, .transient, .ignoresCycle]
@@ -283,8 +300,11 @@ final class WindowCoordinator {
             display: false
         )
         window.onClose = { [weak self] in
-            self?.dropdownPanel = nil
             self?.dropdownPanelClosedAt = Date()
+            // Release on the NEXT run-loop turn: `onClose` fires from inside
+            // `close()`, where AppKit is still using the window. Dropping the
+            // last reference there is exactly the over-release that crashed.
+            DispatchQueue.main.async { self?.dropdownPanel = nil }
         }
 
         // LSUIElement accessory app: activate before keying so the panel takes
@@ -677,14 +697,16 @@ final class WindowCoordinator {
         }
 
         let window = NSWindow(
-            // Opens wide enough for the Display tab's two-pane layout (settings +
-            // ~340pt live preview); minSize below keeps both panes usable on resize.
-            contentRect: NSRect(x: 0, y: 0, width: 940, height: 620),
+            // Wide enough for the Display tab's three columns: sidebar (~230) +
+            // the settings form + the 340pt live preview. At 940 the form was
+            // squeezed below its intrinsic width and pushed the sidebar past its
+            // minimum, clipping the tab labels.
+            contentRect: NSRect(x: 0, y: 0, width: 1180, height: 680),
             styleMask: [.closable, .titled, .resizable],
             backing: .buffered,
             defer: false
         )
-        window.minSize = NSSize(width: 940, height: 520)
+        window.minSize = NSSize(width: 1100, height: 560)
 
         window.title = WindowTitles.preferences
         window.contentView = NSHostingView(rootView: contentView)

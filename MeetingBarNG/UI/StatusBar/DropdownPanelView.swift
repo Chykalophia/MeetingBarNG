@@ -82,6 +82,10 @@ struct DropdownPanelView: View {
             .frame(width: Self.preferredWidth, alignment: .leading)
         }
         .scrollBounceBehavior(.basedOnSize)
+        // A menu never shows a scrollbar. The panel scrolls only when a very
+        // long day overflows `maximumHeight`, and even then the indicator stays
+        // hidden so it reads as a menu rather than a scroll view.
+        .scrollIndicators(.hidden)
         .frame(width: Self.preferredWidth)
         .frame(maxHeight: Self.maximumHeight)
         .background(

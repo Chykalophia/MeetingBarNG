@@ -68,7 +68,7 @@ struct PreferencesView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         // Wide enough for the Display tab's two-pane (settings + ~340pt preview).
-        .frame(minWidth: 940, minHeight: 520)
+        .frame(minWidth: 1100, minHeight: 560)
     }
 }
 
@@ -94,7 +94,7 @@ private struct ModernPreferencesLayout: View {
         }
         .navigationSplitViewStyle(.balanced)
         // Wide enough for the Display tab's two-pane (settings + ~340pt preview).
-        .frame(minWidth: 940, minHeight: 520)
+        .frame(minWidth: 1100, minHeight: 560)
     }
 
     // The native sidebar list: `List(selection:)` provides the System Settings
