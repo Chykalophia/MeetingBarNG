@@ -1,0 +1,32 @@
+MeetingBarLogicTests/StatusBarTickPolicyTests.swift
+  s_8821c3fb11800f::t_f5ada12061a360 1-130
+MeetingBarNG/Calendar/EventSelection+MeetingBar.swift
+  s_8821c3fb11800f::t_cc87a99008d3ea 87-105
+MeetingBarNG/UI/StatusBar/StatusBarTickPolicy.swift
+  s_8821c3fb11800f::t_4c57d5e24924d7 1-87
+MeetingBarLogicTests/OngoingEventVisibilityTests.swift
+  s_8821c3fb11800f::t_4cf1ab0080b89c 1-18,23-24,27-28,31-37,42-49,52,54-58,60-63,65-66,74-103,142-158,163-166,171-173
+  s_8821c3fb11800f::t_3cead75d5ac976 19-22,25-26,29-30,38-41,50-51,53,59,64,67-73,104-141,159-162,167-170
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_8821c3fb11800f::t_4df9734b959d61 109-112
+  s_8821c3fb11800f::t_6be87d235300be 415-421
+  s_8821c3fb11800f::t_6a692978c2e3eb 450-486
+Package.swift
+  s_8821c3fb11800f::t_02e33eabd17fa0 54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "77f984228e708b4687dba3ddb9be04e223beb06f",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
