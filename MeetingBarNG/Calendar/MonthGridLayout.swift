@@ -5,7 +5,9 @@
 //  Pure, hostless month-grid math for the calendar window (Dot parity). Given a
 //  date, it produces whole weeks (respecting `Calendar.firstWeekday`) covering
 //  that date's month, padded with the leading/trailing days of the adjacent
-//  months so every week has exactly seven cells. No DateFormatter / locale
+//  months so every week has exactly seven cells. It also folds down to a SINGLE
+//  week (`week(containing:)` + its first/last-day helpers) for the calendar
+//  window's week mode. No DateFormatter / locale
 //  strings live here — only the grid geometry — so it is trivially testable and
 //  compiles into the hostless MeetingBarLogic target.
 //
@@ -56,6 +58,47 @@ public enum MonthGridLayout {
         let weekday = calendar.component(.weekday, from: lastDay)
         let trailing = (calendar.firstWeekday + 6 - weekday + 7) % 7
         return calendar.date(byAdding: .day, value: trailing, to: lastDay) ?? lastDay
+    }
+
+    /// The first cell of a SINGLE-week grid: `date`'s own day stepped back to the
+    /// calendar's `firstWeekday`. This is the lower bound the app uses when
+    /// fetching events in week mode.
+    public static func firstVisibleDayOfWeek(containing date: Date, calendar: Calendar) -> Date {
+        let day = calendar.startOfDay(for: date)
+        let weekday = calendar.component(.weekday, from: day)
+        let leading = (weekday - calendar.firstWeekday + 7) % 7
+        return calendar.date(byAdding: .day, value: -leading, to: day) ?? day
+    }
+
+    /// The last cell of a SINGLE-week grid: six days after
+    /// `firstVisibleDayOfWeek`. This is the (inclusive) upper day the app uses
+    /// when fetching events in week mode.
+    public static func lastVisibleDayOfWeek(containing date: Date, calendar: Calendar) -> Date {
+        let first = firstVisibleDayOfWeek(containing: date, calendar: calendar)
+        return calendar.date(byAdding: .day, value: 6, to: first) ?? first
+    }
+
+    /// The single seven-day week containing `date` (the week-mode fold).
+    ///
+    /// Always exactly seven cells, starting on the calendar's `firstWeekday`.
+    /// `isInMonth` is computed relative to `date`'s OWN month, so a week that
+    /// straddles a month boundary flags each half correctly; `isToday` matches
+    /// the day of `now`.
+    public static func week(containing date: Date, calendar: Calendar, now: Date) -> [MonthGridDay] {
+        let monthComponents = calendar.dateComponents([.year, .month], from: date)
+        let first = firstVisibleDayOfWeek(containing: date, calendar: calendar)
+        return (0..<7).compactMap { offset in
+            guard let dayDate = calendar.date(byAdding: .day, value: offset, to: first) else {
+                return nil
+            }
+            let components = calendar.dateComponents([.year, .month], from: dayDate)
+            return MonthGridDay(
+                date: calendar.startOfDay(for: dayDate),
+                isInMonth: components.year == monthComponents.year
+                    && components.month == monthComponents.month,
+                isToday: calendar.isDate(dayDate, inSameDayAs: now)
+            )
+        }
     }
 
     /// Whole weeks (each exactly seven days) covering the month of `date`.

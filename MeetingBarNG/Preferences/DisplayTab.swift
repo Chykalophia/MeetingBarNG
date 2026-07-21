@@ -20,7 +20,8 @@
 //  labels, `PresetNumberPicker` chips for the menu-bar title length and the
 //  look-ahead threshold, and dropped the greeting/timeline on/off toggles from
 //  `DropdownDisplaySection` (the composer's module list is now their single
-//  source of truth).
+//  source of truth); added `CalendarWindowDisplaySection` for the calendar
+//  window's dim-weekends preference.
 //
 
 import Defaults
@@ -40,6 +41,8 @@ struct DisplayTab: View {
                 DropdownComposerSection()
                 // "Dropdown" — dropdown display toggles (timeline, greeting, …).
                 DropdownDisplaySection()
+                // "Calendar window" — the month/week grid window's display options.
+                CalendarWindowDisplaySection()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
@@ -817,6 +820,29 @@ struct DropdownDisplaySection: View {
                 }
             }
         )
+    }
+}
+
+// MARK: - Calendar window display
+
+/// Display options for the standalone calendar window (the month/week grid),
+/// kept separate from the dropdown options above because they affect a different
+/// surface. The window's own Month/Week fold lives in its header; only the
+/// weekend dimming is a persistent preference.
+struct CalendarWindowDisplaySection: View {
+    @Default(.dimWeekendsInCalendar) var dimWeekendsInCalendar
+
+    var body: some View {
+        Section(header: Text("preferences_appearance_calendar_window_title".loco())) {
+            Toggle(
+                preferenceLabel("preferences_appearance_calendar_dim_weekends_toggle"),
+                isOn: $dimWeekendsInCalendar
+            )
+            Text("preferences_appearance_calendar_dim_weekends_help".loco())
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
     }
 }
 

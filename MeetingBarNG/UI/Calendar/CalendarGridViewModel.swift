@@ -2,15 +2,24 @@
 //  CalendarGridViewModel.swift
 //  MeetingBarNG
 //
-//  App-target view model for the month calendar window. Owns the visible month,
-//  the rendered week grid (via the hostless MonthGridLayout), and the events for
-//  the visible range bucketed by start-of-day. It loads its OWN month window of
-//  events on demand through an injected fetch closure (resolved by AppDelegate
-//  from the calendar repository) — it never touches the main today/tomorrow
-//  sync. The SwiftUI view stays presentation-only.
+//  App-target view model for the calendar window. Owns the visible range (a
+//  month or a single week, per `CalendarGridMode`), the rendered week grid (via
+//  the hostless MonthGridLayout), and the events for that range bucketed by
+//  start-of-day. It loads its OWN window of events on demand through an injected
+//  fetch closure (resolved by AppDelegate from the calendar repository) — it
+//  never touches the main today/tomorrow sync. The SwiftUI view stays
+//  presentation-only.
 //
 
+import Defaults
 import Foundation
+
+/// How the calendar window folds its grid: a full month or a single week.
+/// Persisted as a raw string in `Defaults[.calendarGridMode]`.
+enum CalendarGridMode: String, CaseIterable, Sendable {
+    case month
+    case week
+}
 
 /// Closures the calendar window needs from the app, injected by AppDelegate so
 /// the view model stays decoupled from AppModel / CalendarSync / the coordinator.
@@ -23,7 +32,10 @@ struct CalendarWindowHandlers {
 
 @MainActor
 final class CalendarGridViewModel: ObservableObject {
+    @Published private(set) var mode: CalendarGridMode
     @Published private(set) var visibleMonth: Date
+    /// First day of the visible week (week mode only), already on `firstWeekday`.
+    @Published private(set) var visibleWeekStart: Date
     @Published private(set) var weeks: [[MonthGridDay]] = []
     @Published private(set) var eventsByDay: [Date: [MBEvent]] = [:]
     @Published var selectedDay: Date?
@@ -37,12 +49,17 @@ final class CalendarGridViewModel: ObservableObject {
     init(
         handlers: CalendarWindowHandlers,
         calendar: Calendar = CalendarGridViewModel.defaultCalendar(),
-        now: Date = Date()
+        now: Date = Date(),
+        mode: CalendarGridMode = CalendarGridMode(rawValue: Defaults[.calendarGridMode]) ?? .month
     ) {
         self.handlers = handlers
         self.calendar = calendar
         self.now = now
+        self.mode = mode
         self.visibleMonth = MonthGridLayout.startOfMonth(for: now, calendar: calendar)
+        self.visibleWeekStart = MonthGridLayout.firstVisibleDayOfWeek(
+            containing: now, calendar: calendar
+        )
         self.selectedDay = calendar.startOfDay(for: now)
         reload()
     }
@@ -55,22 +72,63 @@ final class CalendarGridViewModel: ObservableObject {
         return calendar
     }
 
-    // MARK: - Navigation
+    // MARK: - Mode
 
-    func goToPreviousMonth() {
-        guard let previous = calendar.date(byAdding: .month, value: -1, to: visibleMonth) else { return }
-        visibleMonth = MonthGridLayout.startOfMonth(for: previous, calendar: calendar)
+    /// Switches the fold and persists the choice. The selected day is never lost:
+    /// it stays selected and it anchors the newly visible range, so the user
+    /// lands on the week (or month) that contains it.
+    func setMode(_ newMode: CalendarGridMode) {
+        guard newMode != mode else { return }
+        mode = newMode
+        Defaults[.calendarGridMode] = newMode.rawValue
+
+        let anchor = selectedDay ?? now
+        switch newMode {
+        case .week:
+            visibleWeekStart = MonthGridLayout.firstVisibleDayOfWeek(
+                containing: anchor, calendar: calendar
+            )
+        case .month:
+            visibleMonth = MonthGridLayout.startOfMonth(for: anchor, calendar: calendar)
+        }
         reload()
     }
 
-    func goToNextMonth() {
-        guard let next = calendar.date(byAdding: .month, value: 1, to: visibleMonth) else { return }
-        visibleMonth = MonthGridLayout.startOfMonth(for: next, calendar: calendar)
+    // MARK: - Navigation
+
+    /// Steps back one month in month mode, one week in week mode.
+    func goToPrevious() {
+        step(-1)
+    }
+
+    /// Steps forward one month in month mode, one week in week mode.
+    func goToNext() {
+        step(1)
+    }
+
+    private func step(_ direction: Int) {
+        switch mode {
+        case .month:
+            guard let stepped = calendar.date(
+                byAdding: .month, value: direction, to: visibleMonth
+            ) else { return }
+            visibleMonth = MonthGridLayout.startOfMonth(for: stepped, calendar: calendar)
+        case .week:
+            guard let stepped = calendar.date(
+                byAdding: .day, value: direction * 7, to: visibleWeekStart
+            ) else { return }
+            visibleWeekStart = MonthGridLayout.firstVisibleDayOfWeek(
+                containing: stepped, calendar: calendar
+            )
+        }
         reload()
     }
 
     func goToToday() {
         visibleMonth = MonthGridLayout.startOfMonth(for: now, calendar: calendar)
+        visibleWeekStart = MonthGridLayout.firstVisibleDayOfWeek(
+            containing: now, calendar: calendar
+        )
         selectedDay = calendar.startOfDay(for: now)
         reload()
     }
@@ -99,19 +157,34 @@ final class CalendarGridViewModel: ObservableObject {
 
     // MARK: - Loading
 
-    /// Rebuilds the grid for `visibleMonth` and (re)loads that month's events for
-    /// the full visible range (leading/trailing padding days included).
+    /// Rebuilds the grid for the visible range and (re)loads its events: the
+    /// whole month grid (leading/trailing padding days included) in month mode,
+    /// the single visible week in week mode.
     private func reload() {
-        weeks = MonthGridLayout.weeks(
-            forMonthContaining: visibleMonth, calendar: calendar, now: now
-        )
-
-        let first = MonthGridLayout.firstVisibleDay(
-            forMonthContaining: visibleMonth, calendar: calendar
-        )
-        let lastVisible = MonthGridLayout.lastVisibleDay(
-            forMonthContaining: visibleMonth, calendar: calendar
-        )
+        let first: Date
+        let lastVisible: Date
+        switch mode {
+        case .month:
+            weeks = MonthGridLayout.weeks(
+                forMonthContaining: visibleMonth, calendar: calendar, now: now
+            )
+            first = MonthGridLayout.firstVisibleDay(
+                forMonthContaining: visibleMonth, calendar: calendar
+            )
+            lastVisible = MonthGridLayout.lastVisibleDay(
+                forMonthContaining: visibleMonth, calendar: calendar
+            )
+        case .week:
+            weeks = [
+                MonthGridLayout.week(containing: visibleWeekStart, calendar: calendar, now: now)
+            ]
+            first = MonthGridLayout.firstVisibleDayOfWeek(
+                containing: visibleWeekStart, calendar: calendar
+            )
+            lastVisible = MonthGridLayout.lastVisibleDayOfWeek(
+                containing: visibleWeekStart, calendar: calendar
+            )
+        }
         // Fetch is a half-open range, so extend to the start of the day *after*
         // the last visible day to include all-day and late events on that day.
         let upperBound = calendar.date(byAdding: .day, value: 1, to: lastVisible) ?? lastVisible

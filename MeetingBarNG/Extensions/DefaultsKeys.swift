@@ -8,7 +8,8 @@
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
 //  add persistence keys for the composable menu bar, the composable menu
 //  dropdown (dropdownModuleOrder + per-module enabled bools), and Apple
-//  Reminders in the menu; remove the StoreKit patronage keys (patronageDuration,
+//  Reminders in the menu; add the calendar-window keys (calendarGridMode,
+//  dimWeekendsInCalendar); remove the StoreKit patronage keys (patronageDuration,
 //  processedPatronageTransactionIDs, isInstalledFromAppStore) along with the
 //  removed patronage feature.
 //
@@ -124,6 +125,13 @@ extension Defaults.Keys {
     static let showAgendaInMenu = Key<Bool>("showAgendaInMenu", default: true)
     static let showJoinSectionInMenu = Key<Bool>("showJoinSectionInMenu", default: true)
     static let showBookmarksInMenu = Key<Bool>("showBookmarksInMenu", default: true)
+
+    // Calendar window (MeetingBarNG). The month ⇄ week fold, stored as a
+    // `CalendarGridMode` raw value so an unknown/renamed value degrades to the
+    // month grid. Weekend dimming is on by default so the work week stands out.
+    static let calendarGridMode = Key<String>(
+        "calendarGridMode", default: CalendarGridMode.month.rawValue)
+    static let dimWeekendsInCalendar = Key<Bool>("dimWeekendsInCalendar", default: true)
 
     // Menu Appearance
     static let showTimelineInMenu = Key<Bool>("showTimelineInMenu", default: true)

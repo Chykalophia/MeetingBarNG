@@ -2,11 +2,12 @@
 //  CalendarGridView.swift
 //  MeetingBarNG
 //
-//  Month calendar surface for the calendar window (Dot parity). Presentation
-//  only: a month header with ‹ › and Today, a localized weekday row, a 7-column
-//  grid of day cells (each showing a day number plus up to three calendar-color
-//  event dots), and a list of the selected day's events with a Join affordance.
-//  All state and event loading live in CalendarGridViewModel.
+//  Calendar surface for the calendar window (Dot parity). Presentation only: a
+//  header with ‹ ›, Today and a Month/Week fold picker, a localized weekday row,
+//  a 7-column grid of day cells (each showing a day number plus up to three
+//  calendar-color event dots, with weekends optionally dimmed), and a list of
+//  the selected day's events with a Join affordance. All state and event loading
+//  live in CalendarGridViewModel.
 //
 
 import Defaults
@@ -19,6 +20,7 @@ enum CalendarWindowPresentationPolicy {
 
 struct CalendarGridView: View {
     @ObservedObject var viewModel: CalendarGridViewModel
+    @Default(.dimWeekendsInCalendar) private var dimWeekends
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: 4), count: 7
@@ -43,11 +45,13 @@ struct CalendarGridView: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            Text(monthTitle)
+            Text(rangeTitle)
                 .font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(.primary)
 
             Spacer(minLength: 8)
+
+            modePicker
 
             Button {
                 viewModel.goToToday()
@@ -60,13 +64,13 @@ struct CalendarGridView: View {
 
             navButton(
                 systemName: "chevron.left",
-                accessibility: "calendar_grid_previous_month".loco(),
-                action: viewModel.goToPreviousMonth
+                accessibility: previousAccessibilityLabel,
+                action: viewModel.goToPrevious
             )
             navButton(
                 systemName: "chevron.right",
-                accessibility: "calendar_grid_next_month".loco(),
-                action: viewModel.goToNextMonth
+                accessibility: nextAccessibilityLabel,
+                action: viewModel.goToNext
             )
 
             if viewModel.isLoading {
@@ -77,6 +81,25 @@ struct CalendarGridView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+    }
+
+    /// Month ⇄ week fold. `.segmented` is available on the macOS 12 floor.
+    private var modePicker: some View {
+        Picker("calendar_grid_mode_label".loco(), selection: modeBinding) {
+            Text("calendar_grid_mode_month".loco()).tag(CalendarGridMode.month)
+            Text("calendar_grid_mode_week".loco()).tag(CalendarGridMode.week)
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .frame(width: 132)
+        .accessibilityLabel("calendar_grid_mode_label".loco())
+    }
+
+    private var modeBinding: Binding<CalendarGridMode> {
+        Binding(
+            get: { viewModel.mode },
+            set: { viewModel.setMode($0) }
+        )
     }
 
     private func navButton(
@@ -118,7 +141,8 @@ struct CalendarGridView: View {
                         day: day,
                         dayNumber: dayNumber(for: day.date),
                         events: viewModel.events(on: day),
-                        isSelected: isSelected(day)
+                        isSelected: isSelected(day),
+                        isDimmedWeekend: isDimmedWeekend(day)
                     )
                     .onTapGesture { viewModel.select(day) }
                 }
@@ -178,6 +202,12 @@ struct CalendarGridView: View {
         return viewModel.calendar.isDate(day.date, inSameDayAs: selectedDay)
     }
 
+    /// Weekend days are drawn in a lighter foreground when the preference is on.
+    /// `Calendar.isDateInWeekend` follows the locale (not always Sat/Sun).
+    private func isDimmedWeekend(_ day: MonthGridDay) -> Bool {
+        dimWeekends && viewModel.calendar.isDateInWeekend(day.date)
+    }
+
     private var orderedWeekdaySymbols: [String] {
         let symbols = viewModel.calendar.shortStandaloneWeekdaySymbols
         guard symbols.count == 7 else { return symbols }
@@ -185,12 +215,44 @@ struct CalendarGridView: View {
         return Array(symbols[firstIndex...] + symbols[..<firstIndex])
     }
 
-    private var monthTitle: String {
-        let formatter = DateFormatter()
-        formatter.calendar = viewModel.calendar
-        formatter.locale = I18N.instance.locale
-        formatter.setLocalizedDateFormatFromTemplate("yMMMM")
-        return formatter.string(from: viewModel.visibleMonth)
+    /// "February 2026" in month mode; the visible week's date span in week mode
+    /// (e.g. "Jul 12 – 18, 2026"), collapsed and ordered by the user's locale.
+    private var rangeTitle: String {
+        switch viewModel.mode {
+        case .month:
+            let formatter = DateFormatter()
+            formatter.calendar = viewModel.calendar
+            formatter.locale = I18N.instance.locale
+            formatter.setLocalizedDateFormatFromTemplate("yMMMM")
+            return formatter.string(from: viewModel.visibleMonth)
+        case .week:
+            // DateIntervalFormatter localizes the whole span (and collapses the
+            // repeated month/year itself), so no hand-rolled range string.
+            // https://developer.apple.com/documentation/foundation/dateintervalformatter
+            let formatter = DateIntervalFormatter()
+            formatter.calendar = viewModel.calendar
+            formatter.locale = I18N.instance.locale
+            formatter.timeZone = viewModel.calendar.timeZone
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .none
+            let start = viewModel.visibleWeekStart
+            let end = MonthGridLayout.lastVisibleDayOfWeek(
+                containing: start, calendar: viewModel.calendar
+            )
+            return formatter.string(from: start, to: end)
+        }
+    }
+
+    private var previousAccessibilityLabel: String {
+        viewModel.mode == .week
+            ? "calendar_grid_previous_week".loco()
+            : "calendar_grid_previous_month".loco()
+    }
+
+    private var nextAccessibilityLabel: String {
+        viewModel.mode == .week
+            ? "calendar_grid_next_week".loco()
+            : "calendar_grid_next_month".loco()
     }
 
     private func dayNumber(for date: Date) -> String {
@@ -223,6 +285,9 @@ private struct DayCell: View {
     let dayNumber: String
     let events: [MBEvent]
     let isSelected: Bool
+    /// Weekend day with the dim-weekends preference on. Only the day number is
+    /// muted — the today ring and the selection fill stay at full strength.
+    let isDimmedWeekend: Bool
 
     var body: some View {
         VStack(spacing: 3) {
@@ -254,7 +319,7 @@ private struct DayCell: View {
     private var numberColor: Color {
         if isSelected { return .white }
         if day.isToday { return .accentColor }
-        return .primary
+        return isDimmedWeekend ? .secondary : .primary
     }
 
     @ViewBuilder

@@ -189,6 +189,108 @@ final class MonthGridLayoutTests: XCTestCase {
         )
     }
 
+    // MARK: - Single week (week-mode fold)
+
+    func testWeekHasExactlySevenDaysStartingOnFirstWeekday() {
+        let calendar = makeCalendar(firstWeekday: 1) // Sunday
+        // Wed Jul 15, 2026 → Sun Jul 12 … Sat Jul 18.
+        let week = MonthGridLayout.week(
+            containing: date(2026, 7, 15, calendar: calendar),
+            calendar: calendar,
+            now: date(2026, 7, 15, calendar: calendar)
+        )
+
+        XCTAssertEqual(week.count, 7)
+        XCTAssertEqual(week.first?.date, date(2026, 7, 12, calendar: calendar))
+        XCTAssertEqual(week.last?.date, date(2026, 7, 18, calendar: calendar))
+        XCTAssertEqual(calendar.component(.weekday, from: week[0].date), calendar.firstWeekday)
+    }
+
+    func testWeekRespectsMondayStartCalendar() {
+        let calendar = makeCalendar(firstWeekday: 2) // Monday
+        // Wed Jul 15, 2026 → Mon Jul 13 … Sun Jul 19.
+        let week = MonthGridLayout.week(
+            containing: date(2026, 7, 15, calendar: calendar),
+            calendar: calendar,
+            now: date(2026, 7, 15, calendar: calendar)
+        )
+
+        XCTAssertEqual(week.count, 7)
+        XCTAssertEqual(week.first?.date, date(2026, 7, 13, calendar: calendar))
+        XCTAssertEqual(week.last?.date, date(2026, 7, 19, calendar: calendar))
+        XCTAssertEqual(calendar.component(.weekday, from: week[0].date), 2)
+    }
+
+    func testWeekIsTodayFlagIsSetOnMatchingDayOnly() {
+        let calendar = makeCalendar(firstWeekday: 1)
+        let now = calendar.date(from: DateComponents(
+            year: 2026, month: 7, day: 17, hour: 15, minute: 30
+        ))!
+        let week = MonthGridLayout.week(
+            containing: date(2026, 7, 15, calendar: calendar),
+            calendar: calendar,
+            now: now
+        )
+
+        let todays = week.filter(\.isToday)
+        XCTAssertEqual(todays.count, 1)
+        XCTAssertEqual(todays.first?.date, date(2026, 7, 17, calendar: calendar))
+    }
+
+    func testWeekSpanningMonthBoundaryFlagsIsInMonthPerHalf() {
+        let calendar = makeCalendar(firstWeekday: 1)
+        // Sun Jul 26 … Sat Aug 1, 2026. Anchored on a July day, only the July
+        // half is in-month.
+        let julyAnchored = MonthGridLayout.week(
+            containing: date(2026, 7, 30, calendar: calendar),
+            calendar: calendar,
+            now: date(2026, 7, 30, calendar: calendar)
+        )
+        XCTAssertEqual(julyAnchored.filter(\.isInMonth).count, 6)
+        XCTAssertEqual(julyAnchored.last?.date, date(2026, 8, 1, calendar: calendar))
+        XCTAssertEqual(julyAnchored.last?.isInMonth, false)
+
+        // The same week anchored on Aug 1 flips the flags: only Aug 1 is in-month.
+        let augustAnchored = MonthGridLayout.week(
+            containing: date(2026, 8, 1, calendar: calendar),
+            calendar: calendar,
+            now: date(2026, 8, 1, calendar: calendar)
+        )
+        XCTAssertEqual(augustAnchored.map(\.date), julyAnchored.map(\.date))
+        XCTAssertEqual(augustAnchored.filter(\.isInMonth).count, 1)
+        XCTAssertEqual(augustAnchored.first?.isInMonth, false)
+        XCTAssertEqual(augustAnchored.last?.isInMonth, true)
+    }
+
+    func testWeekNormalizesMidDayAnchorToStartOfDay() {
+        let calendar = makeCalendar(firstWeekday: 1)
+        let midAfternoon = calendar.date(from: DateComponents(
+            year: 2026, month: 7, day: 15, hour: 16, minute: 20
+        ))!
+        let week = MonthGridLayout.week(
+            containing: midAfternoon, calendar: calendar, now: midAfternoon
+        )
+        XCTAssertEqual(week.map(\.date), week.map { calendar.startOfDay(for: $0.date) })
+        XCTAssertEqual(week.first?.date, date(2026, 7, 12, calendar: calendar))
+    }
+
+    func testFirstAndLastVisibleDayOfWeekBoundTheWeek() {
+        for firstWeekday in [1, 2] {
+            let calendar = makeCalendar(firstWeekday: firstWeekday)
+            let anchor = date(2026, 7, 15, calendar: calendar)
+            let week = MonthGridLayout.week(containing: anchor, calendar: calendar, now: anchor)
+
+            XCTAssertEqual(
+                MonthGridLayout.firstVisibleDayOfWeek(containing: anchor, calendar: calendar),
+                week.first?.date
+            )
+            XCTAssertEqual(
+                MonthGridLayout.lastVisibleDayOfWeek(containing: anchor, calendar: calendar),
+                week.last?.date
+            )
+        }
+    }
+
     func testStartOfMonthNormalizesToFirstDay() {
         let calendar = makeCalendar(firstWeekday: 1)
         let mid = calendar.date(from: DateComponents(

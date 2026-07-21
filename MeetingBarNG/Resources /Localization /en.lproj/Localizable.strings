@@ -134,10 +134,15 @@
 "command_bar_action_open_preferences" = "Open Preferences";
 "command_bar_action_open_preferences_keywords" = "preferences settings options";
 
-// MARK: - Calendar window (month grid)
+// MARK: - Calendar window (month / week grid)
 "calendar_grid_today" = "Today";
 "calendar_grid_previous_month" = "Previous month";
 "calendar_grid_next_month" = "Next month";
+"calendar_grid_previous_week" = "Previous week";
+"calendar_grid_next_week" = "Next week";
+"calendar_grid_mode_label" = "Show";
+"calendar_grid_mode_month" = "Month";
+"calendar_grid_mode_week" = "Week";
 "calendar_grid_no_events" = "No events";
 "calendar_grid_all_day" = "All-day";
 
@@ -242,6 +247,9 @@
 "preferences_appearance_menu_show_prep_links_value" = "Show prep links (Figma, Docs, GitHub…) from the invite";
 "preferences_appearance_menu_show_reminders_toggle" = "Show today's reminders in the dropdown";
 "preferences_appearance_menu_reminders_include_overdue_toggle" = "Include overdue reminders";
+"preferences_appearance_calendar_window_title" = "Calendar window";
+"preferences_appearance_calendar_dim_weekends_toggle" = "Dim weekends in the calendar";
+"preferences_appearance_calendar_dim_weekends_help" = "Saturdays and Sundays are shown in lighter gray so the work week stands out. Today and the day you picked stay highlighted.";
 
 // MARK: - Preset number picker (Phase 3, MeetingBarNG)
 // Shared chips for the numeric preferences that used to be bare steppers.
