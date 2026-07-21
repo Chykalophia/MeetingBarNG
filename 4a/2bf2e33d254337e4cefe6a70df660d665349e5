@@ -1,0 +1,104 @@
+MeetingBarLogicTests/AgendaRowLayoutTests.swift
+  s_8821c3fb11800f::t_919676a258cd75 115,117-119
+  s_8821c3fb11800f::t_76e374a22c46b4 38,47,64-65,71-72
+  s_8821c3fb11800f::t_d890ef862375ce 130-142,147
+  s_8821c3fb11800f::t_cae708aa56a249 227-229
+  s_8821c3fb11800f::t_d504432e916a93 120-129,143-146
+  s_8821c3fb11800f::t_6752a3a9304c52 1-22,36-37,48-49,59-63,66-70,73-114,116,148-226,230-280
+  s_8821c3fb11800f::t_5371041bbe1006 23-35,39-46,50-58
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_8821c3fb11800f::t_48952d8b307297 30-31
+  s_8821c3fb11800f::t_5f31a6be542481 27-29
+  s_8821c3fb11800f::t_0f66f6bba6b429 144
+  s_8821c3fb11800f::t_d14fbf23cd515e 74
+MeetingBarNG/App/AppDelegate.swift
+  s_8821c3fb11800f::t_64bef2e2264f59 18-19
+MeetingBarNG/UI/StatusBar/MeetingSummaryView.swift
+  s_8821c3fb11800f::t_212fa73a1cd50c 13-15
+  s_8821c3fb11800f::t_e0c39405ad1938 47-49
+  s_8821c3fb11800f::t_82d5504d18d7f3 102-107
+MeetingBarNG/Preferences/GeneralTab.swift
+  s_8821c3fb11800f::t_39424dd9fd1e6e 11-12
+  s_8821c3fb11800f::t_021d131b2c5754 169-172,174-180,184
+  s_8821c3fb11800f::t_e1e3fedd9ca69c 188-196
+  s_8821c3fb11800f::t_49af787c6cba66 119-123
+  s_8821c3fb11800f::t_92fb8496986216 197-198
+Scripts/strings-lint
+  s_8821c3fb11800f::t_11a5d3444253e0 1-90
+MeetingBarNG/Preferences/AdvancedTab.swift
+  s_8821c3fb11800f::t_247364c71a7375 152-158
+MeetingBarNG/UI/Views/Shared.swift
+  s_8821c3fb11800f::t_a5765c303d0db9 154-176
+  s_8821c3fb11800f::t_38a548a9d9219c 93-97,102-111
+  s_8821c3fb11800f::t_b872b44d778251 9-11,14,18
+MeetingBarNG/Calendar/CalendarSync.swift
+  s_8821c3fb11800f::t_fd796e19de16fa 17-18
+  s_8821c3fb11800f::t_f9b96026df987c 270-273
+Makefile
+  s_8821c3fb11800f::t_8c086719edca6b 35
+  s_8821c3fb11800f::t_178771aa0c2ca5 147-150
+Package.swift
+  s_8821c3fb11800f::t_4120edb5d0abda 51
+MeetingBarNG/UI/StatusBar/DropdownMetrics.swift
+  s_8821c3fb11800f::t_74ebe8e9d92a7e 223-231,245
+  s_8821c3fb11800f::t_650af8808168b7 1-177,181-187,190-222,232-244,246-264
+  s_8821c3fb11800f::t_efa7c1e605b01e 178-180,188-189
+MeetingBarNG/Preferences/Preferences.swift
+  s_8821c3fb11800f::t_90997a79ee2518 13-17,26-27,33,45-47,60-62,66,101-104,109-110
+  s_8821c3fb11800f::t_c14a3f2410fb82 67
+MeetingBarNG/Preferences/DisplayTab.swift
+  s_8821c3fb11800f::t_81f4afdfa1395e 24-26
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_52964824eac333 97,101-103
+MeetingBarNG/App/WindowCoordinator.swift
+  s_8821c3fb11800f::t_31f6017cb4fd57 119
+  s_8821c3fb11800f::t_a9e3e127b046b4 235-238
+MeetingBarNG/Settings/AppSettings.swift
+  s_8821c3fb11800f::t_0f7d59efd5da8b 353
+MeetingBarNG/UI/StatusBar/DropdownPanelView.swift
+  s_8821c3fb11800f::t_10583f537aed86 150
+  s_8821c3fb11800f::t_e4dc64f36e1429 122-129,134-137
+  s_8821c3fb11800f::t_ea0f297e342a6d 826,960,1354,1358-1378,1385-1389
+  s_8821c3fb11800f::t_e503002eb2dbcb 876
+  s_8821c3fb11800f::t_93312ca730e375 921,923-924,928-959
+  s_8821c3fb11800f::t_a579ee71df58e8 1445-1447
+  s_8821c3fb11800f::t_fb348b4f106b89 457,464-470
+  s_8821c3fb11800f::t_5416a07502b641 1296,1299
+  s_8821c3fb11800f::t_407c537d709434 32-44
+  s_8821c3fb11800f::t_8665c06de49750 600-605
+  s_8821c3fb11800f::t_a9f1a893683720 568
+  s_8821c3fb11800f::t_4cb17d608a5466 884
+  s_8821c3fb11800f::t_0000fa58aa9d48 170
+  s_8821c3fb11800f::t_23869a8815a1f6 851
+  s_8821c3fb11800f::t_fa3f9980025753 6-9
+  s_8821c3fb11800f::t_e7da9142e64ec4 483
+  s_8821c3fb11800f::t_05bcaaf43fbf69 1315
+  s_8821c3fb11800f::t_6e0d3c764b199b 594-599,606-619,626-825
+  s_8821c3fb11800f::t_9498817d63c998 1161,1165
+  s_8821c3fb11800f::t_4a2976d0e09db6 1424-1426,1430-1431,1437
+  s_8821c3fb11800f::t_4fed3bb7079fc6 138
+  s_8821c3fb11800f::t_ba510458f16d0c 827
+  s_8821c3fb11800f::t_d485c8c448cde5 961
+  s_8821c3fb11800f::t_376d167addce93 1390
+MeetingBarNG/Utilities/Diagnostics/DiagnosticsReport+MeetingBar.swift
+  s_8821c3fb11800f::t_9deb2bf3e9affc 97-106
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_8821c3fb11800f::t_d98dadc978ced0 12-15
+  s_8821c3fb11800f::t_ce0241b3e51e4a 261-266
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "4a2bf2e33d254337e4cefe6a70df660d665349e5",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
