@@ -1,0 +1,21 @@
+Package.swift
+  s_8821c3fb11800f::t_b5ab6ee3c9ec3e 8
+MeetingBarNG.xcodeproj/project.pbxproj
+  s_8821c3fb11800f::t_296e51916eb632 375,439,470,500,523,545
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "f54faa22f57e0e109334679623e4d08f12d9d37c",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
