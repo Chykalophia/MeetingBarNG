@@ -55,7 +55,6 @@ struct DropdownTab: View {
             PreferencesGroupedForm {
                 DropdownComposerSection()
                 DropdownDisplaySection()
-                EventDetailSection()
                 PreferencesResetSection(tab: .dropdown)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

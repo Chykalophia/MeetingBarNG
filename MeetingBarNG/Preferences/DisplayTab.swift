@@ -73,6 +73,20 @@ struct DropdownComposerSection: View {
     @Default(.showJoinSectionInMenu) var showJoinSectionInMenu
     @Default(.showBookmarksInMenu) var showBookmarksInMenu
 
+    // Greeting gear: the name field.
+    @Default(.greetingName) var greetingName
+
+    // Agenda gear: the per-event-row detail toggles.
+    @Default(.shortenEventTitle) var shortenEventTitle
+    @Default(.menuEventTitleLength) var menuEventTitleLength
+    @Default(.showEventEndTime) var showEventEndTime
+    @Default(.showMeetingServiceIcon) var showMeetingServiceIcon
+    @Default(.showEventCalendarColor) var showEventCalendarColor
+    @Default(.showMeetingPrepLinks) var showMeetingPrepLinks
+
+    // Which module's gear popover is open.
+    @State private var gearOpenModule: DropdownModule?
+
     /// The full canonical order of every module: the stored order parsed +
     /// de-duped, with any missing module reappended in standard position.
     private var fullOrder: [DropdownModule] {
@@ -154,6 +168,22 @@ struct DropdownComposerSection: View {
         HStack {
             Label(moduleName(module), systemImage: moduleSymbol(module))
             Spacer()
+
+            if hasGear(module) {
+                Button {
+                    gearOpenModule = (gearOpenModule == module) ? nil : module
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+                .buttonStyle(.borderless)
+                .help("preferences_menubar_block_configure".loco())
+                .popover(isPresented: gearBinding(for: module)) {
+                    moduleGearContent(module)
+                        .frame(width: 320)
+                        .padding(16)
+                }
+            }
+
             Button { move(from: index, by: -1) } label: {
                 Image(systemName: "chevron.up")
             }
@@ -174,6 +204,87 @@ struct DropdownComposerSection: View {
             .buttonStyle(.borderless)
             .help("preferences_appearance_menu_bar_composer_remove".loco())
         }
+    }
+
+    /// Modules that have configurable options get a gear; others are just
+    /// show/hide with nothing to configure.
+    private func hasGear(_ module: DropdownModule) -> Bool {
+        switch module {
+        case .greeting, .agenda: return true
+        case .timeline, .meeting, .join, .bookmarks: return false
+        }
+    }
+
+    private func gearBinding(for module: DropdownModule) -> Binding<Bool> {
+        Binding(
+            get: { gearOpenModule == module },
+            set: { isOn in gearOpenModule = isOn ? module : nil }
+        )
+    }
+
+    /// The popover content for a module's gear.
+    @ViewBuilder
+    private func moduleGearContent(_ module: DropdownModule) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(moduleName(module))
+                .font(.headline)
+                .foregroundStyle(.primary)
+
+            switch module {
+            case .greeting:
+                TextField(
+                    preferenceLabel("preferences_dropdown_greeting_name_title"),
+                    text: $greetingName,
+                    prompt: Text("preferences_dropdown_greeting_name_placeholder".loco())
+                )
+                helpText("preferences_dropdown_greeting_name_help")
+
+            case .agenda:
+                Toggle(
+                    preferenceLabel("preferences_dropdown_rows_end_time_toggle"),
+                    isOn: $showEventEndTime
+                )
+                Toggle(
+                    preferenceLabel("preferences_dropdown_rows_service_icon_toggle"),
+                    isOn: $showMeetingServiceIcon
+                )
+                Toggle(
+                    preferenceLabel("preferences_dropdown_rows_calendar_color_toggle"),
+                    isOn: $showEventCalendarColor
+                )
+                Toggle(
+                    preferenceLabel("preferences_dropdown_rows_prep_links_toggle"),
+                    isOn: $showMeetingPrepLinks
+                )
+                Divider()
+                Toggle(
+                    preferenceLabel("preferences_dropdown_rows_shorten_toggle"),
+                    isOn: $shortenEventTitle
+                )
+                PresetNumberPicker(
+                    presets: [20, 30, 50, 80],
+                    presetLabel: { "\($0)" },
+                    customLabel: "preferences_preset_custom".loco(),
+                    value: $menuEventTitleLength,
+                    range: 20 ... 100,
+                    step: 5,
+                    stepperLabel: { "preferences_dropdown_rows_shorten_stepper".loco($0) },
+                    example: "preferences_dropdown_rows_shorten_example".loco(),
+                    isEnabled: shortenEventTitle
+                )
+
+            case .timeline, .meeting, .join, .bookmarks:
+                EmptyView()
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func helpText(_ key: String) -> some View {
+        Text(key.loco())
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     // MARK: Data
@@ -245,36 +356,14 @@ struct DropdownComposerSection: View {
 // MARK: - Dropdown display
 
 /// Dropdown settings that are NOT plain on/off duplicates of a composer module:
-/// the greeting NAME field and the Reminders toggles. The greeting and timeline
-/// *visibility* toggles were dropped here in Phase 3 —
-/// `DropdownComposerSection`'s module list is now their single source of truth,
-/// so they are no longer rendered twice. Reminders is not a composer module, so
-/// its on/off toggle stays here (it is also the only place that requests
-/// Reminders access). `hideFinishedEventsInMenu` moved to Filters (merged into
-/// the "ended" row), and `useSwiftUIDropdown` moved to General ▸ Troubleshooting.
+/// the Reminders toggles. The greeting NAME field moved into the greeting
+/// block's gear popover. Reminders is not a composer module, so its on/off
+/// toggle stays here (it is also the only place that requests Reminders access).
 struct DropdownDisplaySection: View {
-    // Read-only here: the greeting section is shown/hidden in "Dropdown layout"
-    // above; this key only gates whether the greeting NAME field is editable.
-    @Default(.showGreetingInMenu) var showGreetingInMenu
-    @Default(.greetingName) var greetingName
     @Default(.showRemindersInMenu) var showRemindersInMenu
     @Default(.remindersIncludeOverdue) var remindersIncludeOverdue
 
     var body: some View {
-        Section(header: Text("preferences_dropdown_block_greeting".loco())) {
-            // The greeting NAME. The greeting section itself is toggled in
-            // "Dropdown layout" above; this field is disabled while it is hidden.
-            TextField(
-                preferenceLabel("preferences_dropdown_greeting_name_title"),
-                text: $greetingName,
-                prompt: Text("preferences_dropdown_greeting_name_placeholder".loco())
-            )
-            .disabled(!showGreetingInMenu)
-            Text("preferences_dropdown_greeting_name_help".loco())
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
-
         Section(header: Text("preferences_dropdown_reminders_toggle".loco())) {
             // Reminders (Dot parity). Turning this on is the ONLY place that
             // requests Reminders access — the setting only flips on if granted.

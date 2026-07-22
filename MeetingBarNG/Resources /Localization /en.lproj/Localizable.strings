@@ -221,9 +221,10 @@
 "preferences_menubar_preset_info" = "Info";
 "preferences_menubar_preset_custom" = "Custom";
 "preferences_menubar_blocks_title" = "Blocks";
-"preferences_menubar_blocks_help" = "The pieces of the menu bar, left to right. Drag arrives with the builder; for now, use the arrows.";
+"preferences_menubar_blocks_help" = "The pieces of the menu bar, left to right. Use the arrows to reorder, and the gear to configure each block.";
 "preferences_menubar_block_move_up" = "Move earlier";
 "preferences_menubar_block_move_down" = "Move later";
+"preferences_menubar_block_configure" = "Configure this block";
 "preferences_menubar_block_icon" = "Icon";
 "preferences_menubar_block_title" = "Meeting title";
 "preferences_menubar_block_countdown" = "Countdown";
@@ -277,7 +278,7 @@
 // MARK: - Preferences ▸ Dropdown
 
 "preferences_dropdown_blocks_title" = "Blocks";
-"preferences_dropdown_blocks_help" = "The pieces of the dropdown, top to bottom. Settings & Quit is always pinned at the bottom.";
+"preferences_dropdown_blocks_help" = "The pieces of the dropdown, top to bottom. Use the arrows to reorder, the gear to configure a block, and the minus to hide it. Settings & Quit is always pinned at the bottom.";
 "preferences_dropdown_block_add" = "Add block";
 "preferences_dropdown_block_greeting" = "Greeting";
 "preferences_dropdown_block_timeline" = "Timeline";
@@ -292,7 +293,6 @@
 "preferences_dropdown_reminders_toggle" = "Show today's reminders";
 "preferences_dropdown_reminders_help" = "Needs Reminders access, which you grant on the Calendars page.";
 "preferences_dropdown_reminders_overdue_toggle" = "Include overdue";
-"preferences_dropdown_rows_title" = "Meeting rows";
 "preferences_dropdown_rows_end_time_toggle" = "Show each meeting's end time";
 "preferences_dropdown_rows_service_icon_toggle" = "Show the Zoom / Teams / Meet logo";
 "preferences_dropdown_rows_calendar_color_toggle" = "Show the calendar's colour dot";

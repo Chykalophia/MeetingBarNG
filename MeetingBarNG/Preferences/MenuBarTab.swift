@@ -63,7 +63,7 @@ struct MenuBarTab: View {
     @Default(.menuBarTokens) private var menuBarTokens
     @Default(.menuBarTwoLineLayout) private var menuBarTwoLineLayout
 
-    // Block options (Phase 5 moves each onto its own block's gear).
+    // Block options — now behind each block's gear popover.
     @Default(.eventTitleIconFormat) private var eventTitleIconFormat
     @Default(.eventTitleFormat) private var eventTitleFormat
     @Default(.statusbarEventTitleLength) private var statusbarEventTitleLength
@@ -76,6 +76,9 @@ struct MenuBarTab: View {
     // How quiet the strip stays until a meeting is close.
     @Default(.showEventMaxTimeUntilEventEnabled) private var showEventMaxTimeUntilEventEnabled
     @Default(.showEventMaxTimeUntilEventThreshold) private var showEventMaxTimeUntilEventThreshold
+
+    // Which block's gear popover is open.
+    @State private var gearOpenBlock: MenuBarTokenKind?
 
     /// Every block, showing ones first in their stored order.
     private var blocks: [MenuBarBlock] {
@@ -90,12 +93,6 @@ struct MenuBarTab: View {
         PreferencesGroupedForm {
             presetSection
             blocksSection
-            iconSection
-            titleSection
-            countdownSection
-            dateSection
-            progressSection
-            worldClockSection
             quietSection
             linesSection
             PreferencesResetSection(tab: .menuBar)
@@ -214,6 +211,22 @@ struct MenuBarTab: View {
 
             Spacer()
 
+            if hasGear(block.kind) {
+                Button {
+                    gearOpenBlock = (gearOpenBlock == block.kind) ? nil : block.kind
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+                .buttonStyle(.borderless)
+                .disabled(!block.isOn)
+                .help("preferences_menubar_block_configure".loco())
+                .popover(isPresented: gearBinding(for: block.kind)) {
+                    blockGearContent(block.kind)
+                        .frame(width: 320)
+                        .padding(16)
+                }
+            }
+
             Button {
                 menuBarTokens = MenuBarBlockList.moved(stored: menuBarTokens, kind: block.kind, by: -1)
             } label: {
@@ -238,6 +251,113 @@ struct MenuBarTab: View {
                 .controlSize(.small)
                 .accessibilityLabel(Text(blockName(block.kind)))
         }
+    }
+
+    /// Blocks that have configurable options get a gear; others (clock, week
+    /// number) are just on/off and show no gear.
+    private func hasGear(_ kind: MenuBarTokenKind) -> Bool {
+        switch kind {
+        case .icon, .title, .countdown, .date, .progress, .worldClock:
+            return true
+        case .clock, .weekNumber:
+            return false
+        }
+    }
+
+    private func gearBinding(for kind: MenuBarTokenKind) -> Binding<Bool> {
+        Binding(
+            get: { gearOpenBlock == kind },
+            set: { isOn in gearOpenBlock = isOn ? kind : nil }
+        )
+    }
+
+    /// The popover content for a block's gear — only the options that belong
+    /// to that block, so the pane stays calm by default and deep on demand.
+    @ViewBuilder
+    private func blockGearContent(_ kind: MenuBarTokenKind) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(blockName(kind))
+                .font(.headline)
+                .foregroundStyle(.primary)
+
+            switch kind {
+            case .icon:
+                Picker("preferences_menubar_icon_title".loco(), selection: $eventTitleIconFormat) {
+                    iconOption(.calendar, labelKey: "preferences_menubar_icon_calendar")
+                    iconOption(.appicon, labelKey: "preferences_menubar_icon_app")
+                    iconOption(.eventtype, labelKey: "preferences_menubar_icon_service")
+                    iconOption(.none, labelKey: "preferences_menubar_icon_none")
+                }
+                if eventTitleIconFormat == .none {
+                    helpText("preferences_menubar_icon_none_help")
+                }
+
+            case .title:
+                Picker("preferences_menubar_title_title".loco(), selection: $eventTitleFormat) {
+                    Text("preferences_menubar_title_event".loco()).tag(EventTitleFormat.show)
+                    Text("preferences_menubar_title_generic".loco()).tag(EventTitleFormat.generic)
+                    Text("preferences_menubar_title_dot".loco()).tag(EventTitleFormat.dot)
+                    Text("preferences_menubar_title_none".loco()).tag(EventTitleFormat.none)
+                }
+                Divider()
+                Text("preferences_menubar_title_shorten_title".loco())
+                    .font(.subheadline.weight(.medium))
+                PresetNumberPicker(
+                    presets: [20, 30, 50, 80],
+                    presetLabel: { "\($0)" },
+                    customLabel: "preferences_preset_custom".loco(),
+                    value: $statusbarEventTitleLength,
+                    range: statusbarEventTitleLengthLimits.min ... statusbarEventTitleLengthLimits.max,
+                    step: 5,
+                    stepperLabel: { "preferences_menubar_title_shorten_stepper".loco($0) },
+                    example: "preferences_menubar_title_shorten_example".loco(),
+                    isEnabled: eventTitleFormat == .show
+                )
+
+            case .countdown:
+                Picker(
+                    "preferences_menubar_countdown_style_title".loco(),
+                    selection: countdownStyle
+                ) {
+                    Text("preferences_menubar_countdown_style_compact".loco()).tag(CountdownStyle.compact)
+                    Text("preferences_menubar_countdown_style_full".loco()).tag(CountdownStyle.full)
+                    Text("preferences_menubar_countdown_style_digital".loco()).tag(CountdownStyle.digital)
+                }
+
+            case .date:
+                Picker("preferences_menubar_date_style_title".loco(), selection: dateStyle) {
+                    Text("preferences_menubar_date_style_weekday".loco()).tag(MenuBarDateStyle.weekday)
+                    Text("preferences_menubar_date_style_medium".loco()).tag(MenuBarDateStyle.medium)
+                    Text("preferences_menubar_date_style_short".loco()).tag(MenuBarDateStyle.short)
+                }
+
+            case .progress:
+                Picker("preferences_menubar_progress_style_title".loco(), selection: progressStyle) {
+                    Text("preferences_menubar_progress_style_day".loco()).tag(MenuBarProgressStyle.day)
+                    Text("preferences_menubar_progress_style_year".loco()).tag(MenuBarProgressStyle.year)
+                }
+
+            case .worldClock:
+                Picker(
+                    "preferences_menubar_world_clock_timezone_title".loco(),
+                    selection: $menuBarWorldClockTimeZone
+                ) {
+                    ForEach(TimeZone.knownTimeZoneIdentifiers.sorted(), id: \.self) { identifier in
+                        Text(identifier).tag(identifier)
+                    }
+                }
+                Divider()
+                TextField(
+                    "preferences_menubar_world_clock_label_title".loco(),
+                    text: $menuBarWorldClockLabel,
+                    prompt: Text("preferences_menubar_world_clock_label_placeholder".loco())
+                )
+
+            case .clock, .weekNumber:
+                EmptyView()
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     /// Turning a block off removes it from the showing order and nothing else:
@@ -278,29 +398,7 @@ struct MenuBarTab: View {
         }
     }
 
-    // MARK: - Block options
-    //
-    // Each section belongs to one block and is shown only while that block is.
-    // Phase 5 moves them behind that block's gear; until then they are ordinary
-    // rows, so no setting is ever unreachable.
-
-    @ViewBuilder
-    private var iconSection: some View {
-        if showingKinds.contains(.icon) {
-            Section(header: Text("preferences_menubar_block_icon".loco())) {
-                Picker("preferences_menubar_icon_title".loco(), selection: $eventTitleIconFormat) {
-                    iconOption(.calendar, labelKey: "preferences_menubar_icon_calendar")
-                    iconOption(.appicon, labelKey: "preferences_menubar_icon_app")
-                    iconOption(.eventtype, labelKey: "preferences_menubar_icon_service")
-                    iconOption(.none, labelKey: "preferences_menubar_icon_none")
-                }
-
-                if eventTitleIconFormat == .none {
-                    helpText("preferences_menubar_icon_none_help")
-                }
-            }
-        }
-    }
+    // MARK: - Icon helper (used by the gear popover)
 
     private func iconOption(_ format: EventTitleIconFormat, labelKey: String) -> some View {
         HStack {
@@ -316,96 +414,6 @@ struct MenuBarTab: View {
         let image = MenuStyleConstants.iconNamed(name)
         image.size = NSSize(width: 16, height: 16)
         return image
-    }
-
-    @ViewBuilder
-    private var titleSection: some View {
-        if showingKinds.contains(.title) {
-            Section(header: Text("preferences_menubar_block_title".loco())) {
-                Picker("preferences_menubar_title_title".loco(), selection: $eventTitleFormat) {
-                    Text("preferences_menubar_title_event".loco()).tag(EventTitleFormat.show)
-                    Text("preferences_menubar_title_generic".loco()).tag(EventTitleFormat.generic)
-                    Text("preferences_menubar_title_dot".loco()).tag(EventTitleFormat.dot)
-                    Text("preferences_menubar_title_none".loco()).tag(EventTitleFormat.none)
-                }
-
-                Text("preferences_menubar_title_shorten_title".loco())
-                PresetNumberPicker(
-                    presets: [20, 30, 50, 80],
-                    presetLabel: { "\($0)" },
-                    customLabel: "preferences_preset_custom".loco(),
-                    value: $statusbarEventTitleLength,
-                    range: statusbarEventTitleLengthLimits.min ... statusbarEventTitleLengthLimits.max,
-                    step: 5,
-                    stepperLabel: { "preferences_menubar_title_shorten_stepper".loco($0) },
-                    example: "preferences_menubar_title_shorten_example".loco(),
-                    isEnabled: eventTitleFormat == .show
-                )
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var countdownSection: some View {
-        if showingKinds.contains(.countdown) {
-            Section(header: Text("preferences_menubar_block_countdown".loco())) {
-                Picker(
-                    "preferences_menubar_countdown_style_title".loco(),
-                    selection: countdownStyle
-                ) {
-                    Text("preferences_menubar_countdown_style_compact".loco()).tag(CountdownStyle.compact)
-                    Text("preferences_menubar_countdown_style_full".loco()).tag(CountdownStyle.full)
-                    Text("preferences_menubar_countdown_style_digital".loco()).tag(CountdownStyle.digital)
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var dateSection: some View {
-        if showingKinds.contains(.date) {
-            Section(header: Text("preferences_menubar_block_date".loco())) {
-                Picker("preferences_menubar_date_style_title".loco(), selection: dateStyle) {
-                    Text("preferences_menubar_date_style_weekday".loco()).tag(MenuBarDateStyle.weekday)
-                    Text("preferences_menubar_date_style_medium".loco()).tag(MenuBarDateStyle.medium)
-                    Text("preferences_menubar_date_style_short".loco()).tag(MenuBarDateStyle.short)
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var progressSection: some View {
-        if showingKinds.contains(.progress) {
-            Section(header: Text("preferences_menubar_block_progress".loco())) {
-                Picker("preferences_menubar_progress_style_title".loco(), selection: progressStyle) {
-                    Text("preferences_menubar_progress_style_day".loco()).tag(MenuBarProgressStyle.day)
-                    Text("preferences_menubar_progress_style_year".loco()).tag(MenuBarProgressStyle.year)
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var worldClockSection: some View {
-        if showingKinds.contains(.worldClock) {
-            Section(header: Text("preferences_menubar_block_world_clock".loco())) {
-                // Phase 5 makes this searchable; today it is the raw IANA list.
-                Picker(
-                    "preferences_menubar_world_clock_timezone_title".loco(),
-                    selection: $menuBarWorldClockTimeZone
-                ) {
-                    ForEach(TimeZone.knownTimeZoneIdentifiers.sorted(), id: \.self) { identifier in
-                        Text(identifier).tag(identifier)
-                    }
-                }
-                TextField(
-                    "preferences_menubar_world_clock_label_title".loco(),
-                    text: $menuBarWorldClockLabel,
-                    prompt: Text("preferences_menubar_world_clock_label_placeholder".loco())
-                )
-            }
-        }
     }
 
     // MARK: - Quiet until a meeting is close
