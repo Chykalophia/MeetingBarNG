@@ -1,0 +1,25 @@
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_5a091cf07585aa 969-982
+  s_8821c3fb11800f::t_8f9246449227fb 939-953
+  s_8821c3fb11800f::t_71a64ce30c4b48 954-968
+MeetingBarNGTests/IndirectLocalizationKeyTests.swift
+  s_8821c3fb11800f::t_2428cbcfd25aaf 1-158
+MeetingBarNG/Preferences/Preferences.swift
+  s_8821c3fb11800f::t_c5dd96915c662f 66-74,76-79,81-91
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "cca92fdfe86098712027aeca647392c40bdfc19c",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
