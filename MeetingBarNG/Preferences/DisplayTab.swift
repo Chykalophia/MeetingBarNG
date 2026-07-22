@@ -404,10 +404,14 @@ struct DropdownDisplaySection: View {
 /// Display options for the standalone calendar window (the month/week grid),
 /// kept separate from the dropdown options above because they affect a different
 /// surface. The window's own Month/Week fold lives in its header; the stored
-/// default and the weekend dimming are persistent preferences.
+/// default, weekend dimming, first weekday, week numbers, and per-day event cap
+/// are persistent preferences.
 struct CalendarWindowDisplaySection: View {
     @Default(.dimWeekendsInCalendar) var dimWeekendsInCalendar
     @Default(.calendarGridMode) var calendarGridMode
+    @Default(.calendarFirstWeekday) var calendarFirstWeekday
+    @Default(.showWeekNumbersInCalendar) var showWeekNumbersInCalendar
+    @Default(.maxEventsPerCalendarDay) var maxEventsPerCalendarDay
 
     var body: some View {
         Section {
@@ -430,6 +434,49 @@ struct CalendarWindowDisplaySection: View {
                 Text("calendar_grid_mode_week".loco()).tag(CalendarGridMode.week)
             }
             Text("preferences_calendarwindow_open_in_help".loco())
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+
+        Section {
+            Picker(
+                "preferences_calendarwindow_first_weekday_title".loco(),
+                selection: $calendarFirstWeekday
+            ) {
+                Text("preferences_calendarwindow_first_weekday_auto".loco()).tag(0)
+                Text("preferences_calendarwindow_first_weekday_sunday".loco()).tag(1)
+                Text("preferences_calendarwindow_first_weekday_monday".loco()).tag(2)
+            }
+            Text("preferences_calendarwindow_first_weekday_help".loco())
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+
+        Section {
+            Toggle(
+                preferenceLabel("preferences_calendarwindow_week_numbers_toggle"),
+                isOn: $showWeekNumbersInCalendar
+            )
+            Text("preferences_calendarwindow_week_numbers_help".loco())
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+
+        Section {
+            Picker(
+                "preferences_calendarwindow_event_cap_title".loco(),
+                selection: $maxEventsPerCalendarDay
+            ) {
+                Text("1").tag(1)
+                Text("2").tag(2)
+                Text("3").tag(3)
+                Text("4").tag(4)
+                Text("5").tag(5)
+            }
+            Text("preferences_calendarwindow_event_cap_help".loco())
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

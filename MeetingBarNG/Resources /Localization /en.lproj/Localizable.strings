@@ -307,6 +307,15 @@
 "preferences_calendarwindow_dim_weekends_help" = "Saturdays and Sundays are drawn in lighter grey so the work week stands out. Today and the day you picked stay highlighted.";
 "preferences_calendarwindow_open_in_title" = "Open in";
 "preferences_calendarwindow_open_in_help" = "The view the window starts in. Its own header still switches the view you are looking at now.";
+"preferences_calendarwindow_first_weekday_title" = "First day of the week";
+"preferences_calendarwindow_first_weekday_help" = "Auto follows your Mac's locale. Changing this takes effect when you reopen the calendar window.";
+"preferences_calendarwindow_first_weekday_auto" = "Auto (follow locale)";
+"preferences_calendarwindow_first_weekday_sunday" = "Sunday";
+"preferences_calendarwindow_first_weekday_monday" = "Monday";
+"preferences_calendarwindow_week_numbers_toggle" = "Show week numbers";
+"preferences_calendarwindow_week_numbers_help" = "A thin column of ISO week numbers on the left of the grid.";
+"preferences_calendarwindow_event_cap_title" = "Event dots per day";
+"preferences_calendarwindow_event_cap_help" = "How many coloured dots each day cell shows before switching to a \"+N more\" count.";
 
 // MARK: - Preferences ▸ Joining
 

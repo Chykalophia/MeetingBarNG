@@ -21,6 +21,8 @@ enum CalendarWindowPresentationPolicy {
 struct CalendarGridView: View {
     @ObservedObject var viewModel: CalendarGridViewModel
     @Default(.dimWeekendsInCalendar) private var dimWeekends
+    @Default(.showWeekNumbersInCalendar) private var showWeekNumbers
+    @Default(.maxEventsPerCalendarDay) private var maxEventsPerDay
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: 4), count: 7
@@ -134,22 +136,45 @@ struct CalendarGridView: View {
     // MARK: - Month grid
 
     private var monthGrid: some View {
-        LazyVGrid(columns: columns, spacing: 4) {
-            ForEach(Array(viewModel.weeks.enumerated()), id: \.offset) { _, week in
-                ForEach(week, id: \.date) { day in
-                    DayCell(
-                        day: day,
-                        dayNumber: dayNumber(for: day.date),
-                        events: viewModel.events(on: day),
-                        isSelected: isSelected(day),
-                        isDimmedWeekend: isDimmedWeekend(day)
-                    )
-                    .onTapGesture { viewModel.select(day) }
+        HStack(alignment: .top, spacing: 4) {
+            if showWeekNumbers {
+                weekNumberColumn
+                    .frame(width: 24)
+            }
+            LazyVGrid(columns: columns, spacing: 4) {
+                ForEach(Array(viewModel.weeks.enumerated()), id: \.offset) { _, week in
+                    ForEach(week, id: \.date) { day in
+                        DayCell(
+                            day: day,
+                            dayNumber: dayNumber(for: day.date),
+                            events: viewModel.events(on: day),
+                            maxDots: maxEventsPerDay,
+                            isSelected: isSelected(day),
+                            isDimmedWeekend: isDimmedWeekend(day)
+                        )
+                        .onTapGesture { viewModel.select(day) }
+                    }
                 }
             }
         }
         .padding(.horizontal, 12)
         .padding(.bottom, 12)
+    }
+
+    /// A thin column of ISO week numbers, one per visible week row.
+    private var weekNumberColumn: some View {
+        VStack(spacing: 4) {
+            ForEach(Array(viewModel.weeks.enumerated()), id: \.offset) { _, week in
+                let weekNum = viewModel.calendar.component(
+                    .weekOfYear, from: week.first?.date ?? Date()
+                )
+                Text("\(weekNum)")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+            }
+        }
+        .padding(.top, 0)
     }
 
     // MARK: - Selected day
@@ -284,6 +309,7 @@ private struct DayCell: View {
     let day: MonthGridDay
     let dayNumber: String
     let events: [MBEvent]
+    let maxDots: Int
     let isSelected: Bool
     /// Weekend day with the dim-weekends preference on. Only the day number is
     /// muted — the today ring and the selection fill stay at full strength.
@@ -324,15 +350,16 @@ private struct DayCell: View {
 
     @ViewBuilder
     private var dots: some View {
-        let shown = Array(events.prefix(3))
+        let cap = max(1, maxDots)
+        let shown = Array(events.prefix(cap))
         HStack(spacing: 3) {
             ForEach(Array(shown.enumerated()), id: \.offset) { _, event in
                 Circle()
                     .fill(Color(nsColor: event.calendar.color))
                     .frame(width: 5, height: 5)
             }
-            if events.count > 3 {
-                Text("+\(events.count - 3)")
+            if events.count > cap {
+                Text("+\(events.count - cap)")
                     .font(.system(size: 8, weight: .semibold))
                     .foregroundStyle(.secondary)
             }

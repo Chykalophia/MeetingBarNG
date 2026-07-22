@@ -55,8 +55,9 @@ struct PreferencesView: View {
         }
         .navigationSplitViewStyle(.balanced)
         // Wide enough for the Dropdown pane's two-pane (settings + ~340pt
-        // preview). Phase 3 replaces that preview and drops this to 860.
-        .frame(minWidth: 1100, minHeight: 560)
+        // preview). Every other pane benefits from the narrower width — at
+        // 1100pt a grouped form stretches with a huge dead right margin.
+        .frame(minWidth: 860, minHeight: 560)
         .onChange(of: navigation.requestedTab) { _, requested in
             guard let requested else { return }
             selection = .tab(requested)

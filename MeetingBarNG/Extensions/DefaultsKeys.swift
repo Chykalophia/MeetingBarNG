@@ -153,6 +153,10 @@ extension Defaults.Keys {
     static let calendarGridMode = Key<String>(
         "calendarGridMode", default: CalendarGridMode.month.rawValue)
     static let dimWeekendsInCalendar = Key<Bool>("dimWeekendsInCalendar", default: true)
+    // 0 = follow the locale's first weekday; 1 = Sunday; 2 = Monday.
+    static let calendarFirstWeekday = Key<Int>("calendarFirstWeekday", default: 0)
+    static let showWeekNumbersInCalendar = Key<Bool>("showWeekNumbersInCalendar", default: false)
+    static let maxEventsPerCalendarDay = Key<Int>("maxEventsPerCalendarDay", default: 3)
 
     // Preferences window UI state (MeetingBarNG, Phase 2 IA restructure).
     // IDs of `PreferencesDisclosure` sections the user has opened. Persisted

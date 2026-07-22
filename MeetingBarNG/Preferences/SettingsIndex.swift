@@ -431,6 +431,30 @@ enum SettingsIndex {
             helpKey: "preferences_calendarwindow_open_in_help",
             defaultsKeys: ["calendarGridMode"],
             synonyms: ["month", "week", "grid", "view", "calendar window"]
+        ),
+        SettingsIndexEntry(
+            id: "calendarwindow.first_weekday",
+            tab: .calendarWindow,
+            labelKey: "preferences_calendarwindow_first_weekday_title",
+            helpKey: "preferences_calendarwindow_first_weekday_help",
+            defaultsKeys: ["calendarFirstWeekday"],
+            synonyms: ["first day", "sunday", "monday", "week start", "locale"]
+        ),
+        SettingsIndexEntry(
+            id: "calendarwindow.week_numbers",
+            tab: .calendarWindow,
+            labelKey: "preferences_calendarwindow_week_numbers_toggle",
+            helpKey: "preferences_calendarwindow_week_numbers_help",
+            defaultsKeys: ["showWeekNumbersInCalendar"],
+            synonyms: ["week number", "iso week", "calendar week", "numbered weeks"]
+        ),
+        SettingsIndexEntry(
+            id: "calendarwindow.event_cap",
+            tab: .calendarWindow,
+            labelKey: "preferences_calendarwindow_event_cap_title",
+            helpKey: "preferences_calendarwindow_event_cap_help",
+            defaultsKeys: ["maxEventsPerCalendarDay"],
+            synonyms: ["event cap", "dots", "dots per day", "events per cell", "+more"]
         )
     ]
 

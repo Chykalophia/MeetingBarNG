@@ -66,9 +66,14 @@ final class CalendarGridViewModel: ObservableObject {
 
     /// A locale-aware calendar so the grid honors the user's chosen language
     /// (which drives `firstWeekday` and the localized weekday/month symbols).
+    /// Applies the user's first-weekday override when set (0 = follow locale).
     static func defaultCalendar() -> Calendar {
         var calendar = Calendar.current
         calendar.locale = I18N.instance.locale
+        let override = Defaults[.calendarFirstWeekday]
+        if override > 0 {
+            calendar.firstWeekday = override
+        }
         return calendar
     }
 
