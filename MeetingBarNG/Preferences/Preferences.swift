@@ -63,21 +63,32 @@ struct PreferencesView: View {
     /// selection and translucent material for free. No custom `foregroundStyle`
     /// is applied to the labels — the pill supplies its own contrasting content
     /// colour, and overriding it broke the selected row.
+    /// The `List` MUST be the root of this view, not a child of a `VStack`.
+    /// A sidebar `List` extends under the window's title bar and applies its own
+    /// top content inset so the first row clears the traffic lights; wrapping it
+    /// in a stack made the stack the sidebar instead, and the first pane
+    /// ("Calendars") rendered underneath the close/minimise buttons.
+    ///
+    /// The footer therefore attaches as a bottom safe-area inset rather than as a
+    /// sibling in a stack — it floats above the scrolling rows without taking the
+    /// `List` out of the sidebar role.
     private var sidebar: some View {
-        VStack(spacing: 0) {
-            List(selection: tabSelection) {
-                ForEach(PreferencesTab.allCases) { tab in
-                    Label(tab.titleKey.loco(), systemImage: tab.systemImage)
-                        .tag(tab)
-                }
+        List(selection: tabSelection) {
+            ForEach(PreferencesTab.allCases) { tab in
+                Label(tab.titleKey.loco(), systemImage: tab.systemImage)
+                    .tag(tab)
             }
-            .listStyle(.sidebar)
-            // Makes the sidebar truly non-collapsible (macOS 14+, below the floor).
-            // https://developer.apple.com/documentation/swiftui/view/toolbar(removing:)
-            .toolbar(removing: .sidebarToggle)
-
-            Divider()
-            aboutFooterItem
+        }
+        .listStyle(.sidebar)
+        // Makes the sidebar truly non-collapsible (macOS 14+, below the floor).
+        // https://developer.apple.com/documentation/swiftui/view/toolbar(removing:)
+        .toolbar(removing: .sidebarToggle)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            VStack(spacing: 0) {
+                Divider()
+                aboutFooterItem
+            }
+            .background(.bar)
         }
         .searchable(
             text: $searchQuery,

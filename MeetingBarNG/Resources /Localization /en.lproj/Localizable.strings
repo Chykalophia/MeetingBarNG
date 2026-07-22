@@ -936,3 +936,47 @@
 "shared_send_notification_disabled_tip" = "⚠️ Your macOS notification settings for MeetingBarNG are off. Turn on notifications in the macOS system settings to keep track of meetings.";
 "shared_send_notification_no_alert_style_tip" = "Note: Notifications are set to Banners, so they appear briefly before disappearing. To keep them onscreen until you dismiss them, switch to Alerts in your macOS notification settings.";
 "shared_send_notification_toggle" = "Send a system notification";
+
+
+/* ---------------------------------------------------------------
+   MIGRATION HOLDING AREA — Preferences UX overhaul, Phase 2.
+
+   These keys belong to panes that have NOT yet been through the IA
+   restructure. Phase 2's strings rewrite deleted them on the assumption
+   that every pane would migrate in one change; it did not, and live code
+   still reads them.
+
+   As each pane is rebuilt, its keys move up into the structured sections
+   above under their new names and disappear from here. This block MUST
+   reach zero — if it is still here, the migration is not finished.
+   --------------------------------------------------------------- */
+
+
+
+/* ---------------------------------------------------------------
+   MIGRATION HOLDING AREA — Preferences UX overhaul, Phase 2.
+
+   These keys belong to panes that have NOT yet been through the IA
+   restructure. Phase 2's strings rewrite deleted them on the assumption
+   that every pane would migrate in one change; it did not, and live code
+   still reads them.
+
+   As each pane is rebuilt, its keys move up into the structured sections
+   above under their new names and disappear from here. This block MUST
+   reach zero — if it is still here, the migration is not finished.
+   --------------------------------------------------------------- */
+
+
+/* Reached through a variable (statusTextKey / titleKey), so validate_localizations
+   cannot see them and the Phase 2 rewrite dropped them silently — they rendered
+   as raw key names in the Calendars pane. Covered by a test now. */
+"preferences_appearance_status_bar_time_hide_value" = "hide";
+"preferences_appearance_status_bar_time_show_under_title_value" = "show under title";
+"preferences_appearance_status_bar_time_show_value" = "show";
+"preferences_status_state_auth_required" = "Authorization required";
+"preferences_status_state_error" = "Last refresh failed";
+"preferences_status_state_initializing" = "Initializing";
+"preferences_status_state_no_calendars" = "No calendars found";
+"preferences_status_state_ok" = "Up to date";
+"preferences_status_state_permission_required" = "Calendar permission required";
+"preferences_status_state_stale" = "Showing cached data";
