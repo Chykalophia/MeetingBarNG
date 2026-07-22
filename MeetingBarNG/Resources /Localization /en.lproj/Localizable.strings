@@ -729,43 +729,8 @@
    above under their new names and disappear from here. This block MUST
    reach zero — if it is still here, the migration is not finished.
    --------------------------------------------------------------- */
-"preferences_appearance_calendar_dim_weekends_help" = "Saturdays and Sundays are shown in lighter gray so the work week stands out. Today and the day you picked stay highlighted.";
-"preferences_appearance_calendar_dim_weekends_toggle" = "Dim weekends in the calendar";
-"preferences_appearance_calendar_window_title" = "Calendar window";
-"preferences_appearance_menu_bar_composer_move_down" = "Move down";
-"preferences_appearance_menu_bar_composer_move_up" = "Move up";
 "preferences_appearance_menu_bar_composer_remove" = "Remove";
-"preferences_appearance_menu_bar_preview_sample_event" = "Design review";
-"preferences_appearance_menu_bar_week_number_prefix" = "W";
-"preferences_appearance_menu_greeting_name_help" = "Used in the dropdown greeting, e.g. \"Good morning, Alex\". Add the greeting under Dropdown layout above.";
-"preferences_appearance_menu_greeting_name_placeholder" = "Your macOS account name";
-"preferences_appearance_menu_greeting_name_title" = "Greeting name";
-"preferences_appearance_menu_hide_finished_toggle" = "Hide finished meetings from the dropdown";
-"preferences_appearance_menu_reminders_include_overdue_toggle" = "Include overdue reminders";
-"preferences_appearance_menu_shorten_event_title_example" = "Long meeting names are trimmed to this length in the dropdown.";
-"preferences_appearance_menu_shorten_event_title_stepper" = "%d characters";
-"preferences_appearance_menu_shorten_event_title_toggle" = "Shorten long meeting titles in the dropdown:";
-"preferences_appearance_menu_show_event_calendar_color_value" = "Show the calendar's color dot";
-"preferences_appearance_menu_show_event_details_value" = "Show event details in a submenu";
-"preferences_appearance_menu_show_event_end_time_value" = "Show each meeting's end time";
-"preferences_appearance_menu_show_event_icon_value" = "Show the meeting app's icon";
-"preferences_appearance_menu_show_event_title" = "How each meeting looks in the dropdown";
-"preferences_appearance_menu_show_prep_links_value" = "Show prep links (Figma, Docs, GitHub…) from the invite";
-"preferences_appearance_menu_show_reminders_toggle" = "Show today's reminders in the dropdown";
-"preferences_appearance_menu_swiftui_dropdown_help" = "On by default. The redesigned dropdown adds hover actions, inline event details, and keyboard navigation. Turn it off to fall back to the plain system menu.";
-"preferences_appearance_menu_swiftui_dropdown_toggle" = "Use the redesigned dropdown";
-"preferences_appearance_menu_title" = "More dropdown options";
 "preferences_general_option_login_launch" = "Open MeetingBarNG automatically when you log in";
-"preferences_menu_builder_dropdown_add" = "Add section";
-"preferences_menu_builder_dropdown_hint" = "Choose which sections appear in the menu dropdown, and in what order. The Preferences footer is always pinned to the bottom.";
-"preferences_menu_builder_dropdown_module_agenda" = "Agenda";
-"preferences_menu_builder_dropdown_module_bookmarks" = "Bookmarks";
-"preferences_menu_builder_dropdown_module_greeting" = "Greeting";
-"preferences_menu_builder_dropdown_module_join" = "Join & actions";
-"preferences_menu_builder_dropdown_module_meeting" = "Meeting card";
-"preferences_menu_builder_dropdown_module_preferences" = "Preferences";
-"preferences_menu_builder_dropdown_module_timeline" = "Timeline";
-"preferences_menu_builder_dropdown_title" = "Dropdown layout";
 "preferences_services_create_meeting_title" = "New meetings use";
 "preferences_services_link_meeting_title" = "Default browser for meeting links";
 "preferences_status_open_calendar_settings" = "Open Calendar Settings";

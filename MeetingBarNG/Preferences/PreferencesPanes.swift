@@ -56,6 +56,7 @@ struct DropdownTab: View {
                 DropdownComposerSection()
                 DropdownDisplaySection()
                 EventDetailSection()
+                PreferencesResetSection(tab: .dropdown)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
@@ -80,6 +81,7 @@ struct CalendarWindowTab: View {
     var body: some View {
         PreferencesGroupedForm {
             CalendarWindowDisplaySection()
+            PreferencesResetSection(tab: .calendarWindow)
         }
     }
 }

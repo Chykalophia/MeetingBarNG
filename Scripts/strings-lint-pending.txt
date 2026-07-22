@@ -14,18 +14,7 @@
 # Preferences migration is unfinished.
 #
 # Do not add anything here for any other reason.
-
-menu_bar_week_number_prefix
-preferences_dropdown_block_add
-preferences_dropdown_block_agenda
-preferences_dropdown_block_bookmarks
-preferences_dropdown_block_greeting
-preferences_dropdown_block_join
-preferences_dropdown_block_meeting
-preferences_dropdown_block_preferences
-preferences_dropdown_block_timeline
-preferences_dropdown_greeting_name_placeholder
-preferences_dropdown_reminders_overdue_toggle
-preferences_dropdown_rows_shorten_stepper
-preferences_dropdown_rows_title
-preferences_preview_sample_event
+#
+# REACHED ZERO — all eight panes migrated. Every key written ahead of its pane
+# is now referenced. This file is kept as the record of the process; it is
+# empty of keys.

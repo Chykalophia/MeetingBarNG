@@ -220,7 +220,7 @@ struct DisplayPreviewPane: View {
             use24HourClock: timeFormat == .military,
             worldClockTimeZone: TimeZone(identifier: menuBarWorldClockTimeZone) ?? .current,
             worldClockLabel: menuBarWorldClockLabel,
-            weekNumberPrefix: "preferences_appearance_menu_bar_week_number_prefix".loco(),
+            weekNumberPrefix: "menu_bar_week_number_prefix".loco(),
             iconFormat: StatusBarIconFormat(eventTitleIconFormat),
             iconFormatAssetName: eventTitleIconFormat.rawValue,
             iconAssets: .production,
@@ -412,7 +412,7 @@ struct DisplayPreviewPane: View {
     private var preferencesFooter: some View {
         menuActionRow(
             symbol: "gearshape",
-            title: "preferences_menu_builder_dropdown_module_preferences".loco()
+            title: "preferences_dropdown_block_preferences".loco()
         )
     }
 
@@ -458,7 +458,7 @@ struct DisplayPreviewPane: View {
         return [
             SampleEvent(
                 id: 0,
-                title: "preferences_appearance_menu_bar_preview_sample_event".loco(),
+                title: "preferences_preview_sample_event".loco(),
                 startTime: timeString(at(25)),
                 timeRange: "\(timeString(at(25))) – \(timeString(at(55)))",
                 countdown: "25m",

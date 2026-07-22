@@ -113,8 +113,8 @@ struct DropdownComposerSection: View {
     }
 
     var body: some View {
-        Section(header: Text("preferences_menu_builder_dropdown_title".loco())) {
-            Text("preferences_menu_builder_dropdown_hint".loco())
+        Section(header: Text("preferences_dropdown_blocks_title".loco())) {
+            Text("preferences_dropdown_blocks_help".loco())
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -135,7 +135,7 @@ struct DropdownComposerSection: View {
                     }
                 } label: {
                     Label(
-                        "preferences_menu_builder_dropdown_add".loco(),
+                        "preferences_dropdown_block_add".loco(),
                         systemImage: "plus"
                     )
                 }
@@ -159,14 +159,14 @@ struct DropdownComposerSection: View {
             }
             .buttonStyle(.borderless)
             .disabled(index == 0)
-            .help("preferences_appearance_menu_bar_composer_move_up".loco())
+            .help("preferences_menubar_block_move_up".loco())
 
             Button { move(from: index, by: 1) } label: {
                 Image(systemName: "chevron.down")
             }
             .buttonStyle(.borderless)
             .disabled(index == visibleModules.count - 1)
-            .help("preferences_appearance_menu_bar_composer_move_down".loco())
+            .help("preferences_menubar_block_move_down".loco())
 
             Button { setEnabled(module, false) } label: {
                 Image(systemName: "minus.circle")
@@ -180,12 +180,12 @@ struct DropdownComposerSection: View {
 
     private func moduleName(_ module: DropdownModule) -> String {
         switch module {
-        case .greeting: return "preferences_menu_builder_dropdown_module_greeting".loco()
-        case .timeline: return "preferences_menu_builder_dropdown_module_timeline".loco()
-        case .meeting: return "preferences_menu_builder_dropdown_module_meeting".loco()
-        case .agenda: return "preferences_menu_builder_dropdown_module_agenda".loco()
-        case .join: return "preferences_menu_builder_dropdown_module_join".loco()
-        case .bookmarks: return "preferences_menu_builder_dropdown_module_bookmarks".loco()
+        case .greeting: return "preferences_dropdown_block_greeting".loco()
+        case .timeline: return "preferences_dropdown_block_timeline".loco()
+        case .meeting: return "preferences_dropdown_block_meeting".loco()
+        case .agenda: return "preferences_dropdown_block_agenda".loco()
+        case .join: return "preferences_dropdown_block_join".loco()
+        case .bookmarks: return "preferences_dropdown_block_bookmarks".loco()
         }
     }
 
@@ -245,15 +245,14 @@ struct DropdownComposerSection: View {
 // MARK: - Dropdown display
 
 /// Dropdown settings that are NOT plain on/off duplicates of a composer module:
-/// hide-finished, the greeting NAME field, and the Reminders toggles. The
-/// greeting and timeline *visibility* toggles were dropped here in Phase 3 —
+/// the greeting NAME field and the Reminders toggles. The greeting and timeline
+/// *visibility* toggles were dropped here in Phase 3 —
 /// `DropdownComposerSection`'s module list is now their single source of truth,
 /// so they are no longer rendered twice. Reminders is not a composer module, so
 /// its on/off toggle stays here (it is also the only place that requests
-/// Reminders access).
+/// Reminders access). `hideFinishedEventsInMenu` moved to Filters (merged into
+/// the "ended" row), and `useSwiftUIDropdown` moved to General ▸ Troubleshooting.
 struct DropdownDisplaySection: View {
-    @Default(.hideFinishedEventsInMenu) var hideFinishedEventsInMenu
-    @Default(.useSwiftUIDropdown) var useSwiftUIDropdown
     // Read-only here: the greeting section is shown/hidden in "Dropdown layout"
     // above; this key only gates whether the greeting NAME field is editable.
     @Default(.showGreetingInMenu) var showGreetingInMenu
@@ -262,47 +261,33 @@ struct DropdownDisplaySection: View {
     @Default(.remindersIncludeOverdue) var remindersIncludeOverdue
 
     var body: some View {
-        Section(header: Text("preferences_appearance_menu_title".loco())) {
-            Toggle(
-                preferenceLabel("preferences_appearance_menu_hide_finished_toggle"),
-                isOn: $hideFinishedEventsInMenu
-            )
-
+        Section(header: Text("preferences_dropdown_block_greeting".loco())) {
             // The greeting NAME. The greeting section itself is toggled in
             // "Dropdown layout" above; this field is disabled while it is hidden.
             TextField(
-                preferenceLabel("preferences_appearance_menu_greeting_name_title"),
+                preferenceLabel("preferences_dropdown_greeting_name_title"),
                 text: $greetingName,
-                prompt: Text("preferences_appearance_menu_greeting_name_placeholder".loco())
+                prompt: Text("preferences_dropdown_greeting_name_placeholder".loco())
             )
             .disabled(!showGreetingInMenu)
-            Text("preferences_appearance_menu_greeting_name_help".loco())
+            Text("preferences_dropdown_greeting_name_help".loco())
                 .font(.caption)
                 .foregroundStyle(.secondary)
+        }
 
+        Section(header: Text("preferences_dropdown_reminders_toggle".loco())) {
             // Reminders (Dot parity). Turning this on is the ONLY place that
             // requests Reminders access — the setting only flips on if granted.
             Toggle(
-                preferenceLabel("preferences_appearance_menu_show_reminders_toggle"),
+                preferenceLabel("preferences_dropdown_reminders_toggle"),
                 isOn: showRemindersBinding
             )
             Toggle(
-                preferenceLabel("preferences_appearance_menu_reminders_include_overdue_toggle"),
+                preferenceLabel("preferences_dropdown_reminders_overdue_toggle"),
                 isOn: $remindersIncludeOverdue
             )
             .preferenceIndent()
             .disabled(!showRemindersInMenu)
-
-            // The SwiftUI panel is the default dropdown; this is the escape
-            // hatch back to the plain NSMenu.
-            Toggle(
-                preferenceLabel("preferences_appearance_menu_swiftui_dropdown_toggle"),
-                isOn: $useSwiftUIDropdown
-            )
-            Text("preferences_appearance_menu_swiftui_dropdown_help".loco())
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -329,22 +314,44 @@ struct DropdownDisplaySection: View {
 
 /// Display options for the standalone calendar window (the month/week grid),
 /// kept separate from the dropdown options above because they affect a different
-/// surface. The window's own Month/Week fold lives in its header; only the
-/// weekend dimming is a persistent preference.
+/// surface. The window's own Month/Week fold lives in its header; the stored
+/// default and the weekend dimming are persistent preferences.
 struct CalendarWindowDisplaySection: View {
     @Default(.dimWeekendsInCalendar) var dimWeekendsInCalendar
+    @Default(.calendarGridMode) var calendarGridMode
 
     var body: some View {
-        Section(header: Text("preferences_appearance_calendar_window_title".loco())) {
+        Section {
             Toggle(
-                preferenceLabel("preferences_appearance_calendar_dim_weekends_toggle"),
+                preferenceLabel("preferences_calendarwindow_dim_weekends_toggle"),
                 isOn: $dimWeekendsInCalendar
             )
-            Text("preferences_appearance_calendar_dim_weekends_help".loco())
+            Text("preferences_calendarwindow_dim_weekends_help".loco())
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
+
+        Section {
+            Picker(
+                "preferences_calendarwindow_open_in_title".loco(),
+                selection: gridModeBinding
+            ) {
+                Text("calendar_grid_mode_month".loco()).tag(CalendarGridMode.month)
+                Text("calendar_grid_mode_week".loco()).tag(CalendarGridMode.week)
+            }
+            Text("preferences_calendarwindow_open_in_help".loco())
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var gridModeBinding: Binding<CalendarGridMode> {
+        Binding(
+            get: { CalendarGridMode(rawValue: calendarGridMode) ?? .month },
+            set: { calendarGridMode = $0.rawValue }
+        )
     }
 }
 

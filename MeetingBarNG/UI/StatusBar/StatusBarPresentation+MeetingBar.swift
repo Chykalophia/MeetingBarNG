@@ -207,7 +207,7 @@ extension MenuBarComposedSettings {
             use24HourClock: Defaults[.timeFormat] == .military,
             worldClockTimeZone: TimeZone(identifier: Defaults[.menuBarWorldClockTimeZone]) ?? .current,
             worldClockLabel: Defaults[.menuBarWorldClockLabel],
-            weekNumberPrefix: "preferences_appearance_menu_bar_week_number_prefix".loco(),
+            weekNumberPrefix: "menu_bar_week_number_prefix".loco(),
             iconFormat: StatusBarIconFormat(Defaults[.eventTitleIconFormat]),
             iconFormatAssetName: Defaults[.eventTitleIconFormat].rawValue,
             iconAssets: .production,

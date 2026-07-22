@@ -71,7 +71,7 @@ fi
 # why this exists and why it must reach zero.
 PENDING_LIST="$ROOT/Scripts/strings-lint-pending.txt"
 if [ -f "$PENDING_LIST" ]; then
-    pending_keys=$(grep -E '^[a-zA-Z0-9_]+$' "$PENDING_LIST" | sort -u)
+    pending_keys=$(grep -E '^[a-zA-Z0-9_]+$' "$PENDING_LIST" | sort -u || true)
 else
     pending_keys=""
 fi

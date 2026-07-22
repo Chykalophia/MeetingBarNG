@@ -29,44 +29,41 @@ import SwiftUI
 // MARK: - How each event looks
 
 /// The per-event-row detail toggles: end time, meeting-service icon, calendar
-/// color, event details, and title shortening. Split out of the former
-/// `MenuSection` (AppearanceTab.swift) so it can live on the Events tab.
+/// colour dot, prep links, and title shortening. Split out of the former
+/// `MenuSection` (AppearanceTab.swift) so it can live on the Dropdown pane.
+/// `showEventDetails` was deleted per the UX plan — the panel's inline chevron
+/// is always available and costs nothing collapsed.
 struct EventDetailSection: View {
     @Default(.shortenEventTitle) var shortenEventTitle
     @Default(.menuEventTitleLength) var menuEventTitleLength
     @Default(.showEventEndTime) var showEventEndTime
-    @Default(.showEventDetails) var showEventDetails
     @Default(.showMeetingServiceIcon) var showMeetingServiceIcon
     @Default(.showEventCalendarColor) var showEventCalendarColor
     @Default(.showMeetingPrepLinks) var showMeetingPrepLinks
 
     var body: some View {
-        Section(header: Text(preferenceLabel("preferences_appearance_menu_show_event_title"))) {
+        Section(header: Text(preferenceLabel("preferences_dropdown_rows_title"))) {
             Toggle(
-                preferenceLabel("preferences_appearance_menu_show_event_end_time_value"),
+                preferenceLabel("preferences_dropdown_rows_end_time_toggle"),
                 isOn: $showEventEndTime
             )
             Toggle(
-                preferenceLabel("preferences_appearance_menu_show_event_icon_value"),
+                preferenceLabel("preferences_dropdown_rows_service_icon_toggle"),
                 isOn: $showMeetingServiceIcon
             )
             Toggle(
-                preferenceLabel("preferences_appearance_menu_show_event_calendar_color_value"),
+                preferenceLabel("preferences_dropdown_rows_calendar_color_toggle"),
                 isOn: $showEventCalendarColor
             )
             Toggle(
-                preferenceLabel("preferences_appearance_menu_show_event_details_value"),
-                isOn: $showEventDetails
-            )
-            Toggle(
-                preferenceLabel("preferences_appearance_menu_show_prep_links_value"),
+                preferenceLabel("preferences_dropdown_rows_prep_links_toggle"),
                 isOn: $showMeetingPrepLinks
             )
         }
 
         Section {
             Toggle(
-                preferenceLabel("preferences_appearance_menu_shorten_event_title_toggle"),
+                preferenceLabel("preferences_dropdown_rows_shorten_toggle"),
                 isOn: $shortenEventTitle
             )
 
@@ -77,8 +74,8 @@ struct EventDetailSection: View {
                 value: $menuEventTitleLength,
                 range: 20 ... 100,
                 step: 5,
-                stepperLabel: { "preferences_appearance_menu_shorten_event_title_stepper".loco($0) },
-                example: "preferences_appearance_menu_shorten_event_title_example".loco(),
+                stepperLabel: { "preferences_dropdown_rows_shorten_stepper".loco($0) },
+                example: "preferences_dropdown_rows_shorten_example".loco(),
                 isEnabled: shortenEventTitle
             )
         }
