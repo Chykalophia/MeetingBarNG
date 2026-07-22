@@ -10,7 +10,49 @@
 //  behavior-free: tabs opt in for styling only. macOS 12-safe.
 //
 
+import Defaults
 import SwiftUI
+
+/// A disclosure whose open/closed state survives closing the window.
+///
+/// Phase 2 rule: a disclosure the user opened is never auto-collapsed, and one
+/// that must open itself (the Calendars troubleshooting section when macOS
+/// reports an error) opens by writing the same stored state, so the user can
+/// still close it afterwards.
+struct PreferencesDisclosure<Content: View>: View {
+    let id: String
+    let titleKey: String
+    /// Opens the disclosure on appearance — used when the app knows the user
+    /// needs what is inside (an error state), not merely that it is uncommon.
+    var opensAutomatically = false
+    @ViewBuilder var content: Content
+
+    @Default(.preferencesExpandedDisclosures) private var expandedIDs
+
+    private var isExpanded: Binding<Bool> {
+        Binding(
+            get: { expandedIDs.contains(id) },
+            set: { isOpen in
+                if isOpen {
+                    if !expandedIDs.contains(id) { expandedIDs.append(id) }
+                } else {
+                    expandedIDs.removeAll { $0 == id }
+                }
+            }
+        )
+    }
+
+    var body: some View {
+        DisclosureGroup(titleKey.loco(), isExpanded: isExpanded) {
+            content
+        }
+        .onAppear {
+            if opensAutomatically, !expandedIDs.contains(id) {
+                expandedIDs.append(id)
+            }
+        }
+    }
+}
 
 /// Layout constants shared across the preferences tabs so nesting depth is
 /// defined in one place instead of scattered magic numbers.

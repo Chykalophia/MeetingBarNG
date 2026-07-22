@@ -52,6 +52,9 @@ let package = Package(
                 "UI/StatusBar/DropdownPanelNavigation.swift",
                 "UI/StatusBar/DropdownPanelPlacement.swift",
                 "UI/StatusBar/StatusBarTickPolicy.swift",
+                // Preferences (hostless core only; the tab Views are app-target)
+                "Preferences/SettingsIndex.swift",
+                "Preferences/FilterPresets.swift",
                 // UI/CommandBar (hostless core only; View/Window/ViewModel are app-target)
                 "UI/CommandBar/CommandBarModels.swift",
                 "UI/CommandBar/CommandBarSearch.swift",

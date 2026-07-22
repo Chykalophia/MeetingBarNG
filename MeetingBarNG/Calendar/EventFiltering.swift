@@ -42,16 +42,27 @@ struct EventFilterEvent: Equatable {
 }
 
 enum EventFiltering {
+    /// Whether any of the user's title patterns hides a meeting with this title.
+    ///
+    /// Extracted so the Filters pane's "Try a title" tester runs the SAME code
+    /// as the filter itself — a tester that re-implements the rule is a tester
+    /// that can disagree with reality.
+    static func titleIsFilteredOut(_ title: String, patterns: [String]) -> Bool {
+        for pattern in patterns {
+            guard let regex = try? NSRegularExpression(pattern: pattern) else { continue }
+            let range = NSRange(title.startIndex..., in: title)
+            if regex.firstMatch(in: title, range: range) != nil {
+                return true
+            }
+        }
+        return false
+    }
+
     static func filter(_ events: [EventFilterEvent], settings: EventFilterSettings) -> [EventFilterEvent] {
         var result: [EventFilterEvent] = []
-        outerloop: for event in events {
-            for pattern in settings.filterEventRegexes {
-                if let regex = try? NSRegularExpression(pattern: pattern) {
-                    let hasMatch = regex.firstMatch(in: event.title, range: NSRange(event.title.startIndex..., in: event.title)) != nil
-                    if hasMatch {
-                        continue outerloop
-                    }
-                }
+        for event in events {
+            if titleIsFilteredOut(event.title, patterns: settings.filterEventRegexes) {
+                continue
             }
 
             if event.isAllDay {

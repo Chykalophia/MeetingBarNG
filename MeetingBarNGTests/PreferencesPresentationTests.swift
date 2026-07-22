@@ -39,70 +39,69 @@ final class PreferencesPresentationTests: XCTestCase {
         )
     }
 
+    /// Pins the Phase 2 IA. `Display`, `Events` and `Advanced` are gone as panes:
+    /// in a calendar app every setting displays events, so "Display" and "Events"
+    /// could not be told apart, and "Advanced" is a category defined by developer
+    /// anxiety that accretes forever. Sidebar order is the order of the routing
+    /// rule — where meetings come from, which ones exist, then each surface that
+    /// draws them, then what happens when you act, then the app itself.
     func testPreferencesTabsExposeCoreProductConceptsInOrder() {
         XCTAssertEqual(
             PreferencesTab.allCases,
             [
-                .general,
                 .calendars,
-                .display,
-                .events,
-                .meetings,
-                .notifications,
-                .advanced
+                .filters,
+                .menuBar,
+                .dropdown,
+                .calendarWindow,
+                .joining,
+                .alerts,
+                .general
             ]
         )
         XCTAssertEqual(
             PreferencesTab.allCases.map(\.titleKey),
             [
-                "preferences_tab_general",
                 "preferences_tab_calendars",
-                "preferences_tab_display",
-                "preferences_tab_events",
-                "preferences_tab_meetings",
-                "preferences_tab_notifications",
-                "preferences_tab_advanced"
+                "preferences_tab_filters",
+                "preferences_tab_menu_bar",
+                "preferences_tab_dropdown",
+                "preferences_tab_calendar_window",
+                "preferences_tab_joining",
+                "preferences_tab_alerts",
+                "preferences_tab_general"
             ]
         )
         XCTAssertEqual(
             PreferencesTab.allCases.map(\.systemImage),
             [
-                "gearshape",
                 "calendar",
+                "line.3.horizontal.decrease.circle",
                 "menubar.rectangle",
-                "list.bullet.rectangle",
+                "rectangle.grid.1x2",
+                "rectangle.on.rectangle",
                 "video",
                 "bell",
-                "slider.horizontal.3"
+                "gearshape"
             ]
         )
     }
 
-    func testPreferencesDefaultSelectionIsGeneral() {
-        XCTAssertEqual(PreferencesTab.defaultSelection, .general)
+    /// Opening Preferences lands on where meetings come from, never on credits —
+    /// and never on a pane whose name means "miscellaneous".
+    func testPreferencesDefaultSelectionIsCalendars() {
+        XCTAssertEqual(PreferencesTab.defaultSelection, .calendars)
     }
 
-    func testPreferencesSidebarGroupsAllTabsInProductOrder() {
-        XCTAssertEqual(
-            PreferencesSidebarSection.allCases.map(\.titleKey),
-            [
-                "preferences_sidebar_setup",
-                "preferences_sidebar_experience",
-                "preferences_sidebar_advanced"
-            ]
-        )
-        XCTAssertEqual(
-            PreferencesSidebarSection.allCases.flatMap(\.tabs),
-            PreferencesTab.allCases
-        )
-        XCTAssertEqual(
-            PreferencesSidebarSection.allCases.map(\.tabs),
-            [
-                [.general, .calendars],
-                [.display, .events, .meetings, .notifications],
-                [.advanced]
-            ]
-        )
+    /// Every pane states its own purpose. Eight panes are only holdable if each
+    /// one says what it is for, so a missing purpose line is a test failure and
+    /// not a cosmetic omission.
+    func testEveryPaneDeclaresADistinctPurpose() {
+        let purposeKeys = PreferencesTab.allCases.map(\.purposeKey)
+        XCTAssertEqual(Set(purposeKeys).count, PreferencesTab.allCases.count)
+        for key in purposeKeys {
+            XCTAssertFalse(key.isEmpty)
+        }
     }
 
     func testStatusBarTimeOptionsIncludeHide() {

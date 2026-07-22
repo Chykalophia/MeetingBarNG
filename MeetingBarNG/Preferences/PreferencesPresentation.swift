@@ -51,86 +51,13 @@ struct CalendarSourcePresentation: Equatable, Identifiable {
     }
 }
 
-enum PreferencesTab: CaseIterable, Hashable {
-    case general
-    case calendars
-    case display
-    case events
-    case meetings
-    case notifications
-    case advanced
-
-    static let defaultSelection: PreferencesTab = .general
-
-    // This metadata is the single source of truth for sidebar labels, icons,
-    // identity, and ordering.
-    var titleKey: String {
-        switch self {
-        case .general:
-            "preferences_tab_general"
-        case .calendars:
-            "preferences_tab_calendars"
-        case .display:
-            "preferences_tab_display"
-        case .events:
-            "preferences_tab_events"
-        case .meetings:
-            "preferences_tab_meetings"
-        case .notifications:
-            "preferences_tab_notifications"
-        case .advanced:
-            "preferences_tab_advanced"
-        }
-    }
-
-    var systemImage: String {
-        switch self {
-        case .general:
-            "gearshape"
-        case .calendars:
-            "calendar"
-        case .display:
-            "menubar.rectangle"
-        case .events:
-            "list.bullet.rectangle"
-        case .meetings:
-            "video"
-        case .notifications:
-            "bell"
-        case .advanced:
-            "slider.horizontal.3"
-        }
-    }
-
-}
-
-enum PreferencesSidebarSection: CaseIterable {
-    case setup
-    case experience
-    case advanced
-
-    var titleKey: String {
-        switch self {
-        case .setup:
-            "preferences_sidebar_setup"
-        case .experience:
-            "preferences_sidebar_experience"
-        case .advanced:
-            "preferences_sidebar_advanced"
-        }
-    }
-
-    var tabs: [PreferencesTab] {
-        switch self {
-        case .setup:
-            [.general, .calendars]
-        case .experience:
-            [.display, .events, .meetings, .notifications]
-        case .advanced:
-            [.advanced]
-        }
-    }
-}
+// `PreferencesTab` moved to `SettingsIndex.swift` in the Phase 2 IA restructure:
+// the eight panes and the settings index are one model, so a pane cannot exist
+// without the index knowing what it holds (which is what makes per-pane reset
+// and settings search impossible to drift). `PreferencesSidebarSection` is gone
+// entirely — the sidebar is flat, because grouping eight concrete names under
+// abstract nouns ("Setup", "Experience") rebuilt the very "everything is
+// miscellaneous" problem this overhaul exists to remove.
 
 enum PreferencesStatusBarTimeOption: CaseIterable, Equatable {
     case show

@@ -144,7 +144,11 @@ enum CommandBarSearch {
 
     /// Match strength of `term` in an already-folded `field`: exact = 4,
     /// prefix = 3, word-boundary prefix = 2, substring = 1, none = 0.
-    private static func matchTier(term: String, in field: String) -> Double {
+    ///
+    /// Internal (not private) so `SettingsIndex` ranks settings on the same
+    /// ladder the Command Bar ranks events and actions — one relevance model in
+    /// the app, not two that drift.
+    static func matchTier(term: String, in field: String) -> Double {
         guard !field.isEmpty, !term.isEmpty else { return 0 }
         if field == term { return 4 }
         if field.hasPrefix(term) { return 3 }

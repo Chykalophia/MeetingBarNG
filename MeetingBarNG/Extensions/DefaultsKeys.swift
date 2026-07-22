@@ -143,6 +143,15 @@ extension Defaults.Keys {
         "calendarGridMode", default: CalendarGridMode.month.rawValue)
     static let dimWeekendsInCalendar = Key<Bool>("dimWeekendsInCalendar", default: true)
 
+    // Preferences window UI state (MeetingBarNG, Phase 2 IA restructure).
+    // IDs of `PreferencesDisclosure` sections the user has opened. Persisted
+    // rather than reset per launch: re-collapsing a disclosure someone
+    // deliberately opened is the app deciding it knows better, and the whole
+    // point of putting depth behind disclosures is that reaching it once is
+    // enough. Stored as IDs so an unknown/renamed section degrades to closed.
+    static let preferencesExpandedDisclosures = Key<[String]>(
+        "preferencesExpandedDisclosures", default: [])
+
     // Menu Appearance
     static let showTimelineInMenu = Key<Bool>("showTimelineInMenu", default: true)
     // When on, the menu's day list starts at "now" (hides finished events).
