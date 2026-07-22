@@ -32,6 +32,29 @@ Changed (11 modified, 2 new):
   `.github/ISSUE_TEMPLATE/bug_report.yaml`, `docs/ARCHITECTURE.md`, `MeetingBar/Info.plist`
   (`NSHumanReadableCopyright` retains Andrii Leitsius © + adds Chykalophia ©).
 
+## Phase 2 — Slice 1: Composable menu bar — DONE locally (branch `feat/composable-menu-bar`)
+Metadata cleanups landed as `1a8148d` on `chore/rebrand-meetingbarng`; the feature branch
+`feat/composable-menu-bar` is cut from that. **Opt-in** — the classic menu bar is byte-for-byte
+unchanged until a user enables a composition.
+
+- **Pure logic** — `MeetingBar/UI/StatusBar/StatusBarPresentation.swift`: `MenuBarTokenKind`
+  (icon/title/countdown/date/clock), `CountdownStyle` (`2h` / `2h 30m` / `2:30`),
+  `MenuBarDateStyle`, `MenuBarComposition`, `MenuBarComposedSettings`,
+  `MenuBarCompositionPolicy`, `StatusBarPresenter.composedPresentation(...)`.
+- **Persistence** — `Extensions/DefaultsKeys.swift`: `menuBarTokens`, `menuBarCountdownStyle`,
+  `menuBarDateStyle`. Adapters + legacy derivation in `StatusBarPresentation+MeetingBar.swift`.
+- **Render** — `UI/StatusBar/StatusBarItemController.swift`: `updateTitle()` uses the composed
+  presenter when a composition exists; new keys wired into the Defaults observers.
+- **UI** — `Preferences/AppearanceTab.swift`: `MenuBarComposerSection` (enable toggle seeded from
+  the user's classic settings, add/remove/reorder, countdown/date pickers, live preview). +24 en keys.
+- **Tests** — `MeetingBarLogicTests/StatusBarCompositionPolicyTests.swift` (26 cases).
+
+Verified here: `swift build` (logic) green; all 26 logic assertions pass via a throwaway
+`swift run` verifier (XCTest can't run without Xcode here); `make validate-strings` OK.
+⚠️ **Could NOT run here (no Xcode/SwiftLint): `make build`, `make test`, `make lint`** — run these
+on an Xcode machine before opening a PR. §4(b) change notices added to modified upstream-headered
+files (`StatusBarItemController.swift`, `AppearanceTab.swift`, `DefaultsKeys.swift`).
+
 ## Attribution model (keep intact)
 - Original **MeetingBar © Andrii Leitsius (`leits`)** stays credited: per-file source headers are
   **untouched** (Apache-2.0 §4(c)), plus `NOTICE`, README credits, and contributors list.
@@ -47,8 +70,11 @@ Changed (11 modified, 2 new):
       `git push -u origin chore/rebrand-meetingbarng` then open a PR into `master`.
 
 ## Next work
-- **Phase 2 = the overhaul.** See `ROADMAP.md` for the Dot productivity-parity feature set
-  (natural-language event creation is an explicit non-goal) and the deferred **rename backlog**
-  (bundle id `leits.MeetingBar`, StoreKit ids, keychain/defaults suites, `PRODUCT_NAME`/scheme,
-  MAS app id, 20-language in-app strings, in-app support/funding URLs in
-  `MeetingBar/Utilities/Constants.swift`) — each needs its own migration care.
+- **Immediate:** on an Xcode machine, run `make build`, `make test`, `make lint` for the
+  `feat/composable-menu-bar` branch (the only checks not runnable here), then push + PR.
+- **Phase 2 next slices** (from `ROADMAP.md`): progress-bar / day-summary menu-bar tokens
+  (extend the composition), then command bar + keyboard-first nav, menu-bar calendar (month⇄week),
+  theming, or meeting prep + camera preview. Natural-language event creation stays a non-goal.
+- **Deferred rename backlog** (each needs its own migration care): bundle id `leits.MeetingBar`,
+  StoreKit ids, keychain/defaults suites, `PRODUCT_NAME`/scheme, MAS app id, 20-language in-app
+  strings, in-app support/funding URLs in `MeetingBar/Utilities/Constants.swift`.

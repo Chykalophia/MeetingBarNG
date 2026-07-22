@@ -1,0 +1,124 @@
+#!/bin/bash
+#
+# strings-lint
+#
+# Two-way localization key check for the English source catalog. Added by the
+# Preferences UX overhaul (Phase 0 — truth pass).
+#
+#   1. MISSING  — a key referenced in Swift source with no definition in
+#                 en.lproj/Localizable.strings. The app would render the raw key.
+#   2. ORPHANED — a key defined in en.lproj/Localizable.strings that no Swift
+#                 source file mentions. Dead copy that reviewers keep reading as
+#                 if it still shipped (this is how "Display & Events" survived as
+#                 the value of `preferences_tab_menu_bar` long after that tab).
+#
+# `Scripts/validate_localizations.sh` already covers (1) for the `.loco()` /
+# `preferenceLabel()` call shapes; this script covers BOTH directions and uses a
+# deliberately looser reference test: any bare `"identifier"` literal anywhere in
+# Swift source counts as a reference. Keys reach `.loco()` indirectly all over
+# this codebase (`tab.titleKey`, `section.titleKey`, `sectionLabel(_:)`,
+# `"…_keywords"` lookups), so a call-shape-only test reports ~70 false orphans.
+#
+# Only en.lproj is checked. Every other bundle is allowed to lag behind English.
+#
+# Usage: Scripts/strings-lint          (or: make lint-strings)
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SOURCE_DIR="$ROOT/MeetingBarNG"
+# NOTE: these directory names contain real trailing spaces.
+EN_STRINGS="$ROOT/MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+
+if [ ! -f "$EN_STRINGS" ]; then
+    echo "ERROR: English strings file not found at:"
+    echo "  $EN_STRINGS"
+    exit 2
+fi
+
+# Keys defined in en.lproj (lines like: "key" = "value";).
+defined_keys=$(grep -E '^"[^"]+"[[:space:]]*=' "$EN_STRINGS" \
+    | sed -E 's/^"([^"]+)".*/\1/' \
+    | sort -u)
+
+# Keys referenced through a call shape that REQUIRES a definition.
+loco_keys=$(grep -rhoE '"[a-zA-Z0-9_]+"\.loco\b' "$SOURCE_DIR" --include="*.swift" \
+    | sed -E 's/^"([^"]+)"\.loco$/\1/')
+label_keys=$(grep -rhoE 'preferenceLabel\("[a-zA-Z0-9_]+"\)' "$SOURCE_DIR" --include="*.swift" \
+    | sed -E 's/^preferenceLabel\("([^"]+)"\)$/\1/')
+required_keys=$(printf '%s\n%s\n' "$loco_keys" "$label_keys" | sed '/^$/d' | sort -u)
+
+# Every bare identifier-shaped string literal in Swift source. A superset of the
+# above: it also catches keys handed to `.loco()` through a variable.
+mentioned_literals=$(grep -rhoE '"[a-zA-Z0-9_]+"' "$SOURCE_DIR" --include="*.swift" \
+    | tr -d '"' \
+    | sort -u)
+
+status=0
+
+missing=$(comm -23 <(echo "$required_keys") <(echo "$defined_keys"))
+if [ -n "$missing" ]; then
+    echo "ERROR: keys used in Swift source but missing from English strings:"
+    echo "$missing" | sed 's/^/  /'
+    echo
+    echo "Add them to:"
+    echo "  $EN_STRINGS"
+    echo
+    status=1
+fi
+
+# Keys written ahead of the pane that will use them. See the allowlist file for
+# why this exists and why it must reach zero.
+PENDING_LIST="$ROOT/Scripts/strings-lint-pending.txt"
+if [ -f "$PENDING_LIST" ]; then
+    pending_keys=$(grep -E '^[a-zA-Z0-9_]+$' "$PENDING_LIST" | sort -u)
+else
+    pending_keys=""
+fi
+
+orphaned=$(comm -13 <(echo "$mentioned_literals") <(echo "$defined_keys") \
+    | comm -23 - <(echo "$pending_keys"))
+if [ -n "$orphaned" ]; then
+    echo "ERROR: keys defined in English strings but referenced nowhere in Swift source:"
+    echo "$orphaned" | sed 's/^/  /'
+    echo
+    echo "Delete them from:"
+    echo "  $EN_STRINGS"
+    echo
+    echo "Settings copy is not a changelog. A key nobody reads is copy nobody"
+    echo "maintains — and the next reader assumes it still ships."
+    echo
+    status=1
+fi
+
+if [ "$status" -ne 0 ]; then
+    exit "$status"
+fi
+
+required_count=$(echo "$required_keys" | grep -c .)
+defined_count=$(echo "$defined_keys" | grep -c .)
+pending_count=$(echo "$pending_keys" | grep -c . || true)
+
+# A stale allowlist is worse than no allowlist: it would let a genuinely dead key
+# hide behind a migration that finished months ago. So an entry that has since
+# been referenced (or deleted) is itself an error.
+if [ -n "$pending_keys" ]; then
+    settled=$(comm -12 <(echo "$pending_keys") <(echo "$mentioned_literals"))
+    undefined_pending=$(comm -23 <(echo "$pending_keys") <(echo "$defined_keys"))
+    stale=$(printf '%s\n%s\n' "$settled" "$undefined_pending" | sed '/^$/d' | sort -u)
+    if [ -n "$stale" ]; then
+        echo "ERROR: stale entries in Scripts/strings-lint-pending.txt:"
+        echo "$stale" | sed 's/^/  /'
+        echo
+        echo "These keys are now referenced (or no longer defined), so they are no"
+        echo "longer pending. Remove them from the allowlist — it only means"
+        echo "anything while it is shrinking."
+        echo
+        exit 1
+    fi
+fi
+
+echo "OK: $defined_count English keys, all defined and all referenced ($required_count direct .loco/preferenceLabel uses)."
+if [ "$pending_count" -gt 0 ]; then
+    echo "NOTE: $pending_count key(s) written ahead of their pane (Scripts/strings-lint-pending.txt). This must reach zero."
+fi

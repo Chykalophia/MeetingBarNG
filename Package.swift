@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "MeetingBarLogic",
     platforms: [
-        .macOS(.v12)
+        .macOS(.v15)
     ],
     products: [
         .library(name: "MeetingBarLogic", targets: ["MeetingBarLogic"])
@@ -13,7 +13,7 @@ let package = Package(
     targets: [
         .target(
             name: "MeetingBarLogic",
-            path: "MeetingBar",
+            path: "MeetingBarNG",
             exclude: [
                 // Exclude app-layer files that depend on AppKit/Defaults/EventKit.
                 // SPM scans the whole MeetingBar/ tree for resources; these paths
@@ -30,14 +30,37 @@ let package = Package(
                 "Notifications/EventActionPolicy.swift",
                 "Notifications/NotificationPlanner.swift",
                 // Calendar
+                "Calendar/EventDeduplication.swift",
                 "Calendar/EventFiltering.swift",
+                "Calendar/MonthGridLayout.swift",
+                "Calendar/EventSearch.swift",
                 "Calendar/EventSelection.swift",
+                "Calendar/ReminderSelection.swift",
+                "Calendar/EventDraftValidation.swift",
                 "Calendar/Providers/Google/GoogleCalendarPolicy.swift",
                 // Meetings
                 "Meetings/MeetingLinkDetector.swift",
+                "Meetings/MeetingPrepLinks.swift",
                 "Meetings/MeetingProvider.swift",
+                "Meetings/MicLevel.swift",
                 // UI/StatusBar
-                "UI/StatusBar/StatusBarPresentation.swift"
+                "UI/StatusBar/StatusBarPresentation.swift",
+                "UI/StatusBar/WorldClockPanel.swift",
+                "UI/StatusBar/DaySummaryGreeting.swift",
+                "UI/StatusBar/DropdownComposition.swift",
+                "UI/StatusBar/DropdownMetrics.swift",
+                "UI/StatusBar/DropdownPanelNavigation.swift",
+                "UI/StatusBar/DropdownPanelPlacement.swift",
+                "UI/StatusBar/StatusBarTickPolicy.swift",
+                // Preferences (hostless core only; the tab Views are app-target)
+                "Preferences/AlertsPresentation.swift",
+                "Preferences/SettingsIndex.swift",
+                "Preferences/FilterPresets.swift",
+                "Preferences/CalendarListPresentation.swift",
+                // UI/CommandBar (hostless core only; View/Window/ViewModel are app-target)
+                "UI/CommandBar/CommandBarModels.swift",
+                "UI/CommandBar/CommandBarSearch.swift",
+                "UI/CommandBar/CommandBarAgenda.swift"
             ],
             swiftSettings: [
                 .unsafeFlags(["-strict-concurrency=complete"])

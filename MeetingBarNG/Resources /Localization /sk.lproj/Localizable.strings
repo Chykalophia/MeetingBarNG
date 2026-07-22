@@ -1,0 +1,391 @@
+
+
+"general_ok" = "OK";
+"general_cancel" = "Zrušiť";
+"general_close" = "Zatvoriť";
+"general_add" = "Pridať";
+"general_delete" = "Odstrániť";
+"general_save" = "Uložiť";
+"general_meeting" = "Stretnutie";
+"general_when_event_starts" = "pri začatí udalosti";
+"general_one_minute_before" = "1 minútu predtým";
+"general_three_minute_before" = "3 minúty predtým";
+"general_five_minute_before" = "5 minút predtým";
+"window_title_onboarding" = "Víta Ťa MeetingBarNG";
+
+// MARK: - Preferences General
+
+"preferences_general_option_login_launch" = "Spustiť po prihlásení";
+"preferences_general_option_preferred_language_title" = "Jazyk:";
+"preferences_general_option_preferred_language_system_value" = "Podľa systému";
+"status_bar_section_join_next_meeting" = "Pripojiť sa k ďalšiemu stretnutiu";
+
+// MARK: - Shared
+
+"shared_send_notification_toggle" = "Upozorniť systémovým hlásením";
+"shared_send_notification_disabled_tip" = "⚠️ Tvoje MacOS nastavenia hlásení pre MeetingBarNG sú vypnuté. Zapni upozornenia v Systémových nastaveniach macOS pre prehľad o stretnutiach.";
+"shared_automatic_event_join_toggle" = "Automaticky sa pripojiť k ďalšiemu stretnutiu";
+"shared_send_notification_no_alert_style_tip" = "Poznámka: Upozornenia sú nastavené ako bannery, takže sa krátko zobrazia a potom zmiznú. Ak chcete, aby zostali na obrazovke, kým ich nezrušíte, prepnite v nastaveniach upozornení v systéme macOS na možnosť Upozornenia.";
+"next_meeting_empty_title" = "Dnes nie sú žiadne naplánované stretnutia";
+"create_meeting_error_title" = "Nie je možné vytvoriť nové stretnutie";
+"preferences_general_shortcut_create_meeting" = "Vytvoriť stretnutie:";
+"preferences_appearance_events_show_events_for_today_value" = "dnes";
+"preferences_appearance_events_show_events_for_today_tomorrow_value" = "dnes a zajtra";
+"preferences_appearance_events_all_day_title" = "Celodenné udalosti:";
+"preferences_appearance_events_value_only_with_link" = "zobraziť iba tie s odkazmi na stretnutie";
+"preferences_services_link_default_browser_value" = "Predvolený webový prehliadač";
+"preferences_services_link_service_title" = "Otvoriť %@ odkazy v";
+
+// MARK: - Preferences Services
+
+"preferences_services_link_meeting_title" = "Otvoriť všetky odkazy na stretnutia v";
+"preferences_bookmarks_new_bookmark_link_phone" = "Odkaz/telefónne číslo";
+
+// MARK: - Preferences Calendars
+
+"preferences_calendars_select_calendars_title" = "Vyber kalendáre na zobrazenie udalostí v lište";
+"preferences_bookmarks_new_bookmark_already_exist" = "%@ už má tento odkaz/telefónne číslo:\n%@";
+"preferences_calendars_provider_gcalendar_change_account" = "Zmeniť Google účet";
+"preferences_advanced_regex_title" = "Vlastné regexy pre odkaz na stretnutie";
+
+// MARK: - Status bar
+
+"status_bar_section_today" = "Dnes";
+"status_bar_event_start_time_all_day" = "Celý deň";
+"status_bar_submenu_copy_meeting_link" = "Skopírovať odkaz na stretnutie";
+"status_bar_error_link_missed_title" = "Ups! Nemôžem sa pripojiť k %@";
+"status_bar_error_app_link_title" = "Ups! Nepodarilo sa otvoriť odkaz v %@";
+"status_bar_error_app_link_message" = "Uisti sa, že máš nainštalovaný %@ alebo namiesto toho otvor takéto odkazy z predvolieb vo webovom prehliadači.";
+"access_screen_access_screen_access_denied_go_to_title" = "Prejdi do";
+"access_screen_access_denied_system_preferences_button" = "Systémových nastavení";
+
+// MARK: - Calendars screen
+
+"calendars_screen_select_calendar_title" = "Vyber aspoň jeden kalendár";
+"access_screen_access_denied_relaunch_title" = "Potom spusti aplikáciu manuálne a pokračuj v nastavovaní.";
+"access_screen_provider_picker_label" = "Vyber poskytovateľa kalendára";
+"access_screen_provider_macos_data_source" = "Získať údaje z MacOS Kalendár aplikácie";
+"access_screen_provider_macos_number_of_accounts" = "Ľubovoľný počet akýchkoľvek prepojených účtov";
+"access_screen_provider_gcalendar_number_of_accounts" = "Iba jeden Google účet";
+"constants_meeting_service_other" = "Iné";
+
+
+// MARK: - Link open
+
+"link_url_cant_open_title" = "Ups! Nepodarilo sa otvoriť odkaz v %@";
+"link_url_cant_open_message" = "Uisti sa, že máš nainštalovaný %@, alebo namiesto toho otvor takéto odkazy z predvolieb vo webovom prehliadači.";
+"preferences_general_patron_twelve_months" = "12 mesiacov - 11,99 USD";
+"preferences_appearance_events_past_title" = "Uplynulé udalosti:";
+"preferences_appearance_menu_show_event_title" = "Zobraziť udalosť:";
+"create_meeting_error_message" = "Vlastná URL adresa \"%@\" chýba alebo neplatná. ";
+
+// MARK: - Window titles
+
+"window_title_preferences" = "MeetingBarNG Predvoľby";
+"windows_title_changelog" = "MeetingBarNG - Čo je nové";
+
+// MARK: - Preferences tabs
+
+"preferences_tab_general" = "Všeobecné";
+"preferences_tab_bookmarks" = "Záložky";
+"preferences_tab_calendars" = "Kalendáre";
+"preferences_tab_advanced" = "Pokročilé";
+"preferences_general_shortcut_open_menu" = "Otvoriť menu:";
+"preferences_general_shortcut_join_next" = "Pripojiť sa k nasledujúcemu stretnutiu:";
+"preferences_general_shortcut_join_from_clipboard" = "Pripojiť sa k stretnutiu zo schránky:";
+"preferences_general_shortcut_toggle_meeting_name_visibility" = "Zobraziť/Skryť názov v lište:";
+"preferences_general_external_contact" = "Kontakt";
+"preferences_general_patron_title" = "Staň sa podporovateľom";
+"preferences_general_patron_three_months" = "3 mesiace - 2,99 USD";
+"preferences_general_patron_six_months" = "6 mesiacov - 5,99 USD";
+"preferences_general_patron_description" = "Ide o jednorazové nákupy a nebudú sa automaticky obnovovať.";
+"preferences_general_patron_thank_for_purchase" = "Vďaka! MeetingBarNG podporený na %d mesiace(ov) 🎉";
+"preferences_general_patron_restore_purchases" = "Obnovenie nákupov";
+
+// MARK: - Preferences Appearance
+
+"preferences_appearance_events_title" = "Udalosti";
+"preferences_appearance_events_show_events_for_title" = "Zobraziť udalosti pre";
+"preferences_appearance_events_without_guest_title" = "Udalosti bez hostí:";
+"preferences_appearance_events_pending_title" = "Čakajúce udalosti";
+"preferences_appearance_events_declined_title" = "Odmietnuté udalosti:";
+"preferences_appearance_events_tentative_title" = "Predbežné udalosti:";
+"preferences_appearance_events_value_show" = "zobraziť";
+"preferences_appearance_events_value_hide" = "skryť";
+"preferences_appearance_events_value_as_inactive" = "zobraziť ako neaktívne";
+"preferences_appearance_events_value_as_underlined" = "zobraziť ako podčiarknuté";
+"preferences_appearance_events_value_with_strikethrough" = "zobraziť s preškrtnutím";
+"preferences_appearance_status_bar_title" = "Lišta";
+"preferences_appearance_status_bar_icon_title" = "Ikona";
+"preferences_appearance_status_bar_icon_app_icon_value" = " . MeetingBarNG";
+"preferences_appearance_status_bar_icon_calendar_icon_value" = " Kalendár";
+"preferences_appearance_status_bar_icon_specific_icon_value" = " Ikona konkrétnej udalosti (napr. MS Teams)";
+"preferences_appearance_status_bar_icon_no_icon_value" = " Bez ikony";
+"preferences_appearance_status_bar_title_title" = "Názov";
+"preferences_appearance_status_bar_title_event_title_value" = "názov udalosti";
+"preferences_appearance_status_bar_title_dot_value" = "bodka (•)";
+"preferences_appearance_status_bar_title_hide_value" = "skryť";
+"preferences_appearance_status_bar_title_shorten_stepper" = "skrátiť na %d znakov";
+"preferences_appearance_status_bar_time_title" = "Čas";
+"preferences_appearance_status_bar_time_show_value" = "zobraziť";
+"preferences_appearance_status_bar_time_show_under_title_value" = "zobraziť pod názvom";
+"preferences_appearance_status_bar_time_hide_value" = "skryť";
+"preferences_appearance_status_bar_next_event_toggle" = "Zobraziť iba udalosti začínajúce počas";
+"preferences_appearance_menu_title" = "Menu";
+"preferences_appearance_status_bar_next_event_stepper" = "%d minút";
+"preferences_appearance_menu_shorten_event_title_toggle" = "Skrátiť názov udalosti na";
+"preferences_appearance_menu_shorten_event_title_stepper" = "%d znakov";
+"preferences_appearance_menu_time_format_title" = "Formát času:";
+"preferences_appearance_menu_time_format_12_hour_value" = "12-hodinový (AM/PM)";
+"preferences_appearance_menu_time_format_24_hour_value" = "24-hodinový";
+"preferences_appearance_menu_show_event_end_time_value" = "čas ukončenia";
+"preferences_appearance_menu_show_event_icon_value" = "ikona";
+"preferences_appearance_menu_show_event_details_value" = "podrobnosti ako podmenu";
+"preferences_services_create_meeting_title" = "Vytvárať stretnutia cez";
+"preferences_services_google_meet_tip" = "Tip: Google Meet podporuje výber účtu v URL adrese, napr. https://meet.google.com/new?authuser=1";
+"preferences_services_create_meeting_browser_title" = "Použiť webový prehliadač";
+
+// MARK: - Preferences Services Browsers Configuration
+
+"preferences_configure_browsers_button" = "Konfigurovať webové prehliadače";
+"preferences_configure_browsers_delete_alert_title" = "Odstrániť konfiguráciu webového prehliadača?";
+"preferences_configure_browsers_delete_alert_message" = "Odstrániť konfiguráciu prehliadača %@?";
+"preferences_configure_browsers_add_button_browser_title" = "Webový prehliadač";
+"preferences_configure_browsers_add_button_all_system_title" = "Všetky systémové webové prehliadače";
+"preferences_configure_browsers_modal_add_browser_title" = "Pridať webový prehliadač";
+"preferences_configure_browsers_modal_edit_browser_title" = "Upraviť webový prehliadač";
+"preferences_configure_browsers_modal_add_browser_name" = "Názov";
+"preferences_configure_browsers_modal_add_browser_path" = "Cesta";
+"preferences_configure_browsers_modal_add_browser_choose_browser_button_title" = "Vybrať webový prehliadač";
+"preferences_configure_browsers_modal_alert_title" = "Nie je možné pridať konfiguráciu prehliadača";
+"preferences_configure_browsers_choose_browser_panel_title" = "Vyberte aplikáciu webového prehliadača";
+"preferences_configure_browsers_choose_browser_panel_prompt" = "Vyberte aplikáciu webového prehliadača";
+"preferences_configure_browsers_choose_browser_panel_message" = "Vyberte, odkiaľ sa má spustiť webový prehliadač.";
+
+// MARK: - Preferences Bookmarks
+
+"preferences_bookmarks_no_bookmarks_placeholder" = "Zatiaľ nemáš žiadne záložky";
+"preferences_bookmarks_delete_bookmark_title" = "Odstrániť záložku?";
+"preferences_bookmarks_delete_bookmark_message" = "Odstrániť záložku %@?";
+"preferences_bookmarks_add_bookmark_button" = "Pridať záložku";
+"preferences_bookmarks_new_bookmark_title" = "Nová záložka";
+"preferences_bookmarks_new_bookmark_name" = "Názov";
+"preferences_bookmarks_new_bookmark_service" = "Služba";
+"preferences_bookmarks_new_bookmark_error_title" = "Nie je možné pridať záložku";
+
+// MARK: - Preferences Advanced
+
+"preferences_advanced_setting_warning" = "⚠️ Tieto nastavenia používaj, iba ak rozumieš tomu, čo robia";
+"status_bar_section_join_from_clipboard" = "Otvoriť stretnutie zo schránky";
+"status_bar_section_refresh_sources" = "Aktualizovať zdroje";
+"notification_next_meeting_dismissed_message" = "Z Rýchlych akcií môžeš odstrániť \"Zrušené\"";
+"status_bar_section_join_create_meeting" = "Vytvoriť stretnutie";
+"status_bar_quick_actions" = "Rýchle akcie";
+"status_bar_hide_meeting_names" = "Skryť názov stretnutia";
+"status_bar_whats_new" = "Čo je nové?";
+"status_bar_rate_app" = "Ohodnotiť aplikáciu";
+"status_bar_quit" = "Ukončiť MeetingBarNG";
+"shared_automatic_event_join_tip" = "Toto nastavenie automaticky otvorí nasledujúce stretnutie v nastavenej aplikácii alebo prehliadači";
+"preferences_general_meeting_bar_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
+"preferences_services_create_meeting_custom_url_placeholder" = "Zadaj platnú URL adresu (s http:// alebo https://)";
+"preferences_services_create_meeting_custom_url_value" = "Vlastná URL adresa";
+
+// MARK: - Constants
+"constants_create_meeting_service_url" = "Vlastná URL adresa";
+"next_meeting_empty_message" = "Hurá! Čas spraviť si kakao";
+"preferences_advanced_apple_script_checkmark" = "Pri pripájaní k schôdzi spustiť AppleScript";
+"preferences_advanced_apple_script_placeholder" = "# sem napíš svoj skript\ntell application \"Music\" to pause";
+"preferences_advanced_run_script_on_event_start" = "Spustiť AppleScript automaticky";
+"preferences_advanced_test_script_on_next_event" = "Vyskúšať pri nasledujúcej udalosti";
+"preferences_advanced_edit_script" = "Upraviť skript";
+"preferences_advanced_wrong_location_title" = "Nesprávne umiestnenie";
+"preferences_advanced_wrong_location_message" = "Vyber priečinok Užívateľ → Knižnica → Aplication Scripts → com.chykalophia.MeetingBarNG";
+"preferences_advanced_wrong_location_button" = "Rozumiem!";
+"preferences_advanced_event_regex_title" = "Vlastné regexy na filtrovanie stretnutí";
+"preferences_advanced_regex_add_button" = "Pridať regex";
+"preferences_advanced_regex_edit_button" = "upraviť";
+"preferences_advanced_regex_new_title" = "Zadaj regex";
+"preferences_advanced_regex_new_cant_save_title" = "Nie je možné uložiť regex";
+"status_bar_section_tomorrow" = "Zajtra";
+"status_bar_section_join_current_meeting" = "Pripojiť sa k aktuálnemu stretnutiu";
+"status_bar_menu_dismiss_curent_meeting" = "Zrušiť aktuálne stretnutie";
+"status_bar_menu_dismiss_next_meeting" = "Zrušiť ďalšie stretnutie";
+"status_bar_menu_remove_all_dismissals" = "Odstrániť všetky zrušené";
+"status_bar_event_dismissed_mark" = "zrušené";
+"notification_next_meeting_dismissed_title" = "Zrušené %@";
+"notification_all_dismissals_removed_message" = "Všetky zrušené stretnutia sú opäť platné";
+"status_bar_section_bookmarks_title" = "Záložky";
+"status_bar_section_bookmarks_menu" = "Menu Záložky";
+"status_bar_submenu_calendar_title" = "Kalendár: %@";
+"status_bar_submenu_status_title" = "Stav: %@";
+"status_bar_submenu_status_declined" = " 👎 Odmietnuté";
+"status_bar_submenu_status_tentative" = " ☝️ Predbežné";
+"status_bar_submenu_status_default_extended" = " ❔ (%@)";
+"status_bar_submenu_location_title" = "Miesto:";
+"status_bar_submenu_attendees_title" = "Účastníci (%d)";
+"status_bar_submenu_attendees_no_name" = "Anonymný účastník";
+"status_bar_submenu_attendees_you" = "%@ (Ty)";
+"status_bar_submenu_attendees_status_tentative" = " [predbežne]";
+"status_bar_submenu_attendees_status_unknown" = " [?]";
+"status_bar_submenu_dismiss_meeting" = "Zrušiť stretnutie";
+"status_bar_submenu_email_attendees" = "Emailoví účastníci";
+"status_bar_submenu_open_in_calendar" = "Otvoriť v aplikácii Kalendár";
+"status_bar_submenu_open_in_fantastical" = "Otvoriť v aplikácii Fantastical";
+"status_bar_show_meeting_names" = "Zobraziť názov stretnutia";
+"status_bar_preferences" = "Predvoľby";
+"status_bar_no_title" = "Žiadny názov";
+"status_bar_event_status_now" = "teraz (zostáva %@)";
+"status_bar_event_status_in" = "za %@";
+"status_bar_error_apple_script_title" = "Chyba AppleScriptu";
+"status_bar_error_link_missed_message" = "Odkaz sa nenašiel alebo poskytovateľ vášho stretnutia ešte nie je podporovaný";
+"access_screen_provider_gcalendar_data_source" = "Získať údaje priamo z Google kalendára";
+"access_screen_try_again" = "Skús to znova";
+"constants_meeting_service_phone" = "Telefónne číslo";
+
+// MARK: - Notifications
+
+"notifications_event_start_soon_body" = "Udalosť už čoskoro začne";
+"notifications_event_ends_soon_body" = "Udalosť sa čoskoro končí";
+"notifications_event_ends_one_minute_body" = "Udalosť sa končí o minútu";
+"notifications_event_ends_three_minutes_body" = "Udalosť sa končí o tri minúty";
+"notifications_event_ends_five_minutes_body" = "Udalosť sa končí o päť minút";
+"shared_fullscreen_notification_toggle" = "Zobraziť upozornenie na celú obrazovku";
+"constants_meeting_service_zoom_native" = "Zoom natívne";
+
+// MARK: - Store
+
+"store_patronage_title" = "MeetingBarNG Podpora";
+"store_patronage_restore_success_message" = "Obnovené";
+"store_patronage_purchase_success_message" = "Nákup uskutočnený. Díky za tvoju podporu!";
+"store_patronage_purchase_unknown_message" = "Neznáma chyba. Kontaktuj prosím podporu.";
+"notifications_event_started_body" = "Udalosť sa začala";
+"notifications_event_start_one_minute_body" = "Udalosť sa začína o jednu minútu";
+"notifications_snooze_until_start" = "Odložiť do začatia";
+"notifications_snooze_for" = "Odložiť o %@ min";
+"notifications_meetingbar_join_event_action" = "Pripojiť sa";
+"preferences_advanced_save_script_button" = "Uložiť skript";
+"status_bar_submenu_status_pending" = " ⏳ Čakajúce";
+"status_bar_submenu_duration_all_day" = "%@ - %@ (%@ minút)";
+"status_bar_submenu_status_accepted" = " 👍 Prijaté";
+"status_bar_submenu_status_unknown" = " ❔ Neznáme";
+"status_bar_submenu_organizer_title" = "Organizátor: %@";
+"status_bar_submenu_notes_title" = "Poznámky:";
+"constants_meeting_service_url" = "URL adresa";
+"store_patronage_restore_nothing_message" = "Niet čo obnoviť";
+"store_patronage_purchase_payment_not_allowed_message" = "Zariadenie nie je oprávnené vykonať platbu";
+"store_patronage_purchase_store_product_not_available_message" = "Tento produkt nie je aktuálne dostupný";
+"store_patronage_purchase_cloud_service_network_connection_failed" = "Nepodarilo sa pripojiť k sieti";
+"notifications_event_start_three_minutes_body" = "Udalosť sa začína o tri minúty";
+"notifications_event_start_five_minutes_body" = "Udalosť sa začína o päť minút";
+"notification_all_dismissals_removed_title" = "Odstránené všetky zrušené";
+"status_bar_section_date_nothing" = "Na %@ nič";
+"status_bar_submenu_undismiss_meeting" = "Odstrániť zrušenie";
+"preferences_appearance_menu_show_timeline_toggle" = "Zobraziť vizuálnu časovú os dňa";
+"notifications_meetingbar_dismiss_event_action" = "Zavrieť";
+"preferences_appearance_status_bar_ongoing_title" = "Priebežná viditeľnosť udalosti:";
+"preferences_appearance_status_bar_ongoing_time_immediate_value" = "skryť po spustení";
+"preferences_appearance_status_bar_ongoing_time_ten_after_value" = "skryť 10 minút.. po začiatku";
+"preferences_appearance_status_bar_ongoing_time_ten_before_next_value" = "skryť 10 minút pred ďalšou udalosťou";
+"access_screen_provider_authorization_cancelled" = "Autorizácia bola zrušená. Skúste sa znova pripojiť k svojmu kalendáru.";
+"general_end_of_event_notification_toggle" = "Odoslať upozornenie po skončení udalosti";
+"general_refresh" = "Obnoviť";
+"general_when_event_ends" = "keď sa udalosť skončí";
+"message_clipboard_empty_text" = "Schránka neobsahuje žiadny obsah, preto nie je možné spustiť stretnutie.";
+"message_clipboard_empty_title" = "Schránka je prázdna";
+"message_clipboard_invalid_text" = "Schránka neobsahuje odkaz na stretnutie, preto nie je možné spustiť stretnutie.";
+"message_clipboard_invalid_title" = "Neplatná URL";
+"message_event_script_execution_failed_text" = "Skript v %@ zlyhal: %@";
+"message_event_script_execution_failed_title" = "Spustenie AppleScript zlyhalo";
+"message_event_script_file_missing_text" = "Súbor eventStartScript.scpt neexistuje v %@.";
+"message_event_script_file_missing_title" = "Súbor AppleScript sa nenašiel";
+"message_google_account_connected_text" = "%@ je pripojený";
+"message_google_account_connected_title" = "Účet Google pripojený";
+"onboarding_apple_calendar_description" = "Číta kalendáre z aplikácie Kalendár na tomto Macu vrátane všetkých nakonfigurovaných účtov.";
+"onboarding_apple_calendar_title" = "Aplikácia Kalendár macOS";
+"onboarding_authorization_apple_description" = "Povoľte aplikácii MeetingBarNG čítať udalosti z aplikácie Kalendár na tomto Macu.";
+"onboarding_authorization_google_description" = "Dokončite prihlásenie Google v prehliadači a vráťte sa do MeetingBarNG.";
+"onboarding_authorization_title" = "Overiť prístup ku kalendáru";
+"onboarding_authorization_waiting" = "Čaká sa na autorizáciu…";
+"onboarding_calendar_selection_description" = "Vyberte kalendáre, ktorých stretnutia sa majú zobrazovať v MeetingBarNG.";
+"onboarding_calendar_selection_empty" = "Nenašli sa žiadne kalendáre. Obnovte alebo skontrolujte svoje účty kalendára.";
+"onboarding_calendar_selection_permission" = "Je potrebné povolenie kalendára. Udeľte prístup v Systémových nastaveniach a obnovte.";
+"onboarding_calendar_selection_reconnect" = "Google Kalendár je potrebné znova pripojiť.";
+"onboarding_calendar_selection_title" = "Vybrať kalendáre";
+"onboarding_calendar_source_description" = "Vyberte, ako MeetingBarNG číta kalendárne dáta. Obe možnosti môžu zahŕňať kalendáre Google.";
+"onboarding_calendar_source_title" = "Vyberte zdroj kalendára";
+"onboarding_choose_different_source" = "Vybrať iný zdroj";
+"onboarding_continue" = "Pokračovať";
+"onboarding_done" = "Hotovo";
+"onboarding_google_calendar_description" = "Pripojí MeetingBarNG priamo ku Google Kalendáru bez použitia aplikácie Kalendár macOS.";
+"onboarding_google_calendar_title" = "Google Calendar API";
+"onboarding_progress" = "Krok %@ z %@";
+"onboarding_success_description" = "Vaše ďalšie stretnutie sa zobrazí v paneli s ponukami.";
+"onboarding_success_title" = "Ste pripravený";
+"onboarding_welcome_description" = "MeetingBarNG vám pomáha vidieť a pripojiť sa k vášmu ďalšiemu stretnutiu priamo z panela s ponukami.";
+"onboarding_welcome_title" = "Vitajte v MeetingBarNG";
+"preferences_advanced_regex_duplicate_error" = "Tento regulárny výraz už existuje.";
+"preferences_advanced_regex_test_button" = "Testovať regex";
+"preferences_advanced_regex_test_match" = "Zhoda: %@";
+"preferences_advanced_regex_test_no_match" = "Žiadna zhoda";
+"preferences_advanced_regex_test_placeholder" = "Vložte vzorový text udalosti";
+"preferences_advanced_regex_test_title" = "Testovať regex odkazu na stretnutie";
+"preferences_calendar_source_title" = "Zdroj kalendára";
+"preferences_configure_browsers_help" = "Pridajte vlastné prehliadače, profily alebo aplikácie na otváranie odkazov na stretnutia.";
+"preferences_meeting_opening_behavior_title" = "Otvárať odkazy na stretnutia";
+"preferences_notifications_alerts_title" = "Upozornenia na stretnutia";
+"preferences_notifications_automation_title" = "Automatické pripojenie";
+"preferences_section_apple_script_hooks_title" = "Háčiky AppleScript";
+"preferences_section_create_title" = "Vytvoriť stretnutia";
+"preferences_section_general_settings_title" = "Všeobecné nastavenia";
+"preferences_section_regex_filters_title" = "Filtre regex";
+"preferences_section_shortcuts_title" = "Klávesové skratky";
+"preferences_services_link_default_help" = "Tento prehliadač sa používa, pokiaľ nie je nastavené prepísanie pre konkrétneho poskytovateľa.";
+"preferences_services_link_overrides_help" = "Tieto voľby prepíšu predvolený prehliadač pre každú službu stretnutí.";
+"preferences_services_link_overrides_title" = "Prepísania podľa poskytovateľa";
+"preferences_status_copy_diagnostics" = "Kopírovať diagnostiku";
+"preferences_status_open_calendar_settings" = "Otvoriť nastavenia kalendára";
+"preferences_status_reconnect" = "Znova pripojiť";
+"preferences_status_state_auth_required" = "Vyžaduje sa autorizácia";
+"preferences_status_state_error" = "Posledná obnova zlyhala";
+"preferences_status_state_initializing" = "Inicializácia";
+"preferences_status_state_ok" = "Aktuálne";
+"preferences_status_state_permission_required" = "Vyžaduje sa povolenie kalendára";
+"preferences_status_state_stale" = "Zobrazovanie údajov z vyrovnávacej pamäte";
+"preferences_tab_meeting_opening" = "Odkazy na stretnutia";
+"preferences_tab_menu_bar" = "Zobrazenie a udalosti";
+"preferences_tab_notifications" = "Upozornenia";
+"status_bar_control_actions" = "Akcie stretnutia";
+"status_bar_control_auth_required" = "Google Kalendár je potrebné znova pripojiť";
+"status_bar_control_grant_permission" = "Udeliť povolenie kalendára";
+"status_bar_control_no_calendars" = "Nevybraté žiadne kalendáre";
+"status_bar_control_no_upcoming" = "Žiadne nadchádzajúce stretnutia";
+"status_bar_control_permission_required" = "Vyžaduje sa povolenie kalendára";
+"status_bar_control_reconnect" = "Znova pripojiť Google Kalendár";
+"status_bar_control_refresh_failed" = "Obnova kalendára zlyhala";
+"status_bar_control_select_calendars" = "Vybrať kalendáre v Predvoľbách";
+"status_bar_control_stale" = "Obnova kalendára zlyhala — zobrazujú sa naposledy známe údaje";
+"status_bar_join_with_other_link" = "Pripojiť sa iným odkazom";
+"timeline_accessibility_label" = "Časová os s %d udalosťami";
+"fullscreen_notification_dismiss_action" = "Zamietnuť";
+"shared_fullscreen_notification_without_link_toggle" = "Zobrazovať aj celoobrazkové upozornenia pre udalosti bez odkazu na stretnutie";
+"shared_fullscreen_notification_without_link_help" = "Udalosti bez odkazu na stretnutie zobrazujú celoobrazkové pripomenutie iba s akciou Zamietnuť.";
+"preferences_advanced_script_link_only_help" = "Spustí sa iba pre udalosti s odkazmi na stretnutia.";
+"preferences_meeting_opening_mode_google_meet_pwa" = "Google Meet PWA (Chrome)";
+"preferences_meeting_opening_mode_google_meet_pwa_help" = "Otvorí Google Meet cez nainštalovaný Chrome PWA, keď je dostupný. Inak sa vráti k prehliadaču.";
+"preferences_meeting_opening_mode_jitsi_app" = "Jitsi App";
+"preferences_meeting_opening_mode_meetinone" = "MeetInOne";
+"preferences_meeting_opening_mode_riverside_app" = "Riverside App";
+"preferences_meeting_opening_mode_slack_app" = "Slack App";
+"preferences_meeting_opening_mode_teams_app" = "Teams App";
+"preferences_meeting_opening_mode_workplace_app" = "Workplace App";
+"preferences_meeting_opening_mode_workplace_app_help" = "Otvorí podporované hovory Workplace v natívnej aplikácii Workchat, keď je dostupná.";
+"preferences_meeting_opening_mode_zoom_app" = "Zoom App";
+"preferences_meeting_opening_mode_zoom_web_app" = "Zoom Web App";
+"preferences_meeting_opening_mode_zoom_web_app_help" = "Otvorí podporované odkazy na stretnutia Zoom vo webovom klientovi Zoom.";
+"preferences_services_link_modes_help" = "Možnosti aplikácie, webovej aplikácie a PWA sú voliteľné. Existujúce správanie prehliadača zostane nezmenené, kým nevyberiete.";
+"preferences_sidebar_experience" = "Prostredie";
+"preferences_sidebar_setup" = "Nastavenie";
+"status_bar_control_current_meeting" = "Aktuálne stretnutie";
+"status_bar_control_next_meeting" = "Ďalšie stretnutie";
+"preferences_appearance_events_no_meeting_link_title" = "Udalosti bez odkazu na schôdzu";
+"preferences_appearance_menu_show_event_calendar_color_value" = "farba kalendára";

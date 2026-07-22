@@ -1,0 +1,31 @@
+# strings-lint pending keys — Preferences UX overhaul, Phase 2.
+#
+# These English strings were written for panes that have NOT yet been through
+# the IA restructure. The Phase 2 strings rewrite landed ahead of the views
+# that read them, so they are defined but not yet referenced.
+#
+# They are NOT dead copy. They are the plain-language rewrites from
+# docs/PREFERENCES-UX-PLAN.md section 6, waiting for their pane. Deleting them
+# would throw away the label work and re-derive it later from memory.
+#
+# As each pane is rebuilt it starts referencing its keys, and those lines come
+# out of this file. strings-lint fails if an entry here is already referenced,
+# so the list cannot rot. THIS FILE MUST REACH ZERO — while it exists, the
+# Preferences migration is unfinished.
+#
+# Do not add anything here for any other reason.
+
+menu_bar_week_number_prefix
+preferences_dropdown_block_add
+preferences_dropdown_block_agenda
+preferences_dropdown_block_bookmarks
+preferences_dropdown_block_greeting
+preferences_dropdown_block_join
+preferences_dropdown_block_meeting
+preferences_dropdown_block_preferences
+preferences_dropdown_block_timeline
+preferences_dropdown_greeting_name_placeholder
+preferences_dropdown_reminders_overdue_toggle
+preferences_dropdown_rows_shorten_stepper
+preferences_dropdown_rows_title
+preferences_preview_sample_event

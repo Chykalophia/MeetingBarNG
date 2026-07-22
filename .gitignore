@@ -5,11 +5,14 @@
 # Development Team override
 XCConfig/DevTeamOverride.xcconfig
 
+# Local Google OAuth credentials (copy from GoogleSecrets.xcconfig.example)
+XCConfig/GoogleSecrets.xcconfig
+
 # XCode generated files
-MeetingBar.xcodeproj/project.xcworkspace/xcuserdata/*
-MeetingBar.xcodeproj/xcuserdata/*
-MeetingBar.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/*
-!MeetingBar.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+MeetingBarNG.xcodeproj/project.xcworkspace/xcuserdata/*
+MeetingBarNG.xcodeproj/xcuserdata/*
+MeetingBarNG.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/*
+!MeetingBarNG.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 
 Archive/*
 build
@@ -20,6 +23,7 @@ build
 
 # AI agent local state
 .claude/
+.zenflow/
 .ignore
 AGENTS.md
 CLAUDE.md

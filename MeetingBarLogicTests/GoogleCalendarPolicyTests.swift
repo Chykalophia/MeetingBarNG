@@ -151,6 +151,12 @@ final class GoogleCalendarPolicyTests: XCTestCase {
         XCTAssertEqual(AuthError.refreshFailed.errorDescription, "Google Calendar token refresh failed")
     }
 
+    func testNotConfiguredErrorPointsAtSetup() {
+        let message = AuthError.notConfigured.errorDescription ?? ""
+        XCTAssertTrue(message.contains("isn't configured"), message)
+        XCTAssertTrue(message.contains("GoogleSecrets.xcconfig"), message)
+    }
+
     func testGoogleCalendarErrorDescriptionsIncludeUsefulContext() {
         XCTAssertEqual(
             GoogleCalendarError.unauthorized(calendarListURL).errorDescription,

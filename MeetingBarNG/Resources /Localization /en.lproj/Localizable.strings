@@ -1,0 +1,802 @@
+/*
+  Localizable.strings
+  MeetingBar
+
+  Copyright © 2021 Andrii Leitsius. All rights reserved.
+  Licensed under the Apache License, Version 2.0. Modified for MeetingBarNG by
+  Peter Krzyzek / Chykalophia, 2026: Preferences UX overhaul Phase 2 — the eight
+  panes get their own key namespaces (preferences_calendars_/_filters_/_menubar_/
+  _dropdown_/_calendarwindow_/_joining_/_alerts_/_general_), replacing the shared
+  `preferences_appearance_*` prefix that made Display and Events indistinguishable.
+  Colons are removed AT SOURCE (the runtime colon-stripper is deleted), labels are
+  verb-first and name the surface they change, and the banned words token/module/
+  composer/status bar/submenu/regex/inactive are gone from user-facing copy.
+*/
+
+"general_ok" = "OK";
+"general_cancel" = "Cancel";
+"general_close" = "Close";
+"general_add" = "Add";
+"general_delete" = "Delete";
+"general_save" = "Save";
+"general_meeting" = "Meeting";
+"general_when_event_starts" = "When it starts";
+"general_when_event_ends" = "When it ends";
+"general_one_minute_before" = "1 minute before";
+"general_three_minute_before" = "3 minutes before";
+"general_five_minute_before" = "5 minutes before";
+"general_refresh" = "Refresh";
+"timeline_accessibility_label" = "Timeline with %d events";
+"create_meeting_error_title" = "Cannot create new meeting";
+"create_meeting_error_message" = "Custom URL \"%@\" missing or invalid. ";
+"next_meeting_empty_title" = "There are no upcoming meetings today";
+"next_meeting_empty_message" = "Woohoo! It's time to make cocoa";
+"message_clipboard_invalid_title" = "No valid URL";
+"message_clipboard_invalid_text" = "Clipboard has no meeting link, so the meeting cannot be started.";
+"message_clipboard_empty_title" = "Clipboard is empty";
+"message_clipboard_empty_text" = "Clipboard has no content, so the meeting cannot be started.";
+"message_event_script_execution_failed_title" = "AppleScript execution failed";
+"message_event_script_execution_failed_text" = "The script in %@ failed: %@";
+"message_event_script_file_missing_title" = "AppleScript file not found";
+"message_event_script_file_missing_text" = "The eventStartScript.scpt file does not exist in %@.";
+"message_google_account_connected_title" = "Google Account connected";
+"message_google_account_connected_text" = "%@ is connected";
+
+// MARK: - Window titles
+
+"window_title_preferences" = "MeetingBarNG Preferences";
+"window_title_onboarding" = "Welcome to MeetingBarNG";
+"windows_title_changelog" = "MeetingBarNG – What's New";
+"window_title_calendar" = "Calendar";
+"window_title_world_clock" = "World Clock";
+"window_title_event_editor" = "Event";
+"window_title_camera_preview" = "Camera & Mic Check";
+
+// MARK: - Preferences chrome (panes, search, reset)
+
+"preferences_tab_calendars" = "Calendars";
+"preferences_tab_filters" = "Filters";
+"preferences_tab_menu_bar" = "Menu Bar";
+"preferences_tab_dropdown" = "Dropdown";
+"preferences_tab_calendar_window" = "Calendar Window";
+"preferences_tab_joining" = "Joining";
+"preferences_tab_alerts" = "Alerts";
+"preferences_tab_general" = "General";
+"preferences_tab_about" = "About & Support";
+
+"preferences_purpose_calendars" = "Where your meetings come from, and whether macOS is actually syncing them.";
+"preferences_purpose_filters" = "The one place that decides which meetings exist — everywhere in the app.";
+"preferences_purpose_menu_bar" = "What you see in the macOS menu bar all day.";
+"preferences_purpose_dropdown" = "What you see when you click MeetingBarNG.";
+"preferences_purpose_calendar_window" = "The month and week window MeetingBarNG opens — not Apple's Calendar app.";
+"preferences_purpose_joining" = "What happens when you click Join, and where new meetings get created.";
+"preferences_purpose_alerts" = "When MeetingBarNG interrupts you.";
+"preferences_purpose_general" = "The app itself: how it starts, how it reads time, and the way back to calm.";
+
+"preferences_search_placeholder" = "Search settings";
+"preferences_search_results_title" = "Settings matching “%@”";
+"preferences_search_no_results" = "Nothing matches “%@”.";
+"preferences_search_no_results_help" = "Try a plainer word — dot, declined, 24 hour, zoom.";
+
+"preferences_reset_section_button" = "Reset this section…";
+"preferences_reset_section_title" = "Reset %@ to defaults?";
+"preferences_reset_section_message" = "Every setting on this page goes back to how it shipped. Your calendars, saved links and browser setups are untouched.";
+"preferences_reset_all_button" = "Reset all settings…";
+"preferences_reset_all_title" = "Reset every setting?";
+"preferences_reset_all_message" = "Every setting in every section goes back to how it shipped. Your calendars, saved links and browser setups are untouched.";
+"preferences_reset_confirm" = "Reset";
+
+// MARK: - Command Bar
+"command_bar_placeholder" = "Search events or run a command…";
+"command_bar_no_results" = "No matches";
+"command_bar_all_day" = "All-day";
+"command_bar_agenda_header" = "Agenda — %@";
+"command_bar_agenda_empty" = "No meetings scheduled.";
+"command_bar_action_join_next" = "Join next meeting";
+"command_bar_action_join_next_keywords" = "join next meeting call";
+"command_bar_action_create_meeting" = "Create meeting";
+"command_bar_action_create_meeting_keywords" = "create new meeting start";
+"command_bar_action_copy_agenda" = "Copy today's agenda";
+"command_bar_action_copy_agenda_keywords" = "copy agenda today schedule";
+"command_bar_action_refresh" = "Refresh calendars";
+"command_bar_action_refresh_keywords" = "refresh reload sync calendars";
+"command_bar_action_open_preferences" = "Open Preferences";
+"command_bar_action_open_preferences_keywords" = "preferences settings options";
+
+// MARK: - Calendar window (month / week grid)
+"calendar_grid_today" = "Today";
+"calendar_grid_previous_month" = "Previous month";
+"calendar_grid_next_month" = "Next month";
+"calendar_grid_previous_week" = "Previous week";
+"calendar_grid_next_week" = "Next week";
+"calendar_grid_mode_label" = "Show";
+"calendar_grid_mode_month" = "Month";
+"calendar_grid_mode_week" = "Week";
+"calendar_grid_no_events" = "No events";
+"calendar_grid_all_day" = "All-day";
+
+// MARK: - World clock panel (multi-zone)
+"world_clock_panel_title" = "World Clock";
+"world_clock_panel_edit" = "Edit";
+"world_clock_panel_done" = "Done";
+"world_clock_panel_add" = "Add time zone";
+"world_clock_panel_remove" = "Remove time zone";
+"world_clock_panel_empty" = "No time zones";
+"world_clock_panel_tomorrow" = "Tomorrow";
+"world_clock_panel_yesterday" = "Yesterday";
+
+// MARK: - Status bar quick actions (right-click)
+"status_bar_quick_action_join_next" = "Join next meeting";
+"status_bar_quick_action_create_meeting" = "Create meeting";
+"status_bar_quick_action_new_event" = "New event…";
+"status_bar_quick_action_copy_agenda" = "Copy today's agenda";
+"status_bar_quick_action_open_calendar" = "Open calendar";
+"status_bar_quick_action_world_clock" = "World clock…";
+"status_bar_quick_action_camera_check" = "Camera check…";
+"status_bar_quick_action_refresh" = "Refresh calendars";
+"status_bar_quick_action_preferences" = "Preferences…";
+"status_bar_quick_action_quit" = "Quit MeetingBarNG";
+
+// MARK: - Preferences ▸ Calendars
+
+"preferences_calendars_status_ok" = "Up to date";
+"preferences_calendars_status_no_calendars" = "No calendars found";
+"preferences_calendars_status_stale" = "Showing the last data macOS gave us";
+"preferences_calendars_status_error" = "The last refresh failed";
+"preferences_calendars_status_auth_required" = "Sign-in needed";
+"preferences_calendars_status_permission_required" = "Calendar access needed";
+"preferences_calendars_status_initializing" = "Starting up";
+"preferences_calendars_status_refreshed" = "refreshed %@";
+"preferences_calendars_grant_access" = "Grant calendar access";
+"preferences_calendars_refresh_now" = "Refresh now";
+"preferences_calendars_list_title" = "Calendars to show";
+"preferences_calendars_list_help" = "Only these calendars' meetings appear anywhere in MeetingBarNG.";
+"preferences_calendars_selected_count" = "%1$d of %2$d selected";
+"preferences_calendars_select_all" = "All";
+"preferences_calendars_select_none" = "None";
+"preferences_calendars_search_placeholder" = "Search calendars";
+"preferences_calendars_source_other" = "Other";
+"preferences_calendars_empty_no_accounts" = "No calendars found. Add a calendar account in the macOS Calendar app, or check MeetingBarNG's calendar access in System Settings, then refresh.";
+"preferences_calendars_open_privacy" = "Open Calendar privacy settings";
+"preferences_calendars_open_internet_accounts" = "Open Internet Accounts";
+"preferences_calendars_reminders_toggle" = "Allow MeetingBarNG to read Apple Reminders";
+"preferences_calendars_reminders_help" = "macOS asks you the first time. Today's reminders can then appear in the dropdown.";
+"preferences_calendars_reminders_denied" = "macOS is blocking this. Turn MeetingBarNG on under Privacy & Security ▸ Reminders.";
+"preferences_calendars_reminders_granted" = "Allowed";
+"preferences_calendars_troubleshoot_title" = "Calendar isn't updating?";
+"preferences_calendars_troubleshoot_notice" = "MeetingBarNG shows whatever the macOS Calendar app has already synced. Account access, sync frequency and data freshness are macOS's to control, not MeetingBarNG's — so when meetings look outdated or missing, the fix is upstream: refresh here, or re-sign-in to the account in Internet Accounts.";
+"preferences_calendars_last_change" = "Newest change the app can see — %@";
+"preferences_calendars_last_change_help" = "If this is hours old, macOS has probably stopped syncing.";
+"preferences_calendars_error_intro" = "macOS reported this problem";
+"preferences_status_reconnect" = "Reconnect";
+
+// MARK: - Preferences ▸ Filters
+
+"preferences_filters_scope_banner" = "These choices apply everywhere — menu bar, dropdown and calendar window.";
+"preferences_filters_look_ahead_title" = "Look ahead";
+"preferences_filters_look_ahead_today" = "Today";
+"preferences_filters_look_ahead_today_tomorrow" = "Today and tomorrow";
+"preferences_filters_look_ahead_help" = "“Today” means tomorrow's meetings are never loaded at all.";
+"preferences_filters_dedup_toggle" = "Merge duplicates across calendars";
+"preferences_filters_dedup_help" = "One meeting invited to two of your calendars shows once, not twice.";
+"preferences_filters_preset_title" = "Show me";
+"preferences_filters_preset_everything" = "Everything";
+"preferences_filters_preset_meetings_only" = "Meetings only";
+"preferences_filters_preset_accepted_only" = "Only what I accepted";
+"preferences_filters_preset_custom" = "Custom";
+"preferences_filters_custom_title" = "Pick them one by one";
+"preferences_filters_value_show" = "Show";
+"preferences_filters_value_dim" = "Dim";
+"preferences_filters_value_hide" = "Hide";
+"preferences_filters_value_only_with_link" = "Only with a meeting link";
+"preferences_filters_value_show_crossed_out" = "Show (crossed out)";
+"preferences_filters_all_day_title" = "All-day entries (birthdays, OOO)";
+"preferences_filters_no_link_title" = "Calendar blocks with no meeting link";
+"preferences_filters_solo_title" = "Blocks you booked for yourself (focus time, lunch)";
+"preferences_filters_pending_title" = "Invites you haven't answered";
+"preferences_filters_tentative_title" = "Invites you answered Maybe";
+"preferences_filters_declined_title" = "Meetings you declined";
+"preferences_filters_ended_title" = "Meetings that have ended";
+"preferences_filters_ended_help" = "Hide also drops them from the dropdown's list, so the day starts at now.";
+"preferences_filters_menu_bar_note" = "The menu bar picks its next meeting from this same list, so dimming or hiding a kind also removes it from there.";
+"preferences_filters_ongoing_title" = "Count the meeting happening now as “next”";
+"preferences_filters_ongoing_until_next" = "Until the next one is close";
+"preferences_filters_ongoing_ten_minutes" = "For 10 minutes";
+"preferences_filters_ongoing_never" = "Never";
+"preferences_filters_ongoing_help" = "e.g. at “For 10 minutes”, a 2:00 meeting stops being “next” at 2:10 and the 3:00 one takes over.";
+"preferences_filters_title_pattern_title" = "Hide meetings whose title matches a pattern";
+"preferences_filters_title_pattern_help" = "Matches the title only, not notes or location.";
+"preferences_filters_title_pattern_test_title" = "Try a title";
+"preferences_filters_title_pattern_test_placeholder" = "Type a meeting title";
+"preferences_filters_title_pattern_test_hidden" = "Hidden by a pattern";
+"preferences_filters_title_pattern_test_kept" = "Kept";
+
+// MARK: - Preferences ▸ Menu Bar
+
+"preferences_menubar_preset_title" = "Layout";
+"preferences_menubar_preset_help" = "A starting point. Rearranging the blocks below switches this to Custom.";
+"preferences_menubar_preset_classic" = "Classic";
+"preferences_menubar_preset_minimal" = "Minimal";
+"preferences_menubar_preset_agenda" = "Agenda";
+"preferences_menubar_preset_info" = "Info";
+"preferences_menubar_preset_custom" = "Custom";
+"preferences_menubar_blocks_title" = "Blocks";
+"preferences_menubar_blocks_help" = "The pieces of the menu bar, left to right. Drag arrives with the builder; for now, use the arrows.";
+"preferences_menubar_block_move_up" = "Move earlier";
+"preferences_menubar_block_move_down" = "Move later";
+"preferences_menubar_block_icon" = "Icon";
+"preferences_menubar_block_title" = "Meeting title";
+"preferences_menubar_block_countdown" = "Countdown";
+"preferences_menubar_block_date" = "Date";
+"preferences_menubar_block_clock" = "Clock";
+"preferences_menubar_block_progress" = "Progress bar";
+"preferences_menubar_block_week_number" = "Week number";
+"preferences_menubar_block_world_clock" = "World clock";
+"preferences_menubar_icon_title" = "Which icon";
+"preferences_menubar_icon_app" = "\U00A0MeetingBarNG";
+"preferences_menubar_icon_calendar" = "\U00A0Calendar";
+"preferences_menubar_icon_service" = "\U00A0The meeting's app (e.g. Teams)";
+"preferences_menubar_icon_none" = "\U00A0No icon";
+"preferences_menubar_icon_none_help" = "Hides the icon next to the meeting title. With nothing to show, a calendar icon still appears so MeetingBarNG stays clickable.";
+"preferences_menubar_title_title" = "Show";
+"preferences_menubar_title_event" = "The meeting's title";
+"preferences_menubar_title_generic" = "The word “Meeting”";
+"preferences_menubar_title_dot" = "A dot (•)";
+"preferences_menubar_title_none" = "Nothing";
+"preferences_menubar_title_shorten_title" = "Shorten long titles";
+"preferences_menubar_title_shorten_stepper" = "to %d characters";
+"preferences_menubar_title_shorten_example" = "Long meeting names are trimmed to this length in the menu bar.";
+"preferences_menubar_lines_title" = "Menu bar layout";
+"preferences_menubar_lines_one" = "One line";
+"preferences_menubar_lines_two" = "Two lines — title on top";
+"preferences_menubar_quiet_toggle" = "Keep the menu bar quiet until a meeting is close";
+"preferences_menubar_quiet_stepper" = "within %d minutes";
+"preferences_menubar_quiet_example" = "e.g. at 30m, a 2:00 meeting shows in the menu bar at 1:30 — before that you see an alarm icon.";
+"preferences_menubar_countdown_style_title" = "Write the countdown as";
+"preferences_menubar_countdown_style_compact" = "2h";
+"preferences_menubar_countdown_style_full" = "2h 30m";
+"preferences_menubar_countdown_style_digital" = "2:30";
+"preferences_menubar_date_style_title" = "Write the date as";
+"preferences_menubar_date_style_weekday" = "Mon";
+"preferences_menubar_date_style_medium" = "Mon, Jul 17";
+"preferences_menubar_date_style_short" = "7/17/26";
+"preferences_menubar_progress_style_title" = "The progress bar tracks";
+"preferences_menubar_progress_style_day" = "Today";
+"preferences_menubar_progress_style_year" = "This year";
+"preferences_menubar_world_clock_timezone_title" = "Time zone";
+"preferences_menubar_world_clock_label_title" = "Short label";
+"preferences_menubar_world_clock_label_placeholder" = "e.g. SF";
+"menu_bar_week_number_prefix" = "W";
+
+// MARK: - Preset number picker (shared chips)
+
+"preferences_preset_custom" = "Custom";
+"preferences_preset_minutes_short" = "%dm";
+"preferences_preset_hours_short" = "%dh";
+
+// MARK: - Preferences ▸ Dropdown
+
+"preferences_dropdown_blocks_title" = "Blocks";
+"preferences_dropdown_blocks_help" = "The pieces of the dropdown, top to bottom. Settings & Quit is always pinned at the bottom.";
+"preferences_dropdown_block_add" = "Add block";
+"preferences_dropdown_block_greeting" = "Greeting";
+"preferences_dropdown_block_timeline" = "Timeline";
+"preferences_dropdown_block_meeting" = "Meeting card";
+"preferences_dropdown_block_agenda" = "Agenda";
+"preferences_dropdown_block_join" = "Join & actions";
+"preferences_dropdown_block_bookmarks" = "Saved links";
+"preferences_dropdown_block_preferences" = "Settings & Quit";
+"preferences_dropdown_greeting_name_title" = "Your name";
+"preferences_dropdown_greeting_name_placeholder" = "Your macOS account name";
+"preferences_dropdown_greeting_name_help" = "Used in the dropdown greeting, e.g. “Good morning, Alex”.";
+"preferences_dropdown_reminders_toggle" = "Show today's reminders";
+"preferences_dropdown_reminders_help" = "Needs Reminders access, which you grant on the Calendars page.";
+"preferences_dropdown_reminders_overdue_toggle" = "Include overdue";
+"preferences_dropdown_rows_title" = "Meeting rows";
+"preferences_dropdown_rows_end_time_toggle" = "Show each meeting's end time";
+"preferences_dropdown_rows_service_icon_toggle" = "Show the Zoom / Teams / Meet logo";
+"preferences_dropdown_rows_calendar_color_toggle" = "Show the calendar's colour dot";
+"preferences_dropdown_rows_prep_links_toggle" = "Show prep links (Figma, Docs, GitHub…)";
+"preferences_dropdown_rows_shorten_toggle" = "Shorten long titles";
+"preferences_dropdown_rows_shorten_stepper" = "to %d characters";
+"preferences_dropdown_rows_shorten_example" = "Long meeting names are trimmed to this length in the dropdown.";
+
+// MARK: - Preferences ▸ Calendar Window
+
+"preferences_calendarwindow_dim_weekends_toggle" = "Dim weekends";
+"preferences_calendarwindow_dim_weekends_help" = "Saturdays and Sundays are drawn in lighter grey so the work week stands out. Today and the day you picked stay highlighted.";
+"preferences_calendarwindow_open_in_title" = "Open in";
+"preferences_calendarwindow_open_in_help" = "The view the window starts in. Its own header still switches the view you are looking at now.";
+
+// MARK: - Preferences ▸ Joining
+
+"preferences_joining_default_browser_title" = "Open meeting links in";
+"preferences_joining_default_browser_help" = "Meeting links open here unless you send a service somewhere else below.";
+"preferences_joining_overrides_title" = "Send some services somewhere else";
+"preferences_joining_overrides_help" = "Pick an app and MeetingBarNG opens that service in it, ignoring the browser above. Pick a browser and it opens there instead.";
+"preferences_joining_overrides_group_apps" = "Apps";
+"preferences_joining_overrides_group_browsers" = "Browsers";
+"preferences_joining_service_title" = "%@";
+"preferences_joining_configure_browsers_button" = "Set up browsers and apps…";
+"preferences_joining_configure_browsers_help" = "Add custom browsers, profiles, or apps for opening meeting links.";
+"preferences_joining_create_title" = "Creating meetings";
+"preferences_joining_create_service_title" = "New meetings use";
+"preferences_joining_create_url_title" = "Web address for new meetings";
+"preferences_joining_create_url_tip" = "Tip: Google Meet supports choosing the account in the URL, e.g. https://meet.google.com/new?authuser=1";
+"preferences_joining_create_browser_title" = "Open new meetings in";
+"preferences_joining_links_title" = "My saved links";
+"preferences_joining_links_help" = "Standing meeting rooms and phone numbers, shown in the dropdown's Saved links block.";
+"preferences_joining_links_empty" = "You haven't saved any links yet";
+"preferences_joining_links_add_button" = "Add a link";
+"preferences_joining_links_move_up" = "Move up";
+"preferences_joining_links_move_down" = "Move down";
+"preferences_joining_links_delete_title" = "Delete this saved link?";
+"preferences_joining_links_delete_message" = "Delete %@?";
+"preferences_joining_links_new_title" = "New saved link";
+"preferences_joining_links_new_name" = "Name";
+"preferences_joining_links_new_link" = "Link or phone number";
+"preferences_joining_links_new_service" = "Service";
+"preferences_joining_links_new_duplicate" = "%@ already has this link or phone number:\n%@";
+"preferences_joining_links_new_error_title" = "Can't add that link";
+"preferences_joining_link_patterns_title" = "Find meeting links in unusual formats";
+"preferences_joining_link_patterns_help" = "For invites whose link MeetingBarNG doesn't spot. The whole match must itself be a valid web address.";
+"preferences_joining_link_patterns_test_title" = "Test a pattern";
+"preferences_joining_link_patterns_test_placeholder" = "Paste sample invite text";
+"preferences_joining_link_patterns_test_button" = "Test";
+"preferences_joining_link_patterns_test_match" = "Found %@";
+"preferences_joining_link_patterns_test_no_match" = "No link found";
+
+// MARK: - Preferences ▸ text patterns (shared editor)
+
+"preferences_pattern_add_button" = "Add a text pattern";
+"preferences_pattern_edit_button" = "Edit";
+"preferences_pattern_new_title" = "Add a text pattern";
+"preferences_pattern_new_placeholder" = "e.g. ^Focus time";
+"preferences_pattern_cant_save_title" = "Can't save that pattern";
+"preferences_pattern_duplicate_error" = "You already have this pattern.";
+
+// MARK: - Preferences ▸ Alerts
+
+"preferences_alerts_before_start_title" = "Before a meeting starts";
+"preferences_alerts_before_end_title" = "Before a meeting ends";
+"preferences_alerts_automation_title" = "Joining for you";
+"preferences_alerts_how_early" = "How early";
+"preferences_alerts_notify_start_toggle" = "Notify me before a meeting starts";
+"preferences_alerts_notify_end_toggle" = "Notify me before a meeting ends";
+"preferences_alerts_fullscreen_toggle" = "Take over the screen before a meeting";
+"preferences_alerts_fullscreen_without_link_toggle" = "Include blocks with no meeting link";
+"preferences_alerts_fullscreen_without_link_help" = "Those show a fullscreen reminder with a Dismiss button only.";
+"preferences_alerts_auto_join_toggle" = "Open the meeting for me, without clicking";
+"preferences_alerts_auto_join_help" = "Opens in whatever you picked on the Joining page.";
+"preferences_alerts_auto_join_jump" = "Change in Joining";
+"preferences_alerts_banner_style_tip" = "Notifications are set to Banners, so they disappear on their own. Switch to Alerts to keep them onscreen until you dismiss them.";
+"preferences_alerts_disabled_tip" = "⚠️ macOS notifications for MeetingBarNG are off, so none of these can reach you.";
+"preferences_alerts_open_notification_settings" = "Open notification settings";
+"preferences_alerts_scripts_title" = "Run a script around meetings";
+"preferences_alerts_script_start_toggle" = "Run a script before a meeting starts";
+"preferences_alerts_script_join_toggle" = "Run a script the moment I click Join";
+"preferences_alerts_script_edit_start" = "Edit the before-meeting script…";
+"preferences_alerts_script_edit_join" = "Edit the on-join script…";
+"preferences_alerts_script_test" = "Test on my next meeting";
+"preferences_alerts_script_link_only_help" = "Runs only for meetings that have a link.";
+"preferences_alerts_script_missing_warning" = "This is on, but no script has been saved yet — so nothing runs.";
+"preferences_alerts_script_editor_title" = "Edit script";
+"preferences_alerts_script_placeholder" = "# write your script here\ntell application \"Music\" to pause";
+"preferences_alerts_script_save_button" = "Save script";
+"preferences_alerts_script_wrong_location_title" = "Wrong folder";
+"preferences_alerts_script_wrong_location_message" = "Please choose User → Library → Application Scripts → com.chykalophia.MeetingBarNG";
+"preferences_alerts_script_wrong_location_button" = "Got it!";
+
+// MARK: - Preferences ▸ General
+
+"preferences_general_login_toggle" = "Open MeetingBarNG when I log in";
+"preferences_general_time_format_title" = "Time format";
+"preferences_general_time_format_12_hour" = "12-hour (3:30 PM)";
+"preferences_general_time_format_24_hour" = "24-hour (15:30)";
+"preferences_general_time_format_help" = "Used everywhere in the app — menu bar, dropdown, timeline, calendar window and alerts.";
+"preferences_general_shortcuts_title" = "Keyboard shortcuts";
+"preferences_general_shortcuts_open_group" = "Open something";
+"preferences_general_shortcuts_join_group" = "Get into a meeting";
+"preferences_general_shortcuts_make_group" = "Make something";
+"preferences_general_shortcuts_privacy_group" = "Privacy";
+"preferences_general_shortcut_open_dropdown" = "Open the dropdown";
+"preferences_general_shortcut_open_calendar_window" = "Open the calendar window";
+"preferences_general_shortcut_open_calendar_window_help" = "MeetingBarNG's own month view, not Apple's Calendar app.";
+"preferences_general_shortcut_open_search_bar" = "Open the search bar";
+"preferences_general_shortcut_open_search_bar_help" = "A Spotlight-style box for finding meetings and running actions.";
+"preferences_general_shortcut_open_world_clock" = "Open the world clock";
+"preferences_general_shortcut_join_next" = "Join my next meeting";
+"preferences_general_shortcut_join_clipboard" = "Join the link on my clipboard";
+"preferences_general_shortcut_camera_check" = "Check my camera and mic";
+"preferences_general_shortcut_create_meeting" = "Start a new call";
+"preferences_general_shortcut_create_meeting_help" = "On the service you picked in Joining.";
+"preferences_general_shortcut_new_event" = "Add an event to my calendar";
+"preferences_general_shortcut_hide_title" = "Hide the meeting title in the menu bar";
+"preferences_general_shortcut_hide_title_help" = "For blanking it before you screen-share.";
+"preferences_general_troubleshooting_title" = "Troubleshooting";
+"preferences_general_classic_menu_toggle" = "Use the classic macOS menu instead";
+"preferences_general_classic_menu_help" = "A plain system menu, kept as a way out if the normal dropdown misbehaves. Block styling does not apply to it.";
+
+// MARK: - Preferences ▸ About & Support
+
+"preferences_about_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
+"preferences_about_contact" = "Contact";
+"preferences_about_whats_new" = "What's New";
+"preferences_about_copy_report" = "Copy a report for support";
+"preferences_about_copied" = "Copied";
+
+// MARK: - Preferences live preview
+
+"preferences_display_preview_title" = "Preview";
+"preferences_display_preview_menu_bar_label" = "Menu bar";
+"preferences_display_preview_dropdown_label" = "Dropdown";
+"preferences_display_preview_caption" = "Sample data — updates as you change the settings.";
+"preferences_display_preview_greeting_name" = "Alex";
+"preferences_display_preview_greeting_summary" = "3 meetings today · 2h free";
+"preferences_preview_sample_event" = "Design review";
+"preferences_display_preview_sample_event_2" = "1:1 with Sam";
+"preferences_display_preview_sample_event_3" = "Team standup";
+"preferences_display_preview_sample_finished" = "Morning kickoff";
+"preferences_display_preview_sample_reminder" = "Reply to Dana";
+
+// MARK: - Meeting opening modes (per service)
+
+"preferences_meeting_opening_mode_meetinone" = "MeetInOne";
+"preferences_meeting_opening_mode_google_meet_pwa" = "Google Meet PWA (Chrome)";
+"preferences_meeting_opening_mode_google_meet_pwa_help" = "Opens Google Meet through the installed Chrome PWA when available. Falls back to your browser.";
+"preferences_meeting_opening_mode_zoom_app" = "Zoom App";
+"preferences_meeting_opening_mode_zoom_web_app" = "Zoom Web App";
+"preferences_meeting_opening_mode_zoom_web_app_help" = "Opens supported Zoom meeting links in Zoom’s web client.";
+"preferences_meeting_opening_mode_teams_app" = "Teams App";
+"preferences_meeting_opening_mode_workplace_app" = "Workplace App";
+"preferences_meeting_opening_mode_workplace_app_help" = "Opens supported Workplace calls in the native Workchat app when available.";
+"preferences_meeting_opening_mode_jitsi_app" = "Jitsi App";
+"preferences_meeting_opening_mode_slack_app" = "Slack App";
+"preferences_meeting_opening_mode_riverside_app" = "Riverside App";
+"preferences_services_link_default_browser_value" = "Default web browser";
+"preferences_services_create_meeting_custom_url_placeholder" = "Please enter a valid URL (with http:// or https://)";
+
+// MARK: - Browser configuration sheet
+
+"preferences_configure_browsers_delete_alert_title" = "Delete web browser configuration?";
+"preferences_configure_browsers_delete_alert_message" = "Delete the %@ browser configuration?";
+"preferences_configure_browsers_add_button_browser_title" = "Web browser";
+"preferences_configure_browsers_add_button_all_system_title" = "All system web browsers";
+"preferences_configure_browsers_modal_add_browser_title" = "Add web browser";
+"preferences_configure_browsers_modal_edit_browser_title" = "Edit web browser";
+"preferences_configure_browsers_modal_add_browser_name" = "Name";
+"preferences_configure_browsers_modal_add_browser_path" = "Path";
+"preferences_configure_browsers_modal_add_browser_choose_browser_button_title" = "Choose web browser";
+"preferences_configure_browsers_modal_alert_title" = "Can't add browser config";
+"preferences_configure_browsers_choose_browser_panel_title" = "Select a web browser app";
+"preferences_configure_browsers_choose_browser_panel_prompt" = "Choose web browser";
+"preferences_configure_browsers_choose_browser_panel_message" = "Select where to run the web browser from.";
+
+// MARK: - Dropdown greeting + day summary
+
+"menu_greeting_morning" = "Good morning";
+"menu_greeting_morning_named" = "Good morning, %@";
+"menu_greeting_afternoon" = "Good afternoon";
+"menu_greeting_afternoon_named" = "Good afternoon, %@";
+"menu_greeting_evening" = "Good evening";
+"menu_greeting_evening_named" = "Good evening, %@";
+"menu_day_summary_no_events" = "No meetings today";
+"menu_day_summary_event_count_one" = "%d meeting today";
+"menu_day_summary_event_count_other" = "%d meetings today";
+"menu_day_summary_focus_time" = "%@ free";
+
+// MARK: - Status bar
+
+"status_bar_section_today" = "Today";
+"status_bar_section_tomorrow" = "Tomorrow";
+"status_bar_section_reminders" = "Reminders";
+"status_bar_reminders_complete" = "Complete";
+"status_bar_reminders_snooze" = "Snooze";
+"status_bar_reminders_snooze_later_today" = "Later today";
+"status_bar_reminders_snooze_this_evening" = "This evening";
+"status_bar_reminders_snooze_tomorrow" = "Tomorrow";
+"status_bar_reminders_open_in_reminders" = "Open in Reminders";
+"status_bar_section_join_next_meeting" = "Join next event meeting";
+"status_bar_section_join_current_meeting" = "Join current event meeting";
+"status_bar_join_with_other_link" = "Join with other link";
+"status_bar_section_join_from_clipboard" = "Open meeting from clipboard";
+"status_bar_section_refresh_sources" = "Refresh sources";
+"status_bar_menu_dismiss_curent_meeting" = "Dismiss current meeting";
+"status_bar_menu_dismiss_next_meeting" = "Dismiss next meeting";
+"status_bar_menu_remove_all_dismissals" = "Remove all dismissals";
+"status_bar_event_dismissed_mark" = "dismissed";
+"notification_next_meeting_dismissed_title" = "Dismissed %@";
+"notification_next_meeting_dismissed_message" = "You can remove dismissal from Quick Actions";
+"notification_all_dismissals_removed_title" = "Removed all dismissals";
+"notification_all_dismissals_removed_message" = "All dismissed meetings are back in action";
+"status_bar_section_join_create_meeting" = "Create meeting";
+"status_bar_control_actions" = "More actions";
+"status_bar_control_current_meeting" = "Current meeting";
+"status_bar_control_next_meeting" = "Next meeting";
+"status_bar_control_stale" = "Calendar refresh failed — showing last known data";
+"status_bar_control_auth_required" = "Google Calendar needs to be reconnected";
+"status_bar_control_reconnect" = "Reconnect Google Calendar";
+"status_bar_control_permission_required" = "Calendar permission is required";
+"status_bar_control_grant_permission" = "Grant Calendar Permission";
+"status_bar_control_no_calendars" = "No calendars selected";
+"status_bar_control_select_calendars" = "Select Calendars in Preferences";
+"status_bar_control_no_calendars_available" = "No calendars connected";
+"status_bar_control_open_calendar_preferences" = "Open Calendars in Preferences";
+"status_bar_control_refresh_failed" = "Calendar refresh failed";
+"status_bar_control_no_upcoming" = "No upcoming meetings";
+"status_bar_section_bookmarks_title" = "Bookmarks";
+"status_bar_section_bookmarks_menu" = "Bookmarks menu";
+"status_bar_section_date_nothing" = "Nothing for %@";
+"status_bar_event_start_time_all_day" = "All day";
+"status_bar_submenu_calendar_title" = "Calendar: %@";
+"status_bar_submenu_duration_all_day" = "%@ - %@ (%@ minutes)";
+"status_bar_submenu_status_title" = "Status: %@";
+"status_bar_submenu_status_accepted" = " 👍 Accepted";
+"status_bar_submenu_status_declined" = " 👎 Declined";
+"status_bar_submenu_status_tentative" = " ☝️ Tentative";
+"status_bar_submenu_status_pending" = " ⏳ Pending";
+"status_bar_submenu_status_unknown" = " ❔ Unknown";
+"status_bar_submenu_status_default_extended" = " ❔ (%@)";
+"status_bar_submenu_location_title" = "Location:";
+"status_bar_submenu_organizer_title" = "Organizer: %@";
+"status_bar_submenu_notes_title" = "Notes:";
+"status_bar_submenu_prep_links_title" = "Prep links:";
+"status_bar_submenu_attendees_title" = "Attendees (%d)";
+"status_bar_submenu_attendees_no_name" = "Anonymous attendee";
+"status_bar_submenu_attendees_you" = "%@ (you)";
+"status_bar_submenu_attendees_status_tentative" = " [tentative]";
+"status_bar_submenu_attendees_status_unknown" = " [?]";
+"status_bar_submenu_copy_meeting_link" = "Copy meeting link";
+"status_bar_submenu_click_to_copy" = "Click to copy";
+"status_bar_submenu_dismiss_meeting" = "Dismiss meeting";
+"status_bar_submenu_undismiss_meeting" = "Remove dismissal";
+"status_bar_submenu_email_attendees" = "Email attendees";
+"status_bar_submenu_open_in_calendar" = "Open in Calendar App";
+"status_bar_submenu_open_in_fantastical" = "Open in Fantastical";
+"status_bar_submenu_edit_event" = "Edit…";
+"status_bar_submenu_delete_event" = "Delete…";
+"status_bar_submenu_preview_camera" = "Preview camera…";
+"status_bar_quick_actions" = "Quick Actions";
+"status_bar_show_meeting_names" = "Show meeting title";
+"status_bar_hide_meeting_names" = "Hide meeting title";
+"status_bar_whats_new" = "What's new?";
+
+// MARK: - SwiftUI dropdown panel
+
+// Tooltips for the inline detail disclosure on an event row — an affordance the
+// classic menu has no equivalent for. Every other panel action reuses the keys
+// above.
+"dropdown_panel_show_details" = "Show details";
+"dropdown_panel_hide_details" = "Hide details";
+
+// The one row that holds the whole utility set (clipboard, meeting-title
+// toggle, camera check, world clock, dismissals, refresh) so the panel doesn't
+// grow five more lines. The actions themselves reuse the menu keys above.
+"dropdown_panel_more_actions" = "More actions…";
+
+// MARK: - Event Editor (in-app create / edit / delete)
+
+"event_editor_new_title" = "New Event";
+"event_editor_edit_title" = "Edit Event";
+"event_editor_title_label" = "Title";
+"event_editor_title_placeholder" = "Event title";
+"event_editor_all_day" = "All-day";
+"event_editor_starts" = "Starts";
+"event_editor_ends" = "Ends";
+"event_editor_calendar" = "Calendar";
+"event_editor_location" = "Location";
+"event_editor_notes" = "Notes";
+"event_editor_url" = "URL";
+"event_editor_save" = "Save";
+"event_editor_cancel" = "Cancel";
+"event_editor_delete" = "Delete";
+"event_editor_delete_confirm_title" = "Delete this event?";
+"event_editor_delete_confirm_message" = "“%@” will be removed from your calendar. This can't be undone.";
+"event_editor_delete_confirm_message_recurring" = "“%@” is a repeating event. This applies to: %@. This can't be undone.";
+"event_editor_delete_this_event" = "Delete This Event";
+"event_editor_delete_this_and_future" = "Delete This and Future Events";
+"event_editor_span_label" = "Apply to";
+"event_editor_span_this_event" = "This event";
+"event_editor_span_this_and_future" = "This and future events";
+"event_editor_validation_empty_title" = "Add a title for the event.";
+"event_editor_validation_end_before_start" = "The end time must be after the start time.";
+"event_editor_validation_missing_calendar" = "Choose a calendar for the event.";
+"event_editor_save_failed" = "Couldn't save the event. Please try again.";
+"event_editor_delete_failed" = "Couldn't delete the event. Please try again.";
+
+// MARK: - What's New / Changelog
+"changelog_hero_title" = "What's New in MeetingBarNG";
+"changelog_hero_version" = "Version %@";
+"changelog_earlier_releases" = "Earlier releases";
+"changelog_empty_title" = "You're all caught up";
+"changelog_empty_message" = "You're on the latest — MeetingBarNG %@.";
+"changelog_view_all" = "View all releases";
+"changelog_continue" = "Continue";
+"changelog_kind_feature" = "New";
+"changelog_kind_improvement" = "Improved";
+"changelog_kind_fix" = "Fixed";
+"changelog_kind_localization" = "Localization";
+"status_bar_preferences" = "Preferences";
+"status_bar_quit" = "Quit MeetingBarNG";
+"status_bar_no_title" = "No title";
+"status_bar_event_status_now" = "now (%@ left)";
+"status_bar_event_status_in" = "in %@";
+"status_bar_error_apple_script_title" = "AppleScript error";
+"status_bar_error_link_missed_title" = "Ouch! Can't join the %@";
+"status_bar_error_link_missed_message" = "Link not found, or your meeting service is not yet supported";
+"status_bar_error_app_link_title" = "Oops! Unable to open the link in the %@";
+"status_bar_error_app_link_message" = "Ensure you have the %@ installed, or open such links in a web browser from the preferences instead.";
+// MARK: - Welcome screen
+
+"onboarding_setup_title" = "MeetingBarNG Setup";
+"onboarding_progress" = "Step %@ of %@";
+"onboarding_continue" = "Continue";
+"onboarding_back" = "Back";
+"onboarding_done" = "Done";
+"onboarding_welcome_title" = "Welcome to MeetingBarNG";
+"onboarding_welcome_description" = "MeetingBarNG shows your next meeting in the menu bar and joins it in one click. It syncs the calendars already on this Mac — iCloud, Google, Exchange, and more — from the accounts in System Settings.";
+"onboarding_apple_calendar_title" = "macOS Calendar app";
+"onboarding_apple_calendar_description" = "Reads calendars from the Calendar app on this Mac, including every account configured there.";
+"onboarding_google_calendar_title" = "Google Calendar API";
+"onboarding_google_calendar_description" = "Connects MeetingBar directly to Google Calendar without using the macOS Calendar app.";
+"onboarding_authorization_title" = "Verify calendar access";
+"onboarding_authorization_waiting" = "Waiting for authorization…";
+"onboarding_authorization_apple_description" = "Allow MeetingBarNG to read events from the Calendar app on this Mac.";
+"onboarding_authorization_google_description" = "Complete Google sign-in in your browser, then return to MeetingBar.";
+"onboarding_calendar_selection_title" = "Choose calendars";
+"onboarding_calendar_selection_description" = "Select the calendars whose meetings should appear in MeetingBarNG.";
+"onboarding_calendar_selection_empty" = "No calendars found. Refresh or check your calendar accounts.";
+"onboarding_calendar_selection_permission" = "Calendar permission is required. Grant access in System Settings, then refresh.";
+"onboarding_calendar_selection_reconnect" = "Google Calendar needs to be reconnected.";
+"onboarding_essentials_title" = "Choose daily behavior";
+"onboarding_essentials_description" = "Choose a few defaults for opening meetings and staying on schedule.";
+"onboarding_essentials_hint" = "You can tune every detail later in Preferences.";
+"onboarding_start_using" = "Start using MeetingBarNG";
+"onboarding_success_title" = "You’re ready";
+"onboarding_success_description" = "Your next meeting will appear in the menu bar.";
+
+// MARK: - Calendars screen
+
+"calendars_screen_select_calendar_title" = "Select at least one calendar";
+
+// MARK: - Access screen
+
+"access_screen_access_denied_system_preferences_button" = "System Preferences";
+"access_screen_provider_macos_data_source" = "Uses the macOS Calendar app as the data source";
+"access_screen_provider_macos_number_of_accounts" = "All configured accounts: iCloud, Google, Exchange, CalDAV, and more";
+"access_screen_provider_gcalendar_data_source" = "Connects directly through the Google Calendar API";
+"access_screen_provider_gcalendar_number_of_accounts" = "One Google account at a time";
+"access_screen_try_again" = "Try again";
+"access_screen_provider_authorization_cancelled" = "Authorization was cancelled. Try again to connect your calendar.";
+
+// MARK: - Shared
+
+"fullscreen_notification_dismiss_action" = "Dismiss";
+
+// MARK: - Constants
+"constants_create_meeting_service_url" = "Custom URL";
+"constants_meeting_service_phone" = "Phone number";
+"constants_meeting_service_zoom_native" = "Zoom native";
+"constants_meeting_service_other" = "Other";
+"constants_meeting_service_url" = "URL";
+
+// MARK: - Notifications
+
+"notifications_event_start_soon_body" = "The event starts soon";
+"notifications_event_started_body" = "The event has started";
+"notifications_event_start_one_minute_body" = "The event starts in one minute";
+"notifications_event_start_three_minutes_body" = "The event starts in three minutes";
+"notifications_event_start_five_minutes_body" = "The event starts in five minutes";
+"notifications_snooze_until_start" = "Snooze until start time";
+"notifications_snooze_for" = "Snooze for %@ min";
+"notifications_meetingbar_join_event_action" = "Join";
+"notifications_event_ends_soon_body" = "The event ends soon";
+"notifications_event_ends_one_minute_body" = "The event ends in one minute";
+"notifications_event_ends_three_minutes_body" = "The event ends in three minutes";
+"notifications_event_ends_five_minutes_body" = "The event ends in five minutes";
+"notifications_meetingbar_dismiss_event_action" = "Dismiss";
+
+// MARK: - Link open
+
+"link_url_cant_open_title" = "Oops! Unable to open the link in %@";
+"link_url_cant_open_message" = "Ensure you have %@ installed, or open such links in a web browser from the preferences instead.";
+
+// MARK: - Camera & mic pre-call preview (mirror check)
+
+"camera_preview_requesting_title" = "Preparing preview";
+"camera_preview_requesting_message" = "Waiting for camera access…";
+"camera_preview_no_camera_title" = "No camera found";
+"camera_preview_no_camera_message" = "Connect a camera to see your self-view preview.";
+"camera_preview_camera_denied_title" = "Camera access needed";
+"camera_preview_camera_denied_message" = "Allow camera access to preview your self-view before joining a meeting.";
+"camera_preview_mic_unavailable" = "Microphone unavailable — allow access to see your input level.";
+"camera_preview_mic_level_label" = "Microphone level";
+"camera_preview_camera_picker_label" = "Camera";
+"camera_preview_mic_picker_label" = "Microphone";
+"camera_preview_open_settings" = "Open System Settings";
+"camera_preview_join" = "Join meeting";
+"camera_preview_close" = "Close";
+
+/* ---------------------------------------------------------------
+   MIGRATION HOLDING AREA — Preferences UX overhaul, Phase 2.
+
+   These keys belong to panes that have NOT yet been through the IA
+   restructure. Phase 2's strings rewrite deleted them on the assumption
+   that every pane would migrate in one change; it did not, and live code
+   still reads them.
+
+   As each pane is rebuilt, its keys move up into the structured sections
+   above under their new names and disappear from here. This block MUST
+   reach zero — if it is still here, the migration is not finished.
+   --------------------------------------------------------------- */
+"preferences_appearance_calendar_dim_weekends_help" = "Saturdays and Sundays are shown in lighter gray so the work week stands out. Today and the day you picked stay highlighted.";
+"preferences_appearance_calendar_dim_weekends_toggle" = "Dim weekends in the calendar";
+"preferences_appearance_calendar_window_title" = "Calendar window";
+"preferences_appearance_menu_bar_composer_move_down" = "Move down";
+"preferences_appearance_menu_bar_composer_move_up" = "Move up";
+"preferences_appearance_menu_bar_composer_remove" = "Remove";
+"preferences_appearance_menu_bar_preview_sample_event" = "Design review";
+"preferences_appearance_menu_bar_week_number_prefix" = "W";
+"preferences_appearance_menu_greeting_name_help" = "Used in the dropdown greeting, e.g. \"Good morning, Alex\". Add the greeting under Dropdown layout above.";
+"preferences_appearance_menu_greeting_name_placeholder" = "Your macOS account name";
+"preferences_appearance_menu_greeting_name_title" = "Greeting name";
+"preferences_appearance_menu_hide_finished_toggle" = "Hide finished meetings from the dropdown";
+"preferences_appearance_menu_reminders_include_overdue_toggle" = "Include overdue reminders";
+"preferences_appearance_menu_shorten_event_title_example" = "Long meeting names are trimmed to this length in the dropdown.";
+"preferences_appearance_menu_shorten_event_title_stepper" = "%d characters";
+"preferences_appearance_menu_shorten_event_title_toggle" = "Shorten long meeting titles in the dropdown:";
+"preferences_appearance_menu_show_event_calendar_color_value" = "Show the calendar's color dot";
+"preferences_appearance_menu_show_event_details_value" = "Show event details in a submenu";
+"preferences_appearance_menu_show_event_end_time_value" = "Show each meeting's end time";
+"preferences_appearance_menu_show_event_icon_value" = "Show the meeting app's icon";
+"preferences_appearance_menu_show_event_title" = "How each meeting looks in the dropdown";
+"preferences_appearance_menu_show_prep_links_value" = "Show prep links (Figma, Docs, GitHub…) from the invite";
+"preferences_appearance_menu_show_reminders_toggle" = "Show today's reminders in the dropdown";
+"preferences_appearance_menu_swiftui_dropdown_help" = "On by default. The redesigned dropdown adds hover actions, inline event details, and keyboard navigation. Turn it off to fall back to the plain system menu.";
+"preferences_appearance_menu_swiftui_dropdown_toggle" = "Use the redesigned dropdown";
+"preferences_appearance_menu_title" = "More dropdown options";
+"preferences_general_option_login_launch" = "Open MeetingBarNG automatically when you log in";
+"preferences_menu_builder_dropdown_add" = "Add section";
+"preferences_menu_builder_dropdown_hint" = "Choose which sections appear in the menu dropdown, and in what order. The Preferences footer is always pinned to the bottom.";
+"preferences_menu_builder_dropdown_module_agenda" = "Agenda";
+"preferences_menu_builder_dropdown_module_bookmarks" = "Bookmarks";
+"preferences_menu_builder_dropdown_module_greeting" = "Greeting";
+"preferences_menu_builder_dropdown_module_join" = "Join & actions";
+"preferences_menu_builder_dropdown_module_meeting" = "Meeting card";
+"preferences_menu_builder_dropdown_module_preferences" = "Preferences";
+"preferences_menu_builder_dropdown_module_timeline" = "Timeline";
+"preferences_menu_builder_dropdown_title" = "Dropdown layout";
+"preferences_services_create_meeting_title" = "New meetings use";
+"preferences_services_link_meeting_title" = "Default browser for meeting links";
+"preferences_status_open_calendar_settings" = "Open Calendar Settings";
+"shared_send_notification_toggle" = "Send a system notification";
+
+/* ---------------------------------------------------------------
+   MIGRATION HOLDING AREA — Preferences UX overhaul, Phase 2.
+
+   These keys belong to panes that have NOT yet been through the IA
+   restructure. Phase 2's strings rewrite deleted them on the assumption
+   that every pane would migrate in one change; it did not, and live code
+   still reads them.
+
+   As each pane is rebuilt, its keys move up into the structured sections
+   above under their new names and disappear from here. This block MUST
+   reach zero — if it is still here, the migration is not finished.
+   --------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------
+   MIGRATION HOLDING AREA — Preferences UX overhaul, Phase 2.
+
+   These keys belong to panes that have NOT yet been through the IA
+   restructure. Phase 2's strings rewrite deleted them on the assumption
+   that every pane would migrate in one change; it did not, and live code
+   still reads them.
+
+   As each pane is rebuilt, its keys move up into the structured sections
+   above under their new names and disappear from here. This block MUST
+   reach zero — if it is still here, the migration is not finished.
+   --------------------------------------------------------------- */
+
+/* Reached through a variable (statusTextKey / titleKey), so validate_localizations
+   cannot see them and the Phase 2 rewrite dropped them silently — they rendered
+   as raw key names in the Calendars pane. Covered by a test now. */
