@@ -22,6 +22,7 @@ import SwiftUI
 struct PreferencesDisclosure<Content: View>: View {
     let id: String
     let titleKey: String
+    var subtitleKey: String?
     /// Opens the disclosure on appearance — used when the app knows the user
     /// needs what is inside (an error state), not merely that it is uncommon.
     var opensAutomatically = false
@@ -43,8 +44,19 @@ struct PreferencesDisclosure<Content: View>: View {
     }
 
     var body: some View {
-        DisclosureGroup(titleKey.loco(), isExpanded: isExpanded) {
+        DisclosureGroup(isExpanded: isExpanded) {
             content
+        } label: {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(titleKey.loco())
+                    .font(.subheadline.weight(.medium))
+                if let subtitleKey {
+                    Text(subtitleKey.loco())
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .fixedSize(horizontal: false, vertical: true)
         }
         .onAppear {
             if opensAutomatically, !expandedIDs.contains(id) {

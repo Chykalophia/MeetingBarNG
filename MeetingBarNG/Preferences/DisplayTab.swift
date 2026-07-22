@@ -2,59 +2,20 @@
 //  DisplayTab.swift
 //  MeetingBarNG
 //
-//  The "Display" preferences tab: how MeetingBarNG presents itself in the menu
-//  bar and its dropdown. Phase 1 of the Preferences IA overhaul merges the
-//  former menu-bar appearance tab (StatusBarSection) with the composable
-//  menu-bar / dropdown builders and the dropdown display toggles.
+//  The dropdown builder sections and the calendar window display section,
+//  composed by `DropdownTab` (PreferencesPanes.swift) and `CalendarWindowTab`
+//  respectively. The old `DisplayTab` pane struct is gone — the Phase 2 IA
+//  restructure split it into the Dropdown and Calendar Window panes.
 //
 //  DropdownComposerSection was moved here from MenuBuilderTab.swift, originally:
 //    Created by Andrii Leitsius on 13.01.2021.
 //    Copyright © 2021 Andrii Leitsius. All rights reserved.
 //  Licensed under the Apache License, Version 2.0. Modified for MeetingBarNG by
-//  Peter Krzyzek / Chykalophia, 2026: Phase 2 of the Preferences UX overhaul
-//  moved the two menu-bar sections out into the Menu Bar pane
-//  (`MenuBarTab.swift`) and deleted them here — the destructive "Customize menu
-//  bar layout" toggle with them. Earlier: relocated into the Display tab and split
-//  the dropdown display toggles into `DropdownDisplaySection` (Phase 1); wrap the
-//  settings sections in a two-pane layout with a sticky `DisplayPreviewPane` live
-//  preview on the right (Phase 2); Phase 3 legibility pass — plain-language
-//  labels, `PresetNumberPicker` chips for the menu-bar title length and the
-//  look-ahead threshold, and dropped the greeting/timeline on/off toggles from
-//  `DropdownDisplaySection` (the composer's module list is now their single
-//  source of truth); added `CalendarWindowDisplaySection` for the calendar
-//  window's dim-weekends preference; added the `useSwiftUIDropdown` switch to
-//  `DropdownDisplaySection` — the SwiftUI panel is now the DEFAULT dropdown and
-//  the switch is the escape hatch back to the classic NSMenu, not an opt-in.
+//  Peter Krzyzek / Chykalophia, 2026.
 //
 
 import Defaults
 import SwiftUI
-
-struct DisplayTab: View {
-    var body: some View {
-        // Two-pane: the settings sections scroll on the left; a fixed-width live
-        // preview stays pinned on the right. Only the Display tab gets a preview.
-        HStack(spacing: 0) {
-            PreferencesGroupedForm {
-                // The menu-bar sections have left this file: they are the Menu
-                // Bar pane now (`MenuBarTab.swift`).
-                // "Dropdown layout" — composable dropdown section builder.
-                DropdownComposerSection()
-                // "Dropdown" — dropdown display toggles (timeline, greeting, …).
-                DropdownDisplaySection()
-                // "Calendar window" — the month/week grid window's display options.
-                CalendarWindowDisplaySection()
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            Divider()
-
-            DisplayPreviewPane()
-                .frame(width: 340)
-                .frame(maxHeight: .infinity)
-        }
-    }
-}
 
 // MARK: - Composable menu dropdown (MeetingBarNG)
 
@@ -492,5 +453,10 @@ struct CalendarWindowDisplaySection: View {
 }
 
 #Preview {
-    DisplayTab().frame(width: 940, height: 620)
+    PreferencesGroupedForm {
+        DropdownComposerSection()
+        DropdownDisplaySection()
+        CalendarWindowDisplaySection()
+    }
+    .frame(width: 560, height: 620)
 }

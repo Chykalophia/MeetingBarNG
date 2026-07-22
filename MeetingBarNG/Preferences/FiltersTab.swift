@@ -237,7 +237,8 @@ struct FiltersTab: View {
         Section {
             PreferencesDisclosure(
                 id: Self.customDisclosureID,
-                titleKey: "preferences_filters_custom_title"
+                titleKey: "preferences_filters_custom_title",
+                subtitleKey: "preferences_filters_custom_subtitle"
             ) {
                 Picker("preferences_filters_all_day_title".loco(), selection: $allDayEvents) {
                     Text("preferences_filters_value_show".loco())

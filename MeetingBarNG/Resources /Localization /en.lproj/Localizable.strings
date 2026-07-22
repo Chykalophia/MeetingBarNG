@@ -185,6 +185,7 @@
 "preferences_filters_preset_accepted_only" = "Only what I accepted";
 "preferences_filters_preset_custom" = "Custom";
 "preferences_filters_custom_title" = "Pick them one by one";
+"preferences_filters_custom_subtitle" = "All-day, no-link, personal, pending, tentative, declined, ended";
 "preferences_filters_value_show" = "Show";
 "preferences_filters_value_dim" = "Dim";
 "preferences_filters_value_hide" = "Hide";
@@ -286,7 +287,6 @@
 "preferences_dropdown_block_agenda" = "Agenda";
 "preferences_dropdown_block_join" = "Join & actions";
 "preferences_dropdown_block_bookmarks" = "Saved links";
-"preferences_dropdown_block_preferences" = "Settings & Quit";
 "preferences_dropdown_greeting_name_title" = "Your name";
 "preferences_dropdown_greeting_name_placeholder" = "Your macOS account name";
 "preferences_dropdown_greeting_name_help" = "Used in the dropdown greeting, e.g. “Good morning, Alex”.";
@@ -441,7 +441,6 @@
 "preferences_display_preview_dropdown_label" = "Dropdown";
 "preferences_display_preview_caption" = "Sample data — updates as you change the settings.";
 "preferences_display_preview_greeting_name" = "Alex";
-"preferences_display_preview_greeting_summary" = "3 meetings today · 2h free";
 "preferences_preview_sample_event" = "Design review";
 "preferences_display_preview_sample_event_2" = "1:1 with Sam";
 "preferences_display_preview_sample_event_3" = "Team standup";
