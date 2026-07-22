@@ -1,0 +1,121 @@
+MeetingBarLogicTests/MenuBarTimeFormatMigrationTests.swift
+  s_8821c3fb11800f::t_b2f1a2fe411ea7 1-81
+MeetingBarLogicTests/CalendarListPresentationTests.swift
+  s_8821c3fb11800f::t_6bd57e4c9b2f4e 1-159
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_8821c3fb11800f::t_7c710a7a1c98d4 103-113
+MeetingBarNG/Preferences/DisplayTab.swift
+  s_8821c3fb11800f::t_fa5afe4587f818 10
+  s_8821c3fb11800f::t_38937ba45acf5c 14-17
+  s_8821c3fb11800f::t_a886b1b5f5bd31 39-40
+MeetingBarLogicTests/MenuBarBlockListTests.swift
+  s_8821c3fb11800f::t_45d0c7516b4195 1-110
+MeetingBarNG/Preferences/Preferences.swift
+  s_8821c3fb11800f::t_9b38756d7ef402 39-41
+  s_8821c3fb11800f::t_e72873312f5288 60-65
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_8821c3fb11800f::t_9e96e053068fed 249-251
+MeetingBarNG/Preferences/MenuBarTab.swift
+  s_8821c3fb11800f::t_2da6d0c4aa931f 1-102,109-448,452-492
+  s_8821c3fb11800f::t_ac04b453a14d70 103-108
+  s_8821c3fb11800f::t_e2cc67182a9993 449-451
+MeetingBarNG/Preferences/JoiningTab.swift
+  s_8821c3fb11800f::t_2f2a67502447d4 1-552
+MeetingBarNG/UI/Views/Shared.swift
+  s_8821c3fb11800f::t_987f9574187f18 22-23,30-34,40-43,50-53,57-66
+  s_8821c3fb11800f::t_26df22672423f8 71-79
+MeetingBarNG/UI/StatusBar/StatusBarPresentation.swift
+  s_8821c3fb11800f::t_5b5020e613b6dd 647-655
+  s_8821c3fb11800f::t_444e6f66f0f59c 592-624,916
+  s_8821c3fb11800f::t_9406edcd5aa643 526-591
+  s_8821c3fb11800f::t_122d1c0f8ec73a 847,863,867-873,877-878,882,885,893-915
+  s_8821c3fb11800f::t_ac527ef13cc5b5 917
+MeetingBarNG/Preferences/AlertsTab.swift
+  s_8821c3fb11800f::t_28761fe0df4fae 2-3,5,7-38,44,47-102,104-112,114-119,121-145,147,152-155,157-160,162-164,166-167,170-183,185-188,190-201,204-205,209-216,220-221,224-234,238-259,262-282,284-290,292-330,334-335,350,370,375-376,378-379,389-390
+MeetingBarNG/App/AppDelegate.swift
+  s_8821c3fb11800f::t_b2fd83f7a27d98 65
+MeetingBarNGTests/IndirectLocalizationKeyTests.swift
+  s_8821c3fb11800f::t_c064d37a473817 61-63
+MeetingBarNG/Preferences/PreferencesNavigation.swift
+  s_8821c3fb11800f::t_8a01cb729ae260 1-36
+MeetingBarNG/Preferences/PreferencesReset.swift
+  s_8821c3fb11800f::t_da4290ccb1d66a 29-33
+MeetingBarNG/Preferences/PreferencesPresentation.swift
+  s_8821c3fb11800f::t_a379f953e8617e 62-69
+  s_8821c3fb11800f::t_e1eaa1827f7011 169
+  s_8821c3fb11800f::t_d3118b4b2502e6 125-130,134,140,144,148,152,156
+Package.swift
+  s_8821c3fb11800f::t_2ce2c47830eccc 59
+  s_8821c3fb11800f::t_6855c14a2fd214 56
+MeetingBarNGTests/PreferencesPresentationTests.swift
+  s_8821c3fb11800f::t_a007813c0b6b4c 107-112
+  s_8821c3fb11800f::t_b93575abdf6869 129,161,272,327,348
+MeetingBarNG/Preferences/EventsTab.swift
+  s_8821c3fb11800f::t_e5fa6704d2b769 89-92
+  s_8821c3fb11800f::t_11faa16d083d9b 5,7-16,22-23
+MeetingBarNG/Preferences/CalendarsTab.swift
+  s_8821c3fb11800f::t_d546a9d72409da 8-9,11-45,56,64-70,72,74-97,99-100,103-111,113-114,117-123,125-169,172-184,186-188,190-199,202-262,264-279,281-285,287,289,291-293,295-302,305,308-312,315-324,328-331,335-398,402-403,422-425,450-453,467-476
+MeetingBarNG/Calendar/Providers/EventKit/RemindersStore.swift
+  s_8821c3fb11800f::t_4b03a80dd6def3 51-57
+MeetingBarNG/Preferences/GeneralTab.swift
+  s_8821c3fb11800f::t_60cb19093c429b 8-38,45,53-55,57-61,63,66,68,71-74,77-79,84-88,91-159,164-165,169-178,185,187-190,192-199,201-212,215-219,221
+MeetingBarLogicTests/MenuBarTwoLineTests.swift
+  s_8821c3fb11800f::t_68851754841f4a 1-81,83-84,86-132,134-149
+  s_8821c3fb11800f::t_4b29d1653981ea 82,85
+  s_8821c3fb11800f::t_806df6c2ff67e0 133
+MeetingBarNG/Preferences/CalendarListPresentation.swift
+  s_8821c3fb11800f::t_f2efe0e00ebc99 1-156
+MeetingBarNG/Preferences/SettingsIndex.swift
+  s_8821c3fb11800f::t_4e6b70672afe4a 302-303,306
+  s_8821c3fb11800f::t_8ea599edc7cdc9 268-273
+  s_8821c3fb11800f::t_d58d62ff1d44aa 299,301,304-305,307
+  s_8821c3fb11800f::t_355e566334c984 140-144
+MeetingBarNG/UI/StatusBar/StatusBarPresentation+MeetingBar.swift
+  s_8821c3fb11800f::t_057ef3e5cff139 216-217
+  s_8821c3fb11800f::t_40f047857c234a 164-175,177-181
+MeetingBarNG/Preferences/FiltersTab.swift
+  s_8821c3fb11800f::t_2176c38e2f792e 1-441
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_8821c3fb11800f::t_851fa430a29b56 158
+MeetingBarNG/Preferences/PreferencesPanes.swift
+  s_8821c3fb11800f::t_9e90373b6afdb6 29-34
+  s_8821c3fb11800f::t_e5ce7a5b1790e8 37-42
+  s_8821c3fb11800f::t_bf8c7ae65ccf12 96-107,109-112,115-175,178-180,182-189
+  s_8821c3fb11800f::t_a6283e3468d537 88
+  s_8821c3fb11800f::t_8cceca53472ea8 87,89-92,94-95
+MeetingBarNG/Settings/AppSettings.swift
+  s_8821c3fb11800f::t_7a660664198516 194-227,229-233
+  s_8821c3fb11800f::t_134ab70c1c7df0 228
+MeetingBarLogicTests/AlertsPresentationTests.swift
+  s_8821c3fb11800f::t_287c9da91ef8af 1-101
+MeetingBarLogicTests/EventFilteringTests.swift
+  s_8821c3fb11800f::t_9f7a5f3d0c6d9d 139-159
+MeetingBarNG/Utilities/Constants.swift
+  s_8821c3fb11800f::t_26fe84295a2461 45-52
+MeetingBarNG/Preferences/AlertsPresentation.swift
+  s_08b130cd0c68b4::t_76c53e572cf204 1-86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "45e0438385c30b16c22cc70d07e52b80b0d10c57",
+  "prompts": {},
+  "sessions": {
+    "s_08b130cd0c68b4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-ad9670d4c78793859",
+        "model": "unknown"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    },
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
