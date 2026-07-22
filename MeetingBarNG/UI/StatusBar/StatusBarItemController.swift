@@ -155,6 +155,7 @@ final class StatusBarItemController {
             .showTimelineInMenu, .hideFinishedEventsInMenu,
             .menuBarTokens, .menuBarCountdownStyle, .menuBarDateStyle,
             .menuBarProgressStyle, .menuBarWorldClockTimeZone, .menuBarWorldClockLabel,
+            .menuBarTwoLineLayout,
             .showGreetingInMenu, .greetingName,
             .showRemindersInMenu, .remindersIncludeOverdue,
             .dropdownModuleOrder, .showMeetingControlInMenu,

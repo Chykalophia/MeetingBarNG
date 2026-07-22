@@ -104,20 +104,12 @@ final class PreferencesPresentationTests: XCTestCase {
         }
     }
 
-    func testStatusBarTimeOptionsIncludeHide() {
-        XCTAssertEqual(
-            PreferencesStatusBarTimeOption.allCases.map(\.format),
-            [.show, .show_under_title, .hide]
-        )
-        XCTAssertEqual(
-            PreferencesStatusBarTimeOption.allCases.map(\.titleKey),
-            [
-                "preferences_appearance_status_bar_time_show_value",
-                "preferences_appearance_status_bar_time_show_under_title_value",
-                "preferences_appearance_status_bar_time_hide_value"
-            ]
-        )
-    }
+    // `testStatusBarTimeOptionsIncludeHide` is gone with
+    // `PreferencesStatusBarTimeOption`: the "Time next to the title" picker it
+    // fed is deleted. Showing the time is now the presence of the Countdown
+    // block on the Menu Bar pane, show-under-title is that pane's One line /
+    // Two lines control, and `MenuBarTimeFormatMigration` (tested hostlessly)
+    // carries a stored `eventTimeFormat` across to both.
 
     func testConnectedProviderPresentationUsesAppStateCounts() {
         let refreshedAt = Date(timeIntervalSince1970: 1_700_000_000)
@@ -134,7 +126,7 @@ final class PreferencesPresentationTests: XCTestCase {
 
         XCTAssertEqual(presentation.connectionState, .connected)
         XCTAssertEqual(presentation.statusTone, .success)
-        XCTAssertEqual(presentation.statusTextKey, "preferences_status_state_ok")
+        XCTAssertEqual(presentation.statusTextKey, "preferences_calendars_status_ok")
         XCTAssertEqual(presentation.providerTitleKey, "onboarding_google_calendar_title")
         XCTAssertEqual(
             presentation.providerDataSourceKey,
@@ -166,7 +158,7 @@ final class PreferencesPresentationTests: XCTestCase {
         XCTAssertEqual(presentation.statusTone, .warning)
         XCTAssertEqual(
             presentation.statusTextKey,
-            "preferences_status_state_no_calendars"
+            "preferences_calendars_status_no_calendars"
         )
         XCTAssertEqual(presentation.availableCalendarCount, 0)
         XCTAssertEqual(presentation.selectedCalendarCount, 0)
@@ -277,7 +269,7 @@ final class PreferencesPresentationTests: XCTestCase {
         XCTAssertTrue(presentation.canOpenCalendarSettings)
         XCTAssertEqual(
             presentation.statusTextKey,
-            "preferences_status_state_no_calendars"
+            "preferences_calendars_status_no_calendars"
         )
     }
 
@@ -332,7 +324,7 @@ final class PreferencesPresentationTests: XCTestCase {
         XCTAssertEqual(presentation.connectionState, .permissionRequired)
         XCTAssertEqual(
             presentation.statusTextKey,
-            "preferences_status_state_permission_required"
+            "preferences_calendars_status_permission_required"
         )
         XCTAssertTrue(presentation.canOpenCalendarSettings)
         XCTAssertFalse(presentation.canReconnect)
@@ -353,7 +345,7 @@ final class PreferencesPresentationTests: XCTestCase {
 
         XCTAssertEqual(presentation.connectionState, .stale)
         XCTAssertEqual(presentation.statusTone, .warning)
-        XCTAssertEqual(presentation.statusTextKey, "preferences_status_state_stale")
+        XCTAssertEqual(presentation.statusTextKey, "preferences_calendars_status_stale")
     }
 
     func testPresentationCarriesNewestSyncedChangeFromProviderHealth() {

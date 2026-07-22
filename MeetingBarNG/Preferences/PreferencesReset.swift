@@ -26,6 +26,11 @@ enum PreferencesReset {
     /// reset: your calendar selection, saved links, browser setups, and the
     /// bookkeeping keys (migration flags, processed-event ledgers). Those are
     /// your data, not settings.
+    ///
+    /// One deliberate exception: a migration flag whose migration *seeded* a
+    /// setting the pane owns is listed with that setting, so resetting the pane
+    /// returns it to the state a fresh install is in rather than to the raw key
+    /// default the seed exists to replace (`menuBarTimeFormatMigrated`).
     static func reset(_ tab: PreferencesTab) {
         let keys = SettingsIndex.defaultsKeys(in: tab)
         guard !keys.isEmpty else { return }

@@ -42,8 +42,14 @@ enum Links {
     /// credentials are re-authenticated. When an account's sync stalls, macOS
     /// Calendar serves stale data silently; re-signing in here is the real fix.
     static let internetAccountsPreferences = URL(string: "x-apple.systempreferences:com.apple.Internet-Accounts-Settings.extension")!
-    /// Bare System Settings, used as a fallback if the Internet-Accounts pane
-    /// scheme fails to open (pane identifiers drift across macOS releases).
+    /// System Settings ▸ Notifications ▸ MeetingBarNG — where notifications are
+    /// switched back on, and where Banners becomes Alerts. The Alerts pane says
+    /// what macOS is currently doing and then offers this, rather than telling
+    /// the user to go and find it.
+    static let notificationPreferences = URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension")!
+    /// Bare System Settings, used as a fallback if the Internet-Accounts or
+    /// Notifications pane scheme fails to open (pane identifiers drift across
+    /// macOS releases).
     static let systemSettings = URL(string: "x-apple.systempreferences:")!
 }
 

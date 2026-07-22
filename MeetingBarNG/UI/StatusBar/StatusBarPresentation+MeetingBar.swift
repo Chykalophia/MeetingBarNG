@@ -161,15 +161,24 @@ extension StatusBarIconAssets {
 // MARK: - Composable menu bar adapters (MeetingBarNG)
 
 extension MenuBarComposition {
-    /// The user's saved composition, or `nil` when they have not opted in — in
-    /// which case the renderer uses the classic `StatusBarPresenter` path so
-    /// existing installs behave exactly as before.
+    /// The user's saved composition, or `nil` when the classic
+    /// `StatusBarPresenter` path should draw the menu bar instead.
+    ///
+    /// An empty token list means two different things either side of
+    /// `MenuBarTimeFormatDefaultsMigration`, and conflating them is what made
+    /// the old "Customize menu bar layout" toggle destructive:
+    ///
+    ///   • before it has run — the user never composed anything, so the classic
+    ///     path owns the menu bar and existing installs are unchanged;
+    ///   • after it has run — every install has been seeded, so an empty list is
+    ///     a deliberate "every block is switched off". That composes to nothing,
+    ///     and `ensureStatusBarButtonIsVisible` keeps the app icon clickable.
     static var currentIfEnabled: MenuBarComposition? {
-        var seen = Set<MenuBarTokenKind>()
-        let tokens = Defaults[.menuBarTokens]
-            .compactMap(MenuBarTokenKind.init(rawValue:))
-            .filter { seen.insert($0).inserted }
-        return tokens.isEmpty ? nil : MenuBarComposition(tokens: tokens)
+        let tokens = MenuBarBlockList.kinds(stored: Defaults[.menuBarTokens])
+        if tokens.isEmpty {
+            return Defaults[.menuBarTimeFormatMigrated] ? MenuBarComposition(tokens: []) : nil
+        }
+        return MenuBarComposition(tokens: tokens)
     }
 
     /// A composition mirroring the user's classic status-bar settings. Used to
@@ -204,7 +213,8 @@ extension MenuBarComposedSettings {
             iconAssets: .production,
             tokenSeparator: "  ",
             pendingDisplay: StatusBarParticipationDisplay(Defaults[.showPendingEvents]),
-            tentativeDisplay: StatusBarParticipationDisplay(Defaults[.showTentativeEvents])
+            tentativeDisplay: StatusBarParticipationDisplay(Defaults[.showTentativeEvents]),
+            twoLines: Defaults[.menuBarTwoLineLayout]
         )
     }
 }

@@ -100,6 +100,17 @@ extension Defaults.Keys {
     static let menuBarWorldClockTimeZone = Key<String>(
         "menuBarWorldClockTimeZone", default: TimeZone.current.identifier)
     static let menuBarWorldClockLabel = Key<String>("menuBarWorldClockLabel", default: "")
+    // "One line / Two lines" on the Menu Bar pane — the capability the retired
+    // `eventTimeFormat` control carried as `.show_under_title`. On two lines the
+    // meeting title is the headline and every other block sits under it.
+    static let menuBarTwoLineLayout = Key<Bool>("menuBarTwoLineLayout", default: false)
+    // Bookkeeping for `MenuBarTimeFormatDefaultsMigration` (AppSettings.swift):
+    // seeds the block list from the classic settings once, and carries
+    // `eventTimeFormat` over to the Countdown block / two-line layout.
+    static let menuBarTimeFormatMigrated = Key<Bool>(
+        "menuBarTimeFormatMigrated",
+        default: false
+    )
 
     // World-clock panel (MeetingBarNG): the multi-zone panel window's chosen
     // zones, stored as time-zone identifiers (labels are derived at the host

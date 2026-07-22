@@ -5,195 +5,221 @@
 //  Created by Andrii Leitsius on 13.01.2021.
 //  Copyright © 2021 Andrii Leitsius. All rights reserved.
 //
-//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
-//  remove the StoreKit patronage / Patreon / Buy Me A Coffee monetization from
-//  the About card and re-brand it for MeetingBarNG; wrap the About block in the
-//  shared PreferencesCard and unify header typography; Preferences UX overhaul
-//  Phase 0 gives "Copy diagnostics" a visible confirmation.
+//  Licensed under the Apache License, Version 2.0.
+//
+//  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026: the StoreKit
+//  patronage / Patreon / Buy Me A Coffee monetization was removed from the About
+//  card and the card re-branded; Preferences UX overhaul Phase 0 gave "Copy
+//  diagnostics" a visible confirmation. Phase 2 makes this pane the app itself
+//  and nothing else:
+//
+//    • the About card MOVED to the About & Support sidebar footer. Opening
+//      Preferences must not show credits before a setting — and the card needed
+//      three modifiers to fight the grouped form it was sitting in.
+//    • `LaunchAtLoginANDPreferredLanguagePicker` is dissolved (its name literally
+//      contained "AND"): the login toggle is rendered here directly.
+//    • the LANGUAGE PICKER is DELETED. It offered 16 languages against one
+//      maintained catalog (en 659 lines, de 391, ja 410); `ukrainian` mapped to
+//      "ua" while the shipped bundle is `uk.lproj`, so choosing it silently did
+//      nothing; and seven shipped bundles (bg, hu, ko, ta, pt, zh-Hans, enm) had
+//      no entry at all. The app follows macOS instead. This is the one deletion
+//      in the overhaul that removes a real — if already broken — capability, so
+//      it is flagged rather than buried: the `preferredLanguage` Defaults key is
+//      RETAINED and still applied at launch (`I18N.changeLanguage(to:)`, driven
+//      from `StatusBarItemController`), so restoring the control means putting a
+//      picker back, not rebuilding a feature. Do that when the catalogs are
+//      maintained and `AppLanguage.ukrainian` names the bundle that exists.
+//    • the ten shortcut rows lose their trailing colons and their engineer names
+//      ("Open command bar:" → "Open the search bar"), and are sorted into four
+//      labelled groups, because a flat list of ten hotkeys is a list nobody
+//      reads.
+//    • `useSwiftUIDropdown` lands here, INVERTED, as "Use the classic macOS menu
+//      instead" inside Troubleshooting. It is a renderer escape hatch, not a
+//      display preference, and the shipping default was labelled "(preview)".
 //
 
 import SwiftUI
 
 import Defaults
 import KeyboardShortcuts
+import LaunchAtLogin
 
 struct GeneralTab: View {
     @Default(.timeFormat) var timeFormat
 
     var body: some View {
         PreferencesGroupedForm {
-            // Clear the grouped-form row chrome for the About row so the
-            // PreferencesCard is the sole surface (no card-in-card border).
             Section {
-                AboutAppSection()
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-            }
+                LaunchAtLogin.Toggle {
+                    Text("preferences_general_login_toggle".loco())
+                }
 
-            Section(header: Text("preferences_section_general_settings_title".loco())) {
-                LaunchAtLoginANDPreferredLanguagePicker()
-
-                // 12/24-hour format affects every surface that renders clock
-                // times (dropdown rows, timeline, event details, fullscreen
-                // notification), so it lives with the app-wide options rather
-                // than under Menu.
+                // 12/24-hour is genuinely app-wide — menu bar, dropdown,
+                // timeline, calendar window, world clock and alerts all read it
+                // — which is why it lives here and not on any one surface's
+                // pane. Its key was namespaced `preferences_appearance_menu_*`,
+                // as if it belonged to the dropdown.
                 Picker(
-                    preferenceLabel("preferences_appearance_menu_time_format_title"),
+                    "preferences_general_time_format_title".loco(),
                     selection: $timeFormat
                 ) {
-                    Text("preferences_appearance_menu_time_format_12_hour_value".loco())
+                    Text("preferences_general_time_format_12_hour".loco())
                         .tag(TimeFormat.am_pm)
-                    Text("preferences_appearance_menu_time_format_24_hour_value".loco())
+                    Text("preferences_general_time_format_24_hour".loco())
                         .tag(TimeFormat.military)
                 }
+                Text("preferences_general_time_format_help".loco())
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
-            Section(header: Text("preferences_section_shortcuts_title".loco())) {
-                ShortcutsSection()
-            }
+            ShortcutsSection()
+
+            TroubleshootingSection()
         }
     }
 }
 
+// MARK: - Keyboard shortcuts
+
+/// Ten hotkeys in four groups named for what the user is trying to do, with a
+/// description on every row whose label cannot carry the whole answer ("Open the
+/// calendar window" — *MeetingBarNG's own month view, not Apple's Calendar app*).
 struct ShortcutsSection: View {
     var body: some View {
-        ShortcutRow(
-            title: "preferences_general_shortcut_open_menu".loco(),
-            recorder: KeyboardShortcuts.Recorder(for: .openMenuShortcut)
-        )
-        ShortcutRow(
-            title: "preferences_general_shortcut_join_next".loco(),
-            recorder: KeyboardShortcuts.Recorder(for: .joinEventShortcut)
-        )
-        ShortcutRow(
-            title: "preferences_general_shortcut_create_meeting".loco(),
-            recorder: KeyboardShortcuts.Recorder(for: .createMeetingShortcut)
-        )
-        ShortcutRow(
-            title: "preferences_general_shortcut_join_from_clipboard".loco(),
-            recorder: KeyboardShortcuts.Recorder(for: .openClipboardShortcut)
-        )
-        ShortcutRow(
-            title: "preferences_general_shortcut_toggle_meeting_name_visibility".loco(),
-            recorder: KeyboardShortcuts.Recorder(for: .toggleMeetingTitleVisibilityShortcut)
-        )
-        ShortcutRow(
-            title: "preferences_general_shortcut_command_bar".loco(),
-            recorder: KeyboardShortcuts.Recorder(for: .commandBarShortcut)
-        )
-        ShortcutRow(
-            title: "preferences_general_shortcut_calendar".loco(),
-            recorder: KeyboardShortcuts.Recorder(for: .calendarShortcut)
-        )
-        ShortcutRow(
-            title: "preferences_general_shortcut_world_clock".loco(),
-            recorder: KeyboardShortcuts.Recorder(for: .worldClockShortcut)
-        )
-        ShortcutRow(
-            title: "preferences_general_shortcut_camera_preview".loco(),
-            recorder: KeyboardShortcuts.Recorder(for: .cameraPreviewShortcut)
-        )
-        ShortcutRow(
-            title: "preferences_general_shortcut_new_event".loco(),
-            recorder: KeyboardShortcuts.Recorder(for: .newEventShortcut)
-        )
+        Section(header: Text("preferences_general_shortcuts_title".loco())) {
+            ShortcutGroupLabel(titleKey: "preferences_general_shortcuts_open_group")
+            ShortcutRow(
+                titleKey: "preferences_general_shortcut_open_dropdown",
+                recorder: KeyboardShortcuts.Recorder(for: .openMenuShortcut)
+            )
+            ShortcutRow(
+                titleKey: "preferences_general_shortcut_open_calendar_window",
+                helpKey: "preferences_general_shortcut_open_calendar_window_help",
+                recorder: KeyboardShortcuts.Recorder(for: .calendarShortcut)
+            )
+            ShortcutRow(
+                titleKey: "preferences_general_shortcut_open_search_bar",
+                helpKey: "preferences_general_shortcut_open_search_bar_help",
+                recorder: KeyboardShortcuts.Recorder(for: .commandBarShortcut)
+            )
+            ShortcutRow(
+                titleKey: "preferences_general_shortcut_open_world_clock",
+                recorder: KeyboardShortcuts.Recorder(for: .worldClockShortcut)
+            )
+        }
+
+        Section {
+            ShortcutGroupLabel(titleKey: "preferences_general_shortcuts_join_group")
+            ShortcutRow(
+                titleKey: "preferences_general_shortcut_join_next",
+                recorder: KeyboardShortcuts.Recorder(for: .joinEventShortcut)
+            )
+            ShortcutRow(
+                titleKey: "preferences_general_shortcut_join_clipboard",
+                recorder: KeyboardShortcuts.Recorder(for: .openClipboardShortcut)
+            )
+            ShortcutRow(
+                titleKey: "preferences_general_shortcut_camera_check",
+                recorder: KeyboardShortcuts.Recorder(for: .cameraPreviewShortcut)
+            )
+        }
+
+        Section {
+            ShortcutGroupLabel(titleKey: "preferences_general_shortcuts_make_group")
+            ShortcutRow(
+                titleKey: "preferences_general_shortcut_create_meeting",
+                helpKey: "preferences_general_shortcut_create_meeting_help",
+                recorder: KeyboardShortcuts.Recorder(for: .createMeetingShortcut)
+            )
+            ShortcutRow(
+                titleKey: "preferences_general_shortcut_new_event",
+                recorder: KeyboardShortcuts.Recorder(for: .newEventShortcut)
+            )
+        }
+
+        Section {
+            ShortcutGroupLabel(titleKey: "preferences_general_shortcuts_privacy_group")
+            ShortcutRow(
+                titleKey: "preferences_general_shortcut_hide_title",
+                helpKey: "preferences_general_shortcut_hide_title_help",
+                recorder: KeyboardShortcuts.Recorder(for: .toggleMeetingTitleVisibilityShortcut)
+            )
+        }
+    }
+}
+
+private struct ShortcutGroupLabel: View {
+    let titleKey: String
+
+    var body: some View {
+        Text(titleKey.loco())
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
     }
 }
 
 private struct ShortcutRow<Recorder: View>: View {
-    let title: String
+    let titleKey: String
+    var helpKey: String?
     let recorder: Recorder
 
     var body: some View {
-        HStack {
-            Text(title)
+        HStack(alignment: .firstTextBaseline) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(titleKey.loco())
+                if let helpKey {
+                    Text(helpKey.loco())
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
             Spacer()
             recorder
         }
     }
 }
 
-struct AboutAppSection: View {
-    @EnvironmentObject var appModel: AppModel
+// MARK: - Troubleshooting
 
-    /// Drives the transient "Copied" acknowledgement beside the diagnostics
-    /// button. Copying to the pasteboard is otherwise completely silent, so the
-    /// button read as broken.
-    @State private var didCopyDiagnostics = false
+/// The two ways out. Hidden by scope, not by rarity: both are things you reach
+/// for when something has gone wrong, and neither is a display preference.
+private struct TroubleshootingSection: View {
+    @Default(.useSwiftUIDropdown) var useSwiftUIDropdown
 
-    var body: some View {
-        // The whole About block is one PreferencesCard, matching the app's
-        // Onboarding chrome. A single divider separates identity from the
-        // link/diagnostics cluster.
-        PreferencesCard {
-            VStack(alignment: .leading, spacing: 16) {
-                HStack(alignment: .top, spacing: 16) {
-                    Image("appIconForAbout")
-                        .resizable()
-                        .frame(width: 72, height: 72)
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(alignment: .firstTextBaseline, spacing: 8) {
-                            Text("MeetingBarNG")
-                                .font(.title2).bold()
-                            Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")
-                                .font(.callout)
-                                .foregroundStyle(.secondary)
-                        }
-                        Text("preferences_general_meeting_bar_description".loco())
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    Spacer()
-                }
-
-                Divider()
-
-                // Links + diagnostics.
-                HStack(spacing: 16) {
-                    Button("GitHub") {
-                        Links.github.openInDefaultBrowser()
-                    }
-                    .buttonStyle(.link)
-                    Button("preferences_general_external_contact".loco()) {
-                        Links.emailMe.openInDefaultBrowser()
-                    }
-                    .buttonStyle(.link)
-                    Button("preferences_general_whats_new".loco()) {
-                        NSApplication.shared.sendAction(
-                            #selector(AppDelegate.openChangelogWindow(_:)), to: nil, from: nil
-                        )
-                    }
-                    .buttonStyle(.link)
-                    Spacer()
-                    if didCopyDiagnostics {
-                        Label(
-                            "preferences_status_copy_diagnostics_copied".loco(),
-                            systemImage: "checkmark.circle.fill"
-                        )
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .transition(.opacity)
-                        .accessibilityAddTraits(.isStaticText)
-                    }
-                    Button("preferences_status_copy_diagnostics".loco()) {
-                        copyDiagnostics()
-                    }
-                    .controlSize(.small)
-                }
-                .animation(.easeOut(duration: 0.15), value: didCopyDiagnostics)
-            }
-        }
+    /// Inverted at the binding, never in storage: the key keeps its name and its
+    /// meaning, so flipping the label costs nobody their stored value.
+    private var usesClassicMenu: Binding<Bool> {
+        Binding(
+            get: { !useSwiftUIDropdown },
+            set: { useSwiftUIDropdown = !$0 }
+        )
     }
 
-    private func copyDiagnostics() {
-        Task {
-            await DiagnosticsClipboard.copy(
-                snapshot: DiagnosticsSnapshot(appState: appModel.state)
-            )
-            didCopyDiagnostics = true
-            try? await Task.sleep(for: .seconds(2))
-            didCopyDiagnostics = false
+    var body: some View {
+        Section {
+            PreferencesDisclosure(
+                id: "general.troubleshooting",
+                titleKey: "preferences_general_troubleshooting_title"
+            ) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Toggle(
+                        "preferences_general_classic_menu_toggle".loco(),
+                        isOn: usesClassicMenu
+                    )
+                    Text("preferences_general_classic_menu_help".loco())
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Divider()
+
+                    PreferencesResetAllButton()
+                }
+                .padding(.top, 4)
+            }
         }
     }
 }

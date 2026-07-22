@@ -48,6 +48,13 @@ final class RemindersStore: Sendable {
         }
     }
 
+    /// macOS has already been asked and said no, so requesting again will not
+    /// prompt. The Calendars pane states that instead of leaving a switch to
+    /// spring silently back (Preferences UX overhaul, Phase 2).
+    static func isDenied(_ status: EKAuthorizationStatus) -> Bool {
+        status == .denied || status == .restricted
+    }
+
     /// Requests reminders access. This is the ONLY entry point that triggers the
     /// system permission prompt — wired to the "Show reminders in menu" toggle.
     @discardableResult

@@ -59,33 +59,14 @@ struct CalendarSourcePresentation: Equatable, Identifiable {
 // abstract nouns ("Setup", "Experience") rebuilt the very "everything is
 // miscellaneous" problem this overhaul exists to remove.
 
-enum PreferencesStatusBarTimeOption: CaseIterable, Equatable {
-    case show
-    case showUnderTitle
-    case hide
-
-    var format: EventTimeFormat {
-        switch self {
-        case .show:
-            .show
-        case .showUnderTitle:
-            .show_under_title
-        case .hide:
-            .hide
-        }
-    }
-
-    var titleKey: String {
-        switch self {
-        case .show:
-            "preferences_appearance_status_bar_time_show_value"
-        case .showUnderTitle:
-            "preferences_appearance_status_bar_time_show_under_title_value"
-        case .hide:
-            "preferences_appearance_status_bar_time_hide_value"
-        }
-    }
-}
+// `PreferencesStatusBarTimeOption` is deleted with the "Time next to the title"
+// picker it fed. That control was read only by the classic status-bar path while
+// sitting directly above a composer that ignored it, so it was already inert for
+// anyone who had arranged their menu bar. Its two capabilities now live on the
+// Menu Bar pane, where they are visible in the thing they change: showing the
+// time is the presence of the **Countdown** block, and show-under-title is
+// **One line / Two lines**. `MenuBarTimeFormatDefaultsMigration` carries a
+// stored `eventTimeFormat` across to both, once.
 
 enum PreferencesStatusTone: Equatable {
     case neutral
@@ -141,32 +122,38 @@ struct PreferencesCalendarPresentation: Equatable {
         var statusTone: PreferencesStatusTone
         var statusTextKey: String
 
+        // Phase 2 moved these into the pane's own `preferences_calendars_*`
+        // namespace and out of engineer-speak: "Authorization required" →
+        // "Sign-in needed", "Showing cached data" → "Showing the last data macOS
+        // gave us". `IndirectLocalizationKeyTests` resolves every key this
+        // property can return — ten such keys were once deleted silently and
+        // shipped as raw text in this very pane.
         if state.providerHealth.authRequired {
             connectionState = .authRequired
             statusTone = .error
-            statusTextKey = "preferences_status_state_auth_required"
+            statusTextKey = "preferences_calendars_status_auth_required"
         } else if state.activeProvider == .macOSEventKit,
                   state.providerHealth.lastErrorDescription != nil,
                   state.providerHealth.lastSuccessfulRefresh == nil {
             connectionState = .permissionRequired
             statusTone = .error
-            statusTextKey = "preferences_status_state_permission_required"
+            statusTextKey = "preferences_calendars_status_permission_required"
         } else if state.providerHealth.isStale {
             connectionState = .stale
             statusTone = .warning
-            statusTextKey = "preferences_status_state_stale"
+            statusTextKey = "preferences_calendars_status_stale"
         } else if state.providerHealth.lastErrorDescription != nil {
             connectionState = .error
             statusTone = .error
-            statusTextKey = "preferences_status_state_error"
+            statusTextKey = "preferences_calendars_status_error"
         } else if state.providerHealth.lastSuccessfulRefresh != nil {
             connectionState = .connected
             statusTone = .success
-            statusTextKey = "preferences_status_state_ok"
+            statusTextKey = "preferences_calendars_status_ok"
         } else {
             connectionState = .initializing
             statusTone = .neutral
-            statusTextKey = "preferences_status_state_initializing"
+            statusTextKey = "preferences_calendars_status_initializing"
         }
 
         let availableCalendarCount = state.calendars.count
@@ -179,7 +166,7 @@ struct PreferencesCalendarPresentation: Equatable {
             && availableCalendarCount == 0
         if connectedWithoutCalendars {
             statusTone = .warning
-            statusTextKey = "preferences_status_state_no_calendars"
+            statusTextKey = "preferences_calendars_status_no_calendars"
         }
 
         let calendarSource = CalendarSourcePresentation.make(for: state.activeProvider)

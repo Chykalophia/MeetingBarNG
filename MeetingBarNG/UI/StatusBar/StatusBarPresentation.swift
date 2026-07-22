@@ -523,6 +523,105 @@ enum MenuBarPreset: String, CaseIterable, Codable {
     }
 }
 
+// MARK: - The block list (Menu Bar pane)
+
+/// One row of the Menu Bar pane's block list: a kind, and whether the menu bar
+/// currently shows it.
+struct MenuBarBlock: Equatable {
+    let kind: MenuBarTokenKind
+    let isOn: Bool
+}
+
+/// The Menu Bar pane's list model, kept hostless so it is unit-tested without a
+/// window: the stored token array in, the complete inventory of blocks out.
+///
+/// The pane always shows every kind the menu bar can hold. A block that is off
+/// stays on screen, dimmed, one click from returning — which is what makes the
+/// switch non-destructive. Before this, "off" meant *removed from the list*,
+/// and the whole builder had an enable toggle whose off state wrote an empty
+/// token array: the user's arrangement was destroyed with no undo, and turning
+/// it back on reseeded from the legacy settings rather than from what they had.
+enum MenuBarBlockList {
+    /// Showing blocks first, in their stored left-to-right order, then the
+    /// hidden ones in canonical order. Unknown and duplicate stored values are
+    /// dropped, so a downgrade or a hand-edited plist degrades gracefully.
+    static func blocks(stored: [String]) -> [MenuBarBlock] {
+        let showing = kinds(stored: stored)
+        let hidden = MenuBarTokenKind.allCases.filter { !showing.contains($0) }
+        return showing.map { MenuBarBlock(kind: $0, isOn: true) }
+            + hidden.map { MenuBarBlock(kind: $0, isOn: false) }
+    }
+
+    /// The showing kinds, parsed and de-duplicated, in stored order.
+    static func kinds(stored: [String]) -> [MenuBarTokenKind] {
+        var seen = Set<MenuBarTokenKind>()
+        return stored
+            .compactMap(MenuBarTokenKind.init(rawValue:))
+            .filter { seen.insert($0).inserted }
+    }
+
+    /// Moves a showing block `offset` places. A hidden block, or a move past
+    /// either end, returns the stored order unchanged.
+    static func moved(stored: [String], kind: MenuBarTokenKind, by offset: Int) -> [String] {
+        var showing = kinds(stored: stored)
+        guard let index = showing.firstIndex(of: kind) else { return rawValues(showing) }
+        let target = index + offset
+        guard showing.indices.contains(target) else { return rawValues(showing) }
+        showing.swapAt(index, target)
+        return rawValues(showing)
+    }
+
+    /// Turns a block on (appended last, where the user can see it arrive) or off
+    /// (removed from the showing order; every other block keeps its place).
+    static func setting(stored: [String], kind: MenuBarTokenKind, isOn: Bool) -> [String] {
+        var showing = kinds(stored: stored)
+        if isOn {
+            guard !showing.contains(kind) else { return rawValues(showing) }
+            showing.append(kind)
+        } else {
+            showing.removeAll { $0 == kind }
+        }
+        return rawValues(showing)
+    }
+
+    private static func rawValues(_ kinds: [MenuBarTokenKind]) -> [String] {
+        kinds.map(\.rawValue)
+    }
+}
+
+// MARK: - Retiring the "Time next to the title" control
+
+/// What the one-time `eventTimeFormat` migration should write. `nil` means
+/// "leave that stored value exactly as it is".
+struct MenuBarTimeFormatMigrationPlan: Equatable {
+    let tokens: [String]?
+    let twoLines: Bool?
+
+    static let noChange = MenuBarTimeFormatMigrationPlan(tokens: nil, twoLines: nil)
+}
+
+/// The pure decision behind retiring `eventTimeFormat` as a control.
+///
+/// The picker offered show / show-under-title / hide, was read only by the
+/// classic status-bar path, and sat directly above a composer that ignored it.
+/// Its two capabilities survive in clearer places — a Countdown block, and
+/// "One line / Two lines" — so the migration exists to carry the user's answer
+/// across rather than silently dropping it.
+///
+/// Anyone who had already composed their menu bar is left untouched: for them
+/// the picker was already inert, so honouring it now would change a menu bar
+/// they never saw it affect.
+enum MenuBarTimeFormatMigration {
+    static func plan(
+        storedTokens: [String],
+        legacyTokens: [String],
+        timeUnderTitle: Bool
+    ) -> MenuBarTimeFormatMigrationPlan {
+        guard MenuBarBlockList.kinds(stored: storedTokens).isEmpty else { return .noChange }
+        return MenuBarTimeFormatMigrationPlan(tokens: legacyTokens, twoLines: timeUnderTitle)
+    }
+}
+
 /// Everything the composed presenter needs beyond the classic title/mode
 /// snapshots. Built in the `+MeetingBar` adapter from `Defaults`.
 struct MenuBarComposedSettings: Equatable {
@@ -545,6 +644,15 @@ struct MenuBarComposedSettings: Equatable {
     let tokenSeparator: String
     let pendingDisplay: StatusBarParticipationDisplay
     let tentativeDisplay: StatusBarParticipationDisplay
+    /// "Two lines" on the Menu Bar pane: the meeting title takes the first line
+    /// and every other block sits under it in smaller type. Defaults to off (one
+    /// line), which is also what keeps the memberwise init source-compatible.
+    ///
+    /// This is the capability the deleted `eventTimeFormat` control carried as
+    /// `.show_under_title`. That value was read only by the classic status-bar
+    /// path, so it silently did nothing for anyone who composed their menu bar;
+    /// implementing it here is what makes the deletion lossless.
+    var twoLines: Bool = false
 }
 
 /// Pure formatters for the new tokens. Hostless and fully unit-tested.
@@ -736,7 +844,7 @@ extension StatusBarPresenter {
 
         var icon: StatusBarIcon = .none
         var iconPosition: StatusBarIconPosition = .leading
-        var segments: [String] = []
+        var segments: [(kind: MenuBarTokenKind, text: String)] = []
 
         for token in composition.tokens {
             if case .icon = token {
@@ -752,28 +860,59 @@ extension StatusBarPresenter {
                 let text = eventTokenText(
                     token, nextEvent: nextEvent, settings: settings, now: now, calendar: calendar
                 )
-                if !text.isEmpty { segments.append(text) }
+                if !text.isEmpty { segments.append((token, text)) }
             }
         }
 
-        let composedTitle = segments.joined(separator: settings.tokenSeparator)
+        let lines = composedLines(segments: segments, settings: settings)
+        let layout: StatusBarTitleLayout
+        if lines.second != nil {
+            layout = .stacked
+        } else {
+            layout = lines.first.isEmpty ? .none : .inline(showTime: false)
+        }
 
         return StatusBarPresentation(
             mode: mode,
-            title: composedTitle,
-            time: "",
+            title: lines.first,
+            time: lines.second ?? "",
             tooltip: nextEvent.title,
             icon: icon,
             iconPosition: iconPosition,
-            layout: composedTitle.isEmpty ? .none : .inline(showTime: false),
+            layout: layout,
             titleStyle: titleStyle(
                 participation: nextEvent.participation,
-                layout: .inline(showTime: false),
+                layout: layout,
                 pendingDisplay: settings.pendingDisplay,
                 tentativeDisplay: settings.tentativeDisplay
             ),
             removeDeliveredNotifications: false
         )
+    }
+
+    /// Splits the composed segments into the one or two lines the renderer draws.
+    ///
+    /// "Two lines" means the meeting title is the headline and everything else
+    /// sits under it, wherever the user put the Title block — a stack whose top
+    /// line was a countdown would not be a title with detail beneath it. When
+    /// there is no title, or nothing to put under it, the request cannot mean
+    /// anything, so the strip stays on one line rather than rendering an empty
+    /// second row.
+    private static func composedLines(
+        segments: [(kind: MenuBarTokenKind, text: String)],
+        settings: MenuBarComposedSettings
+    ) -> (first: String, second: String?) {
+        let joined = segments.map(\.text).joined(separator: settings.tokenSeparator)
+        guard settings.twoLines,
+              let titleIndex = segments.firstIndex(where: { $0.kind == .title })
+        else { return (joined, nil) }
+
+        let rest = segments.enumerated()
+            .filter { $0.offset != titleIndex }
+            .map(\.element.text)
+            .joined(separator: settings.tokenSeparator)
+        guard !rest.isEmpty else { return (joined, nil) }
+        return (segments[titleIndex].text, rest)
     }
 
     /// Rendered text for a single event-mode token. `.icon` sets the icon rather

@@ -137,7 +137,11 @@ enum SettingsIndex {
             tab: .calendars,
             labelKey: "preferences_calendars_list_title",
             helpKey: "preferences_calendars_list_help",
-            defaultsKeys: ["selectedCalendarIDs", "selectedCalendarIDsByProvider"],
+            // Deliberately NO `defaultsKeys`. Which calendars you picked is your
+            // DATA, not a setting — and both reset dialogs promise in so many
+            // words that "your calendars … are untouched". Indexing
+            // `selectedCalendarIDs` here made "Reset all settings…" clear the
+            // selection while saying it would not. Searchable, never resettable.
             synonyms: ["calendar", "account", "icloud", "google", "exchange", "work", "personal"]
         ),
         SettingsIndexEntry(
@@ -261,7 +265,12 @@ enum SettingsIndex {
             tab: .menuBar,
             labelKey: "preferences_menubar_blocks_title",
             helpKey: "preferences_menubar_blocks_help",
-            defaultsKeys: ["menuBarTokens"],
+            // The seeding flag rides with the arrangement it seeded. Without it,
+            // "Reset this section" would empty the block list and leave it
+            // empty — a menu bar showing nothing but the app icon, which is not
+            // the shipped default. Reset instead returns the pane to the state a
+            // fresh install is in, and the seed re-derives.
+            defaultsKeys: ["menuBarTokens", "menuBarTimeFormatMigrated"],
             synonyms: ["block", "token", "order", "reorder", "clock", "date", "week number"]
         ),
         SettingsIndexEntry(
@@ -287,11 +296,15 @@ enum SettingsIndex {
             synonyms: ["shorten", "truncate", "length", "characters", "too long"]
         ),
         SettingsIndexEntry(
-            id: "menubar.time",
+            id: "menubar.lines",
             tab: .menuBar,
-            labelKey: "preferences_menubar_time_title",
-            defaultsKeys: ["eventTimeFormat"],
-            synonyms: ["time", "clock", "under title", "two lines", "start time"]
+            labelKey: "preferences_menubar_lines_title",
+            // `eventTimeFormat` is no longer a control: showing the time is the
+            // presence of the Countdown block, and show-under-title is this row.
+            // Searchable by the old vocabulary too — someone looking for "time
+            // under title" is looking for this, whatever it is now called.
+            defaultsKeys: ["menuBarTwoLineLayout"],
+            synonyms: ["time", "clock", "under title", "two lines", "one line", "start time", "stacked"]
         ),
         SettingsIndexEntry(
             id: "menubar.quiet",

@@ -62,6 +62,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         StatusBarTitleFormatMigration.migrateDefaultsIfNeeded()
         TimeFormatDefaultMigration.migrateDefaultsIfNeeded()
         ChangelogResetMigration.migrateDefaultsIfNeeded()
+        MenuBarTimeFormatDefaultsMigration.migrateDefaultsIfNeeded()
 
         // Handle windows closing closing
         NotificationCenter.default.addObserver(

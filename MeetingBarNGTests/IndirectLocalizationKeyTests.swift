@@ -58,13 +58,9 @@ final class IndirectLocalizationKeyTests: XCTestCase {
         }
     }
 
-    // MARK: - Status bar time options
-
-    func testEveryStatusBarTimeOptionTitleResolves() {
-        for option in PreferencesStatusBarTimeOption.allCases {
-            assertResolves(option.titleKey, "PreferencesStatusBarTimeOption.titleKey")
-        }
-    }
+    // The status-bar time options are gone: `PreferencesStatusBarTimeOption` fed
+    // the deleted "Time next to the title" picker, whose two capabilities now
+    // live on the Menu Bar pane as the Countdown block and One line / Two lines.
 
     // MARK: - Calendar source presentation
 

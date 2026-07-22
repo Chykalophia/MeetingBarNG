@@ -36,6 +36,9 @@ struct PreferencesView: View {
     // Pinned to `.all` so both columns are visible from the first frame; the
     // sidebar toggle is removed below, so the sidebar can never be collapsed.
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
+    // A pane asking to show another pane ("Change in Joining"). One-shot: the
+    // request is cleared as soon as it is honoured.
+    private let navigation = PreferencesNavigation.shared
 
     private var trimmedQuery: String {
         searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -54,6 +57,12 @@ struct PreferencesView: View {
         // Wide enough for the Dropdown pane's two-pane (settings + ~340pt
         // preview). Phase 3 replaces that preview and drops this to 860.
         .frame(minWidth: 1100, minHeight: 560)
+        .onChange(of: navigation.requestedTab) { _, requested in
+            guard let requested else { return }
+            selection = .tab(requested)
+            searchQuery = ""
+            navigation.requestedTab = nil
+        }
     }
 
     // MARK: - Sidebar

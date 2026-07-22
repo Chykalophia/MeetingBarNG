@@ -191,6 +191,46 @@ enum ChangelogResetMigration {
     }
 }
 
+/// Retires the "Time next to the title" picker (`eventTimeFormat`) without
+/// dropping anybody's answer to it.
+///
+/// The picker offered show / show-under-title / hide, was read only by the
+/// classic status-bar path, and sat directly above a composer that ignored it.
+/// Both of its capabilities now live in clearer places on the Menu Bar pane:
+/// showing the time is the presence of the **Countdown** block, and
+/// show-under-title is **Two lines**. So this runs once per install and:
+///
+///   • seeds the block list from the classic settings (`derivedFromLegacy`,
+///     which appends a Countdown block for anyone who was NOT on `.hide`), and
+///   • turns Two lines on for anyone who was on `.show_under_title`.
+///
+/// Someone who had already composed a menu bar is left completely alone: the
+/// picker was already inert for them, so honouring it now would change a menu
+/// bar they never saw it affect. The decision itself is hostless and tested
+/// (`MenuBarTimeFormatMigration`); this is only the Defaults plumbing.
+enum MenuBarTimeFormatDefaultsMigration {
+    @MainActor
+    static func migrateDefaultsIfNeeded() {
+        guard !Defaults[.menuBarTimeFormatMigrated] else { return }
+        Defaults[.menuBarTimeFormatMigrated] = true
+
+        let plan = MenuBarTimeFormatMigration.plan(
+            storedTokens: Defaults[.menuBarTokens],
+            legacyTokens: MenuBarComposition.derivedFromLegacy.tokens.map(\.rawValue),
+            timeUnderTitle: Defaults[.eventTimeFormat] == .show_under_title
+        )
+        if let tokens = plan.tokens {
+            Defaults[.menuBarTokens] = tokens
+        }
+        if let twoLines = plan.twoLines {
+            Defaults[.menuBarTwoLineLayout] = twoLines
+        }
+        MeetingBarLogger.preferences.info(
+            "Migrated eventTimeFormat: seeded \(plan.tokens?.count ?? 0, privacy: .public) blocks"
+        )
+    }
+}
+
 // MARK: - Defaults factory
 
 extension AppSettings {
