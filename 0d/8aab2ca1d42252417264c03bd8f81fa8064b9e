@@ -1,0 +1,19 @@
+MeetingBarNG/App/WindowCoordinator.swift
+  s_8821c3fb11800f::t_6b7a3835bede08 715-730
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "0d8aab2ca1d42252417264c03bd8f81fa8064b9e",
+  "prompts": {},
+  "sessions": {
+    "s_8821c3fb11800f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ecbc423-54be-422d-a739-5a17421fadda",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
