@@ -712,13 +712,24 @@ final class WindowCoordinator {
         window.title = WindowTitles.preferences
         window.contentView = NSHostingView(rootView: contentView)
         // No custom rounded-corner / shadow layer here: this is a standard
-        // titled window, so the system draws its own corners and shadow. The
-        // transparent titlebar lets the NavigationSplitView sidebar material
-        // flow up under the title bar for the System Settings look; the active
-        // tab name is shown via the detail's `.navigationTitle`.
+        // titled window, so the system draws its own corners and shadow.
+        //
+        // Deliberately NOT `.fullSizeContentView`. That style makes the content
+        // view span the title bar, and it is the right way to get the System
+        // Settings look where the sidebar material flows up behind the traffic
+        // lights — but only when SwiftUI owns the window (a `Settings` scene or
+        // `WindowGroup`), because the scene applies the title-bar safe-area
+        // inset. Here the root is an `NSHostingView` assigned straight to
+        // `contentView`, which does not, so the sidebar's first row rendered
+        // underneath the close/minimise buttons: "Calendars" read as "lendars".
+        //
+        // Two ways out: reproduce the inset by hand, or let AppKit lay the
+        // window out normally. Hand-maintaining a safe area to buy a cosmetic
+        // flourish is not worth a settings window that is unreadable when it is
+        // wrong, so the content starts below the title bar. The bar stays
+        // transparent, which keeps the seam soft without moving anything.
         window.titlebarAppearsTransparent = true
         window.titleVisibility = .hidden
-        window.styleMask.insert(.fullSizeContentView)
         // Standard window level (not .floating): clicking another app should
         // send Preferences behind it, like any normal window.
 
