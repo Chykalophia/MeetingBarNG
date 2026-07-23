@@ -226,17 +226,10 @@ struct DisplayPreviewPane: View {
     // MARK: - Dropdown preview (the REAL panel)
 
     /// Mounts the actual `DropdownPanelView` against a fixture state. All
-    /// no-op handlers — the preview is display-only, not interactive. Reading
-    /// the module toggles here (even though makeState reads them from Defaults
-    /// too) ensures SwiftUI re-evaluates the body when any of them change.
+    /// no-op handlers — the preview is display-only, not interactive. The
+    /// `@Default` wrappers above already observe the module toggles, so
+    /// SwiftUI re-evaluates the body when any of them change.
     private var dropdownPreview: some View {
-        _ = showGreetingInMenu
-        _ = showTimelineInMenu
-        _ = showAgendaInMenu
-        _ = showMeetingControlInMenu
-        _ = showJoinSectionInMenu
-        _ = showBookmarksInMenu
-
         let state = PreviewFixtures.makeState(
             includeFinished: !hideFinishedEventsInMenu,
             includeReminders: showRemindersInMenu

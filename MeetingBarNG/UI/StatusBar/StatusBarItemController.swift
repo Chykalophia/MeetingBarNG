@@ -114,6 +114,21 @@ final class StatusBarItemController {
     /// `scheduleNextTick(now:event:)` — this is the app's only UI clock.
     private var tickTimer: Timer?
 
+    /// Removes the status item from the system status bar and tears down the
+    /// timer. Called from `AppDelegate.applicationWillTerminate` so the item
+    /// doesn't linger as a stale icon when the process is killed — a common
+    /// annoyance during local dev rebuilds where each run leaves a frozen
+    /// status item at whatever icon its state was in.
+    func removeFromStatusBar() {
+        tickTimer?.invalidate()
+        tickTimer = nil
+        cancellables.removeAll()
+        if let statusItem {
+            NSStatusBar.system.removeStatusItem(statusItem)
+            self.statusItem = nil
+        }
+    }
+
     init() {
         statusItem = NSStatusBar.system.statusItem(
             withLength: NSStatusItem.variableLength
@@ -289,7 +304,7 @@ final class StatusBarItemController {
         appState.events = events
         let menuState = StatusBarMenuState.make(from: appState)
 
-        guard let button = statusItem.button, let window = button.window else {
+        guard let statusItem, let button = statusItem.button, let window = button.window else {
             MeetingBarLogger.lifecycle.error(
                 "SwiftUI dropdown panel: status-item button has no window; skipping"
             )
@@ -349,6 +364,7 @@ final class StatusBarItemController {
 
     func openMenu() {
         nudgeCalendarForceSync()
+        guard let statusItem else { return }
         statusItem.menu = statusItemMenu
         statusItem.button?.performClick(nil)  // ...and click
         statusItem.menu = nil
@@ -365,6 +381,7 @@ final class StatusBarItemController {
     /// Pops up the right-click quick-actions menu at the status item.
     func showQuickActionsMenu() {
         nudgeCalendarForceSync()
+        guard let statusItem else { return }
         var appState = dependencies.appState()
         appState.events = events
         let menuState = StatusBarMenuState.make(from: appState)
@@ -499,7 +516,7 @@ final class StatusBarItemController {
     }
 
     func renderStatusBar(_ presentation: StatusBarPresentation) {
-        guard let button = statusItem.button else { return }
+        guard let statusItem, let button = statusItem.button else { return }
 
         button.image = nil
         button.title = ""
@@ -553,6 +570,7 @@ final class StatusBarItemController {
      */
 
     func updateMenu() {
+        guard let statusItem else { return }
         // Don't update the menu while it's open to avoid flickering
         if statusItem.menu != nil {
             return
@@ -1058,12 +1076,6 @@ private func statusBarCalendar() -> Calendar {
     var calendar = Calendar.current
     calendar.locale = I18N.instance.locale
     return calendar
-}
-
-enum NextEventState {
-    case none
-    case afterThreshold(MBEvent)
-    case nextEvent(MBEvent)
 }
 
 /// Carries a reminder + chosen snooze option through a menu item's

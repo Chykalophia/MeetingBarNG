@@ -163,7 +163,7 @@ struct DropdownComposerSection: View {
                 Image(systemName: "minus.circle")
             }
             .buttonStyle(.borderless)
-            .help("preferences_appearance_menu_bar_composer_remove".loco())
+            .help("preferences_dropdown_block_remove".loco())
         }
     }
 
@@ -325,7 +325,7 @@ struct DropdownDisplaySection: View {
     @Default(.remindersIncludeOverdue) var remindersIncludeOverdue
 
     var body: some View {
-        Section(header: Text("preferences_dropdown_reminders_toggle".loco())) {
+        Section {
             // Reminders (Dot parity). Turning this on is the ONLY place that
             // requests Reminders access — the setting only flips on if granted.
             Toggle(

@@ -707,7 +707,7 @@ final class WindowCoordinator {
             backing: .buffered,
             defer: false
         )
-        window.minSize = NSSize(width: 1100, height: 560)
+        window.minSize = NSSize(width: 860, height: 560)
 
         window.title = WindowTitles.preferences
         window.contentView = NSHostingView(rootView: contentView)

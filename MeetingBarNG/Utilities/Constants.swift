@@ -28,10 +28,6 @@ enum statusbarEventTitleLengthLimits {
     static let max = 55
 }
 
-enum TitleTruncationRules {
-    static let excludeAtEnds = CharacterSet.whitespacesAndNewlines
-}
-
 enum Links {
     static let github = URL(string: "https://github.com/Chykalophia/MeetingBarNG")!
     static let emailMe = URL(string: "mailto:peter@chykalophia.com?subject=MeetingBarNG")!

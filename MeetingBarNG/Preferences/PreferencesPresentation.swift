@@ -221,24 +221,6 @@ struct PreferencesCalendarPresentation: Equatable {
     }
 }
 
-enum ProviderPickerSelectionPolicy {
-    static func synchronizedSelection(
-        currentSelection: EventStoreProvider,
-        activeProvider: EventStoreProvider,
-        providerChangeInProgress: Bool
-    ) -> EventStoreProvider {
-        providerChangeInProgress ? currentSelection : activeProvider
-    }
-
-    static func shouldRequestChange(
-        selectedProvider: EventStoreProvider,
-        activeProvider: EventStoreProvider,
-        providerChangeInProgress: Bool
-    ) -> Bool {
-        selectedProvider != activeProvider && !providerChangeInProgress
-    }
-}
-
 enum BrowserPickerOptions {
     static func make(
         configured: [Browser],
@@ -302,29 +284,6 @@ enum RegexListEditingPolicy {
             return .duplicate
         }
         return .saved(regexes + [draft.value])
-    }
-}
-
-enum MeetingProviderBrowserSelection {
-    static func selectedBrowser(
-        providerID: String,
-        providerBrowsers: [String: Browser]
-    ) -> Browser {
-        providerBrowsers[providerID] ?? systemDefaultBrowser
-    }
-
-    static func updating(
-        providerID: String,
-        browser: Browser,
-        providerBrowsers: [String: Browser]
-    ) -> [String: Browser] {
-        var updated = providerBrowsers
-        if browser == systemDefaultBrowser {
-            updated.removeValue(forKey: providerID)
-        } else {
-            updated[providerID] = browser
-        }
-        return updated
     }
 }
 

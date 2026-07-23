@@ -281,6 +281,7 @@
 "preferences_dropdown_blocks_title" = "Blocks";
 "preferences_dropdown_blocks_help" = "The pieces of the dropdown, top to bottom. Use the arrows to reorder, the gear to configure a block, and the minus to hide it. Settings & Quit is always pinned at the bottom.";
 "preferences_dropdown_block_add" = "Add block";
+"preferences_dropdown_block_remove" = "Remove";
 "preferences_dropdown_block_greeting" = "Greeting";
 "preferences_dropdown_block_timeline" = "Timeline";
 "preferences_dropdown_block_meeting" = "Meeting card";
@@ -737,7 +738,6 @@
    above under their new names and disappear from here. This block MUST
    reach zero — if it is still here, the migration is not finished.
    --------------------------------------------------------------- */
-"preferences_appearance_menu_bar_composer_remove" = "Remove";
 "preferences_general_option_login_launch" = "Open MeetingBarNG automatically when you log in";
 "preferences_services_create_meeting_title" = "New meetings use";
 "preferences_services_link_meeting_title" = "Default browser for meeting links";

@@ -407,49 +407,6 @@ final class PreferencesPresentationTests: XCTestCase {
         XCTAssertFalse(presentation.canReauthenticateAccount)
     }
 
-    func testProviderPickerRequestsOnlyTransactionalProviderChanges() {
-        XCTAssertFalse(
-            ProviderPickerSelectionPolicy.shouldRequestChange(
-                selectedProvider: .macOSEventKit,
-                activeProvider: .macOSEventKit,
-                providerChangeInProgress: false
-            )
-        )
-        XCTAssertFalse(
-            ProviderPickerSelectionPolicy.shouldRequestChange(
-                selectedProvider: .googleCalendar,
-                activeProvider: .macOSEventKit,
-                providerChangeInProgress: true
-            )
-        )
-        XCTAssertTrue(
-            ProviderPickerSelectionPolicy.shouldRequestChange(
-                selectedProvider: .googleCalendar,
-                activeProvider: .macOSEventKit,
-                providerChangeInProgress: false
-            )
-        )
-    }
-
-    func testProviderPickerRollsBackToActiveProviderAfterFailedChange() {
-        XCTAssertEqual(
-            ProviderPickerSelectionPolicy.synchronizedSelection(
-                currentSelection: .googleCalendar,
-                activeProvider: .macOSEventKit,
-                providerChangeInProgress: true
-            ),
-            .googleCalendar
-        )
-        XCTAssertEqual(
-            ProviderPickerSelectionPolicy.synchronizedSelection(
-                currentSelection: .googleCalendar,
-                activeProvider: .macOSEventKit,
-                providerChangeInProgress: false
-            ),
-            .macOSEventKit
-        )
-    }
-
     func testBrowserPickerAlwaysIncludesStoredSelection() {
         let safari = Browser(
             name: "Safari",
@@ -529,36 +486,6 @@ final class PreferencesPresentationTests: XCTestCase {
             RegexListEditingPolicy.saving(draft, in: ["zoom\\.us"]),
             .saved(["zoom\\.us", "teams\\.microsoft\\.com"])
         )
-    }
-
-    func testMeetingProviderBrowserSelectionPersistsAndClearsOverrides() {
-        let chrome = Browser(
-            name: "Google Chrome",
-            path: "/Applications/Google Chrome.app"
-        )
-        let providerID = "Google Meet"
-
-        XCTAssertEqual(
-            MeetingProviderBrowserSelection.selectedBrowser(
-                providerID: providerID,
-                providerBrowsers: [:]
-            ),
-            systemDefaultBrowser
-        )
-
-        let configured = MeetingProviderBrowserSelection.updating(
-            providerID: providerID,
-            browser: chrome,
-            providerBrowsers: [:]
-        )
-        XCTAssertEqual(configured[providerID], chrome)
-
-        let reset = MeetingProviderBrowserSelection.updating(
-            providerID: providerID,
-            browser: systemDefaultBrowser,
-            providerBrowsers: configured
-        )
-        XCTAssertNil(reset[providerID])
     }
 
     func testMeetingProviderOpeningSelectionRestoresLegacySentinel() {

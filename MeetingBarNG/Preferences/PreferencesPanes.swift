@@ -46,9 +46,9 @@ import SwiftUI
 /// What you see when you click MeetingBarNG. Keeps the two-pane layout: the
 /// settings scroll on the left, the live preview stays pinned on the right.
 ///
-/// Phase 3 replaces `DisplayPreviewPane` with the real `DropdownPanelView`
-/// rendered against fixtures — it is a second, drifting implementation of the
-/// thing it previews (its agenda row is 76pt where the real one is 66pt).
+/// The preview mounts the real `DropdownPanelView` against fixtures (Phase 3),
+/// so the preview and the live dropdown share one implementation and cannot
+/// drift apart.
 struct DropdownTab: View {
     var body: some View {
         HStack(spacing: 0) {
@@ -72,10 +72,9 @@ struct DropdownTab: View {
 
 /// The month/week window MeetingBarNG opens — not Apple's Calendar app.
 ///
-/// Deliberately thin for now (owner decision 4 kept "Dim weekends" in
-/// Preferences as a display option, and the routing rule then earns this
-/// surface its own pane). Phase 6 fills it out with first day of the week,
-/// week numbers, and the per-day event cap.
+/// Dim weekends stays in Preferences as a display option, and the routing
+/// rule earns this surface its own pane. Filled out with first day of the
+/// week, week numbers, and the per-day event cap.
 struct CalendarWindowTab: View {
     var body: some View {
         PreferencesGroupedForm {

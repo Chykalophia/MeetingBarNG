@@ -14,8 +14,8 @@
 //       Progress bar · Week number · World clock. Every block the menu bar can
 //       hold is listed: showing ones in their left-to-right order with arrows,
 //       hidden ones dimmed below. The switch is the only on/off.
-//    3. The options each showing block has, until Phase 5 moves them onto that
-//       block's gear. They are plain rows here so nothing is ever unreachable.
+//    3. Per-block gear popovers for the options each showing block has.
+//       They are plain rows inside the gear so nothing is ever unreachable.
 //    4. Keep the menu bar quiet until a meeting is close, with minute chips.
 //    5. One line / Two lines.
 //    6. Reset this section.
@@ -34,9 +34,9 @@
 //    `MenuBarTimeFormatDefaultsMigration` (AppSettings.swift) carries both
 //    halves of anybody's stored answer across, once.
 //
-//  Drag-and-drop reordering and per-block gear popovers are Phase 5: this pane
-//  ships explicit arrows inside `PreferencesGroupedForm`, where `.onMove` is
-//  inert because the container is a `Form` and not a `List`.
+//  Drag-and-drop reordering is still Phase 5: this pane ships explicit arrows
+//  inside `PreferencesGroupedForm`, where `.onMove` is inert because the
+//  container is a `Form` and not a `List`. Per-block gear popovers are live.
 //
 //  Descends from `StatusBarSection` and `MenuBarComposerSection`
 //  (DisplayTab.swift, moved there from AppearanceTab.swift), originally:

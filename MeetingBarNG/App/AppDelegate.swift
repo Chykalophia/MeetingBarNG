@@ -524,5 +524,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         calendarSync?.stop()
         remindersSync?.stop()
         cancellables.removeAll()
+        statusBarItem?.removeFromStatusBar()
     }
 }
