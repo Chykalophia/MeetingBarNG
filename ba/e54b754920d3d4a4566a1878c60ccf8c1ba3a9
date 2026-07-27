@@ -1,0 +1,23 @@
+.vscode/launch.json
+  s_b8ddb6808b4a67::t_769c0dd23185a2 1-22
+.vscode/settings.json
+  s_b8ddb6808b4a67::t_484860750871e3 4-7
+.vscode/tasks.json
+  s_b8ddb6808b4a67::t_519f9aab1f3c32 1-64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "bae54b754920d3d4a4566a1878c60ccf8c1ba3a9",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "unknown"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
