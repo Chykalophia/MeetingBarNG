@@ -1,0 +1,19 @@
+MeetingBarNG.xcodeproj/project.pbxproj
+  s_b8ddb6808b4a67::t_e3e887762f3b3e 457,471,487,501
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "e0de5f30eb0f27c4e9cc85d504f42e0484ae74f7",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "unknown"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
