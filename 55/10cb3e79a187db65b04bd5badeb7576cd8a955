@@ -1,0 +1,34 @@
+MeetingBarNG/Preferences/PreferencesPanes.swift
+  s_b8ddb6808b4a67::t_5b75535bfecfec 59-75
+  s_b8ddb6808b4a67::t_7d367e58d70c18 122
+MeetingBarNG/Preferences/PreferencesShellV2.swift
+  s_b8ddb6808b4a67::t_0890eab83c90b6 88
+  s_b8ddb6808b4a67::t_6b836a551a85e2 32-50
+MeetingBarNG/App/WindowCoordinator.swift
+  s_b8ddb6808b4a67::t_82533c91ce38e6 848-857
+  s_b8ddb6808b4a67::t_7ece3b4982d927 771,778
+  s_b8ddb6808b4a67::t_de78abaf2730f6 772-777,779-783
+  s_b8ddb6808b4a67::t_53699b7c98c51c 227-230
+  s_b8ddb6808b4a67::t_6228c19aa8e741 221-225
+  s_b8ddb6808b4a67::t_6df9a0eb7c89f3 785-793,819-822
+  s_b8ddb6808b4a67::t_84c8f77fa51fb3 794-799
+  s_b8ddb6808b4a67::t_0defbdc7dbde8d 784,800-808,814,816-818,827
+  s_b8ddb6808b4a67::t_a3504c0c7fbaf1 809-813,815
+  s_b8ddb6808b4a67::t_fc2aad9eac841f 823-826
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "5510cb3e79a187db65b04bd5badeb7576cd8a955",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
