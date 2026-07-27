@@ -1,0 +1,64 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build + Kill + Sign + Run",
+            "type": "shell",
+            "command": "make build-quiet && pkill -9 -f MeetingBarNG 2>/dev/null; sleep 1; make sign-local && open build/DerivedData/Build/Products/Debug/MeetingBarNG.app",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Build only (no run)",
+            "type": "shell",
+            "command": "make build-quiet",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Run logic tests",
+            "type": "shell",
+            "command": "make test-logic-quiet",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Strings lint",
+            "type": "shell",
+            "command": "bash Scripts/strings-lint",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "SwiftLint",
+            "type": "shell",
+            "command": "swiftlint",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "shared"
+            }
+        }
+    ]
+}

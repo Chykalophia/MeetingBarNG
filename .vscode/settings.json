@@ -1,5 +1,8 @@
 {
     "chat.tools.terminal.autoApprove": {
         "gh": true
-    }
+    },
+    "lldb.library": "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/LLDB",
+    "lldb.executable": "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb",
+    "lldb.launch.expressions": "native"
 }

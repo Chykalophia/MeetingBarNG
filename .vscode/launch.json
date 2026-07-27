@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to MeetingBarNG",
+            "type": "lldb",
+            "request": "attach",
+            "pid": "${command:pickProcess}",
+            "program": "build/DerivedData/Build/Products/Debug/MeetingBarNG.app/Contents/MacOS/MeetingBarNG",
+            "sourceLanguages": ["swift"]
+        },
+        {
+            "name": "Build + Run MeetingBarNG",
+            "type": "lldb",
+            "request": "launch",
+            "program": "build/DerivedData/Build/Products/Debug/MeetingBarNG.app/Contents/MacOS/MeetingBarNG",
+            "preLaunchTask": "Build",
+            "sourceLanguages": ["swift"],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
