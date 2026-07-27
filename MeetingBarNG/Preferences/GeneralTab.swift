@@ -54,11 +54,6 @@ struct GeneralTab: View {
                     Text("preferences_general_login_toggle".loco())
                 }
 
-                // 12/24-hour is genuinely app-wide — menu bar, dropdown,
-                // timeline, calendar window, world clock and alerts all read it
-                // — which is why it lives here and not on any one surface's
-                // pane. Its key was namespaced `preferences_appearance_menu_*`,
-                // as if it belonged to the dropdown.
                 Picker(
                     "preferences_general_time_format_title".loco(),
                     selection: $timeFormat
@@ -68,10 +63,7 @@ struct GeneralTab: View {
                     Text("preferences_general_time_format_24_hour".loco())
                         .tag(TimeFormat.military)
                 }
-                Text("preferences_general_time_format_help".loco())
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                .annotation("preferences_general_time_format_help")
             }
 
             ShortcutsSection()
@@ -166,18 +158,16 @@ private struct ShortcutRow<Recorder: View>: View {
     let recorder: Recorder
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(titleKey.loco())
-                if let helpKey {
-                    Text(helpKey.loco())
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-            Spacer()
+        LabeledContent {
             recorder
+        } label: {
+            Text(titleKey.loco())
+            if let helpKey {
+                Text(helpKey.loco())
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 }
@@ -209,10 +199,7 @@ private struct TroubleshootingSection: View {
                         "preferences_general_classic_menu_toggle".loco(),
                         isOn: usesClassicMenu
                     )
-                    Text("preferences_general_classic_menu_help".loco())
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
+                    .annotation("preferences_general_classic_menu_help")
 
                     Divider()
 

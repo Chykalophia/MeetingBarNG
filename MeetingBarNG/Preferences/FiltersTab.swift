@@ -109,9 +109,6 @@ struct FiltersTab: View {
 
     private var fetchSection: some View {
         Section {
-            // This is the FETCH window (`CalendarRepository.calendarDateRange`),
-            // not a display filter — hence the help line: on "Today", tomorrow's
-            // meetings are never loaded, so nothing downstream can show them.
             Picker(
                 "preferences_filters_look_ahead_title".loco(),
                 selection: $showEventsForPeriod
@@ -120,11 +117,15 @@ struct FiltersTab: View {
                     .tag(ShowEventsForPeriod.today)
                 Text("preferences_filters_look_ahead_today_tomorrow".loco())
                     .tag(ShowEventsForPeriod.today_n_tomorrow)
+                Text("preferences_filters_look_ahead_tomorrow_next".loco())
+                    .tag(ShowEventsForPeriod.today_n_tomorrow_next)
+                Text("preferences_filters_look_ahead_tomorrow_summary".loco())
+                    .tag(ShowEventsForPeriod.today_n_tomorrow_summary)
             }
-            helpText("preferences_filters_look_ahead_help")
+            .annotation("preferences_filters_look_ahead_help")
 
             Toggle("preferences_filters_dedup_toggle".loco(), isOn: $deduplicateEvents)
-            helpText("preferences_filters_dedup_help")
+                .annotation("preferences_filters_dedup_help")
         }
     }
 
@@ -413,10 +414,7 @@ struct FiltersTab: View {
     // MARK: - Helpers
 
     private func helpText(_ key: String) -> some View {
-        Text(key.loco())
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
+        PreferencesHelpText(key: key)
     }
 
     /// "show as underlined" is retired as an option value, so anyone holding it

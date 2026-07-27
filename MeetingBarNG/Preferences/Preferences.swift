@@ -16,9 +16,11 @@
 //  concrete names under abstract nouns ("Setup", "Experience") rebuilt exactly
 //  the "everything is miscellaneous" problem the overhaul exists to remove.
 //  About & Support becomes a pinned sidebar FOOTER item rather than a pane, so it
-//  can never accumulate leftovers. Settings search (`.searchable`) is present on
-//  every pane, backed by the hostless `SettingsIndex`. `preferenceLabel()` is
-//  deleted: colons now come off at source in en.lproj, not at render time.
+//  can never accumulate leftovers. Settings search is a custom field in the
+//  sidebar's top safe-area inset (not `.searchable`, which created a toolbar
+//  that overlapped the first rows), backed by the hostless `SettingsIndex`.
+//  `preferenceLabel()` is deleted: colons now come off at source in en.lproj,
+//  not at render time.
 //
 import SwiftUI
 
@@ -51,13 +53,12 @@ struct PreferencesView: View {
         } detail: {
             detail
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .navigationTitle(navigationTitle)
         }
-        .navigationSplitViewStyle(.balanced)
         // Wide enough for the Dropdown pane's two-pane (settings + ~340pt
         // preview). Every other pane benefits from the narrower width — at
         // 1100pt a grouped form stretches with a huge dead right margin.
         .frame(minWidth: 860, minHeight: 560)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onChange(of: navigation.requestedTab) { _, requested in
             guard let requested else { return }
             selection = .tab(requested)
@@ -74,14 +75,15 @@ struct PreferencesView: View {
     /// is applied to the labels — the pill supplies its own contrasting content
     /// colour, and overriding it broke the selected row.
     /// The `List` MUST be the root of this view, not a child of a `VStack`.
-    /// A sidebar `List` extends under the window's title bar and applies its own
-    /// top content inset so the first row clears the traffic lights; wrapping it
-    /// in a stack made the stack the sidebar instead, and the first pane
-    /// ("Calendars") rendered underneath the close/minimise buttons.
+    /// A sidebar `List` provides the sidebar role; wrapping it in a stack made
+    /// the stack the sidebar instead, and the first pane ("Calendars") lost
+    /// the sidebar's styling and insets.
     ///
-    /// The footer therefore attaches as a bottom safe-area inset rather than as a
-    /// sibling in a stack — it floats above the scrolling rows without taking the
-    /// `List` out of the sidebar role.
+    /// The search field attaches as a top safe-area inset so it pushes the first
+    /// row down rather than overlapping it (`.searchable(placement: .sidebar)`
+    /// created a toolbar that overlapped the first two rows). The footer attaches
+    /// as a bottom safe-area inset so it floats above the scrolling rows without
+    /// taking the `List` out of the sidebar role.
     private var sidebar: some View {
         List(selection: tabSelection) {
             ForEach(PreferencesTab.allCases) { tab in
@@ -100,11 +102,34 @@ struct PreferencesView: View {
             }
             .background(.bar)
         }
-        .searchable(
-            text: $searchQuery,
-            placement: .sidebar,
-            prompt: Text("preferences_search_placeholder".loco())
-        )
+        .safeAreaInset(edge: .top, spacing: 0) {
+            HStack(spacing: 6) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 13))
+                    .foregroundStyle(.secondary)
+                TextField(
+                    "preferences_search_placeholder".loco(),
+                    text: $searchQuery
+                )
+                .textFieldStyle(.plain)
+                .font(.system(size: 13))
+                if !searchQuery.isEmpty {
+                    Button {
+                        searchQuery = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.tertiary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .background(.bar)
+            .overlay(alignment: .bottom) {
+                Divider()
+            }
+        }
     }
 
     /// Bridges the two-case selection to the `List`'s single-type selection:
@@ -144,51 +169,67 @@ struct PreferencesView: View {
 
     // MARK: - Detail
 
-    private var navigationTitle: String {
-        if !trimmedQuery.isEmpty {
-            return "preferences_search_results_title".loco(trimmedQuery)
-        }
-        switch selection {
-        case .tab(let tab): return tab.titleKey.loco()
-        case .aboutSupport: return "preferences_tab_about".loco()
-        }
-    }
-
     @ViewBuilder
     private var detail: some View {
         if !trimmedQuery.isEmpty {
-            SettingsSearchResults(query: trimmedQuery) { entry in
-                selection = .tab(entry.tab)
-                searchQuery = ""
+            VStack(alignment: .leading, spacing: 0) {
+                PreferencesDetailHeader(
+                    title: "preferences_search_results_title".loco(trimmedQuery)
+                )
+                SettingsSearchResults(query: trimmedQuery) { entry in
+                    selection = .tab(entry.tab)
+                    searchQuery = ""
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             switch selection {
             case .tab(let tab):
                 VStack(alignment: .leading, spacing: 0) {
-                    PreferencesPanePurpose(tab: tab)
+                    PreferencesDetailHeader(
+                        title: tab.titleKey.loco(),
+                        purpose: tab.purposeKey.loco()
+                    )
                     preferencesTabContent(tab)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             case .aboutSupport:
-                AboutSupportView()
+                VStack(alignment: .leading, spacing: 0) {
+                    PreferencesDetailHeader(title: "preferences_tab_about".loco())
+                    AboutSupportView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }
 }
 
-/// The one-line "what this pane is for" strip under the window title. Eight
-/// panes are only holdable if each states its own purpose.
-private struct PreferencesPanePurpose: View {
-    let tab: PreferencesTab
+/// The pane title and one-line purpose shown at the top of the detail column.
+/// Replaces both the `.navigationTitle` (which created an internal navigation
+/// bar that clipped content in a plain `NSWindow`) and the old
+/// `PreferencesPanePurpose` (which showed only the purpose line, not the title).
+private struct PreferencesDetailHeader: View {
+    let title: String
+    var purpose: String?
 
     var body: some View {
-        Text(tab.purposeKey.loco())
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
-            .padding(.top, 14)
-            .padding(.bottom, 6)
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.headline)
+            if let purpose {
+                Text(purpose)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 20)
+        .padding(.top, 14)
+        .padding(.bottom, 6)
     }
 }
 
@@ -238,12 +279,22 @@ func preferenceLabel(_ key: String) -> String {
 /// so `ForEach(...).onMove` inside it is inert — which is why every reorder
 /// control in Preferences is an explicit up/down button until Phase 5 moves the
 /// builders into a real `List`.
+///
+/// The `.frame(maxWidth: .infinity, maxHeight: .infinity)` is load-bearing: a
+/// `Form` with `.formStyle(.grouped)` is a scroll view, but without a bounded
+/// frame it sizes to its content rather than the available space. Inside the
+/// detail `VStack` (which stacks the purpose header above the form), that means
+/// the form grows past the window's bottom edge and its scroll view never
+/// activates — so the last sections are silently clipped. The frame gives the
+/// scroll view a bounded height, which is what makes scrolling work.
 struct PreferencesGroupedForm<Content: View>: View {
     @ViewBuilder var content: Content
 
     var body: some View {
         Form { content }
             .formStyle(.grouped)
+            .focusSection()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

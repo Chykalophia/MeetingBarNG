@@ -58,7 +58,7 @@
 "preferences_tab_filters" = "Filters";
 "preferences_tab_menu_bar" = "Menu Bar";
 "preferences_tab_dropdown" = "Dropdown";
-"preferences_tab_calendar_window" = "Calendar Window";
+"preferences_tab_calendar_window" = "Grid";
 "preferences_tab_joining" = "Joining";
 "preferences_tab_alerts" = "Alerts";
 "preferences_tab_general" = "General";
@@ -176,7 +176,9 @@
 "preferences_filters_look_ahead_title" = "Look ahead";
 "preferences_filters_look_ahead_today" = "Today";
 "preferences_filters_look_ahead_today_tomorrow" = "Today and tomorrow";
-"preferences_filters_look_ahead_help" = "“Today” means tomorrow's meetings are never loaded at all.";
+"preferences_filters_look_ahead_tomorrow_next" = "Today, plus tomorrow's first event";
+"preferences_filters_look_ahead_tomorrow_summary" = "Today, plus a tomorrow summary";
+"preferences_filters_look_ahead_help" = "Controls how much of tomorrow appears in the dropdown. “Today” means tomorrow's meetings are never loaded at all.";
 "preferences_filters_dedup_toggle" = "Merge duplicates across calendars";
 "preferences_filters_dedup_help" = "One meeting invited to two of your calendars shows once, not twice.";
 "preferences_filters_preset_title" = "Show me";
@@ -498,6 +500,8 @@
 
 "status_bar_section_today" = "Today";
 "status_bar_section_tomorrow" = "Tomorrow";
+"status_bar_tomorrow_summary_one" = "%d meeting tomorrow, starting at %@";
+"status_bar_tomorrow_summary_other" = "%d meetings tomorrow, starting at %@";
 "status_bar_section_reminders" = "Reminders";
 "status_bar_reminders_complete" = "Complete";
 "status_bar_reminders_snooze" = "Snooze";

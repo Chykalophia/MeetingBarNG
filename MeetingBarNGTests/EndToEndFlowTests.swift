@@ -863,6 +863,111 @@ final class CalendarSettingsEndToEndFlowTests: EndToEndFlowTestCase {
         })
     }
 
+    /// Two tomorrow events so "only the first" is distinguishable from "all".
+    private func makeTwoDayHarness(now: Date) -> EndToEndHarness {
+        let tomorrowOffset = Calendar.current
+            .date(byAdding: .day, value: 1, to: now)!
+            .timeIntervalSince(now)
+        return makeHarness(events: [
+            makeEvent(id: "TODAY", startingIn: 300, now: now),
+            makeEvent(id: "TMRWA", startingIn: tomorrowOffset, now: now),
+            makeEvent(id: "TMRWB", startingIn: tomorrowOffset + 3600, now: now)
+        ])
+    }
+
+    func testTomorrowNextModeShowsOnlyTomorrowsFirstEvent() async {
+        configureDisplayDefaults()
+        Defaults[.showEventsForPeriod] = .today_n_tomorrow_next
+        let now = Date()
+        let harness = makeTwoDayHarness(now: now)
+        defer { harness.stop() }
+
+        await waitForState(of: harness, description: "events reach AppModel") {
+            $0.events.count == 3
+        }
+
+        let titles = menuTitles(harness)
+        XCTAssertTrue(titles.contains { $0.contains("Event TODAY") })
+        XCTAssertTrue(titles.contains {
+            $0.hasPrefix("status_bar_section_tomorrow".loco())
+        })
+        XCTAssertTrue(titles.contains { $0.contains("Event TMRWA") })
+        XCTAssertFalse(
+            titles.contains { $0.contains("Event TMRWB") },
+            "only tomorrow's FIRST event belongs in .today_n_tomorrow_next"
+        )
+    }
+
+    func testTomorrowSummaryModeReplacesEventRowsWithOneLine() async {
+        configureDisplayDefaults()
+        Defaults[.showEventsForPeriod] = .today_n_tomorrow_summary
+        let now = Date()
+        let harness = makeTwoDayHarness(now: now)
+        defer { harness.stop() }
+
+        await waitForState(of: harness, description: "events reach AppModel") {
+            $0.events.count == 3
+        }
+
+        let titles = menuTitles(harness)
+        XCTAssertTrue(titles.contains { $0.contains("Event TODAY") })
+        XCTAssertTrue(titles.contains {
+            $0.hasPrefix("status_bar_section_tomorrow".loco())
+        })
+        XCTAssertFalse(
+            titles.contains { $0.contains("Event TMRW") },
+            "summary mode renders no tomorrow event rows at all"
+        )
+
+        // The literal text is derived from the format string rather than typed
+        // out, so rewording the resource does not silently break this.
+        XCTAssertTrue(
+            titles.contains { $0.contains(Self.summaryLiteral(count: 2)) },
+            "expected a plural summary line, got \(titles)"
+        )
+    }
+
+    /// A single meeting must not read "1 meetings tomorrow" — the summary picks
+    /// between `_one` and `_other` the way the day-summary count does.
+    func testTomorrowSummaryUsesTheSingularFormForOneMeeting() async {
+        configureDisplayDefaults()
+        Defaults[.showEventsForPeriod] = .today_n_tomorrow_summary
+        let now = Date()
+        let tomorrowOffset = Calendar.current
+            .date(byAdding: .day, value: 1, to: now)!
+            .timeIntervalSince(now)
+        let harness = makeHarness(events: [
+            makeEvent(id: "TODAY", startingIn: 300, now: now),
+            makeEvent(id: "TMRWA", startingIn: tomorrowOffset, now: now)
+        ])
+        defer { harness.stop() }
+
+        await waitForState(of: harness, description: "events reach AppModel") {
+            $0.events.count == 2
+        }
+
+        let titles = menuTitles(harness)
+        XCTAssertTrue(
+            titles.contains { $0.contains(Self.summaryLiteral(count: 1)) },
+            "expected the singular summary line, got \(titles)"
+        )
+        XCTAssertFalse(
+            titles.contains { $0.contains(Self.summaryLiteral(count: 2)) },
+            "one meeting must not render the plural wording"
+        )
+    }
+
+    /// The static half of the summary format, so assertions survive a reword.
+    private static func summaryLiteral(count: Int) -> String {
+        let key = count == 1
+            ? "status_bar_tomorrow_summary_one"
+            : "status_bar_tomorrow_summary_other"
+        return key.loco()
+            .replacingOccurrences(of: "%d", with: "")
+            .replacingOccurrences(of: "%@", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     func testDeclinedEventsHiddenBySettingEndToEnd() async throws {
         configureDisplayDefaults()
         Defaults[.declinedEventsAppereance] = .hide

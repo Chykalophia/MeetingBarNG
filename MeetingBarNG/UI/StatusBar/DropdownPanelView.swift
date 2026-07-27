@@ -138,6 +138,11 @@ struct DropdownPanelView: View {
     /// `clock`, never this, for anything time-dependent — while the panel is open
     /// the clock advances and this does not.
     var now: Date = Date()
+    /// When true, the panel expands to its full content height (no
+    /// `maximumHeight` cap) and disables internal scrolling — used by the
+    /// Display-tab preview so the outer ScrollView handles scrolling and
+    /// nothing is clipped.
+    var isPreview: Bool = false
 
     /// The stored module order. Read here (rather than passed in) so the panel
     /// resolves its layout through exactly the same policy the controller and the
@@ -218,6 +223,7 @@ struct DropdownPanelView: View {
                 .padding(.vertical, 6)
                 .frame(width: Self.preferredWidth, alignment: .leading)
             }
+            .scrollDisabled(isPreview)
             .onChange(of: selectionIndex) { _, _ in
                 guard let selectedRow else { return }
                 withAnimation(revealAnimation) {
@@ -231,7 +237,7 @@ struct DropdownPanelView: View {
         // hidden so it reads as a menu rather than a scroll view.
         .scrollIndicators(.hidden)
         .frame(width: Self.preferredWidth)
-        .frame(maxHeight: Self.maximumHeight)
+        .frame(maxHeight: isPreview ? .infinity : Self.maximumHeight)
         .background(
             RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
                 .fill(Color(nsColor: .windowBackgroundColor))
@@ -381,9 +387,7 @@ struct DropdownPanelView: View {
             meetingEventID: state.nextEvent?.id,
             todayEventIDs: visibleEvents(state.todayEvents).map(\.id),
             reminderIDs: state.todayReminders.map(\.id),
-            tomorrowEventIDs: showsTomorrowSection
-                ? visibleEvents(state.tomorrowEvents).map(\.id)
-                : [],
+            tomorrowEventIDs: tomorrowNavigableIDs,
             joinNextEventID: joinSectionEvent?.id,
             bookmarkCount: state.meetings.bookmarks.count,
             showsWhatsNew: showsWhatsNew
@@ -651,7 +655,28 @@ struct DropdownPanelView: View {
     // MARK: - Agenda
 
     private var showsTomorrowSection: Bool {
-        state.events.showEventsForPeriod == .today_n_tomorrow
+        state.events.showEventsForPeriod.includesTomorrow
+    }
+
+    private var tomorrowDisplayMode: ShowEventsForPeriod {
+        state.events.showEventsForPeriod
+    }
+
+    /// Tomorrow event IDs that are keyboard-navigable. Only the events actually
+    /// rendered as rows are navigable — the summary mode shows no rows.
+    private var tomorrowNavigableIDs: [String] {
+        guard showsTomorrowSection else { return [] }
+        let events = visibleEvents(state.tomorrowEvents)
+        switch tomorrowDisplayMode {
+        case .today_n_tomorrow:
+            return events.map(\.id)
+        case .today_n_tomorrow_next:
+            return Array(events.prefix(1)).map(\.id)
+        case .today_n_tomorrow_summary:
+            return []
+        default:
+            return []
+        }
     }
 
     private var agendaBlock: some View {
@@ -664,12 +689,58 @@ struct DropdownPanelView: View {
             remindersRows
             if showsTomorrowSection {
                 separator
-                dateSection(
-                    title: "status_bar_section_tomorrow".loco(),
-                    date: Calendar.current.date(byAdding: .day, value: 1, to: clock) ?? clock,
-                    events: visibleEvents(state.tomorrowEvents)
-                )
+                let tomorrowDate = Calendar.current.date(byAdding: .day, value: 1, to: clock) ?? clock
+                let tomorrowEvents = visibleEvents(state.tomorrowEvents)
+                switch tomorrowDisplayMode {
+                case .today_n_tomorrow:
+                    dateSection(
+                        title: "status_bar_section_tomorrow".loco(),
+                        date: tomorrowDate,
+                        events: tomorrowEvents
+                    )
+                case .today_n_tomorrow_next:
+                    dateSection(
+                        title: "status_bar_section_tomorrow".loco(),
+                        date: tomorrowDate,
+                        events: Array(tomorrowEvents.prefix(1))
+                    )
+                case .today_n_tomorrow_summary:
+                    tomorrowSummarySection(date: tomorrowDate, events: tomorrowEvents)
+                default:
+                    EmptyView()
+                }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func tomorrowSummarySection(date: Date, events: [MBEvent]) -> some View {
+        let title = "status_bar_section_tomorrow".loco()
+        sectionHeader("\(title) (\(sectionDateText(date)))")
+        if events.isEmpty {
+            Text("status_bar_section_date_nothing".loco(title.lowercased()))
+                .font(.system(size: MenuStyleConstants.defaultFontSize))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, Self.metrics.sectionHeaderInset)
+                .padding(.vertical, 4)
+        } else {
+            let count = events.count
+            let firstStart = events.first?.startDate
+            // Same manual `_one`/`_other` split the day-summary count uses —
+            // without it a lone meeting reads "1 meetings tomorrow".
+            let key = count == 1
+                ? "status_bar_tomorrow_summary_one"
+                : "status_bar_tomorrow_summary_other"
+            Text(
+                key.loco(
+                    count,
+                    firstStart?.formatted(date: .omitted, time: .shortened) ?? ""
+                )
+            )
+            .font(.system(size: MenuStyleConstants.defaultFontSize))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, Self.metrics.sectionHeaderInset)
+            .padding(.vertical, 4)
         }
     }
 

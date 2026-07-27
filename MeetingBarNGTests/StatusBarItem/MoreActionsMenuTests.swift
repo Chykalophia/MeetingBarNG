@@ -192,19 +192,25 @@ final class MoreActionsMenuTests: BaseTestCase {
         XCTAssertEqual(Set(titles).count, titles.count, "duplicate rows in \(titles)")
     }
 
+    private struct Scenario {
+        var nextEvent: MBEvent?
+        var dismissed: [ProcessedEvent] = []
+        var titleFormat: EventTitleFormat = .dot
+    }
+
     /// A separator must never lead, trail, or sit next to another one.
     func testSeparatorsNeverStrandThemselves() {
-        let combinations: [(MBEvent?, [ProcessedEvent], EventTitleFormat)] = [
-            (nil, [], .dot),
-            (futureEvent(), [], .dot),
-            (nil, [dismissal()], .dot),
-            (futureEvent(), [dismissal()], .show)
+        let scenarios = [
+            Scenario(),
+            Scenario(nextEvent: futureEvent()),
+            Scenario(dismissed: [dismissal()]),
+            Scenario(nextEvent: futureEvent(), dismissed: [dismissal()], titleFormat: .show)
         ]
-        for (event, dismissed, format) in combinations {
+        for scenario in scenarios {
             let titles = titles(of: makeMenu(
-                nextEvent: event,
-                dismissed: dismissed,
-                titleFormat: format
+                nextEvent: scenario.nextEvent,
+                dismissed: scenario.dismissed,
+                titleFormat: scenario.titleFormat
             ))
             XCTAssertNotEqual(titles.first, "---", "leading separator in \(titles)")
             XCTAssertNotEqual(titles.last, "---", "trailing separator in \(titles)")

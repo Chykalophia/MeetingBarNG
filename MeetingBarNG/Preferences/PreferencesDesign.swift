@@ -4,27 +4,67 @@
 //
 //  Copyright © 2026 Peter Krzyzek / Chykalophia. All rights reserved.
 //
-//  Shared visual language for the Preferences window, matching the app's own
-//  Onboarding chrome (12pt continuous rounded corners, a separatorColor
-//  hairline, .headline titles, .secondary subtitles). Purely additive and
-//  behavior-free: tabs opt in for styling only. macOS 12-safe.
+//  Rebuilt from scratch to follow the Ice 2 (teddychan/ice-2) visual
+//  language: annotation-style help text under controls, a group box with
+//  quinary fill (no hairline border), a simpler callout, and a cleaner
+//  disclosure label. The old PreferencesCard used a windowBackgroundColor
+//  fill + separatorColor hairline that fought the grouped form style;
+//  the old PreferenceCallout had a heavy tinted background. Both are
+//  replaced with the Ice 2 equivalents.
 //
 
 import Defaults
 import SwiftUI
 
-/// A disclosure whose open/closed state survives closing the window.
+// MARK: - Annotation (help text under a control)
+
+/// Places a help line beneath a control, matching Ice 2's `.annotation()`
+/// pattern. In a grouped form this renders as muted caption text directly
+/// under the toggle/picker it describes, rather than as a separate row.
 ///
-/// Phase 2 rule: a disclosure the user opened is never auto-collapsed, and one
-/// that must open itself (the Calendars troubleshooting section when macOS
-/// reports an error) opens by writing the same stored state, so the user can
-/// still close it afterwards.
+/// Usage:
+///   Toggle("Show reminders", isOn: $show)
+///     .annotation("Reminders appear alongside calendar events.")
+///
+extension View {
+    func annotation(_ key: String) -> some View {
+        annotation(Text(key.loco()))
+    }
+
+    func annotation(_ text: Text) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            self
+            text
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+/// A standalone help-text row for use inside a `Section` when the help text
+/// is not attached to a specific control (e.g. a section-level explanation).
+/// Matches the `.annotation()` visual: caption, secondary, wrapping.
+struct PreferencesHelpText: View {
+    let key: String
+
+    var body: some View {
+        Text(key.loco())
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+// MARK: - Disclosure (state survives window close)
+
+/// A disclosure whose open/closed state survives closing the window.
+/// Rebuilt with a simpler label: just the title in `.subheadline.weight(.medium)`,
+/// no custom VStack. An optional subtitle line appears below in caption/secondary.
 struct PreferencesDisclosure<Content: View>: View {
     let id: String
     let titleKey: String
     var subtitleKey: String?
-    /// Opens the disclosure on appearance — used when the app knows the user
-    /// needs what is inside (an error state), not merely that it is uncommon.
     var opensAutomatically = false
     @ViewBuilder var content: Content
 
@@ -66,24 +106,28 @@ struct PreferencesDisclosure<Content: View>: View {
     }
 }
 
-/// Layout constants shared across the preferences tabs so nesting depth is
-/// defined in one place instead of scattered magic numbers.
+// MARK: - Layout constants
+
 enum PreferencesLayout {
-    /// Indent for a dependent row (a picker/stepper/tip that belongs to the
-    /// toggle above it).
     static let nestedIndent: CGFloat = 16
 }
 
 extension View {
-    /// Indents a dependent row under its parent control by the shared amount.
-    /// Replaces the ad-hoc `.padding(.leading, 16)` used throughout the tabs.
     func preferenceIndent() -> some View {
         padding(.leading, PreferencesLayout.nestedIndent)
     }
 }
 
-/// A titled rounded card matching the Onboarding chrome. Available for tabs
-/// that want the app's card language around a cluster of content.
+// MARK: - Group box (for non-form content like the About card)
+
+/// A titled content group matching Ice 2's `IceGroupBox`: a VStack with
+/// an optional header, content in a rounded rectangle with `Color.primary
+/// .quinary` fill (no hairline border), and an optional footer. Uses
+/// `.focusSection()` for keyboard focus traversal.
+///
+/// Use this for content that sits OUTSIDE a grouped form (e.g. the About
+/// card). Inside a form, use `Section { }` directly — the form provides
+/// its own grouping.
 struct PreferencesCard<Content: View>: View {
     private let title: String?
     private let subtitle: String?
@@ -106,6 +150,7 @@ struct PreferencesCard<Content: View>: View {
                     if let title {
                         Text(title)
                             .font(.headline)
+                            .accessibilityAddTraits(.isHeader)
                     }
                     if let subtitle {
                         Text(subtitle)
@@ -114,24 +159,30 @@ struct PreferencesCard<Content: View>: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
+                .padding([.top, .leading], 8)
+                .padding(.bottom, 2)
             }
             content
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 11, style: .continuous)
+                        .fill(.regularMaterial)
+                )
+                .containerShape(
+                    RoundedRectangle(cornerRadius: 11, style: .continuous)
+                )
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color(nsColor: .windowBackgroundColor))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .strokeBorder(Color(nsColor: .separatorColor), lineWidth: 1)
-        )
+        .focusSection()
+        .accessibilityElement(children: .contain)
     }
 }
 
-/// An inset callout — an SF Symbol plus a tinted, hairline-bordered background —
-/// for a short advisory message. Replaces the flat `listRowBackground` banner.
+// MARK: - Callout (advisory message)
+
+/// An SF Symbol plus a short advisory message on a muted background.
+/// Rebuilt to match Ice 2's `CalloutBox`: simpler, with a quinary fill
+/// and no heavy tint.
 struct PreferenceCallout: View {
     let systemImage: String
     let message: String
@@ -151,11 +202,7 @@ struct PreferenceCallout: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(tint.opacity(0.12))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .strokeBorder(tint.opacity(0.25), lineWidth: 1)
+                .fill(.ultraThinMaterial)
         )
     }
 }

@@ -166,9 +166,7 @@ private struct CalendarSelectionSection: View {
                         text: $query
                     )
                     .textFieldStyle(.roundedBorder)
-                    .frame(maxWidth: 220)
-
-                    Spacer()
+                    .frame(maxWidth: .infinity)
 
                     Text(
                         "preferences_calendars_selected_count".loco(

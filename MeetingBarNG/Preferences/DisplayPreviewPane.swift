@@ -238,7 +238,8 @@ struct DisplayPreviewPane: View {
         return DropdownPanelView(
             state: state,
             handlers: DropdownPanelHandlers(),
-            now: PreviewFixtures.now
+            now: PreviewFixtures.now,
+            isPreview: true
         )
         .allowsHitTesting(false)
         .shadow(color: .black.opacity(0.12), radius: 6, y: 2)

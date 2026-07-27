@@ -44,7 +44,9 @@ private extension EventSelectionPeriod {
         switch period {
         case .today:
             self = .today
-        case .today_n_tomorrow:
+        case .today_n_tomorrow,
+             .today_n_tomorrow_next,
+             .today_n_tomorrow_summary:
             self = .todayAndTomorrow
         }
     }

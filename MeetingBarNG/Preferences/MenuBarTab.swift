@@ -488,10 +488,7 @@ struct MenuBarTab: View {
     // MARK: - Helpers
 
     private func helpText(_ key: String) -> some View {
-        Text(key.loco())
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
+        PreferencesHelpText(key: key)
     }
 }
 

@@ -18,7 +18,9 @@ func calendarDateRange(for period: ShowEventsForPeriod) -> (from: Date, to: Date
     switch period {
     case .today:
         dateTo = Calendar.current.date(byAdding: .day, value: 1, to: dateFrom)!
-    case .today_n_tomorrow:
+    case .today_n_tomorrow,
+         .today_n_tomorrow_next,
+         .today_n_tomorrow_summary:
         dateTo = Calendar.current.date(byAdding: .day, value: 2, to: dateFrom)!
     }
     return (dateFrom, dateTo)

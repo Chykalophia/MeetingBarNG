@@ -59,11 +59,15 @@ struct DropdownTab: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            Divider()
-
             DisplayPreviewPane()
                 .frame(width: 340)
                 .frame(maxHeight: .infinity)
+                .background(Color(nsColor: .controlBackgroundColor))
+                .overlay(alignment: .leading) {
+                    Rectangle()
+                        .fill(Color(nsColor: .separatorColor))
+                        .frame(width: 1)
+                }
         }
     }
 }

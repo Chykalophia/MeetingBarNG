@@ -678,7 +678,7 @@ final class WindowCoordinator {
         calendarSync: CalendarSync?
     ) {
         guard let appModel, let calendarSync else { return }
-        let contentView = PreferencesView()
+        let contentView = PreferencesShellV2()
             .environmentObject(appModel)
             .environmentObject(calendarSync)
 
@@ -698,38 +698,28 @@ final class WindowCoordinator {
         }
 
         let window = NSWindow(
-            // Wide enough for the Display tab's three columns: sidebar (~230) +
-            // the settings form + the 340pt live preview. At 940 the form was
-            // squeezed below its intrinsic width and pushed the sidebar past its
-            // minimum, clipping the tab labels.
-            contentRect: NSRect(x: 0, y: 0, width: 1180, height: 680),
-            styleMask: [.closable, .titled, .resizable],
+            contentRect: NSRect(x: 0, y: 0, width: 900, height: 625),
+            styleMask: [.closable, .titled, .resizable, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
-        window.minSize = NSSize(width: 860, height: 560)
+        window.minSize = NSSize(width: 825, height: 500)
+        window.maxSize = NSSize(width: 1150, height: 750)
 
         window.title = WindowTitles.preferences
-        window.contentView = NSHostingView(rootView: contentView)
-        // No custom rounded-corner / shadow layer here: this is a standard
-        // titled window, so the system draws its own corners and shadow.
-        //
-        // Deliberately NOT `.fullSizeContentView`. That style makes the content
-        // view span the title bar, and it is the right way to get the System
-        // Settings look where the sidebar material flows up behind the traffic
-        // lights — but only when SwiftUI owns the window (a `Settings` scene or
-        // `WindowGroup`), because the scene applies the title-bar safe-area
-        // inset. Here the root is an `NSHostingView` assigned straight to
-        // `contentView`, which does not, so the sidebar's first row rendered
-        // underneath the close/minimise buttons: "Calendars" read as "lendars".
-        //
-        // Two ways out: reproduce the inset by hand, or let AppKit lay the
-        // window out normally. Hand-maintaining a safe area to buy a cosmetic
-        // flourish is not worth a settings window that is unreadable when it is
-        // wrong, so the content starts below the title bar. The bar stays
-        // transparent, which keeps the seam soft without moving anything.
         window.titlebarAppearsTransparent = true
-        window.titleVisibility = .hidden
+        window.titleVisibility = .visible
+
+        // NSHostingController (not NSHostingView) applies the window's safe
+        // area regions to the SwiftUI content. safeAreaRegions = .all makes
+        // NavigationSplitView receive the title-bar safe-area inset, so the
+        // sidebar List clears the traffic lights and the detail column's Form
+        // gets a properly bounded scroll height. NSHostingView does NOT
+        // propagate safe areas, which is why NavigationSplitView clipped.
+        let hostingController = NSHostingController(rootView: contentView)
+        hostingController.safeAreaRegions = .all
+        window.contentViewController = hostingController
+
         // Standard window level (not .floating): clicking another app should
         // send Preferences behind it, like any normal window.
 

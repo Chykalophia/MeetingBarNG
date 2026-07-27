@@ -253,6 +253,22 @@ struct MenuBuilder {
             items += buildDateSection(
                 date: tomorrow, title: "status_bar_section_tomorrow".loco(),
                 events: state.tomorrowEvents)
+        case .today_n_tomorrow_next:
+            items += buildDateSection(
+                date: today, title: "status_bar_section_today".loco(),
+                events: state.todayEvents)
+            items += buildRemindersRows(reminders: state.todayReminders)
+            items.append(.separator())
+            items += buildDateSection(
+                date: tomorrow, title: "status_bar_section_tomorrow".loco(),
+                events: Array(state.tomorrowEvents.prefix(1)))
+        case .today_n_tomorrow_summary:
+            items += buildDateSection(
+                date: today, title: "status_bar_section_today".loco(),
+                events: state.todayEvents)
+            items += buildRemindersRows(reminders: state.todayReminders)
+            items.append(.separator())
+            items += buildTomorrowSummary(date: tomorrow, events: state.tomorrowEvents)
         }
         return items
     }
@@ -585,6 +601,74 @@ struct MenuBuilder {
             if let item = makeEventItem(event) {
                 items.append(item)
             }
+        }
+
+        return items
+    }
+
+    /// Tomorrow summary: a section header plus a single disabled line like
+    /// "3 meetings tomorrow, starting at 9:00 AM". Used by the
+    /// `.today_n_tomorrow_summary` display mode so the menu stays compact.
+    private func buildTomorrowSummary(date: Date, events: [MBEvent]) -> [NSMenuItem] {
+        var items: [NSMenuItem] = []
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "E, d MMM"
+        dateFormatter.locale = I18N.instance.locale
+        let dateString = dateFormatter.string(from: date)
+        let title = "status_bar_section_tomorrow".loco()
+        let dateTitle = "\(title) (\(dateString))"
+
+        let titleItem: NSMenuItem
+        if #available(macOS 14.0, *) {
+            titleItem = NSMenuItem.sectionHeader(title: dateTitle)
+        } else {
+            titleItem = NSMenuItem(title: dateTitle, action: nil, keyEquivalent: "")
+            titleItem.attributedTitle = NSAttributedString(
+                string: dateTitle,
+                attributes: [
+                    .font: NSFont.systemFont(
+                        ofSize: MenuStyleConstants.defaultFontSize - 2,
+                        weight: .semibold
+                    ),
+                    .foregroundColor: NSColor.secondaryLabelColor
+                ])
+            titleItem.isEnabled = false
+        }
+        items.append(titleItem)
+
+        if events.isEmpty {
+            let item = NSMenuItem(
+                title: "status_bar_section_date_nothing".loco(title.lowercased()),
+                action: nil,
+                keyEquivalent: ""
+            )
+            item.isEnabled = false
+            items.append(item)
+        } else {
+            let timeFormatter = DateFormatter()
+            timeFormatter.dateStyle = .none
+            timeFormatter.timeStyle = .short
+            timeFormatter.locale = I18N.instance.locale
+            let firstStart = events.first?.startDate ?? date
+            // Same manual `_one`/`_other` split the day-summary count uses —
+            // without it a lone meeting reads "1 meetings tomorrow".
+            let key = events.count == 1
+                ? "status_bar_tomorrow_summary_one"
+                : "status_bar_tomorrow_summary_other"
+            let summary = key.loco(
+                events.count,
+                timeFormatter.string(from: firstStart)
+            )
+            let item = NSMenuItem(title: summary, action: nil, keyEquivalent: "")
+            item.isEnabled = false
+            item.attributedTitle = NSAttributedString(
+                string: summary,
+                attributes: [
+                    .font: NSFont.systemFont(ofSize: MenuStyleConstants.defaultFontSize - 1),
+                    .foregroundColor: NSColor.secondaryLabelColor
+                ])
+            items.append(item)
         }
 
         return items
