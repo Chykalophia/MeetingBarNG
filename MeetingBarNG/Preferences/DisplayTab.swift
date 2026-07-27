@@ -320,9 +320,41 @@ struct DropdownComposerSection: View {
 struct DropdownDisplaySection: View {
     @Default(.showRemindersInMenu) var showRemindersInMenu
     @Default(.remindersIncludeOverdue) var remindersIncludeOverdue
+    @Default(.eventActionHighlightMinutes) var eventActionHighlightMinutes
+    @Default(.dropdownMaxEventRows) var dropdownMaxEventRows
 
     var body: some View {
         Section {
+            Text("preferences_dropdown_max_rows_title".loco())
+            PresetNumberPicker(
+                presets: [5, 10, 15, 0],
+                // 0 is the "off" value, and "0 meetings" would read as "hide them
+                // all" — the one preset whose number has to be spelled out.
+                presetLabel: { $0 == 0 ? "preferences_dropdown_max_rows_unlimited".loco() : "\($0)" },
+                customLabel: "preferences_preset_custom".loco(),
+                value: $dropdownMaxEventRows,
+                range: 0 ... 100,
+                step: 1,
+                stepperLabel: { "preferences_dropdown_max_rows_stepper".loco($0) },
+                example: "preferences_dropdown_max_rows_example".loco(),
+                isEnabled: true
+            )
+            Divider()
+            Text("preferences_dropdown_action_highlight_title".loco())
+            PresetNumberPicker(
+                presets: [0, 2, 5, 15],
+                // 0 is not "no lead time" to a reader, it is "when it starts" —
+                // the one preset whose number needs spelling out.
+                presetLabel: { $0 == 0 ? "preferences_dropdown_action_highlight_now".loco() : "\($0)" },
+                customLabel: "preferences_preset_custom".loco(),
+                value: $eventActionHighlightMinutes,
+                range: 0 ... 120,
+                step: 1,
+                stepperLabel: { "preferences_dropdown_action_highlight_stepper".loco($0) },
+                example: "preferences_dropdown_action_highlight_example".loco(),
+                isEnabled: true
+            )
+            Divider()
             // Reminders (Dot parity). Turning this on is the ONLY place that
             // requests Reminders access — the setting only flips on if granted.
             Toggle(

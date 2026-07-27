@@ -19,9 +19,19 @@ import Foundation
 /// One keyboard-reachable row of the dropdown panel, identified by what it acts
 /// on rather than by index, so a selection survives a re-render that only
 /// reorders neighbours.
+/// Which agenda section a row belongs to. The two cap and expand independently,
+/// so revealing a packed today does not also unfold tomorrow.
+enum AgendaDay: Hashable {
+    case today
+    case tomorrow
+}
+
 enum DropdownPanelRow: Hashable {
     /// The next/current meeting summary card.
     case meetingSummary(String)
+    /// The agenda's "+N more" row, shown when a section is withholding events
+    /// behind the row cap. Selecting it reveals them in place.
+    case showMoreEvents(AgendaDay)
     /// The meeting module's repair/refresh row, shown instead of the card when
     /// there is no meeting to display.
     case emptyStateAction
@@ -56,9 +66,15 @@ struct DropdownPanelContent: Equatable {
     var modules: [DropdownModule] = []
     /// The event shown in the meeting-control card, when there is one.
     var meetingEventID: String?
+    /// Only the events actually rendered — already capped. Navigation must not
+    /// walk onto a row the panel decided not to draw.
     var todayEventIDs: [String] = []
     var reminderIDs: [String] = []
     var tomorrowEventIDs: [String] = []
+    /// Whether each section is withholding events behind a "+N more" row. Flags
+    /// rather than counts: navigation only needs to know the row is there.
+    var todayHasHiddenEvents: Bool = false
+    var tomorrowHasHiddenEvents: Bool = false
     /// The event the join module's "Join …" row would join, when present.
     var joinNextEventID: String?
     var bookmarkCount: Int = 0
@@ -83,9 +99,13 @@ enum DropdownPanelNavigation {
                     content.meetingEventID.map(DropdownPanelRow.meetingSummary) ?? .emptyStateAction
                 )
             case .agenda:
+                // Each "+N more" row sits directly under the events it unfolds,
+                // matching where the panel draws it.
                 rows += content.todayEventIDs.map(DropdownPanelRow.event)
+                if content.todayHasHiddenEvents { rows.append(.showMoreEvents(.today)) }
                 rows += content.reminderIDs.map(DropdownPanelRow.reminder)
                 rows += content.tomorrowEventIDs.map(DropdownPanelRow.event)
+                if content.tomorrowHasHiddenEvents { rows.append(.showMoreEvents(.tomorrow)) }
             case .join:
                 if let joinNextEventID = content.joinNextEventID {
                     rows.append(.joinNext(joinNextEventID))

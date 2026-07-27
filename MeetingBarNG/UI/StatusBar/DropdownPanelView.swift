@@ -149,6 +149,16 @@ struct DropdownPanelView: View {
     /// Display-tab preview use.
     @Default(.dropdownModuleOrder) private var dropdownModuleOrder
 
+    /// How close a meeting must be for its row action to look actionable.
+    @Default(.eventActionHighlightMinutes) private var eventActionHighlightMinutes
+
+    /// Rows one agenda section draws before the rest go behind "+N more".
+    @Default(.dropdownMaxEventRows) private var dropdownMaxEventRows
+
+    /// Sections the user has unfolded this time the panel is open. Not persisted:
+    /// reopening should start compact again, or the cap stops doing its job.
+    @State private var expandedAgendaDays: Set<AgendaDay> = []
+
     /// Index into `navigationRows` of the keyboard-selected row, or `nil` when
     /// nothing is selected yet (the state the panel opens in).
     @State private var selectionIndex: Int?
@@ -382,12 +392,17 @@ struct DropdownPanelView: View {
     /// therefore the keyboard behavior — is unit-tested in
     /// `DropdownPanelNavigationTests` rather than only in the UI.
     private var navigationContent: DropdownPanelContent {
-        DropdownPanelContent(
+        // Capped, not raw: arrow keys must never land on a row that was withheld.
+        let today = capped(todayRenderedEvents, day: .today)
+        let tomorrow = capped(tomorrowRenderedEvents, day: .tomorrow)
+        return DropdownPanelContent(
             modules: visibleModules,
             meetingEventID: state.nextEvent?.id,
-            todayEventIDs: visibleEvents(state.todayEvents).map(\.id),
+            todayEventIDs: today.shown.map(\.id),
             reminderIDs: state.todayReminders.map(\.id),
-            tomorrowEventIDs: tomorrowNavigableIDs,
+            tomorrowEventIDs: tomorrow.shown.map(\.id),
+            todayHasHiddenEvents: today.hidden > 0,
+            tomorrowHasHiddenEvents: tomorrow.hidden > 0,
             joinNextEventID: joinSectionEvent?.id,
             bookmarkCount: state.meetings.bookmarks.count,
             showsWhatsNew: showsWhatsNew
@@ -423,6 +438,10 @@ struct DropdownPanelView: View {
             primaryAction(for: event)
         case .emptyStateAction:
             emptyStateAction()
+        case .showMoreEvents(let day):
+            // Unlike every other row this one does NOT dismiss the panel — the
+            // point is to keep reading the list that just grew.
+            expandAgendaDay(day)
         case .reminder(let id):
             guard let reminder = state.todayReminders.first(where: { $0.id == id }) else {
                 return false
@@ -662,16 +681,18 @@ struct DropdownPanelView: View {
         state.events.showEventsForPeriod
     }
 
-    /// Tomorrow event IDs that are keyboard-navigable. Only the events actually
-    /// rendered as rows are navigable — the summary mode shows no rows.
-    private var tomorrowNavigableIDs: [String] {
+    /// The tomorrow events the section would render before the row cap applies —
+    /// the single source both `agendaBlock` and `navigationContent` read, so the
+    /// rows drawn and the rows the keyboard walks cannot drift apart. Summary mode
+    /// renders no event rows at all, hence empty.
+    private var tomorrowRenderedEvents: [MBEvent] {
         guard showsTomorrowSection else { return [] }
         let events = visibleEvents(state.tomorrowEvents)
         switch tomorrowDisplayMode {
         case .today_n_tomorrow:
-            return events.map(\.id)
+            return events
         case .today_n_tomorrow_next:
-            return Array(events.prefix(1)).map(\.id)
+            return Array(events.prefix(1))
         case .today_n_tomorrow_summary:
             return []
         default:
@@ -679,33 +700,45 @@ struct DropdownPanelView: View {
         }
     }
 
+    private var todayRenderedEvents: [MBEvent] {
+        visibleEvents(state.todayEvents)
+    }
+
+    /// Splits a section's events into the ones it draws and the number it holds
+    /// back. A section the user has expanded, or a cap of `0`, withholds nothing.
+    private func capped(_ events: [MBEvent], day: AgendaDay) -> (shown: [MBEvent], hidden: Int) {
+        let limit = dropdownMaxEventRows
+        guard limit > 0, !expandedAgendaDays.contains(day), events.count > limit else {
+            return (events, 0)
+        }
+        return (Array(events.prefix(limit)), events.count - limit)
+    }
+
     private var agendaBlock: some View {
         VStack(alignment: .leading, spacing: 0) {
             dateSection(
                 title: "status_bar_section_today".loco(),
                 date: clock,
-                events: visibleEvents(state.todayEvents)
+                events: todayRenderedEvents,
+                day: .today
             )
             remindersRows
             if showsTomorrowSection {
                 separator
                 let tomorrowDate = Calendar.current.date(byAdding: .day, value: 1, to: clock) ?? clock
-                let tomorrowEvents = visibleEvents(state.tomorrowEvents)
                 switch tomorrowDisplayMode {
-                case .today_n_tomorrow:
+                case .today_n_tomorrow, .today_n_tomorrow_next:
                     dateSection(
                         title: "status_bar_section_tomorrow".loco(),
                         date: tomorrowDate,
-                        events: tomorrowEvents
-                    )
-                case .today_n_tomorrow_next:
-                    dateSection(
-                        title: "status_bar_section_tomorrow".loco(),
-                        date: tomorrowDate,
-                        events: Array(tomorrowEvents.prefix(1))
+                        events: tomorrowRenderedEvents,
+                        day: .tomorrow
                     )
                 case .today_n_tomorrow_summary:
-                    tomorrowSummarySection(date: tomorrowDate, events: tomorrowEvents)
+                    tomorrowSummarySection(
+                        date: tomorrowDate,
+                        events: visibleEvents(state.tomorrowEvents)
+                    )
                 default:
                     EmptyView()
                 }
@@ -745,7 +778,12 @@ struct DropdownPanelView: View {
     }
 
     @ViewBuilder
-    private func dateSection(title: String, date: Date, events: [MBEvent]) -> some View {
+    private func dateSection(
+        title: String,
+        date: Date,
+        events: [MBEvent],
+        day: AgendaDay
+    ) -> some View {
         sectionHeader("\(title) (\(sectionDateText(date)))")
         if events.isEmpty {
             Text("status_bar_section_date_nothing".loco(title.lowercased()))
@@ -754,8 +792,36 @@ struct DropdownPanelView: View {
                 .padding(.horizontal, Self.metrics.sectionHeaderInset)
                 .padding(.vertical, 4)
         }
-        ForEach(events, id: \.id) { event in
+        let section = capped(events, day: day)
+        ForEach(section.shown, id: \.id) { event in
             eventRow(event)
+        }
+        if section.hidden > 0 {
+            showMoreRow(day: day, hidden: section.hidden)
+        }
+    }
+
+    /// Reveals the events the cap withheld, in place.
+    ///
+    /// In place rather than opening the calendar window: the panel already
+    /// scrolls, so the events appear where the user is already looking instead of
+    /// in a second surface they then have to dismiss. Deliberately one-way — there
+    /// is no re-collapse, because the panel closes on its own and reopens capped,
+    /// which makes a collapse control a row that earns its space roughly never.
+    private func showMoreRow(day: AgendaDay, hidden: Int) -> some View {
+        actionRow(
+            symbol: "chevron.down",
+            title: hidden == 1
+                ? "status_bar_section_show_more_events_one".loco(hidden)
+                : "status_bar_section_show_more_events_other".loco(hidden),
+            row: .showMoreEvents(day),
+            action: { expandAgendaDay(day) }
+        )
+    }
+
+    private func expandAgendaDay(_ day: AgendaDay) {
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.15)) {
+            _ = expandedAgendaDays.insert(day)
         }
     }
 
@@ -1018,24 +1084,50 @@ struct DropdownPanelView: View {
     private func trailingAffordance(_ event: MBEvent, isHovered: Bool) -> some View {
         if event.meetingLink != nil {
             let revealed = isHovered || isSelected(.event(event.id))
+            let actionable = isActionImminent(event)
             ZStack(alignment: .trailing) {
                 Image(systemName: "video.fill")
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
                     .opacity(revealed ? 0 : 1)
                 Text("notifications_meetingbar_join_event_action".loco())
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .font(.system(size: 10, weight: actionable ? .semibold : .regular))
+                    // Muted rather than merely translucent: dropping the opacity
+                    // of white-on-accent just goes muddy, whereas a recessed fill
+                    // still reads as a button — available, simply not urgent.
+                    .foregroundStyle(actionable ? AnyShapeStyle(.white) : AnyShapeStyle(.secondary))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 2)
-                    .background(Capsule().fill(Color.accentColor))
+                    .background(
+                        Capsule().fill(
+                            actionable
+                                ? AnyShapeStyle(Color.accentColor)
+                                : AnyShapeStyle(.quaternary)
+                        )
+                    )
                     .opacity(revealed ? 1 : 0)
                     .contentShape(Capsule())
                     .onTapGesture(perform: perform { handlers.joinEvent(event) })
             }
             .frame(width: Self.trailingAffordanceWidth, alignment: .trailing)
             .animation(revealAnimation, value: revealed)
+            .animation(revealAnimation, value: actionable)
         }
+    }
+
+    /// Whether this event's row action is worth acting on RIGHT NOW: the meeting
+    /// is running, or it starts within `eventActionHighlightMinutes`.
+    ///
+    /// Drives styling only — the button stays present and clickable either way,
+    /// because joining early is legitimate. What it stops is a meeting six hours
+    /// out wearing the same bright call-to-action as one about to begin, which
+    /// reads as "click me now" when nothing needs clicking. `clock`, not `now`,
+    /// so a row un-mutes on its own as its meeting approaches while the panel
+    /// sits open.
+    private func isActionImminent(_ event: MBEvent) -> Bool {
+        if event.startDate <= clock { return clock < event.endDate }
+        let lead = Double(max(0, eventActionHighlightMinutes)) * 60
+        return event.startDate.timeIntervalSince(clock) <= lead
     }
 
     /// Inline detail disclosure. Deliberately NOT gated on `showEventDetails`:

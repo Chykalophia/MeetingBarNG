@@ -52,6 +52,72 @@ final class DropdownPanelNavigationTests: XCTestCase {
         )
     }
 
+    // MARK: - Row cap overflow
+    //
+    // The panel caps each agenda section and offers a "+N more" row. Navigation
+    // must walk onto that row (it is the only way to reach the withheld events
+    // with the keyboard) and must NOT walk onto the events still hidden behind
+    // it — `todayEventIDs`/`tomorrowEventIDs` arrive already capped.
+
+    func testOverflowRowFollowsTheEventsItUnfolds() {
+        let rows = DropdownPanelNavigation.interactiveRows(
+            for: DropdownPanelContent(
+                modules: [.agenda],
+                todayEventIDs: ["a", "b"],
+                todayHasHiddenEvents: true
+            )
+        )
+        XCTAssertEqual(
+            rows,
+            [.event("a"), .event("b"), .showMoreEvents(.today), .preferences, .quit]
+        )
+    }
+
+    func testOverflowRowIsAbsentWhenNothingIsWithheld() {
+        let rows = DropdownPanelNavigation.interactiveRows(
+            for: DropdownPanelContent(modules: [.agenda], todayEventIDs: ["a", "b"])
+        )
+        XCTAssertEqual(rows, [.event("a"), .event("b"), .preferences, .quit])
+    }
+
+    func testEachDayGetsItsOwnOverflowRowInVisualOrder() {
+        let rows = DropdownPanelNavigation.interactiveRows(
+            for: DropdownPanelContent(
+                modules: [.agenda],
+                todayEventIDs: ["a"],
+                reminderIDs: ["r1"],
+                tomorrowEventIDs: ["t1"],
+                todayHasHiddenEvents: true,
+                tomorrowHasHiddenEvents: true
+            )
+        )
+        // Today's overflow sits above the reminders, tomorrow's below its events.
+        XCTAssertEqual(
+            rows,
+            [
+                .event("a"), .showMoreEvents(.today),
+                .reminder("r1"),
+                .event("t1"), .showMoreEvents(.tomorrow),
+                .preferences, .quit
+            ]
+        )
+    }
+
+    func testTomorrowOverflowIsIndependentOfToday() {
+        let rows = DropdownPanelNavigation.interactiveRows(
+            for: DropdownPanelContent(
+                modules: [.agenda],
+                todayEventIDs: ["a"],
+                tomorrowEventIDs: ["t1"],
+                tomorrowHasHiddenEvents: true
+            )
+        )
+        XCTAssertEqual(
+            rows,
+            [.event("a"), .event("t1"), .showMoreEvents(.tomorrow), .preferences, .quit]
+        )
+    }
+
     func testJoinModuleYieldsJoinThenCreate() {
         let rows = DropdownPanelNavigation.interactiveRows(
             for: DropdownPanelContent(modules: [.join], joinNextEventID: "evt-9")

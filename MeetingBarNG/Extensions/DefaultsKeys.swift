@@ -209,6 +209,22 @@ extension Defaults.Keys {
     static let showEventMaxTimeUntilEventEnabled = Key<Bool>(
         "showEventMaxTimeUntilEventEnabled", default: false)
 
+    /// Minutes before a meeting starts at which its row action (Join today, and
+    /// whatever else earns a row button later) becomes a full-strength call to
+    /// action. Further out than this the button renders muted, so a bright button
+    /// always means "now" rather than "sometime today". Not named for Join
+    /// specifically — the styling is the row-action slot's, not one action's.
+    static let eventActionHighlightMinutes = Key<Int>(
+        "eventActionHighlightMinutes", default: 2)
+
+    /// How many meeting rows ONE agenda section draws before the remainder go
+    /// behind a "+N more" row. `0` disables the cap entirely.
+    ///
+    /// Sized so an ordinary day never reaches it — the row exists for the
+    /// conference day where forty sessions bury the one meeting that matters, not
+    /// as something most people should ever see.
+    static let dropdownMaxEventRows = Key<Int>("dropdownMaxEventRows", default: 10)
+
     // appearance of pending events should be shown in the statusbar and menu
     static let showPendingEvents = Key<PendingEventsAppereance>(
         "showPendingEvents", default: PendingEventsAppereance.show)

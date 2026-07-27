@@ -303,6 +303,14 @@
 "preferences_dropdown_rows_shorten_toggle" = "Shorten long titles";
 "preferences_dropdown_rows_shorten_stepper" = "to %d characters";
 "preferences_dropdown_rows_shorten_example" = "Long meeting names are trimmed to this length in the dropdown.";
+"preferences_dropdown_action_highlight_title" = "Highlight a meeting's button when it starts within";
+"preferences_dropdown_action_highlight_stepper" = "%d minutes";
+"preferences_dropdown_action_highlight_now" = "Only once it has started";
+"preferences_dropdown_action_highlight_example" = "Meetings further out keep a muted button, so a bright one always means “now”. You can still click a muted one.";
+"preferences_dropdown_max_rows_title" = "Show at most";
+"preferences_dropdown_max_rows_stepper" = "%d meetings per day";
+"preferences_dropdown_max_rows_unlimited" = "No limit";
+"preferences_dropdown_max_rows_example" = "A packed day ends with a “Show 12 more meetings” row instead of a very long list. Most days never reach the limit.";
 
 // MARK: - Preferences ▸ Calendar Window
 
@@ -502,6 +510,8 @@
 "status_bar_section_tomorrow" = "Tomorrow";
 "status_bar_tomorrow_summary_one" = "%d meeting tomorrow, starting at %@";
 "status_bar_tomorrow_summary_other" = "%d meetings tomorrow, starting at %@";
+"status_bar_section_show_more_events_one" = "Show %d more meeting";
+"status_bar_section_show_more_events_other" = "Show %d more meetings";
 "status_bar_section_reminders" = "Reminders";
 "status_bar_reminders_complete" = "Complete";
 "status_bar_reminders_snooze" = "Snooze";
