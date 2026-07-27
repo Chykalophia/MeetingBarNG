@@ -21,6 +21,15 @@ build
 .build/
 .swiftpm/
 
+# Raw llvm coverage counters, dropped in the CWD by `make coverage` / test runs
+*.profraw
+*.profdata
+
+# Scratch output from localization-key audits (`make validate-strings` spelunking)
+keys.txt
+all_keys.txt
+all_keys_ever.txt
+
 # AI agent local state
 .claude/
 .zenflow/

@@ -1467,8 +1467,10 @@ struct DropdownPanelView: View {
     /// never disagree about what is *available*. Order is not identical: the
     /// right-click menu lists world clock before camera check; this keeps the
     /// panel's own long-standing camera-then-clock order.
+    /// Internal rather than private so `MoreActionsMenuTests` can pin the emitted
+    /// item sequence. The gating below is plain conditionals with no other cover.
     @MainActor
-    private func makeMoreActionsMenu() -> NSMenu {
+    func makeMoreActionsMenu() -> NSMenu {
         let menu = NSMenu(title: "dropdown_panel_more_actions".loco())
         // Each item carries its own enablement. Without this AppKit would grey out
         // every one, since nothing in the responder chain validates them.
