@@ -50,25 +50,60 @@ import SwiftUI
 /// so the preview and the live dropdown share one implementation and cannot
 /// drift apart.
 struct DropdownTab: View {
-    var body: some View {
-        HStack(spacing: 0) {
-            PreferencesGroupedForm {
-                DropdownComposerSection()
-                DropdownDisplaySection()
-                PreferencesResetSection(tab: .dropdown)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    /// The preview cannot shrink: it mounts the real `DropdownPanelView`, which is
+    /// a fixed `DropdownMetrics.standard.panelWidth`. So when the window gets
+    /// narrow, something has to give — and it must be the preview, not the form.
+    /// Previously neither yielded: the form refused to compress below its own
+    /// segmented controls, the `HStack` overflowed, and the detail column clipped
+    /// the overflow off its trailing edge, silently truncating the preview.
+    private static let previewWidth: CGFloat = 340
 
-            DisplayPreviewPane()
-                .frame(width: 340)
-                .frame(maxHeight: .infinity)
-                .background(Color(nsColor: .controlBackgroundColor))
-                .overlay(alignment: .leading) {
-                    Rectangle()
-                        .fill(Color(nsColor: .separatorColor))
-                        .frame(width: 1)
+    var body: some View {
+        GeometryReader { proxy in
+            HStack(spacing: 0) {
+                PreferencesGroupedForm {
+                    // Says where the preview went. Without this the pane simply
+                    // looks different at different window sizes with no
+                    // explanation, which reads as breakage rather than as a
+                    // deliberate trade.
+                    if !showsPreview(detailWidth: proxy.size.width) {
+                        Section {
+                            PreferenceCallout(
+                                systemImage: "arrow.left.and.right",
+                                message: "preferences_dropdown_preview_hidden_hint".loco(),
+                                tint: .secondary
+                            )
+                        }
+                    }
+                    DropdownComposerSection()
+                    DropdownDisplaySection()
+                    PreferencesResetSection(tab: .dropdown)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                if showsPreview(detailWidth: proxy.size.width) {
+                    DisplayPreviewPane()
+                        .frame(width: Self.previewWidth)
+                        .frame(maxHeight: .infinity)
+                        .background(Color(nsColor: .controlBackgroundColor))
+                        .overlay(alignment: .leading) {
+                            Rectangle()
+                                .fill(Color(nsColor: .separatorColor))
+                                .frame(width: 1)
+                        }
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+                }
+            }
+            .animation(.easeOut(duration: 0.15), value: showsPreview(detailWidth: proxy.size.width))
         }
+    }
+
+    /// Dropped rather than crushed below the threshold. The settings are the
+    /// point of the pane; the preview is the luxury, so the luxury yields. The
+    /// default window size sits comfortably above this, so it is visible unless
+    /// the user has deliberately made the window small.
+    private func showsPreview(detailWidth: CGFloat) -> Bool {
+        detailWidth >= PreferencesWindowMetrics.previewMinimumDetailWidth
     }
 }
 

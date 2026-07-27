@@ -19,6 +19,30 @@
 
 import SwiftUI
 
+/// The one place the Preferences window's size range is written down.
+///
+/// The window (AppKit, `WindowCoordinator`) and its content (`PreferencesShellV2`
+/// below) must agree: a `.frame` narrower than `minSize` leaves dead margin
+/// inside the window, and a `.frame` wider than `maxSize` clips.
+///
+/// Widths are driven by the Dropdown pane, the only one pairing a form with a
+/// second full-height column. The 240pt sidebar comes off every number, so the
+/// detail column is roughly `width - 241`.
+enum PreferencesWindowMetrics {
+    /// Wide enough that Dropdown opens with its preview visible AND its form
+    /// above `previewMinimumDetailWidth`, so the default view is the good one.
+    static let defaultSize = CGSize(width: 1080, height: 680)
+    /// Below this the Dropdown pane drops its preview rather than crushing the
+    /// form — every other pane is single-column and comfortable well below it.
+    static let minimumSize = CGSize(width: 840, height: 520)
+    static let maximumSize = CGSize(width: 1400, height: 900)
+
+    /// Detail-column width at which a pane's optional second column earns its
+    /// keep. Below it the form would be narrower than its own segmented
+    /// controls, which is what pushed the preview off the trailing edge.
+    static let previewMinimumDetailWidth: CGFloat = 740
+}
+
 enum SidebarSelection: Hashable {
     case tab(PreferencesTab)
     case about
@@ -56,7 +80,18 @@ struct PreferencesShellV2: View {
             detail
         }
         .navigationTitle(isSearching ? "preferences_search_results_title".loco(trimmedQuery) : selection.navigationTitle)
-        .frame(minWidth: 825, maxWidth: 1150, minHeight: 500, maxHeight: 750)
+        // `ideal*` is load-bearing, not decoration: with only min/max, SwiftUI
+        // reports the MINIMUM as its fitting size, and `NSHostingController`
+        // hands that to the window — which is why Preferences used to open at its
+        // narrowest allowed width.
+        .frame(
+            minWidth: PreferencesWindowMetrics.minimumSize.width,
+            idealWidth: PreferencesWindowMetrics.defaultSize.width,
+            maxWidth: PreferencesWindowMetrics.maximumSize.width,
+            minHeight: PreferencesWindowMetrics.minimumSize.height,
+            idealHeight: PreferencesWindowMetrics.defaultSize.height,
+            maxHeight: PreferencesWindowMetrics.maximumSize.height
+        )
         .onChange(of: navigation.requestedTab) { _, requested in
             guard let requested else { return }
             selection = .tab(requested)
@@ -69,6 +104,10 @@ struct PreferencesShellV2: View {
 
     private var sidebar: some View {
         List(selection: sidebarSelection) {
+            Section {
+                searchField
+            }
+
             Section {
                 ForEach(PreferencesTab.allCases) { tab in
                     Label(tab.titleKey.loco(), systemImage: tab.systemImage)
@@ -83,34 +122,48 @@ struct PreferencesShellV2: View {
         }
         .listStyle(.sidebar)
         .scrollDisabled(true)
-        .safeAreaInset(edge: .top, spacing: 6) {
-            HStack(spacing: 6) {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
-                TextField(
-                    "preferences_search_placeholder".loco(),
-                    text: $searchQuery
-                )
-                .textFieldStyle(.plain)
-                .font(.system(size: 13))
-                if !searchQuery.isEmpty {
-                    Button {
-                        searchQuery = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(.tertiary)
-                    }
-                    .buttonStyle(.plain)
+    }
+
+    /// Deliberately a row INSIDE the list rather than a `safeAreaInset` above it.
+    ///
+    /// As an inset it owned its own padding, which never matched the sidebar's row
+    /// insets — the magnifying glass sat visibly left of every row icon beneath it
+    /// — and it stacked its own vertical padding on top of the window's titlebar
+    /// safe area, leaving a dead gap above the field. Worse, it painted its own
+    /// `.ultraThinMaterial`, which now fights the real titlebar material the
+    /// window's toolbar draws.
+    ///
+    /// As a list row it inherits the same insets as everything else, so it cannot
+    /// drift out of alignment again. The sidebar sets `scrollDisabled`, so living
+    /// in the list costs it nothing — it can never scroll away.
+    private var searchField: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+            TextField(
+                "preferences_search_placeholder".loco(),
+                text: $searchQuery
+            )
+            .textFieldStyle(.plain)
+            if !searchQuery.isEmpty {
+                Button {
+                    searchQuery = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.tertiary)
                 }
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(.ultraThinMaterial)
-            .overlay(alignment: .bottom) {
-                Divider()
+                .buttonStyle(.plain)
             }
         }
+        .font(.system(size: 13))
+        .padding(.horizontal, 6)
+        .padding(.vertical, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(.quaternary)
+        )
+        // Never a selectable row — clicking it belongs to the text field.
+        .selectionDisabled()
     }
 
     private var sidebarSelection: Binding<SidebarSelection?> {
@@ -167,5 +220,8 @@ struct PreferencesShellV2: View {
 
 #Preview {
     PreferencesShellV2()
-        .frame(width: 900, height: 625)
+        .frame(
+            width: PreferencesWindowMetrics.defaultSize.width,
+            height: PreferencesWindowMetrics.defaultSize.height
+        )
 }

@@ -697,18 +697,44 @@ final class WindowCoordinator {
             return
         }
 
+        // Sized so the Dropdown pane — the only one pairing a form with a second
+        // full-height column (a 340pt live preview) — opens with both readable.
+        // The 240pt sidebar comes off the top of every number here, so the old
+        // 900pt default left the form ~319pt: narrower than its own segmented
+        // controls, which pushed the preview off the trailing edge. Keep these in
+        // step with the `.frame` in `PreferencesShellV2`, or the window and its
+        // content disagree about how wide they are allowed to be.
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 900, height: 625),
+            contentRect: NSRect(x: 0, y: 0, width: PreferencesWindowMetrics.defaultSize.width,
+                                height: PreferencesWindowMetrics.defaultSize.height),
             styleMask: [.closable, .titled, .resizable, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
-        window.minSize = NSSize(width: 825, height: 500)
-        window.maxSize = NSSize(width: 1150, height: 750)
+        window.minSize = PreferencesWindowMetrics.minimumSize
+        window.maxSize = PreferencesWindowMetrics.maximumSize
 
         window.title = WindowTitles.preferences
-        window.titlebarAppearsTransparent = true
         window.titleVisibility = .visible
+
+        // A real (empty) NSToolbar is what makes the titlebar draw a background.
+        // Without one there is nothing for AppKit to render behind the title, so
+        // with a transparent titlebar the pane's Form scrolled straight up into
+        // bare window and collided with the title text.
+        //
+        // Deliberately the platform's own chrome rather than a hand-built blurred
+        // header: AppKit then draws whatever the running OS considers current —
+        // standard material on macOS 15, Liquid Glass on 26 — and supplies the
+        // scroll-edge effect for free. A hand-rolled `.ultraThinMaterial` strip
+        // would be frozen at one OS's look and read as wrong on the others.
+        //
+        // `.unified` merges titlebar and toolbar into the single bar the sidebar
+        // sits under, which is the System Settings shape this window is copying.
+        let toolbar = NSToolbar(identifier: "MeetingBarNGPreferences")
+        toolbar.showsBaselineSeparator = false
+        window.toolbar = toolbar
+        window.toolbarStyle = .unified
+        window.titlebarAppearsTransparent = false
 
         // NSHostingController (not NSHostingView) applies the window's safe
         // area regions to the SwiftUI content. safeAreaRegions = .all makes
@@ -719,6 +745,14 @@ final class WindowCoordinator {
         let hostingController = NSHostingController(rootView: contentView)
         hostingController.safeAreaRegions = .all
         window.contentViewController = hostingController
+
+        // MUST come after assigning the content view controller. Doing so makes
+        // AppKit adopt the controller's fitting size, and a SwiftUI `.frame`
+        // carrying only min/max resolves its fitting width to the MINIMUM — so
+        // the `contentRect` above was silently discarded and Preferences opened
+        // at its smallest allowed size, narrow enough that the Dropdown pane
+        // dropped its preview on every launch.
+        window.setContentSize(PreferencesWindowMetrics.defaultSize)
 
         // Standard window level (not .floating): clicking another app should
         // send Preferences behind it, like any normal window.
