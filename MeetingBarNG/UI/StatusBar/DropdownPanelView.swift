@@ -155,6 +155,17 @@ struct DropdownPanelView: View {
     /// The advancing clock, published by `panelClock()`. `nil` until the first
     /// tick, which is what keeps the very first frame identical to `now`.
     @State private var tickedNow: Date?
+    /// Holds the AppKit view the More-actions flyout anchors to. `@State` so the
+    /// box survives the struct being rebuilt on every tick of the panel's clock.
+    @State private var moreActionsAnchor = MenuAnchorBox()
+
+    /// Pending spring-open from hovering the More-actions row, cancelled if the
+    /// pointer leaves before the dwell elapses.
+    @State private var moreActionsHoverTimer: DispatchWorkItem?
+
+    /// Set once the flyout closes, so the pointer still resting on the row cannot
+    /// immediately spring it open again. Cleared when the pointer actually leaves.
+    @State private var moreActionsHoverDisarmed = false
 
     /// Nothing in the panel consulted this before Phase 1, despite five separate
     /// `easeOut(0.12)` animations.
@@ -163,6 +174,11 @@ struct DropdownPanelView: View {
     /// The single layout grid (time column, marker slot, icon slot, paddings and
     /// gutter). Replaces four unrelated literal grids in one 330pt panel.
     private static let metrics = DropdownMetrics.standard
+
+    /// Dwell before hovering the More-actions row springs its flyout open. Long
+    /// enough that sweeping the pointer down to Preferences or Quit passes over the
+    /// row without firing, short enough to feel like a submenu rather than a wait.
+    private static let moreActionsHoverDelay: TimeInterval = 0.25
 
     /// Same narrow width as the NSMenu dropdown's hosted rows, so the greeting,
     /// timeline and summary card keep their existing proportions.
@@ -1341,72 +1357,174 @@ struct DropdownPanelView: View {
     /// Actions" submenu of the Join section; this panel got neither, so once it
     /// became the default dropdown they were reachable only by keyboard shortcut.
     ///
-    /// Deliberately a nested `Menu` rather than five more rows: the resting panel
-    /// keeps exactly one extra line, and everything inside stays one click away.
-    /// Each row displays its global shortcut (when the user has recorded one) via
-    /// `globalKeyboardShortcut(_:)`, which shows the key equivalent WITHOUT
-    /// re-triggering the action — the shortcut is already registered app-wide, so
-    /// this is discovery, not a second binding.
-    /// Source: KeyboardShortcuts `ViewModifiers.swift` — `View.globalKeyboardShortcut(_:)`,
-    /// "mostly useful to have the keyboard shortcut show for a Button in a Menu…
-    /// It does not trigger the control's action." (macOS 12.3+; app floor is 15.)
+    /// Deliberately one row with a flyout rather than five more rows: the resting
+    /// panel keeps exactly one extra line, and everything inside stays one click
+    /// away.
     ///
-    /// Not in `DropdownPanelNavigation`'s row list on purpose: Return can only
-    /// *run* a row, and there is no way to ask a SwiftUI `Menu` to open itself,
-    /// so a selectable-but-inert row would be worse than an unselectable one.
-    /// Everything behind it already has a global shortcut of its own.
+    /// The row is a plain `PanelRow` — the identical path every other action row
+    /// takes — so the icon position, the icon/text gutter, the padding, the hover
+    /// highlight and the baseline match its neighbours BY CONSTRUCTION rather than
+    /// by compensation. A SwiftUI `Menu` is deliberately not used: even with
+    /// `.menuStyle(.borderlessButton)` + `.menuIndicator(.hidden)` it wraps its
+    /// label in a button container whose intrinsic insets push the icon right and
+    /// squeeze the icon/text gutter, leaving the row visibly off the shared grid.
+    /// Negative padding cannot reliably cancel that — AppKit applies the insets at
+    /// more than one layer and the amounts are not API.
+    ///
+    /// Instead the tap action calls `openMoreActionsMenu()`, which builds a plain
+    /// `NSMenu` — the same AppKit primitive `MenuBuilder`'s Quick Actions submenu
+    /// and this view's own `.contextMenu` rows already use — and flies it out from
+    /// the row's trailing edge. No layout side-effects, and macOS draws a real
+    /// menu, with the keyboard navigation and shortcut display that come free.
+    ///
+    /// The flyout IS a stock macOS menu; what a submenu gets from AppKit and this
+    /// cannot is the parent-side chrome, because that is drawn by `NSMenu` for its
+    /// own items and this row is a SwiftUI view, not an `NSMenuItem`. So the row
+    /// draws the arrow itself and the popup is positioned to the side. What stays
+    /// out of reach is left/right arrow-key traversal between row and flyout —
+    /// that would require the whole dropdown to be an `NSMenu` again.
+    ///
+    /// Not in `DropdownPanelNavigation`'s row list on purpose, so arrow-key travel
+    /// still lands only on rows Return completes in a single press. Everything
+    /// behind it already has a global shortcut of its own.
     private var moreActionsRow: some View {
-        PanelMenuRow(
-            symbol: "ellipsis.circle",
-            title: "dropdown_panel_more_actions".loco()
-        ) {
-            moreActionsContent
+        PanelRow(action: { openMoreActionsMenu() }) { _ in
+            actionRowContent(
+                symbol: "ellipsis.circle",
+                title: "dropdown_panel_more_actions".loco(),
+                // The submenu arrow AppKit would draw for us if this row were an
+                // NSMenuItem. It isn't, so the row draws its own.
+                trailingSymbol: "chevron.right"
+            )
+        }
+        .background(MenuAnchorView(box: moreActionsAnchor))
+        .onHover { hovering in
+            if hovering {
+                scheduleMoreActionsMenu()
+            } else {
+                cancelMoreActionsHover()
+            }
         }
     }
 
-    @ViewBuilder
-    private var moreActionsContent: some View {
-        // Grouped so the menu never opens on a stray leading separator, which is
-        // the common case: no meeting selected and nothing dismissed.
+    /// Springs the flyout open after a dwell, the way AppKit opens a real submenu.
+    /// A click still opens it immediately — `PanelRow`'s tap action goes straight
+    /// to `openMoreActionsMenu()` and never consults this.
+    @MainActor
+    private func scheduleMoreActionsMenu() {
+        guard !moreActionsHoverDisarmed else { return }
+        moreActionsHoverTimer?.cancel()
+        let work = DispatchWorkItem { openMoreActionsMenu() }
+        moreActionsHoverTimer = work
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + Self.moreActionsHoverDelay,
+            execute: work
+        )
+    }
+
+    /// Drops a pending spring-open and re-arms hover for the next entry. Runs when
+    /// the pointer leaves the row — including the pass it makes on the way down to
+    /// Preferences or Quit, which is why the dwell exists at all.
+    @MainActor
+    private func cancelMoreActionsHover() {
+        moreActionsHoverTimer?.cancel()
+        moreActionsHoverTimer = nil
+        moreActionsHoverDisarmed = false
+    }
+
+    /// Shows the More-actions flyout beside the row, the way a submenu hangs off
+    /// its parent item.
+    @MainActor
+    private func openMoreActionsMenu() {
+        guard let anchor = moreActionsAnchor.view else { return }
+        moreActionsHoverTimer?.cancel()
+        moreActionsHoverTimer = nil
+        // The anchor is flipped, so (width, 0) is its TOP-RIGHT corner: the menu
+        // flies out from the panel's trailing edge, level with the row, instead of
+        // dropping underneath it. AppKit still flips it to the other side, and
+        // slides it vertically, whenever the screen has no room where we asked.
+        let menu = makeMoreActionsMenu()
+        // Closes the flyout the moment the pointer goes back to the panel, so the
+        // rest of the panel is usable again without a dismissing click first.
+        let watchdog = MenuExitWatchdog(menu: menu, anchor: anchor)
+        watchdog.start()
+        menu.popUp(
+            positioning: nil,
+            at: NSPoint(x: anchor.bounds.width, y: 0),
+            in: anchor
+        )
+        // `popUp` is synchronous — control only lands here once the menu has closed,
+        // and the pointer is usually still sitting on the row at that moment. Disarm
+        // hover so the flyout does not spring straight back open.
+        watchdog.stop()
+        moreActionsHoverDisarmed = true
+    }
+
+    /// The flyout's contents: the classic Join-section "Quick Actions" submenu
+    /// (`MenuBuilder.buildJoinSection`) plus the two entries — camera check and
+    /// world clock — that otherwise appear only in the right-click quick-actions
+    /// menu. Same gating as those two, so the panel and the classic dropdown can
+    /// never disagree about what is *available*. Order is not identical: the
+    /// right-click menu lists world clock before camera check; this keeps the
+    /// panel's own long-standing camera-then-clock order.
+    @MainActor
+    private func makeMoreActionsMenu() -> NSMenu {
+        let menu = NSMenu(title: "dropdown_panel_more_actions".loco())
+        // Each item carries its own enablement. Without this AppKit would grey out
+        // every one, since nothing in the responder chain validates them.
+        menu.autoenablesItems = false
+
+        if state.nextEvent != nil {
+            menu.addItem(ClosureMenuItem(
+                title: dismissNextMeetingTitle,
+                handler: perform(handlers.dismissNextMeeting)
+            ))
+        }
+        if !state.events.dismissedEvents.isEmpty {
+            menu.addItem(ClosureMenuItem(
+                title: "status_bar_menu_remove_all_dismissals".loco(),
+                handler: perform(handlers.undismissAllMeetings)
+            ))
+        }
         if state.nextEvent != nil || !state.events.dismissedEvents.isEmpty {
-            if state.nextEvent != nil {
-                Button(dismissNextMeetingTitle, action: perform(handlers.dismissNextMeeting))
-            }
-            if !state.events.dismissedEvents.isEmpty {
-                Button(
-                    "status_bar_menu_remove_all_dismissals".loco(),
-                    action: perform(handlers.undismissAllMeetings)
-                )
-            }
-            Divider()
+            menu.addItem(.separator())
         }
-        Button(
-            "status_bar_section_join_from_clipboard".loco(),
-            action: perform(handlers.openLinkFromClipboard)
+
+        let clipboardItem = ClosureMenuItem(
+            title: "status_bar_section_join_from_clipboard".loco(),
+            handler: perform(handlers.openLinkFromClipboard)
         )
-        .globalKeyboardShortcut(.openClipboardShortcut)
-        if let meetingTitleVisibilityTitle {
-            Button(
-                meetingTitleVisibilityTitle,
-                action: perform(handlers.toggleMeetingTitleVisibility)
+        // Displays the recorded global shortcut without binding a second one — the
+        // shortcut is already registered app-wide by `StatusBarItemController`.
+        // Matches `MenuBuilder.buildJoinSection`, which sets the same two.
+        clipboardItem.setShortcut(for: .openClipboardShortcut)
+        menu.addItem(clipboardItem)
+
+        if let titleLabel = meetingTitleVisibilityTitle {
+            let toggleItem = ClosureMenuItem(
+                title: titleLabel,
+                handler: perform(handlers.toggleMeetingTitleVisibility)
             )
-            .globalKeyboardShortcut(.toggleMeetingTitleVisibilityShortcut)
+            toggleItem.setShortcut(for: .toggleMeetingTitleVisibilityShortcut)
+            menu.addItem(toggleItem)
         }
-        Divider()
-        // Both open a window, so the panel goes away FIRST — it floats at the
-        // pop-up-menu level and would otherwise sit on top of what it opened.
-        Button(
-            "status_bar_quick_action_camera_check".loco(),
-            action: dismissThen(handlers.openCameraPreview)
-        )
-        .globalKeyboardShortcut(.cameraPreviewShortcut)
-        Button(
-            "status_bar_quick_action_world_clock".loco(),
-            action: dismissThen(handlers.openWorldClock)
-        )
-        .globalKeyboardShortcut(.worldClockShortcut)
-        Divider()
-        Button("status_bar_section_refresh_sources".loco(), action: perform(handlers.refresh))
+        menu.addItem(.separator())
+
+        menu.addItem(ClosureMenuItem(
+            title: "status_bar_quick_action_camera_check".loco(),
+            handler: dismissThen(handlers.openCameraPreview)
+        ))
+        menu.addItem(ClosureMenuItem(
+            title: "status_bar_quick_action_world_clock".loco(),
+            handler: dismissThen(handlers.openWorldClock)
+        ))
+        menu.addItem(.separator())
+
+        menu.addItem(ClosureMenuItem(
+            title: "status_bar_section_refresh_sources".loco(),
+            handler: perform(handlers.refresh)
+        ))
+        return menu
     }
 
     /// Mirrors `MenuBuilder.buildJoinSection`: the meeting card's dismiss row
@@ -1486,19 +1604,41 @@ struct DropdownPanelView: View {
         action: @escaping @MainActor () -> Void
     ) -> some View {
         PanelRow(isSelected: isSelected(row), action: action) { _ in
-            HStack(spacing: Self.metrics.columnSpacing) {
-                Image(systemName: symbol)
-                    .font(.system(size: 12))
-                    .frame(width: Self.metrics.actionSymbolWidth)
-                    .foregroundStyle(.secondary)
-                Text(title)
-                    .font(.system(size: MenuStyleConstants.defaultFontSize))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                Spacer(minLength: 0)
-            }
+            actionRowContent(symbol: symbol, title: title)
         }
         .id(row)
+    }
+
+    /// `trailingSymbol` is the submenu arrow on a row that opens a flyout. It stays
+    /// a parameter of the ONE shared row builder rather than a bespoke layout at
+    /// the call site, so a row with an arrow and a row without still get their
+    /// icon, text and baseline from exactly the same code.
+    @ViewBuilder
+    private func actionRowContent(
+        symbol: String,
+        title: String,
+        trailingSymbol: String? = nil
+    ) -> some View {
+        HStack(spacing: Self.metrics.columnSpacing) {
+            Image(systemName: symbol)
+                .font(.system(size: 12))
+                .frame(width: Self.metrics.actionSymbolWidth)
+                .foregroundStyle(.secondary)
+            Text(title)
+                .font(.system(size: MenuStyleConstants.defaultFontSize))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+            Spacer(minLength: 0)
+            if let trailingSymbol {
+                // `.primary`, not `.secondary`: AppKit draws a submenu arrow in
+                // `labelColor` — the same contrast as the item's own text — and
+                // only dims it for a DISABLED item. A dimmed arrow on a live row
+                // reads as unavailable.
+                Image(systemName: trailingSymbol)
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(.primary)
+            }
+        }
     }
 
     private func sectionHeader(_ title: String) -> some View {
@@ -1649,60 +1789,138 @@ private struct PanelRow<Content: View>: View {
     }
 }
 
-/// A row that opens a menu instead of running an action: same symbol + title
-/// layout, same paddings and hover highlight as `PanelRow`, but a SwiftUI `Menu`
-/// so the utility actions live one level down rather than as five more rows.
+// MARK: - AppKit menu plumbing
+
+/// An `NSMenuItem` that runs a Swift closure.
 ///
-/// Not `PanelRow` with a `Menu` inside it: `PanelRow` claims the whole row with
-/// an `onTapGesture`, which would fight the menu's own click handling.
-private struct PanelMenuRow<Content: View>: View {
-    let symbol: String
-    let title: String
-    @ViewBuilder let content: () -> Content
+/// AppKit menu items are target/action only, and every other item in this app
+/// points at an `@objc` selector on `StatusBarItemController`. The panel has no
+/// such controller — its actions arrive as closures on `DropdownPanelHandlers` —
+/// so this is the shim that lets the More-actions flyout reuse them verbatim
+/// instead of duplicating each one as a new selector.
+private final class ClosureMenuItem: NSMenuItem {
+    private let handler: @MainActor () -> Void
 
-    @State private var isHovered = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    init(title: String, handler: @escaping @MainActor () -> Void) {
+        self.handler = handler
+        super.init(title: title, action: #selector(run), keyEquivalent: "")
+        // `NSMenuItem.target` is weak, so self-targeting is not a retain cycle;
+        // the menu keeps the item alive for as long as it is on screen.
+        target = self
+        isEnabled = true
+    }
 
-    private static var metrics: DropdownMetrics { .standard }
+    @available(*, unavailable)
+    required init(coder _: NSCoder) {
+        fatalError("ClosureMenuItem is built in code, never from a nib")
+    }
 
-    var body: some View {
-        Menu {
-            content()
-        } label: {
-            HStack(spacing: Self.metrics.columnSpacing) {
-                Image(systemName: symbol)
-                    .font(.system(size: 12))
-                    .frame(width: Self.metrics.actionSymbolWidth)
-                    .foregroundStyle(.secondary)
-                Text(title)
-                    .font(.system(size: MenuStyleConstants.defaultFontSize))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                Spacer(minLength: 0)
-            }
-            // Greedy label so the menu — and therefore the click target — spans
-            // the whole row, like every `PanelRow` around it.
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
+    @objc private func run() {
+        // Gets the handler off THIS AppKit callback's stack. Most of these handlers
+        // close the panel, and the anchor view the menu was positioned against
+        // lives inside it — the same shape of reentrancy
+        // `DropdownPanelWindow.resignKey()` defers for, having once crashed on it.
+        // Note this buys stack separation, not ordering: the main queue is drained
+        // in event-tracking mode too, so the block may still run while the menu is
+        // finishing up. Stack separation is the part that matters here.
+        let handler = handler
+        DispatchQueue.main.async { handler() }
+    }
+}
+
+/// Closes an open `NSMenu` as soon as the pointer returns to the panel behind it.
+///
+/// `NSMenu.popUp` runs a modal tracking session: while the flyout is up, the panel
+/// receives no mouse events at all, so a SwiftUI `.onHover` cannot notice the
+/// pointer coming back and every other row sits dead until a dismissing click. A
+/// real submenu closes when you move to a sibling item; this restores that by
+/// polling the pointer and cancelling tracking once it is over the panel again.
+///
+/// "Over the panel" is decided with `NSWindow.windowNumber(at:below:)` rather than
+/// a frame-containment test, because AppKit flips the flyout to the panel's other
+/// side whenever the screen edge is close — which it often is, the panel hanging
+/// off a status item near the right of the menu bar. A frame test would then read
+/// the flyout's own area as "inside the panel" and shut it the instant it opened.
+/// Asking which window is actually frontmost at that point cannot be fooled by
+/// where the menu landed.
+@MainActor
+private final class MenuExitWatchdog {
+    private let menu: NSMenu
+    private weak var anchor: NSView?
+    private var timer: Timer?
+
+    /// Fast enough to feel like the menu reacts to the pointer, coarse enough to
+    /// stay invisible next to the 0.25s dwell that opened it.
+    private static let interval: TimeInterval = 0.05
+
+    init(menu: NSMenu, anchor: NSView) {
+        self.menu = menu
+        self.anchor = anchor
+    }
+
+    func start() {
+        let timer = Timer(timeInterval: Self.interval, repeats: true) { _ in
+            MainActor.assumeIsolated { self.tick() }
         }
-        // Borderless + no indicator so the row reads as a menu row, not a
-        // pop-up button. https://developer.apple.com/documentation/swiftui/view/menuindicator(_:)
-        .menuStyle(.borderlessButton)
-        .menuIndicator(.hidden)
-        .padding(.horizontal, Self.metrics.rowInnerPadding)
-        .padding(.vertical, Self.metrics.rowVerticalPadding)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(isHovered ? Color.accentColor.opacity(0.18) : .clear)
-        )
-        .padding(.horizontal, Self.metrics.rowOuterPadding)
-        .pointerStyle(.link)
-        .onHover { hovering in
-            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.12)) {
-                isHovered = hovering
-            }
-        }
+        // `.common` so it keeps firing inside the menu's own event-tracking mode;
+        // a plain scheduled timer runs in `.default` only and would stall for the
+        // entire life of the menu — exactly when it needs to be running.
+        RunLoop.current.add(timer, forMode: .common)
+        self.timer = timer
+    }
+
+    func stop() {
+        timer?.invalidate()
+        timer = nil
+    }
+
+    private func tick() {
+        guard let anchor, let panel = anchor.window else { return }
+        let pointer = NSEvent.mouseLocation
+        // Still on the row that owns the flyout: a real submenu stays open here.
+        let rowOnScreen = panel.convertToScreen(anchor.convert(anchor.bounds, to: nil))
+        guard !rowOnScreen.contains(pointer) else { return }
+        // Frontmost window under the pointer is the panel, so the pointer is NOT on
+        // the flyout (which draws above it) and not on another app either.
+        guard NSWindow.windowNumber(at: pointer, belowWindowWithWindowNumber: 0)
+            == panel.windowNumber else { return }
+        menu.cancelTracking()
+    }
+}
+
+/// Carries the AppKit view the More-actions `NSMenu` anchors to.
+///
+/// `NSMenu.popUp(positioning:at:in:)` needs a real `NSView` to hang from and
+/// SwiftUI has none to hand out, so `MenuAnchorView` parks one in the row and
+/// reports it back through this box. Held weakly: the view belongs to the panel's
+/// hosting hierarchy, which outlives no menu.
+private final class MenuAnchorBox {
+    weak var view: NSView?
+}
+
+/// A zero-size, non-interactive AppKit view whose only job is to be somewhere for
+/// a native menu to hang from.
+private struct MenuAnchorView: NSViewRepresentable {
+    let box: MenuAnchorBox
+
+    func makeNSView(context _: Context) -> NSView {
+        let view = FlippedAnchor()
+        box.view = view
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context _: Context) {
+        // The panel rebuilds this struct on every clock tick; re-point the box so
+        // it can never be left holding a view from a torn-down hierarchy.
+        box.view = nsView
+    }
+
+    /// Flipped so callers can read `bounds.height` as the row's BOTTOM edge.
+    private final class FlippedAnchor: NSView {
+        override var isFlipped: Bool { true }
+
+        /// Never take a click — the `PanelRow` in front of it owns the hit area.
+        override func hitTest(_: NSPoint) -> NSView? { nil }
     }
 }
 
