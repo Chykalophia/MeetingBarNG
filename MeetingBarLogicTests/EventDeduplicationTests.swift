@@ -124,4 +124,76 @@ final class EventDeduplicationTests: XCTestCase {
     func test_emptyInputReturnsEmpty() {
         XCTAssertEqual(EventDeduplication.keptIndices([]), [])
     }
+
+    // MARK: - Copies that disagree about details the user cannot see
+    //
+    // Each of these produced two rows that rendered identically in the dropdown —
+    // same title, same displayed start — because the row shows the start time
+    // only unless `showEventEndTime` is on, and it is off by default. A key
+    // stricter than what the user can actually see reads as a plain bug.
+
+    func test_sameTitleAndStartCollapsesEvenWhenDurationsDiffer() {
+        // A 30-minute lunch on one calendar and a 60-minute one on another.
+        let events = [
+            event(0, title: "Peter: Lunch", start: date(12), end: date(12, 30)),
+            event(1, title: "Peter: Lunch", start: date(12), end: date(13))
+        ]
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [0])
+    }
+
+    func test_subMinuteStartDriftCollapses() {
+        // Both render "12:00"; a few seconds apart after a provider round-trip.
+        let events = [
+            event(0, title: "Peter: Lunch", start: date(12), end: date(13)),
+            event(
+                1,
+                title: "Peter: Lunch",
+                start: date(12).addingTimeInterval(37),
+                end: date(13).addingTimeInterval(37)
+            )
+        ]
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [0])
+    }
+
+    func test_titleWhitespaceDifferencesCollapse() {
+        // Trailing space, non-breaking space (U+00A0), and a doubled interior gap.
+        let events = [
+            event(0, title: "Peter: Lunch", start: date(12), end: date(13)),
+            event(1, title: "Peter: Lunch ", start: date(12), end: date(13)),
+            event(2, title: "Peter:\u{00A0}Lunch", start: date(12), end: date(13)),
+            event(3, title: "Peter:  Lunch", start: date(12), end: date(13))
+        ]
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [0])
+    }
+
+    // MARK: - Still distinct
+
+    func test_differentStartMinutesAreStillKept() {
+        // Tolerance is sub-minute only — a real back-to-back pair must survive.
+        let events = [
+            event(0, title: "Peter: Lunch", start: date(12), end: date(13)),
+            event(1, title: "Peter: Lunch", start: date(12, 30), end: date(13))
+        ]
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [0, 1])
+    }
+
+    func test_startsStraddlingAMinuteBoundaryAreKept() {
+        // 11:59:59 and 12:00:00 display as different minutes, so they stay apart.
+        // Truncation makes the boundary exactly where the user sees it.
+        let events = [
+            event(0, title: "Peter: Lunch", start: date(12).addingTimeInterval(-1), end: date(13)),
+            event(1, title: "Peter: Lunch", start: date(12), end: date(13))
+        ]
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [0, 1])
+    }
+
+    func test_googleShapedEventsAlwaysUseTheCompositePath() {
+        // Only EventKit populates `externalIdentifier`, so every Google-sourced
+        // event arrives with nil and depends entirely on the composite key.
+        let events = [
+            event(0, externalIdentifier: nil, title: "Peter: Lunch", start: date(12), end: date(12, 30)),
+            event(1, externalIdentifier: nil, title: "peter: lunch ", start: date(12), end: date(13))
+        ]
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [0])
+    }
 }
