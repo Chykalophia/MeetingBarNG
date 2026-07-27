@@ -29,18 +29,29 @@ import SwiftUI
 /// second full-height column. The 240pt sidebar comes off every number, so the
 /// detail column is roughly `width - 241`.
 enum PreferencesWindowMetrics {
-    /// Wide enough that Dropdown opens with its preview visible AND its form
-    /// above `previewMinimumDetailWidth`, so the default view is the good one.
-    static let defaultSize = CGSize(width: 1080, height: 680)
+    /// Fixed, non-resizable sidebar width, subtracted from every width below to
+    /// get the detail column.
+    static let sidebarWidth: CGFloat = 240
+
+    /// Wide enough that the Dropdown pane clears `minimumTwoColumnWidth` and so
+    /// opens showing its preview — the default view should be the good one, not
+    /// one the user has to discover by dragging. Derived from that requirement
+    /// rather than picked, so growing either column moves the default with it.
+    static var defaultSize: CGSize {
+        CGSize(
+            width: sidebarWidth + DropdownTab.minimumTwoColumnWidth + breathingRoom,
+            height: 680
+        )
+    }
+
+    /// Enough that the default is not sitting exactly on the threshold, where a
+    /// one-point rounding difference would drop the preview on launch.
+    private static let breathingRoom: CGFloat = 100
+
     /// Below this the Dropdown pane drops its preview rather than crushing the
     /// form — every other pane is single-column and comfortable well below it.
     static let minimumSize = CGSize(width: 840, height: 520)
     static let maximumSize = CGSize(width: 1400, height: 900)
-
-    /// Detail-column width at which a pane's optional second column earns its
-    /// keep. Below it the form would be narrower than its own segmented
-    /// controls, which is what pushed the preview off the trailing edge.
-    static let previewMinimumDetailWidth: CGFloat = 740
 }
 
 enum SidebarSelection: Hashable {
@@ -74,7 +85,7 @@ struct PreferencesShellV2: View {
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             sidebar
-                .navigationSplitViewColumnWidth(240)
+                .navigationSplitViewColumnWidth(PreferencesWindowMetrics.sidebarWidth)
                 .toolbar(removing: .sidebarToggle)
         } detail: {
             detail

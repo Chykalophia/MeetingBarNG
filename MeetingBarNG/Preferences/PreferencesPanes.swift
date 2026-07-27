@@ -56,7 +56,23 @@ struct DropdownTab: View {
     /// Previously neither yielded: the form refused to compress below its own
     /// segmented controls, the `HStack` overflowed, and the detail column clipped
     /// the overflow off its trailing edge, silently truncating the preview.
-    private static let previewWidth: CGFloat = 340
+    ///
+    /// Derived from the panel it displays plus its own gutter, rather than being
+    /// an independent literal that could drift away from what it is showing.
+    private static let previewWidth = DropdownMetrics.standard.panelWidth + 10
+
+    /// What the form needs before it starts crushing its own controls. The widest
+    /// is the five-segment picker in `DropdownDisplaySection` ("5 / 10 / 15 /
+    /// No limit / Custom"); the block-composer rows — a label plus up to four
+    /// icon buttons — are close behind.
+    private static let formMinimumWidth: CGFloat = 400
+
+    /// Composed from the two requirements above rather than asserted as a single
+    /// hand-computed number, so widening the preview or growing the form moves
+    /// the threshold with it instead of leaving a stale constant behind.
+    static var minimumTwoColumnWidth: CGFloat {
+        formMinimumWidth + previewWidth
+    }
 
     var body: some View {
         GeometryReader { proxy in
@@ -103,7 +119,7 @@ struct DropdownTab: View {
     /// default window size sits comfortably above this, so it is visible unless
     /// the user has deliberately made the window small.
     private func showsPreview(detailWidth: CGFloat) -> Bool {
-        detailWidth >= PreferencesWindowMetrics.previewMinimumDetailWidth
+        detailWidth >= Self.minimumTwoColumnWidth
     }
 }
 

@@ -218,7 +218,16 @@ private enum WindowStylePolicy {
 /// changelog as read.
 @MainActor
 final class WindowCoordinator {
+    /// Key AppKit stores the Preferences window's frame under. Changing it
+    /// silently discards everyone's saved geometry, so it is pinned here rather
+    /// than written inline at the call site.
+    static let preferencesFrameAutosaveName = "MeetingBarNGPreferencesWindow"
+
     private weak var preferencesWindow: NSWindow?
+
+    /// Live move/resize observers for the Preferences window. Held so a second
+    /// open cannot stack a duplicate set on top of the first.
+    private var preferencesFrameObservers: [NSObjectProtocol] = []
     private weak var onboardingHandler: OnboardingHandler?
     private weak var commandBarWindow: NSWindow?
     private weak var calendarWindow: NSWindow?
@@ -759,7 +768,63 @@ final class WindowCoordinator {
 
         let controller = NSWindowController(window: window)
         controller.showWindow(self)
-        window.center()
+
+        // Restore where and how big the user left it. Order matters: the default
+        // size above establishes FIRST-launch geometry, and this overwrites it
+        // only when a saved frame actually exists — `setFrameUsingName` reports
+        // whether it restored anything, so a first run falls through to `center()`
+        // at the default size rather than being centred on top of a restore that
+        // never happened.
+        //
+        // Paired with the explicit `saveFrame(usingName:)` in
+        // `handleWindowClosed`; see the note there for why the save is not left to
+        // `setFrameAutosaveName`. `minSize`/`maxSize` still apply, so a frame
+        // saved by an older build outside the current range is clamped rather
+        // than honoured.
+        // Save on every move and resize, not only on close. The close path needs
+        // the app to shut down cleanly, and a crash — or a force-quit — would
+        // otherwise throw away the geometry the user had just set. These fire
+        // only while a window is actually being dragged, so the cost is nothing,
+        // and it keeps the saved frame correct at all times rather than only
+        // after a well-behaved exit.
+        //
+        // Registered BEFORE the restore below so the `center()` fallback is
+        // itself persisted: otherwise a first run saves nothing until the user
+        // happens to drag the window.
+        //
+        // The stored reference has to be live before then too — the observers
+        // read the window back off it, and it used to be assigned only at the end
+        // of this method, by which time `center()` had already fired against a
+        // nil one.
+        preferencesWindow = window
+        preferencesFrameObservers.forEach(NotificationCenter.default.removeObserver)
+        preferencesFrameObservers = [
+            NSWindow.didMoveNotification,
+            NSWindow.didResizeNotification
+        ].map { name in
+            NotificationCenter.default.addObserver(
+                forName: name,
+                object: window,
+                queue: .main
+            // Reads the window back off `self` rather than out of the
+            // notification: `Notification` is not `Sendable`, so carrying it into
+            // the MainActor closure is a data race the compiler rejects, whereas
+            // this @MainActor class is.
+            ) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    self?.preferencesWindow?
+                        .saveFrame(usingName: Self.preferencesFrameAutosaveName)
+                }
+            }
+        }
+
+        if !window.setFrameUsingName(Self.preferencesFrameAutosaveName) {
+            window.center()
+            // Persist the first-run geometry immediately rather than waiting for
+            // the user to move the window. Without this the very first session
+            // has nothing saved, so a crash before any drag loses the placement.
+            window.saveFrame(usingName: Self.preferencesFrameAutosaveName)
+        }
 
         // This is an LSUIElement accessory app, so it isn't frontmost by
         // default. Activate the app *before* keying the window so Preferences
@@ -780,6 +845,16 @@ final class WindowCoordinator {
         onIncompleteOnboardingClosed: () -> Void,
         onChangelogClosed: () -> Void
     ) {
+        // Persist Preferences' geometry HERE rather than relying on
+        // `setFrameAutosaveName`. That was tried first and wrote nothing: AppKit's
+        // implicit save never fired for this window, even across a graceful quit,
+        // so the user's size silently reset every launch. `saveFrame(usingName:)`
+        // and `setFrameUsingName(_:)` are a matched pair over the same defaults
+        // key, and calling the save explicitly on close makes it deterministic.
+        if let window, window === preferencesWindow {
+            window.saveFrame(usingName: Self.preferencesFrameAutosaveName)
+        }
+
         handleWindowClosed(
             title: window?.title,
             onboardingCompleted: onboardingCompleted,
