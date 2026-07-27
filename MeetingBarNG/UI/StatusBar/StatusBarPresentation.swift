@@ -15,6 +15,13 @@ struct StatusBarPresentationSettings: Equatable {
     /// Threshold in minutes — events starting more than this far in the future
     /// are rendered as "afterThreshold" when the toggle is on.
     let showEventMaxTimeUntilEventThreshold: Int
+    /// Whether the menu bar emphasises the next meeting once it is close enough
+    /// to act on. ON by default.
+    var highlightImminentEvent: Bool = true
+    /// Minutes before the start at which "close enough" begins. Shared with the
+    /// dropdown's action buttons (`eventActionHighlightMinutes`) on purpose: one
+    /// notion of "now-ish" across the whole app, not two that can disagree.
+    var imminentLeadMinutes: Int = 2
 }
 
 /// Coarse classification of what the status bar should show. Used to drive
@@ -99,6 +106,16 @@ struct StatusBarPresentation: Equatable {
     let iconPosition: StatusBarIconPosition
     let layout: StatusBarTitleLayout
     let titleStyle: StatusBarTitleStyle
+    /// Whether the renderer should draw the title in a heavier weight because the
+    /// meeting is close enough to act on.
+    ///
+    /// Separate from `titleStyle` rather than another case of it, because the two
+    /// answer different questions — style says what KIND of event this is
+    /// (declined, pending, past), emphasis says WHEN it is. The presenter only
+    /// ever sets this alongside `.normal`, so a declined meeting stays dimmed
+    /// instead of being shouted about a minute before a meeting you are not
+    /// attending.
+    let emphasizeTitle: Bool
     let removeDeliveredNotifications: Bool
 
     init(
@@ -110,8 +127,10 @@ struct StatusBarPresentation: Equatable {
         iconPosition: StatusBarIconPosition = .leading,
         layout: StatusBarTitleLayout,
         titleStyle: StatusBarTitleStyle,
+        emphasizeTitle: Bool = false,
         removeDeliveredNotifications: Bool
     ) {
+        self.emphasizeTitle = emphasizeTitle
         self.mode = mode
         self.title = title
         self.time = time
@@ -187,6 +206,25 @@ enum StatusBarPresenter {
             assets: settings.iconAssets
         )
 
+        let resolvedStyle = titleStyle(
+            participation: nextEvent.participation,
+            layout: titleLayout(timeDisplay: settings.timeDisplay, titleFormat: settings.title.titleFormat),
+            pendingDisplay: settings.pendingDisplay,
+            tentativeDisplay: settings.tentativeDisplay
+        )
+        // Emphasis rides on top of a NORMAL title only. A declined or pending
+        // meeting is dimmed/underlined precisely because you are not treating it
+        // as yours; bolding it a minute beforehand would argue with that.
+        let emphasize =
+            settings.presentation.highlightImminentEvent
+            && resolvedStyle == .normal
+            && EventActionProminence.isImminent(
+                start: nextEvent.startDate,
+                end: nextEvent.endDate,
+                now: now,
+                leadMinutes: settings.presentation.imminentLeadMinutes
+            )
+
         return StatusBarPresentation(
             mode: mode,
             title: text.title,
@@ -194,12 +232,8 @@ enum StatusBarPresenter {
             tooltip: nextEvent.title,
             icon: icon,
             layout: titleLayout(timeDisplay: settings.timeDisplay, titleFormat: settings.title.titleFormat),
-            titleStyle: titleStyle(
-                participation: nextEvent.participation,
-                layout: titleLayout(timeDisplay: settings.timeDisplay, titleFormat: settings.title.titleFormat),
-                pendingDisplay: settings.pendingDisplay,
-                tentativeDisplay: settings.tentativeDisplay
-            ),
+            titleStyle: resolvedStyle,
+            emphasizeTitle: emphasize,
             removeDeliveredNotifications: false
         )
     }

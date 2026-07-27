@@ -76,6 +76,7 @@ struct MenuBarTab: View {
     // How quiet the strip stays until a meeting is close.
     @Default(.showEventMaxTimeUntilEventEnabled) private var showEventMaxTimeUntilEventEnabled
     @Default(.showEventMaxTimeUntilEventThreshold) private var showEventMaxTimeUntilEventThreshold
+    @Default(.menuBarHighlightImminentEvent) private var menuBarHighlightImminentEvent
 
     // Which block's gear popover is open.
     @State private var gearOpenBlock: MenuBarTokenKind?
@@ -436,6 +437,18 @@ struct MenuBarTab: View {
                 example: "preferences_menubar_quiet_example".loco(),
                 isEnabled: showEventMaxTimeUntilEventEnabled
             )
+
+            Divider()
+
+            // Deliberately no threshold control of its own: it shares
+            // `eventActionHighlightMinutes` with the dropdown's action buttons,
+            // set on the Dropdown page. Two knobs for one notion of "now-ish"
+            // would only let them disagree.
+            Toggle(
+                "preferences_menubar_highlight_imminent_toggle".loco(),
+                isOn: $menuBarHighlightImminentEvent
+            )
+            .annotation("preferences_menubar_highlight_imminent_help")
         }
     }
 

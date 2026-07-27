@@ -18,12 +18,16 @@ final class StatusBarPresentationTests: XCTestCase {
     private func settings(
         hasSelectedCalendars: Bool = true,
         showEventMaxTimeUntilEventEnabled: Bool = false,
-        threshold: Int = 30
+        threshold: Int = 30,
+        highlightImminentEvent: Bool = true,
+        imminentLeadMinutes: Int = 2
     ) -> StatusBarPresentationSettings {
         StatusBarPresentationSettings(
             hasSelectedCalendars: hasSelectedCalendars,
             showEventMaxTimeUntilEventEnabled: showEventMaxTimeUntilEventEnabled,
-            showEventMaxTimeUntilEventThreshold: threshold
+            showEventMaxTimeUntilEventThreshold: threshold,
+            highlightImminentEvent: highlightImminentEvent,
+            imminentLeadMinutes: imminentLeadMinutes
         )
     }
 
@@ -34,10 +38,16 @@ final class StatusBarPresentationTests: XCTestCase {
         timeDisplay: StatusBarTimeDisplay = .show,
         iconFormat: StatusBarIconFormat = .none,
         pendingDisplay: StatusBarParticipationDisplay = .normal,
-        tentativeDisplay: StatusBarParticipationDisplay = .normal
+        tentativeDisplay: StatusBarParticipationDisplay = .normal,
+        highlightImminentEvent: Bool = true,
+        imminentLeadMinutes: Int = 2
     ) -> StatusBarPresenterSettings {
         StatusBarPresenterSettings(
-            presentation: settings(hasSelectedCalendars: hasSelectedCalendars),
+            presentation: settings(
+                hasSelectedCalendars: hasSelectedCalendars,
+                highlightImminentEvent: highlightImminentEvent,
+                imminentLeadMinutes: imminentLeadMinutes
+            ),
             title: StatusBarTitleSettings(
                 titleFormat: titleFormat,
                 titleLength: titleLength,
@@ -60,12 +70,14 @@ final class StatusBarPresentationTests: XCTestCase {
     private func event(
         title: String? = "Weekly sync",
         meetingService: MeetingServices? = .zoom,
-        participation: StatusBarEventParticipation = .normal
+        participation: StatusBarEventParticipation = .normal,
+        startsIn: TimeInterval = 600,
+        lasting: TimeInterval = 1800
     ) -> StatusBarEventPresentationInput {
         StatusBarEventPresentationInput(
             title: title,
-            startDate: now.addingTimeInterval(600),
-            endDate: now.addingTimeInterval(2400),
+            startDate: now.addingTimeInterval(startsIn),
+            endDate: now.addingTimeInterval(startsIn + lasting),
             meetingService: meetingService,
             participation: participation
         )
@@ -329,5 +341,102 @@ final class StatusBarPresentationTests: XCTestCase {
         )
 
         XCTAssertEqual(presentation.layout, .inline(showTime: false))
+    }
+
+    // MARK: - Emphasis when the meeting is about to start
+    //
+    // The menu bar has no button to mute, so the dropdown's "is this actionable
+    // yet" signal shows up here as weight instead: normal all day, heavier once
+    // the meeting is within the shared lead window.
+
+    private func emphasis(
+        startsIn: TimeInterval,
+        lasting: TimeInterval = 1800,
+        participation: StatusBarEventParticipation = .normal,
+        enabled: Bool = true,
+        leadMinutes: Int = 2,
+        pendingDisplay: StatusBarParticipationDisplay = .normal,
+        timeDisplay: StatusBarTimeDisplay = .show
+    ) -> Bool {
+        StatusBarPresenter.presentation(
+            nextEvent: event(
+                participation: participation,
+                startsIn: startsIn,
+                lasting: lasting
+            ),
+            settings: presenterSettings(
+                timeDisplay: timeDisplay,
+                pendingDisplay: pendingDisplay,
+                highlightImminentEvent: enabled,
+                imminentLeadMinutes: leadMinutes
+            ),
+            now: now,
+            calendar: calendar()
+        ).emphasizeTitle
+    }
+
+    func testTitleIsNotEmphasisedWhileTheMeetingIsStillAWayOff() {
+        XCTAssertFalse(emphasis(startsIn: 600))
+    }
+
+    func testTitleIsEmphasisedInsideTheLeadWindow() {
+        XCTAssertTrue(emphasis(startsIn: 60))
+    }
+
+    func testTitleIsEmphasisedWhileTheMeetingIsRunning() {
+        XCTAssertTrue(emphasis(startsIn: -300))
+    }
+
+    func testTitleIsNotEmphasisedOnceTheMeetingHasEnded() {
+        XCTAssertFalse(emphasis(startsIn: -3600, lasting: 1800))
+    }
+
+    func testEmphasisRespectsTheToggle() {
+        XCTAssertFalse(emphasis(startsIn: 60, enabled: false))
+    }
+
+    func testEmphasisFollowsTheSharedLeadSetting() {
+        // 30 minutes out is not imminent at the default lead, but is at 60.
+        XCTAssertFalse(emphasis(startsIn: 1800, leadMinutes: 2))
+        XCTAssertTrue(emphasis(startsIn: 1800, leadMinutes: 60))
+    }
+
+    /// A pending meeting rendered inactive is dimmed precisely because it is not
+    /// yet yours; shouting about it a minute beforehand would argue with that.
+    ///
+    /// Stacked layout on purpose — `titleStyle` only resolves `.inactive` there
+    /// (inline keeps `.normal`), so this is the only layout where a meeting is
+    /// actually dimmed and the interaction can be observed at all.
+    func testADimmedMeetingIsNeverEmphasised() {
+        XCTAssertFalse(
+            emphasis(
+                startsIn: 60,
+                participation: .pending,
+                pendingDisplay: .inactive,
+                timeDisplay: .showUnderTitle
+            )
+        )
+    }
+
+    func testANormalMeetingIsStillEmphasisedWhenPendingsAreDimmed() {
+        // Guards the rule above against over-reach: dimming pendings must not
+        // switch emphasis off for everyone else.
+        XCTAssertTrue(
+            emphasis(
+                startsIn: 60,
+                participation: .normal,
+                pendingDisplay: .inactive,
+                timeDisplay: .showUnderTitle
+            )
+        )
+    }
+
+    /// In inline layout a pending meeting is NOT dimmed (`titleStyle` returns
+    /// `.normal`), so emphasis is consistent with how it already looks. Pins that
+    /// asymmetry so it is a decision rather than a surprise.
+    func testAPendingMeetingIsEmphasisedInInlineLayoutWhereItIsNotDimmed() {
+        XCTAssertTrue(
+            emphasis(startsIn: 60, participation: .pending, pendingDisplay: .inactive)
+        )
     }
 }

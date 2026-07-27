@@ -256,6 +256,8 @@
 "preferences_menubar_quiet_toggle" = "Keep the menu bar quiet until a meeting is close";
 "preferences_menubar_quiet_stepper" = "within %d minutes";
 "preferences_menubar_quiet_example" = "e.g. at 30m, a 2:00 meeting shows in the menu bar at 1:30 — before that you see an alarm icon.";
+"preferences_menubar_highlight_imminent_toggle" = "Bolden the meeting when it's about to start";
+"preferences_menubar_highlight_imminent_help" = "Uses the same lead time as the dropdown's join buttons, set on the Dropdown page. Declined and tentative meetings keep their dimmed look.";
 "preferences_menubar_countdown_style_title" = "Write the countdown as";
 "preferences_menubar_countdown_style_compact" = "2h";
 "preferences_menubar_countdown_style_full" = "2h 30m";

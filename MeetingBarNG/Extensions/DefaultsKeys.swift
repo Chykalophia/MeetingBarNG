@@ -225,6 +225,13 @@ extension Defaults.Keys {
     /// as something most people should ever see.
     static let dropdownMaxEventRows = Key<Int>("dropdownMaxEventRows", default: 10)
 
+    /// Whether the menu bar draws the next meeting in a heavier weight once it is
+    /// within `eventActionHighlightMinutes`. ON by default: the emphasis is rare,
+    /// so it carries real signal, and it costs nothing the rest of the day
+    /// because the resting appearance is unchanged.
+    static let menuBarHighlightImminentEvent = Key<Bool>(
+        "menuBarHighlightImminentEvent", default: true)
+
     // appearance of pending events should be shown in the statusbar and menu
     static let showPendingEvents = Key<PendingEventsAppereance>(
         "showPendingEvents", default: PendingEventsAppereance.show)

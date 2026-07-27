@@ -14,7 +14,11 @@ extension StatusBarPresentationSettings {
         StatusBarPresentationSettings(
             hasSelectedCalendars: !Defaults[.selectedCalendarIDs].isEmpty,
             showEventMaxTimeUntilEventEnabled: Defaults[.showEventMaxTimeUntilEventEnabled],
-            showEventMaxTimeUntilEventThreshold: Defaults[.showEventMaxTimeUntilEventThreshold]
+            showEventMaxTimeUntilEventThreshold: Defaults[.showEventMaxTimeUntilEventThreshold],
+            highlightImminentEvent: Defaults[.menuBarHighlightImminentEvent],
+            // Same key the dropdown's action buttons read, so "close enough to
+            // act on" means one thing everywhere rather than drifting apart.
+            imminentLeadMinutes: Defaults[.eventActionHighlightMinutes]
         )
     }
 }

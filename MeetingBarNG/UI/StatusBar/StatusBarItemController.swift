@@ -161,6 +161,7 @@ final class StatusBarItemController {
             keys: .statusbarEventTitleLength, .eventTimeFormat,
             .eventTitleIconFormat, .showEventMaxTimeUntilEventThreshold,
             .showEventMaxTimeUntilEventEnabled, .showEventDetails,
+            .menuBarHighlightImminentEvent, .eventActionHighlightMinutes,
             .shortenEventTitle, .menuEventTitleLength,
             .showEventEndTime, .showMeetingServiceIcon,
             .showEventCalendarColor, .showMeetingPrepLinks,
@@ -1010,7 +1011,10 @@ enum StatusBarTitleRenderer {
                 string: eventTitle,
                 attributes: titleAttributes(
                     style: presentation.titleStyle,
-                    font: NSFont.systemFont(ofSize: MenuStyleConstants.defaultFontSize)
+                    font: titleFont(
+                        ofSize: MenuStyleConstants.defaultFontSize,
+                        emphasized: presentation.emphasizeTitle
+                    )
                 )
             )
         case .stacked:
@@ -1018,12 +1022,22 @@ enum StatusBarTitleRenderer {
         }
     }
 
+    /// Weight, not colour, carries the emphasis: the menu bar sits on wallpaper
+    /// the app cannot see, so a colour that reads as urgent against one is
+    /// invisible against another, and the system already owns menu-bar tinting
+    /// for light/dark and accent. Weight is legible everywhere.
+    private static func titleFont(ofSize size: CGFloat, emphasized: Bool) -> NSFont {
+        emphasized
+            ? NSFont.systemFont(ofSize: size, weight: .bold)
+            : NSFont.systemFont(ofSize: size)
+    }
+
     private static func stackedTitle(for presentation: StatusBarPresentation) -> NSAttributedString {
         let title = NSMutableAttributedString(
             string: presentation.title,
             attributes: titleAttributes(
                 style: presentation.titleStyle,
-                font: NSFont.systemFont(ofSize: 12),
+                font: titleFont(ofSize: 12, emphasized: presentation.emphasizeTitle),
                 baselineOffset: -3
             )
         )
