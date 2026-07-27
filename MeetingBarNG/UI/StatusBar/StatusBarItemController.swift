@@ -282,7 +282,8 @@ final class StatusBarItemController {
         guard event == nil || event?.type == .leftMouseDown || event?.type == .leftMouseUp else {
             return
         }
-        // Opt-in preview: the classic NSMenu stays the default.
+        // Opt-OUT fallback: the panel is the default (`useSwiftUIDropdown` ships
+        // `true`), so this branch runs only for a user who has turned it off.
         guard Defaults[.useSwiftUIDropdown] else {
             openMenu()
             return

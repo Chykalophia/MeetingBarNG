@@ -61,8 +61,9 @@ enum EventDeduplication {
     /// same event across calendars/accounts carry the same one. When it's
     /// missing (nil or empty — e.g. a Google-backed event or a local event
     /// without one) fall back to a composite of the normalized title and the
-    /// exact time window, which catches true duplicates that differ only by the
-    /// calendar they came from. Prefixes keep the two key spaces from colliding.
+    /// STARTING MINUTE, which catches true duplicates that differ only by the
+    /// calendar they came from — or by an end time the user cannot see.
+    /// Prefixes keep the two key spaces from colliding.
     private static func deduplicationKey(for event: DeduplicationEvent) -> String {
         if let externalIdentifier = event.externalIdentifier, !externalIdentifier.isEmpty {
             return "ext:\(externalIdentifier)"

@@ -251,8 +251,10 @@ private struct CalendarSelectionEmptyState: View {
 
 // MARK: - Reminders permission
 
-/// Moved here from the Display tab: every permission the app asks for now lives
-/// on one pane. macOS owns the answer, so once it has been given the switch
+/// Moved here from the Display tab so permissions are discoverable in one place.
+/// It is not the only route: enabling reminders in the Dropdown pane requests the
+/// same access as a side effect. This is the pane that asks for it *as* a
+/// permission. macOS owns the answer, so once it has been given the switch
 /// stops pretending the app can take it back — and a denied prompt leaves a
 /// stated denial instead of a switch that silently springs back.
 private struct RemindersPermissionSection: View {

@@ -59,7 +59,11 @@ See [`ROADMAP.md`](ROADMAP.md) for the full build-out plan.
 ### Calendar providers
 * **macOS Calendar** — any account synced with Calendar.app (iCloud, Google, Exchange,
   Office 365, Yahoo, AOL, and others).
-* **Google Calendar** — connect Google Calendar directly.
+* **Google Calendar** — Google accounts work today through the macOS Calendar provider
+  above. The *direct* Google provider is currently not offered in onboarding: this build
+  ships without OAuth credentials, so the picker lists macOS Calendar only. The provider
+  code is retained for installs already using it, and for local builds that supply their
+  own credentials (see below).
 
 ### Supported meeting services
 More than 50 services, including Google Meet, Zoom, Microsoft Teams, Webex, GoToMeeting,
@@ -98,7 +102,7 @@ The complete parity checklist and the deferred rename/overhaul backlog live in
 
 ## Build from source
 
-MeetingBarNG requires **macOS 12.0 or later** and is built with Xcode, Swift 6, AppKit,
+MeetingBarNG requires **macOS 15.0 or later** and is built with Xcode, Swift 6, AppKit,
 SwiftUI, and Xcode-managed Swift Package dependencies.
 
 For local signing, create `XCConfig/DevTeamOverride.xcconfig` with your Apple development
@@ -118,8 +122,12 @@ gracefully with a "not configured" message.
 Copy `XCConfig/GoogleSecrets.xcconfig.example` to `XCConfig/GoogleSecrets.xcconfig`
 (git-ignored) and follow the steps in that file to create an OAuth client in the
 [Google Cloud Console](https://console.cloud.google.com/apis/credentials) and fill in
-`GOOGLE_CLIENT_NUMBER`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_AUTH_KEYCHAIN_NAME`. Rebuild
-and pick "Google Calendar" in onboarding.
+`GOOGLE_CLIENT_NUMBER`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_AUTH_KEYCHAIN_NAME`.
+
+Note that supplying credentials is not sufficient on its own today: onboarding's source
+picker is currently hard-limited to macOS Calendar
+(`CalendarSourcePresentation.all`), so re-enabling the direct Google provider also means
+restoring it there. Tracked in [`ROADMAP.md`](ROADMAP.md).
 
 Common commands:
 

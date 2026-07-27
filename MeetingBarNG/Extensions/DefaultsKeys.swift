@@ -127,9 +127,12 @@ extension Defaults.Keys {
 
     // Composable menu dropdown (MeetingBarNG)
     // Ordered `DropdownModule` raw values driving the dropdown's section order.
-    // Empty ⇒ standard order (`DropdownCompositionPolicy` reappends any missing
-    // modules), so existing installs render exactly as before. Stored as strings
-    // so unknown/renamed modules degrade gracefully.
+    // Defaults to the standard order already materialized, so a fresh install
+    // renders exactly as before without consulting the policy. An empty or
+    // partial array — after a reset, or from a build that knew fewer modules —
+    // is handled too: `DropdownCompositionPolicy` reappends whatever is missing
+    // in standard order. Stored as strings so unknown/renamed modules degrade
+    // gracefully.
     static let dropdownModuleOrder = Key<[String]>(
         "dropdownModuleOrder", default: DropdownComposition.standard.modules.map(\.rawValue))
     // Per-module enabled state. greeting/timeline reuse the existing keys above

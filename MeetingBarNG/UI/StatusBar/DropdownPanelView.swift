@@ -51,10 +51,13 @@
 //      actions (dismiss / remove all dismissals / open link from clipboard /
 //      toggle the menu-bar meeting title / refresh sources) were reachable only
 //      by keyboard shortcut. They are back — behind ONE "More actions" row in
-//      the Join block, as a SwiftUI `Menu`, rather than five more top-level rows
-//      in a panel whose whole point is that it is quiet. Camera check and World
-//      clock ride along from the right-click quick-actions menu, since that is
-//      the only other place they appear;
+//      the Join block, rather than five more top-level rows in a panel whose
+//      whole point is that it is quiet. That row is a plain `PanelRow` that
+//      flies out a native `NSMenu`, NOT a SwiftUI `Menu` — see the note on
+//      `moreActionsRow` for why the SwiftUI control could not be made to sit on
+//      the shared row grid. Camera check and World clock ride along from the
+//      right-click quick-actions menu, since that is the only other place they
+//      appear;
 //    • `now` was a plain stored property, so while the panel was OPEN nothing
 //      advanced: the countdown, the "in 25m" line, the timeline's now-marker and
 //      the running/past row styling all froze at the instant it opened. `now` is

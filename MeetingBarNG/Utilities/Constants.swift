@@ -234,8 +234,15 @@ let eventStartScriptPlaceholder = """
 # 9. parameter - meetingUrl (string) - the url to the meeting found in notes, url or location - only one meeting url is supported - if no meeting url is set, the value will be "EMPTY"
 # 10. parameter - meetingService (string), e.g MS Teams or Zoom- if no meeting service is found, the meeting service value is "EMPTY"
 # 11. parameter - meetingNotes (string)- the complete notes of a meeting -  if no notes are set, value "EMPTY" will be used
+# 12. parameter - calendarName (string) - the name of the calendar this event belongs to
+# 13. parameter - calendarSource (string) - the source/account of the calendar (e.g. iCloud, Gmail)
+# 14. parameter - attendees (string) - event attendees as "Name <email>", comma-separated
+#
+# Keep this signature in step with createAppleScriptParametersForEvent in
+# Scripts.swift: the handler must declare EVERY parameter the app sends, or
+# AppleScript rejects the event and the script never runs.
 
-on meetingStart(eventId, title, allday, startDate, endDate, eventLocation, repeatingEvent, attendeeCount, meetingUrl, meetingService, meetingNotes)
+on meetingStart(eventId, title, allday, startDate, endDate, eventLocation, repeatingEvent, attendeeCount, meetingUrl, meetingService, meetingNotes, calendarName, calendarSource, attendees)
    tell application "Finder"
        activate
        display dialog title buttons {"OK"} default button "OK"

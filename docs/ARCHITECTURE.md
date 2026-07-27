@@ -1,6 +1,6 @@
 # MeetingBarNG Architecture
 
-MeetingBarNG is a fork of [MeetingBar](https://github.com/leits/MeetingBar). This document is the contributor-facing map of the codebase. It is the canonical reference for app structure, dependency ownership, and release-sensitive configuration. Internal module, target, and bundle names still use the historical "MeetingBar" name; see [`ROADMAP.md`](../ROADMAP.md) for the rename backlog.
+MeetingBarNG is a fork of [MeetingBar](https://github.com/leits/MeetingBar). This document is the contributor-facing map of the codebase. It is the canonical reference for app structure, dependency ownership, and release-sensitive configuration. The source folder, Xcode targets, product name and bundle id have all been renamed to MeetingBarNG; what remains of the rename backlog (Keychain/Defaults suite migration, App Store id) is tracked in [`ROADMAP.md`](../ROADMAP.md).
 
 If anything below disagrees with the actual code, the code wins — and the doc needs a fix.
 
@@ -9,7 +9,7 @@ If anything below disagrees with the actual code, the code wins — and the doc 
 
 ## What MeetingBar is, in one paragraph
 
-MeetingBar is a macOS menu-bar app that reads calendars (Apple Calendar via EventKit, Google Calendar via OAuth2), shows the next event in the system status bar, opens the right meeting URL when you click "Join", and fires notifications around event start/end. It is `NSApplicationDelegate`-based (AppKit) with SwiftUI used for Preferences/Onboarding/Fullscreen views. macOS 12+ minimum, Swift 6.
+MeetingBarNG is a macOS menu-bar app that reads calendars (Apple Calendar via EventKit; a Google Calendar OAuth2 provider exists in code but is currently absent from onboarding — see "Calendar providers" below), shows the next event in the system status bar, opens the right meeting URL when you click "Join", and fires notifications around event start/end. It is `NSApplicationDelegate`-based (AppKit), with SwiftUI used for the dropdown panel, Preferences, Onboarding, and the auxiliary windows. macOS 15+ minimum, Swift 6.
 
 The product principle is reliability first: **show the correct meeting, stay fresh, stay visible, open the right link**. New settings are a last resort — improve the default behavior instead.
 
@@ -48,9 +48,11 @@ The product principle is reliability first: **show the correct meeting, stay fre
         ┌────────────▼──────────────┬──────────────────┐
         │ StatusBar                 │ Notification     │
         │ ItemController            │ Scheduler        │
-        │ + MenuBuilder             │ (mb-plan-…)      │
-        │ (via StatusBarMenuState)  │ + delayed Tasks  │
-        │                           │ + ActionRunner   │
+        │ (via StatusBarMenuState)  │ (mb-plan-…)      │
+        │   ├─ DropdownPanelView    │ + delayed Tasks  │
+        │   │    (SwiftUI, DEFAULT) │ + ActionRunner   │
+        │   └─ MenuBuilder          │                  │
+        │        (NSMenu, fallback) │                  │
         └───────┬───────────────────┴──────────────────┘
                 │
                 ▼
@@ -59,12 +61,23 @@ The product principle is reliability first: **show the correct meeting, stay fre
 
 **Read this top-down** when debugging "the menu bar shows the wrong thing": the bug is at one of these layers, not spread across them.
 
+**Two dropdowns, one state.** `useSwiftUIDropdown` ships `true`, so a click opens
+`DropdownPanelView` — a SwiftUI view hosted in a bespoke `NSWindow` — and the classic
+`NSMenu` from `MenuBuilder` is the opt-out fallback. Both are built from the same
+`StatusBarMenuState`, and both are maintained: a change to what the dropdown shows usually
+has to land twice. Comments across `DropdownPanelView` refer to this as "NSMenu parity".
+
+The panel exists to do things an `NSMenuItem` cannot — per-row hover affordances, an
+inline join button, expandable event detail. The cost is that anything menu-shaped inside
+it has to be built by hand: the "More actions" row is a plain row that pops a native
+`NSMenu`, because a SwiftUI `Menu` could not be made to sit on the shared row grid.
+
 ---
 
 ## Directory map
 
 ```
-MeetingBar/                         (~76 .swift files)
+MeetingBarNG/                       (~120 .swift files)
 ├── App/                            — process lifecycle, OS integration
 │   ├── AppDelegate.swift           — @main; composition root; wires LifecycleObserver, URLHandler, AppModel
 │   ├── AppMessageCenter.swift      — one adapter for user notifications and fallback alerts
@@ -73,7 +86,6 @@ MeetingBar/                         (~76 .swift files)
 │   ├── AppRuntimeBridge.swift      — AppKit/SwiftUI bridge helpers used at the composition root
 │   ├── LifecycleObserver.swift     — screen-lock / wake / timezone / day-change notifications
 │   ├── Notifications.swift         — shared notification identifiers and data types
-│   ├── PatronageService.swift      — StoreKit 2 purchases, restore, entitlements, transaction updates
 │   ├── URLHandler.swift            — apple-event URL dispatch (oauth, preferences)
 │   └── WindowCoordinator.swift     — window lifecycle for Onboarding, Preferences, Changelog, Fullscreen
 │
@@ -117,15 +129,37 @@ MeetingBar/                         (~76 .swift files)
 ├── Settings/
 │   └── AppSettings.swift           — value-type settings groups + AppSettings.current factory (single Defaults boundary)
 │
-├── Preferences/                    — SwiftUI Settings window tabs (General, Calendars, Meeting Opening, Menu Bar, Notifications, Advanced)
+├── Preferences/                    — 8-pane SwiftUI window: Calendars, Filters, Menu Bar,
+│                                     Dropdown, Grid (calendar window), Joining, Alerts, General
+│   ├── PreferencesShellV2.swift    — THE live shell: NavigationSplitView + PreferencesWindowMetrics
+│   ├── SettingsIndex.swift         — PreferencesTab enum + searchable settings index
+│   ├── PreferencesDesign.swift     — shared chrome (.annotation, PreferencesCard, PreferenceCallout)
+│   ├── PreferencesNavigation.swift — one-shot "take me to that pane" channel
+│   ├── DisplayPreviewPane.swift    — mounts the REAL DropdownPanelView against fixtures
+│   └── Preferences.swift           — legacy PreferencesView, now dead code (only its own #Preview)
 ├── Onboarding/                     — multi-screen first-launch flow
 ├── UI/
-│   ├── StatusBar/                  — menu bar item, menu construction, presentation
+│   ├── StatusBar/                  — menu bar item, BOTH dropdowns, presentation
 │   │   ├── StatusBarItemController.swift   — owns NSStatusItem, render only
-│   │   ├── MenuBuilder.swift               — builds NSMenu from StatusBarMenuState (zero Defaults reads)
+│   │   ├── DropdownPanelView.swift         — the DEFAULT dropdown (SwiftUI in an NSWindow)
+│   │   ├── DropdownPanelNavigation.swift   — hostless keyboard-navigation model [SPM]
+│   │   ├── DropdownComposition.swift       — module order policy [SPM]
+│   │   ├── DropdownMetrics.swift           — the panel's shared layout grid [SPM]
+│   │   ├── DropdownPanelPlacement.swift    — where the panel opens [SPM]
+│   │   ├── EventActionProminence.swift     — "is this meeting worth acting on yet" [SPM]
+│   │   ├── MeetingSummaryView.swift        — the meeting card, shared by BOTH dropdowns
+│   │   ├── MenuBuilder.swift               — builds the classic NSMenu (fallback path)
 │   │   ├── StatusBarMenuState.swift        — value type + .make(from:) factory
+│   │   ├── StatusBarTickPolicy.swift       — when to re-render a live countdown [SPM]
+│   │   ├── DaySummaryGreeting.swift        — greeting + focus-time copy [SPM]
+│   │   ├── WorldClockPanel.swift           — world-clock token policy [SPM]
 │   │   ├── StatusBarPresentation.swift     — Presentation + Title + Icon policies and Presenter [SPM]
 │   │   └── StatusBarPresentation+MeetingBar.swift — Defaults adapters for all three policies
+│   ├── CommandBar/                 — ⌘-driven create / search / settings palette
+│   ├── Calendar/                   — month grid window (CalendarGridView + ViewModel)
+│   ├── EventEditor/                — in-app event create/edit
+│   ├── CameraPreview/              — camera + mic check before joining
+│   ├── WorldClock/                 — world-clock panel window
 │   └── Views/                      — remaining SwiftUI views (DayTimelineView, FullscreenNotification, Changelog/)
 │
 ├── Utilities/
@@ -144,7 +178,7 @@ MeetingBar/                         (~76 .swift files)
 └── Resources /Localization /       — Localizable.strings, 20+ locales (Weblate)
 ```
 
-Tests live in `MeetingBarTests/` (host-app tests, AppKit-aware) and `MeetingBarLogicTests/` (hostless, Package.swift, fast).
+Tests live in `MeetingBarNGTests/` (host-app tests, AppKit-aware) and `MeetingBarLogicTests/` (hostless, Package.swift, fast).
 
 ---
 
@@ -295,9 +329,11 @@ Within one source, longer URLs win when one is a prefix of another (Zoom truncat
 | Suite | Location | Run with | Speed | Use for |
 |---|---|---|---|---|
 | Hostless | `MeetingBarLogicTests/` | `make test-logic` | Fast (~1s) | Policies, formatters, link detection, plan generation |
-| Host | `MeetingBarTests/` | `make test` | Slower, launches app | `MenuBuilder`, status item rendering, anything that needs `NSImage`/AppKit |
+| Host | `MeetingBarNGTests/` | `make test` | Slower, launches app | `MenuBuilder`, status item rendering, anything that needs `NSImage`/AppKit |
 
-**Default to hostless.** A test that needs to launch the app is a signal that you are testing a service, not a policy. That is fine — but write it consciously. Hostless tests run on every PR and contribute the bulk of the 200+ test count.
+**Default to hostless.** A test that needs to launch the app is a signal that you are testing a service, not a policy. That is fine — but write it consciously. Hostless tests run on every PR and are the majority of the suite: roughly 568 hostless (`swift test`, sub-second) against 465 host-app tests.
+
+**`MeetingBarLogicTests` cannot see app-target files.** `Package.swift` uses an explicit `sources:` allowlist, not a glob, so a policy is only hostless-testable once its file is added to that array. Anything outside it — `DropdownPanelView`, `MenuBuilder`, the Preferences panes — can only be tested from `MeetingBarNGTests`. A green `swift test` says nothing about those files.
 
 `BaseTestCase` (host suite) snapshots and restores `UserDefaults` around each test. `FakeEventStore` lets you inject controlled event lists into `CalendarSync`.
 
@@ -334,7 +370,6 @@ Long-running or delayed work must have one stored owner and an explicit cancella
 | Active provider operations | `CalendarRepository` / `EventStore` | provider switch and `stop()` call `cancelPendingOperations()` |
 | Google OAuth sign-in, token refresh, external authorization session | `GCEventStore` | sign-out, provider switch, app termination |
 | Delayed fullscreen, auto-join, and event-start script actions | `NotificationScheduler` | reconcile removes stale plans; `stop()` cancels all |
-| StoreKit transaction update listener | `PatronageService` | `stop()` |
 | Lifecycle notification registrations | `LifecycleObserver` | `stop()` |
 
 Deliberate bounded exceptions:
@@ -428,9 +463,20 @@ make test-quiet      # Full suite with filtered output
 make test-logic      # Hostless logic tests only — fast
 make test-logic-quiet # Hostless logic tests with filtered output
 make lint            # SwiftLint
+make lint-fix        # SwiftLint with autocorrect
 make validate-strings # Verify every .loco() key exists in en.lproj/Localizable.strings
+make lint-strings    # Two-way check: nothing used-but-undefined, nothing defined-but-orphaned
+make coverage        # Full suite with coverage
+make coverage-gate   # Fail if hostless coverage drops below the floor
+make test-summary    # Human-readable summary of the last .xcresult
 make open            # Open in Xcode
+
+# Local run loop — use these, not `make build` + double-clicking the .app:
+make run-local       # build + self-sign + launch
+make sign-local      # re-sign an already-built app
 ```
+
+**Why `run-local` exists.** `xcodebuild` here produces an UNSIGNED app, and macOS ties TCC grants (Calendar, Reminders, Camera, Mic) to a stable code signature. Every unsigned rebuild therefore looks like a different app and silently loses permission — the app reads as "granted" while EventKit returns nothing. `sign-local` re-signs with a stable local identity so grants survive rebuilds. If you are debugging "why did my calendar go empty after a rebuild", this is the answer. See the comment block at the top of the `Makefile`.
 
 Local dev team override: create `XCConfig/DevTeamOverride.xcconfig` (git-ignored) with `DEVELOPMENT_TEAM = <id>`.
 
@@ -440,7 +486,7 @@ SwiftLint disabled rules: `file_length`, `function_body_length`, `type_body_leng
 
 ## Dependencies And Release-sensitive Files
 
-Direct app dependencies are declared as Xcode Swift Package references in `MeetingBar.xcodeproj/project.pbxproj` and pinned by `MeetingBar.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`.
+Direct app dependencies are declared as Xcode Swift Package references in `MeetingBarNG.xcodeproj/project.pbxproj` and pinned by `MeetingBarNG.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`.
 
 | Package | Project requirement | Current resolved version | Purpose |
 |---|---|---|---|
@@ -449,7 +495,7 @@ Direct app dependencies are declared as Xcode Swift Package references in `Meeti
 | LaunchAtLogin | `5.0.2 ..< 6.0.0` | `5.0.2` | Login item integration |
 | AppAuth-iOS | `2.0.0 ..< 3.0.0` | `2.0.0` | Google OAuth |
 
-`swift-syntax 601.0.1` is currently transitive. StoreKit 2 is an Apple system framework used by `PatronageService`; it is not an external package dependency, and no external StoreKit package is used.
+`swift-syntax 601.0.1` is currently transitive. StoreKit is NOT used: MeetingBarNG removed the upstream patronage service, so there are no in-app purchases, no StoreKit framework use, and no StoreKit package dependency.
 
 `Package.swift` defines the hostless `MeetingBarLogic` SwiftPM target and its tests. Keep it aligned with pure policy files that need fast `swift test` coverage, but do not use it as the source of truth for app package dependencies.
 
@@ -463,17 +509,17 @@ When updating a dependency:
 
 Treat these as release-sensitive files. Changes should be named in PR notes and covered by CI or local validation where possible:
 
-- `MeetingBar.xcodeproj/project.pbxproj`
-- `MeetingBar.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
+- `MeetingBarNG.xcodeproj/project.pbxproj`
+- `MeetingBarNG.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
 - `Package.swift`
 - `XCConfig/**`
-- `MeetingBar/MeetingBar.entitlements`
-- `MeetingBar/Info.plist`
+- `MeetingBarNG/MeetingBarNG.entitlements`
+- `MeetingBarNG/Info.plist`
 - `.github/workflows/**`
 - `Scripts/**`
-- `MeetingBar/Resources /Localization /en.lproj/Localizable.strings`
+- `MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings`
 
-Before a signed release, verify the configuration that unsigned local Debug builds cannot prove: signing team and provisioning, hardened runtime, sandbox capabilities, URL schemes, Google OAuth placeholders and callback scheme, App Store receipt classification, StoreKit 2 patronage products, launch-at-login helper behavior, and localization validation.
+Before a signed release, verify the configuration that unsigned local Debug builds cannot prove: signing team and provisioning, hardened runtime, sandbox capabilities, URL schemes, Google OAuth placeholders and callback scheme, App Store receipt classification, launch-at-login helper behavior, and localization validation.
 
 Standard release validation starts with:
 
@@ -484,7 +530,7 @@ make test
 make build-release
 ```
 
-Then manually smoke-test first launch/onboarding for EventKit and Google Calendar, provider switching and Google sign-out, wake/screen-lock/timezone/day-change refreshes, status-bar/menu states, meeting-link opening, notifications, fullscreen reminders, scripts, Preferences, diagnostics copy, app URL routes, and app termination while refresh, OAuth, delayed actions, or StoreKit updates are active.
+Then manually smoke-test first launch/onboarding for EventKit and Google Calendar, provider switching and Google sign-out, wake/screen-lock/timezone/day-change refreshes, status-bar/menu states, meeting-link opening, notifications, fullscreen reminders, scripts, Preferences, diagnostics copy, app URL routes, and app termination while refresh, OAuth, delayed actions or OAuth are active.
 
 ---
 
@@ -494,6 +540,6 @@ Then manually smoke-test first launch/onboarding for EventKit and Google Calenda
 - Contributor workflow: [`CONTRIBUTING.md`](../CONTRIBUTING.md)
 - Unreleased user-visible changes: [`CHANGELOG.md`](../CHANGELOG.md)
 - Security and contact: [`SECURITY.md`](../SECURITY.md), [`CONTACT.md`](../CONTACT.md)
-- Localization: `MeetingBar/Resources /Localization /` (note the spaces in the path — historical)
-- Meeting service URL patterns: [`MeetingBar/Meetings/MeetingServices.swift`](../MeetingBar/Meetings/MeetingServices.swift)
-- All persistent settings keys: [`MeetingBar/Extensions/DefaultsKeys.swift`](../MeetingBar/Extensions/DefaultsKeys.swift)
+- Localization: `MeetingBarNG/Resources /Localization /` (note the spaces in the path — historical)
+- Meeting service URL patterns: [`MeetingBarNG/Meetings/MeetingServices.swift`](../MeetingBarNG/Meetings/MeetingServices.swift)
+- All persistent settings keys: [`MeetingBarNG/Extensions/DefaultsKeys.swift`](../MeetingBarNG/Extensions/DefaultsKeys.swift)

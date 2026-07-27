@@ -14,7 +14,7 @@ them. This is the map.
 ## Wave 1 — menu-bar modernness
 
 ### 1. Composable menu-bar tokens: progress / week / world-clock
-- **Where:** Preferences ▸ **Menu Builder** ▸ menu-bar title composer → **Add token**.
+- **Where:** Preferences ▸ **Menu Bar** ▸ menu-bar title composer → **Add token**.
 - **Test:** Add **Progress bar** (pick Day or Year), **Week number**, and **World clock**
   (choose a time zone + a short label like "SF"). Watch the menu-bar title update.
   Progress refreshes each minute; the bar is a Unicode block (e.g. `███▍░░░░`).
@@ -58,7 +58,7 @@ them. This is the map.
   setup, so you pick Google Meet vs the Zoom default up front instead of discovering it in Preferences.
 
 ### 8. Menu Builder (visual dropdown composer)
-- **Where:** Preferences ▸ **Menu Builder** (new tab).
+- **Where:** Preferences ▸ **Dropdown** (new tab).
 - **Test:** Toggle + reorder the dropdown's sections (Greeting, Timeline, Meeting, Agenda,
   Join, Bookmarks) with a live preview; the Preferences footer stays pinned. Reopen the
   dropdown to see your layout. *(Note: in the default layout a hairline separator now sits

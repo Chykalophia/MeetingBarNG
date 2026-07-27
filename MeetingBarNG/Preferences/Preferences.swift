@@ -261,7 +261,7 @@ private func preferencesTabContent(_ tab: PreferencesTab) -> some View {
 ///
 /// Phase 2 strips colons at source in `en.lproj`, so for migrated strings this
 /// is a no-op. It stays until every pane has been through the migration —
-/// deleting it while ~37 call sites still read un-migrated keys would print
+/// deleting it while call sites still read un-migrated keys would print
 /// "All-day events:" inside a grouped form that supplies its own alignment.
 /// Remove it once the last caller is gone, not before.
 func preferenceLabel(_ key: String) -> String {

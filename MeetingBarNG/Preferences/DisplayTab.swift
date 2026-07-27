@@ -316,7 +316,9 @@ struct DropdownComposerSection: View {
 /// Dropdown settings that are NOT plain on/off duplicates of a composer module:
 /// the Reminders toggles. The greeting NAME field moved into the greeting
 /// block's gear popover. Reminders is not a composer module, so its on/off
-/// toggle stays here (it is also the only place that requests Reminders access).
+/// toggle stays here. It requests Reminders access as a side effect, as does the
+/// permission toggle on the Calendars pane — two entry points, one system
+/// permission; neither is exclusive.
 struct DropdownDisplaySection: View {
     @Default(.showRemindersInMenu) var showRemindersInMenu
     @Default(.remindersIncludeOverdue) var remindersIncludeOverdue
@@ -355,8 +357,10 @@ struct DropdownDisplaySection: View {
                 isEnabled: true
             )
             Divider()
-            // Reminders (Dot parity). Turning this on is the ONLY place that
-            // requests Reminders access — the setting only flips on if granted.
+            // Reminders (Dot parity). Turning this on requests Reminders access
+            // and only flips on if granted. NOT the only such gate — the
+            // permission toggle on the Calendars pane requests the same access
+            // independently; both drive one system permission.
             Toggle(
                 preferenceLabel("preferences_dropdown_reminders_toggle"),
                 isOn: showRemindersBinding

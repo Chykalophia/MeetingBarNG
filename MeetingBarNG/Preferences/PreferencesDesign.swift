@@ -5,8 +5,8 @@
 //  Copyright © 2026 Peter Krzyzek / Chykalophia. All rights reserved.
 //
 //  Rebuilt from scratch to follow the Ice 2 (teddychan/ice-2) visual
-//  language: annotation-style help text under controls, a group box with
-//  quinary fill (no hairline border), a simpler callout, and a cleaner
+//  language: annotation-style help text under controls, a group box with a
+//  material fill (no hairline border), a simpler callout, and a cleaner
 //  disclosure label. The old PreferencesCard used a windowBackgroundColor
 //  fill + separatorColor hairline that fought the grouped form style;
 //  the old PreferenceCallout had a heavy tinted background. Both are
@@ -121,8 +121,8 @@ extension View {
 // MARK: - Group box (for non-form content like the About card)
 
 /// A titled content group matching Ice 2's `IceGroupBox`: a VStack with
-/// an optional header, content in a rounded rectangle with `Color.primary
-/// .quinary` fill (no hairline border), and an optional footer. Uses
+/// an optional header, content in a rounded rectangle with a
+/// `.regularMaterial` fill (no hairline border), and an optional footer. Uses
 /// `.focusSection()` for keyboard focus traversal.
 ///
 /// Use this for content that sits OUTSIDE a grouped form (e.g. the About
@@ -181,8 +181,8 @@ struct PreferencesCard<Content: View>: View {
 // MARK: - Callout (advisory message)
 
 /// An SF Symbol plus a short advisory message on a muted background.
-/// Rebuilt to match Ice 2's `CalloutBox`: simpler, with a quinary fill
-/// and no heavy tint.
+/// Rebuilt to match Ice 2's `CalloutBox`: simpler, with an `.ultraThinMaterial`
+/// fill and no heavy tint.
 struct PreferenceCallout: View {
     let systemImage: String
     let message: String

@@ -2,9 +2,13 @@
 //  PreferencesShellV2.swift
 //  MeetingBarNG
 //
-//  Preferences shell hosted in a SwiftUI Settings scene. The scene provides
-//  proper window management — safe areas, title bar, toolbar — so
-//  NavigationSplitView lays out correctly with no content clipping.
+//  Preferences shell hosted in a plain `NSWindow` hand-built by
+//  `WindowCoordinator.openPreferencesWindow` — NOT a SwiftUI `Settings` scene;
+//  the app has none. Everything a Settings scene would have supplied is done
+//  explicitly there: the toolbar that makes AppKit draw titlebar chrome, the
+//  titlebar configuration, and safe-area propagation via
+//  `NSHostingController.safeAreaRegions = .all` — which is what lets
+//  NavigationSplitView lay out without clipping its content.
 //
 //  Uses .navigationTitle for the pane name (shows in the window's title bar,
 //  matching System Settings and Ice 2). The detail column is just the pane
