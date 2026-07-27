@@ -51,6 +51,7 @@ let package = Package(
                 "UI/StatusBar/DropdownMetrics.swift",
                 "UI/StatusBar/DropdownPanelNavigation.swift",
                 "UI/StatusBar/DropdownPanelPlacement.swift",
+                "UI/StatusBar/EventActionProminence.swift",
                 "UI/StatusBar/StatusBarTickPolicy.swift",
                 // Preferences (hostless core only; the tab Views are app-target)
                 "Preferences/AlertsPresentation.swift",

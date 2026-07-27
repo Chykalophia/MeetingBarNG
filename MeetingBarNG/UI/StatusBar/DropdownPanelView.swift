@@ -569,7 +569,8 @@ struct DropdownPanelView: View {
                 presentation: presentation,
                 onJoin: event.meetingLink == nil
                     ? nil
-                    : { handlers.joinEvent(event); handlers.dismiss() }
+                    : { handlers.joinEvent(event); handlers.dismiss() },
+                isActionImminent: isActionImminent(event)
             )
             .frame(width: Self.preferredWidth)
             .background(
@@ -1115,19 +1116,17 @@ struct DropdownPanelView: View {
         }
     }
 
-    /// Whether this event's row action is worth acting on RIGHT NOW: the meeting
-    /// is running, or it starts within `eventActionHighlightMinutes`.
-    ///
-    /// Drives styling only — the button stays present and clickable either way,
-    /// because joining early is legitimate. What it stops is a meeting six hours
-    /// out wearing the same bright call-to-action as one about to begin, which
-    /// reads as "click me now" when nothing needs clicking. `clock`, not `now`,
-    /// so a row un-mutes on its own as its meeting approaches while the panel
-    /// sits open.
+    /// Whether this event's action is worth acting on RIGHT NOW. `clock`, not
+    /// `now`, so a control un-mutes on its own as its meeting approaches while the
+    /// panel sits open. The rule itself lives in `EventActionProminence` because
+    /// the meeting card and the classic NSMenu apply the same one.
     private func isActionImminent(_ event: MBEvent) -> Bool {
-        if event.startDate <= clock { return clock < event.endDate }
-        let lead = Double(max(0, eventActionHighlightMinutes)) * 60
-        return event.startDate.timeIntervalSince(clock) <= lead
+        EventActionProminence.isImminent(
+            start: event.startDate,
+            end: event.endDate,
+            now: clock,
+            leadMinutes: eventActionHighlightMinutes
+        )
     }
 
     /// Inline detail disclosure. Deliberately NOT gated on `showEventDetails`:

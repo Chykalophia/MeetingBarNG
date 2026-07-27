@@ -31,6 +31,12 @@ struct MeetingSummaryView: View {
     let presentation: MeetingSummaryPresentation
     var onJoin: (() -> Void)?
 
+    /// Whether the Join control should read as a call to action. Defaults to
+    /// `true` so a caller that has not opted in keeps the original bright button
+    /// rather than silently getting a muted one. Computed by
+    /// `EventActionProminence` at every real call site.
+    var isActionImminent: Bool = true
+
     @State private var isHovered = false
 
     /// Derived rather than passed in: every call site computed exactly this, and
@@ -78,12 +84,24 @@ struct MeetingSummaryView: View {
 
             if onJoin != nil {
                 Spacer(minLength: 8)
+                // Muted rather than translucent when the meeting is still a way
+                // off: fading white-on-accent goes muddy, whereas a recessed fill
+                // still reads as a button — available, simply not urgent. Matches
+                // the event rows' trailing affordance exactly.
                 Text("notifications_meetingbar_join_event_action".loco())
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .font(.system(size: 12, weight: isActionImminent ? .semibold : .regular))
+                    .foregroundStyle(
+                        isActionImminent ? AnyShapeStyle(.white) : AnyShapeStyle(.secondary)
+                    )
                     .padding(.horizontal, 14)
                     .padding(.vertical, 5)
-                    .background(Capsule().fill(Color.accentColor))
+                    .background(
+                        Capsule().fill(
+                            isActionImminent
+                                ? AnyShapeStyle(Color.accentColor)
+                                : AnyShapeStyle(.quaternary)
+                        )
+                    )
                     .opacity(isHovered ? 1.0 : 0.9)
             }
         }

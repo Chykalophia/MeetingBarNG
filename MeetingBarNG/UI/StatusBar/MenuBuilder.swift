@@ -498,7 +498,15 @@ struct MenuBuilder {
         let presentation = meetingSummaryPresentation(for: event)
         let summary = MeetingSummaryView(
             presentation: presentation,
-            onJoin: onJoin
+            onJoin: onJoin,
+            // Same rule the panel applies, so the two dropdowns never disagree
+            // about whether a meeting is worth acting on yet.
+            isActionImminent: EventActionProminence.isImminent(
+                start: event.startDate,
+                end: event.endDate,
+                now: now,
+                leadMinutes: state.menu.eventActionHighlightMinutes
+            )
         )
         let hosting = NSHostingView(rootView: summary)
         hosting.frame = NSRect(

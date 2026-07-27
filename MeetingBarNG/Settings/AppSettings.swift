@@ -56,6 +56,11 @@ struct MenuSettings: Equatable {
     /// When true, the menu's day list starts at "now" — meetings that ended more
     /// than the grace period ago are hidden. When false, the full day is shown.
     var hideFinishedEventsInMenu: Bool
+    /// Minutes before a meeting starts at which its action control becomes a
+    /// full-strength call to action. Lives here rather than being read from
+    /// `Defaults` inside `MenuBuilder`, which reads every display setting off
+    /// this snapshot, so the classic menu's meeting card and the panel's agree.
+    var eventActionHighlightMinutes: Int
     /// When true, Apple Reminders due today are shown in the menu's Today section.
     /// OFF by default (see `Defaults[.showRemindersInMenu]`).
     var showRemindersInMenu: Bool
@@ -277,6 +282,7 @@ extension AppSettings {
                 showEventCalendarColor: Defaults[.showEventCalendarColor],
                 showMeetingPrepLinks: Defaults[.showMeetingPrepLinks],
                 hideFinishedEventsInMenu: Defaults[.hideFinishedEventsInMenu],
+                eventActionHighlightMinutes: Defaults[.eventActionHighlightMinutes],
                 showRemindersInMenu: Defaults[.showRemindersInMenu],
                 remindersIncludeOverdue: Defaults[.remindersIncludeOverdue],
                 showMeetingControlInMenu: Defaults[.showMeetingControlInMenu],
@@ -358,6 +364,7 @@ extension AppSettings {
                 showEventCalendarColor: true,
                 showMeetingPrepLinks: true,
                 hideFinishedEventsInMenu: true,
+                eventActionHighlightMinutes: 2,
                 showRemindersInMenu: false,
                 remindersIncludeOverdue: true,
                 showMeetingControlInMenu: true,
