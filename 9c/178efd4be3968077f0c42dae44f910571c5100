@@ -1,0 +1,66 @@
+MeetingBarNG/App/AppDelegate.swift
+  s_b8ddb6808b4a67::t_db206470fef22d 480-482
+MeetingBarNG/UI/StatusBar/QuickActionsMenu.swift
+  s_b8ddb6808b4a67::t_33bdf87eaa3508 1-104
+MeetingBarNG/UI/StatusBar/DropdownPanelView.swift
+  s_b8ddb6808b4a67::t_82016edae00291 950
+  s_b8ddb6808b4a67::t_d200d3a150ec5a 890-897
+  s_b8ddb6808b4a67::t_fb9050b334fb51 2085-2091
+MeetingBarNG/UI/StatusBar/DropdownEventVisibility.swift
+  s_b8ddb6808b4a67::t_1e6f742c83d6de 47-74
+  s_b8ddb6808b4a67::t_e208301a1af40d 75-95
+  s_b8ddb6808b4a67::t_92795a2bb8ba06 1-46,96-116
+MeetingBarNGTests/StatusBarItem/DropdownPresentationTests.swift
+  s_b8ddb6808b4a67::t_3eac4b258bb6a1 140
+  s_b8ddb6808b4a67::t_8a19f41b3d2bf5 11
+  s_b8ddb6808b4a67::t_be6b8e007906ff 226
+  s_b8ddb6808b4a67::t_8d7ccee4b60427 1-10,12-139,141-210,214,216-225,227-328
+  s_b8ddb6808b4a67::t_165233cb86bc33 211-213
+  s_b8ddb6808b4a67::t_e9fa2c30c720b1 215
+MeetingBarNGTests/EndToEndFlowTests.swift
+  s_b8ddb6808b4a67::t_d5597058e86c2e 287-299
+  s_b8ddb6808b4a67::t_601869ac15ba5d 246-250,253-263,269-270,272-273
+  s_b8ddb6808b4a67::t_9cdc31c647b7f8 477,816,826,851,860,890,911,985,1007,1093,1102
+  s_b8ddb6808b4a67::t_c936ef8e0af114 565-568
+  s_b8ddb6808b4a67::t_7b19c11fb365c8 913,921,923-924
+  s_b8ddb6808b4a67::t_f3cf68a4c2edb5 472,480
+  s_b8ddb6808b4a67::t_3c3ee1d883c49b 656
+  s_b8ddb6808b4a67::t_d3363d057776e7 1054,1061-1065
+  s_b8ddb6808b4a67::t_6a6fcad3a8f4bd 517-519,521
+  s_b8ddb6808b4a67::t_6c5cffcec178a7 493-494,496
+  s_b8ddb6808b4a67::t_0333f07871993d 863-864
+  s_b8ddb6808b4a67::t_dfba09b2a6f9f3 360-361,365-366,368-369
+  s_b8ddb6808b4a67::t_37b39afb9bb5a9 264-268,271,274-284
+  s_b8ddb6808b4a67::t_ae10dea41922b0 427-429,433
+  s_b8ddb6808b4a67::t_440f13b997f02f 892
+  s_b8ddb6808b4a67::t_baa53f4498c412 447
+  s_b8ddb6808b4a67::t_25b806a4da871c 947,949-950,953
+  s_b8ddb6808b4a67::t_e2729ad4c4deb8 1028,1030
+  s_b8ddb6808b4a67::t_e0486d60822e8a 405-408
+  s_b8ddb6808b4a67::t_fe01a2aae8439e 570
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_b8ddb6808b4a67::t_623b6c20e3a01d 141-146
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_b8ddb6808b4a67::t_a42631da5cbe8e 180-183
+  s_b8ddb6808b4a67::t_b4ecd0094565de 405
+  s_b8ddb6808b4a67::t_258f3e4e031a7c 243
+  s_b8ddb6808b4a67::t_73b809a3b108b5 278-280,288-290
+  s_b8ddb6808b4a67::t_3afd30f5fb0437 148
+  s_b8ddb6808b4a67::t_5309cc19fe7396 390
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "9c178efd4be3968077f0c42dae44f910571c5100",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
