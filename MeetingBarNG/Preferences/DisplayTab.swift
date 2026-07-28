@@ -337,6 +337,7 @@ struct DropdownDisplaySection: View {
     @Default(.eventActionHighlightMinutes) var eventActionHighlightMinutes
     @Default(.dropdownMaxEventRows) var dropdownMaxEventRows
     @Default(.dropdownDensity) var dropdownDensityRaw
+    @Default(.timelineStyle) var timelineStyleRaw
 
     /// Bridges the raw-string Default to the hostless enum. An unrecognised
     /// stored value reads back as `.standard` rather than leaving the picker
@@ -348,8 +349,29 @@ struct DropdownDisplaySection: View {
         )
     }
 
+    private var timelineStyleBinding: Binding<TimelineStyle> {
+        Binding(
+            get: { TimelineStyle(rawValue: timelineStyleRaw) ?? .relative },
+            set: { timelineStyleRaw = $0.rawValue }
+        )
+    }
+
     var body: some View {
         Section {
+            Picker(
+                "preferences_dropdown_timeline_style_title".loco(),
+                selection: timelineStyleBinding
+            ) {
+                Text("preferences_dropdown_timeline_style_relative".loco())
+                    .tag(TimelineStyle.relative)
+                Text("preferences_dropdown_timeline_style_day".loco())
+                    .tag(TimelineStyle.day)
+            }
+            .pickerStyle(.segmented)
+            .annotation("preferences_dropdown_timeline_style_help")
+
+            Divider()
+
             Picker(
                 "preferences_dropdown_density_title".loco(),
                 selection: densityBinding

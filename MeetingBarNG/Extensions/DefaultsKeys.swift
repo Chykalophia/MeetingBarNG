@@ -250,6 +250,15 @@ extension Defaults.Keys {
     static let dropdownDensity = Key<String>(
         "dropdownDensity", default: DropdownDensity.standard.rawValue)
 
+    /// How the dropdown's timeline frames time — a window around now, or the
+    /// whole working day.
+    ///
+    /// No `none`: the timeline already has an on/off (`showTimelineInMenu`, plus
+    /// the composer can drop the module), and a second way to hide one thing is
+    /// how two switches end up disagreeing.
+    static let timelineStyle = Key<String>(
+        "timelineStyle", default: TimelineStyle.relative.rawValue)
+
     /// How the menu bar draws progress toward the next meeting.
     ///
     /// `.none` by default, and deliberately so: the menu bar is shared with every

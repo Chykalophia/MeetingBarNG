@@ -259,6 +259,10 @@
 "preferences_menubar_quiet_example" = "e.g. at 30m, a 2:00 meeting shows in the menu bar at 1:30 — before that you see an alarm icon.";
 "preferences_menubar_highlight_imminent_toggle" = "Bolden the meeting when it's about to start";
 "preferences_menubar_highlight_imminent_help" = "Uses the same lead time as the dropdown's join buttons, set on the Dropdown page. Declined and tentative meetings keep their dimmed look.";
+"preferences_dropdown_timeline_style_title" = "Draw the timeline as";
+"preferences_dropdown_timeline_style_relative" = "Around now";
+"preferences_dropdown_timeline_style_day" = "Whole day";
+"preferences_dropdown_timeline_style_help" = "Around now keeps the bar centred on what's near, widening only as far as your meetings reach. Whole day gives every meeting a fixed place from morning to evening.";
 "preferences_menubar_meeting_progress_title" = "Meeting progress";
 "preferences_menubar_meeting_progress_style_title" = "Show the next meeting approaching as";
 "preferences_menubar_meeting_progress_none" = "Nothing";

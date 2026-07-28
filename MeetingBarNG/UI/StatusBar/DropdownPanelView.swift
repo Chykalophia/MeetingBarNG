@@ -155,6 +155,7 @@ struct DropdownPanelView: View {
     /// because the enum is hostless; an unrecognised value degrades to `.standard`
     /// rather than leaving the panel unrenderable.
     @Default(.dropdownDensity) private var dropdownDensityRaw
+    @Default(.timelineStyle) private var timelineStyleRaw
 
     private var dropdownDensity: DropdownDensity {
         DropdownDensity(rawValue: dropdownDensityRaw) ?? .standard
@@ -736,16 +737,26 @@ struct DropdownPanelView: View {
     /// Carded: the timeline is a widget with its own horizontal coordinate system
     /// (a whole day mapped to the panel's width), so a frame helps the eye read it
     /// as one object rather than as another row.
+    /// An unrecognised stored value reads back as `.relative` — the shipping
+    /// look — rather than leaving the bar unable to frame itself.
+    private var timelineStyle: TimelineStyle {
+        TimelineStyle(rawValue: timelineStyleRaw) ?? .relative
+    }
+
     private var timelineBlock: some View {
         let timeline = DayRelativeTimelineView(
             segments: timelineSegments,
             currentDate: clock,
-            timeFormat: state.timeFormat
+            timeFormat: state.timeFormat,
+            style: timelineStyle
         )
         return PanelCard {
             timeline
                 .frame(
-                    width: Self.preferredWidth - 2 * (metrics.rowOuterPadding + 10),
+                    // Derived from the card's own inset rather than a literal, so
+                    // the bar keeps clear of the border at every density.
+                    width: Self.preferredWidth
+                        - 2 * (metrics.rowOuterPadding + metrics.cardHorizontalPadding),
                     height: timeline.preferredHeight
                 )
         }
@@ -2218,8 +2229,26 @@ private struct PanelCard<Content: View>: View {
         .padding(.horizontal, metrics.cardHorizontalPadding)
         .padding(.vertical, metrics.cardVerticalPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(cardShape.fill(Color.primary.opacity(0.05)))
-        .overlay(cardShape.strokeBorder(Color.primary.opacity(0.06)))
+        .background(cardShape.fill(Color.primary.opacity(0.06)))
+        // A lit rim, not a flat hairline. `Color.primary.opacity(0.06)` drew the
+        // same faint line along every edge, which reads as a drawn outline —
+        // the pre-glass look. Real glass catches light along its top edge and
+        // loses it by the bottom, and that gradient is what gives the card an
+        // edge rather than a border. Same treatment as the header buttons, one
+        // step softer because a card is a much larger surface.
+        .overlay(
+            cardShape.strokeBorder(
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(0.18),
+                        Color.white.opacity(0.04)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                ),
+                lineWidth: 1
+            )
+        )
         .padding(.horizontal, metrics.rowOuterPadding)
         .padding(.vertical, 3)
     }

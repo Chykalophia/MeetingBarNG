@@ -69,6 +69,15 @@ struct DayTimelineLayoutCalculator {
     let visibleRange: ClosedRange<Date>
     private let totalSeconds: TimeInterval
 
+    /// The range comes from `DayTimelineRange` so the two styles — and the
+    /// left-fill behaviour of `.relative` — are decided by tested arithmetic
+    /// rather than by this view.
+    init(now: Date = Date(), range: ClosedRange<Date>) {
+        self.now = now
+        self.visibleRange = range
+        self.totalSeconds = range.upperBound.timeIntervalSince(range.lowerBound)
+    }
+
     init(now: Date = Date()) {
         self.now = now
         let lower = now.addingTimeInterval(-DayTimelineLayout.hoursBefore)
@@ -171,8 +180,24 @@ struct DayRelativeTimelineView: View {
     var preferredHeight: CGFloat { contentHeight + 26 }   // top labels + vertical padding
 
     // MARK: Init
-    init(segments: [DaySegment], currentDate: Date, timeFormat: TimeFormat) {
-        let layout = DayTimelineLayoutCalculator(now: currentDate)
+    init(
+        segments: [DaySegment],
+        currentDate: Date,
+        timeFormat: TimeFormat,
+        style: TimelineStyle = .relative
+    ) {
+        // The bar is framed around the events it is actually drawing, so the
+        // relative style opens on content instead of on empty past.
+        let bounds = segments.isEmpty
+            ? nil
+            : (
+                first: segments.map(\.start).min() ?? currentDate,
+                last: segments.map(\.end).max() ?? currentDate
+            )
+        let layout = DayTimelineLayoutCalculator(
+            now: currentDate,
+            range: DayTimelineRange.range(style: style, now: currentDate, bounds: bounds)
+        )
         self.segments     = segments
         self.currentDate  = currentDate
         self.timeFormat   = timeFormat
