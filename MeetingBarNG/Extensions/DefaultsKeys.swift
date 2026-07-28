@@ -235,6 +235,16 @@ extension Defaults.Keys {
     static let menuBarHighlightImminentEvent = Key<Bool>(
         "menuBarHighlightImminentEvent", default: true)
 
+    /// How tightly the dropdown packs its rows. `.standard` reproduces the
+    /// shipping panel exactly, so an existing install sees no change.
+    ///
+    /// Stored as a raw string, matching `menuBarCountdownStyle` above: the enum
+    /// lives in the hostless module, which cannot import Defaults. An unknown
+    /// value (older build, hand-edited plist) falls back to `.standard` at the
+    /// read site rather than failing to decode.
+    static let dropdownDensity = Key<String>(
+        "dropdownDensity", default: DropdownDensity.standard.rawValue)
+
     // appearance of pending events should be shown in the statusbar and menu
     static let showPendingEvents = Key<PendingEventsAppereance>(
         "showPendingEvents", default: PendingEventsAppereance.show)

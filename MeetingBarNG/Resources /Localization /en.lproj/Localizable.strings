@@ -87,6 +87,7 @@
 "preferences_reset_confirm" = "Reset";
 
 // MARK: - Command Bar
+"command_bar_open" = "Search events or run a command";
 "command_bar_placeholder" = "Search events or run a command…";
 "command_bar_no_results" = "No matches";
 "command_bar_all_day" = "All-day";
@@ -310,6 +311,11 @@
 "preferences_dropdown_action_highlight_now" = "At start";
 "preferences_dropdown_action_highlight_example" = "Meetings further out keep a muted button, so a bright one always means “now”. You can still click a muted one.";
 "preferences_dropdown_preview_hidden_hint" = "Widen this window to bring back the live preview.";
+"preferences_dropdown_density_title" = "Row spacing";
+"preferences_dropdown_density_compact" = "Small";
+"preferences_dropdown_density_standard" = "Medium";
+"preferences_dropdown_density_roomy" = "Large";
+"preferences_dropdown_density_help" = "How tightly meetings are packed. Small fits more on screen; Large is easier to read at a glance. The dropdown keeps the same width either way.";
 "preferences_dropdown_max_rows_title" = "Show at most";
 "preferences_dropdown_max_rows_stepper" = "%d meetings per day";
 "preferences_dropdown_max_rows_unlimited" = "No limit";

@@ -69,10 +69,15 @@ final class MoreActionsMenuTests: BaseTestCase {
     }
 
     /// Everything that is always present, in order.
+    ///
+    /// `open_calendar` sits with camera check and world clock because all three
+    /// come from `MenuBuilder.buildQuickActionsMenu` — the panel's flyout mirrors
+    /// that set, so a reader comparing the two menus finds the same grouping.
     private var alwaysOn: [String] {
         [
             "status_bar_section_join_from_clipboard".loco(),
             "---",
+            "status_bar_quick_action_open_calendar".loco(),
             "status_bar_quick_action_camera_check".loco(),
             "status_bar_quick_action_world_clock".loco(),
             "---",

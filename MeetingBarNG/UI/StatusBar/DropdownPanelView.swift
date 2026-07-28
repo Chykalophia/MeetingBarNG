@@ -152,6 +152,15 @@ struct DropdownPanelView: View {
     /// Display-tab preview use.
     @Default(.dropdownModuleOrder) private var dropdownModuleOrder
 
+    /// Drives the whole layout grid — see `metrics` below. Stored as a raw string
+    /// because the enum is hostless; an unrecognised value degrades to `.standard`
+    /// rather than leaving the panel unrenderable.
+    @Default(.dropdownDensity) private var dropdownDensityRaw
+
+    private var dropdownDensity: DropdownDensity {
+        DropdownDensity(rawValue: dropdownDensityRaw) ?? .standard
+    }
+
     /// How close a meeting must be for its row action to look actionable.
     @Default(.eventActionHighlightMinutes) private var eventActionHighlightMinutes
 
@@ -191,7 +200,11 @@ struct DropdownPanelView: View {
 
     /// The single layout grid (time column, marker slot, icon slot, paddings and
     /// gutter). Replaces four unrelated literal grids in one 330pt panel.
-    private static let metrics = DropdownMetrics.standard
+    /// The layout grid for the CURRENT density. Instance rather than static:
+    /// density is a user preference, so the grid has to be read per render. Handed
+    /// down through the environment so nested rows resolve the same one instead of
+    /// each reaching for a global.
+    private var metrics: DropdownMetrics { dropdownDensity.metrics }
 
     /// Dwell before hovering the More-actions row springs its flyout open. Long
     /// enough that sweeping the pointer down to Preferences or Quit passes over the
@@ -213,12 +226,21 @@ struct DropdownPanelView: View {
 
     /// Shared with the window host so the AppKit corner mask matches the
     /// SwiftUI background exactly (no hairline at the corners).
-    static let cornerRadius: CGFloat = 10
+    /// Read by the SwiftUI background AND by `WindowStylePolicy.applyRoundedCorners`,
+    /// which masks the hosting window's layer. They must agree exactly: a mask
+    /// tighter than the drawn shape clips it, looser and a hairline of window
+    /// leaks past the corner.
+    ///
+    /// Liquid Glass carries a larger radius than flat material does — Apple's own
+    /// glass surfaces are noticeably rounder — so the radius follows the surface
+    /// rather than being one compromise value for both.
+    static var cornerRadius: CGFloat {
+        if #available(macOS 26.0, *) { 20 } else { 16 }
+    }
 
     /// Fixed width of the trailing affordance slot on an event row. Reserved
     /// whether or not the row is hovered, so revealing the Join button never
     /// shifts the row's layout.
-    private static var trailingAffordanceWidth: CGFloat { metrics.trailingAffordanceWidth }
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -251,14 +273,11 @@ struct DropdownPanelView: View {
         .scrollIndicators(.hidden)
         .frame(width: Self.preferredWidth)
         .frame(maxHeight: isPreview ? .infinity : Self.maximumHeight)
-        .background(
-            RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
-                .fill(Color(nsColor: .windowBackgroundColor))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.10))
-        )
+        .background(panelSurface)
+        .overlay(panelEdge)
+        // Injected once, at the root, so every nested row renders against the
+        // same grid rather than each resolving the density for itself.
+        .environment(\.dropdownMetrics, metrics)
         // Keyboard-first: the panel takes key focus on open (the window is made
         // key by the host), then Up/Down walk the flattened interactive rows and
         // Return runs the selected row's primary action. Escape is handled by
@@ -486,9 +505,38 @@ struct DropdownPanelView: View {
             DaySummaryHeaderView(
                 greeting: greetingLine(summary.timeOfDay),
                 summary: daySummaryLine(summary),
-                symbolName: greetingSymbolName(summary.timeOfDay)
+                symbolName: greetingSymbolName(summary.timeOfDay),
+                actions: headerActions
             )
         }
+    }
+
+    /// The header's trailing quick actions.
+    ///
+    /// These are shortcuts to things already reachable further down the panel, put
+    /// where the eye lands first. Deliberately three: the header is a summary, and
+    /// a fourth icon starts competing with the text it is meant to support.
+    private var headerActions: [DaySummaryHeaderAction] {
+        [
+            DaySummaryHeaderAction(
+                id: "create",
+                symbol: "plus",
+                help: "status_bar_section_join_create_meeting".loco(),
+                run: perform(handlers.createMeeting)
+            ),
+            DaySummaryHeaderAction(
+                id: "search",
+                symbol: "magnifyingglass",
+                help: "command_bar_open".loco(),
+                run: dismissThen(handlers.openCommandBar)
+            ),
+            DaySummaryHeaderAction(
+                id: "preferences",
+                symbol: "gearshape",
+                help: "status_bar_preferences".loco(),
+                run: perform(handlers.openPreferences)
+            )
+        ]
     }
 
     // Greeting copy mirrors `MenuBuilder`'s (its formatters are private); the
@@ -536,14 +584,22 @@ struct DropdownPanelView: View {
 
     // MARK: - Timeline
 
+    /// Carded: the timeline is a widget with its own horizontal coordinate system
+    /// (a whole day mapped to the panel's width), so a frame helps the eye read it
+    /// as one object rather than as another row.
     private var timelineBlock: some View {
         let timeline = DayRelativeTimelineView(
             segments: timelineSegments,
             currentDate: clock,
             timeFormat: state.timeFormat
         )
-        return timeline
-            .frame(width: Self.preferredWidth, height: timeline.preferredHeight)
+        return PanelCard {
+            timeline
+                .frame(
+                    width: Self.preferredWidth - 2 * (metrics.rowOuterPadding + 10),
+                    height: timeline.preferredHeight
+                )
+        }
     }
 
     private var timelineSegments: [DaySegment] {
@@ -620,9 +676,9 @@ struct DropdownPanelView: View {
         let reason = state.emptyStateReason ?? .noUpcomingMeetings
         VStack(alignment: .leading, spacing: 2) {
             Text(emptyStateTitle(reason))
-                .font(.system(size: MenuStyleConstants.defaultFontSize, weight: .semibold))
+                .font(.system(size: metrics.rowFontSize, weight: .semibold))
                 .foregroundStyle(.primary)
-                .padding(.horizontal, Self.metrics.sectionHeaderInset)
+                .padding(.horizontal, metrics.sectionHeaderInset)
                 .padding(.vertical, 4)
             actionRow(
                 symbol: emptyStateSymbol(reason),
@@ -756,9 +812,9 @@ struct DropdownPanelView: View {
         sectionHeader("\(title) (\(sectionDateText(date)))")
         if events.isEmpty {
             Text("status_bar_section_date_nothing".loco(title.lowercased()))
-                .font(.system(size: MenuStyleConstants.defaultFontSize))
+                .font(.system(size: metrics.rowFontSize))
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, Self.metrics.sectionHeaderInset)
+                .padding(.horizontal, metrics.sectionHeaderInset)
                 .padding(.vertical, 4)
         } else {
             let count = events.count
@@ -774,9 +830,9 @@ struct DropdownPanelView: View {
                     firstStart?.formatted(date: .omitted, time: .shortened) ?? ""
                 )
             )
-            .font(.system(size: MenuStyleConstants.defaultFontSize))
+            .font(.system(size: metrics.rowFontSize))
             .foregroundStyle(.secondary)
-            .padding(.horizontal, Self.metrics.sectionHeaderInset)
+            .padding(.horizontal, metrics.sectionHeaderInset)
             .padding(.vertical, 4)
         }
     }
@@ -791,9 +847,9 @@ struct DropdownPanelView: View {
         sectionHeader("\(title) (\(sectionDateText(date)))")
         if events.isEmpty {
             Text("status_bar_section_date_nothing".loco(title.lowercased()))
-                .font(.system(size: MenuStyleConstants.defaultFontSize))
+                .font(.system(size: metrics.rowFontSize))
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, Self.metrics.sectionHeaderInset)
+                .padding(.horizontal, metrics.sectionHeaderInset)
                 .padding(.vertical, 4)
         }
         let section = capped(events, day: day)
@@ -849,7 +905,7 @@ struct DropdownPanelView: View {
     private func eventRowContent(_ event: MBEvent, isHovered: Bool) -> some View {
         let layout = agendaRowLayout
         let appearance = rowAppearance(for: event)
-        return HStack(spacing: Self.metrics.columnSpacing) {
+        return HStack(spacing: metrics.columnSpacing) {
             if layout.timeColumnWidth > 0 {
                 eventTimeColumn(event, width: layout.timeColumnWidth)
             }
@@ -884,7 +940,7 @@ struct DropdownPanelView: View {
     /// a dot and nothing, which is what that switch always claimed to do.
     private var agendaRowLayout: AgendaRowLayout {
         AgendaRowLayout.resolve(
-            metrics: Self.metrics,
+            metrics: metrics,
             marker: state.menu.showEventCalendarColor ? .dot : .none,
             position: .betweenTimeAndTitle,
             timeColumn: agendaTimeColumn,
@@ -950,13 +1006,13 @@ struct DropdownPanelView: View {
                     .scaledToFit()
             }
         }
-        .frame(width: Self.metrics.serviceIconWidth, height: Self.metrics.serviceIconWidth)
+        .frame(width: metrics.serviceIconWidth, height: metrics.serviceIconWidth)
     }
 
     private func eventTitle(_ event: MBEvent, appearance: EventRowAppearance) -> some View {
         Text(eventTitleText(event))
             .font(.system(
-                size: MenuStyleConstants.defaultFontSize,
+                size: metrics.rowFontSize,
                 weight: appearance.isRunning && appearance.showsActiveEmphasis
                     ? .semibold
                     : .regular
@@ -1113,7 +1169,7 @@ struct DropdownPanelView: View {
                     .contentShape(Capsule())
                     .onTapGesture(perform: perform { handlers.joinEvent(event) })
             }
-            .frame(width: Self.trailingAffordanceWidth, alignment: .trailing)
+            .frame(width: metrics.trailingAffordanceWidth, alignment: .trailing)
             .animation(revealAnimation, value: revealed)
             .animation(revealAnimation, value: actionable)
         }
@@ -1200,8 +1256,8 @@ struct DropdownPanelView: View {
             notesDetail(event)
             prepLinkDetails(event)
         }
-        .padding(.leading, Self.metrics.detailIndent)
-        .padding(.trailing, Self.metrics.sectionHeaderInset)
+        .padding(.leading, metrics.detailIndent)
+        .padding(.trailing, metrics.sectionHeaderInset)
         .padding(.bottom, 4)
     }
 
@@ -1228,7 +1284,7 @@ struct DropdownPanelView: View {
                 .foregroundStyle(.tertiary)
                 .frame(width: 12)
             Text(title)
-                .font(.system(size: MenuStyleConstants.defaultFontSize - 1))
+                .font(.system(size: metrics.rowFontSize - 1))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
             Spacer(minLength: 0)
@@ -1281,7 +1337,7 @@ struct DropdownPanelView: View {
 
     private func detailLabel(_ title: String) -> some View {
         Text(title)
-            .font(.system(size: MenuStyleConstants.defaultFontSize - 2, weight: .semibold))
+            .font(.system(size: metrics.rowFontSize - 2, weight: .semibold))
             .foregroundStyle(.secondary)
             .padding(.top, 3)
     }
@@ -1303,7 +1359,7 @@ struct DropdownPanelView: View {
                     .frame(width: 12)
             }
             Text(text)
-                .font(.system(size: MenuStyleConstants.defaultFontSize - 1))
+                .font(.system(size: metrics.rowFontSize - 1))
                 .foregroundStyle(.secondary)
                 .lineLimit(lineLimit)
                 .fixedSize(horizontal: false, vertical: true)
@@ -1438,11 +1494,11 @@ struct DropdownPanelView: View {
             isSelected: isSelected(row),
             action: perform { handlers.completeReminder(reminder) }
         ) { _ in
-            HStack(spacing: Self.metrics.columnSpacing) {
+            HStack(spacing: metrics.columnSpacing) {
                 Text(reminderTimeText(reminder))
                     .font(.system(size: 12).monospacedDigit())
                     .foregroundStyle(.secondary)
-                    .frame(width: Self.metrics.timeColumnWidth, alignment: .leading)
+                    .frame(width: metrics.timeColumnWidth, alignment: .leading)
                 Image(systemName: reminder.isCompleted ? "largecircle.fill.circle" : "circle")
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
@@ -1451,7 +1507,7 @@ struct DropdownPanelView: View {
                     .onTapGesture(perform: perform { handlers.completeReminder(reminder) })
                     .help("status_bar_reminders_complete".loco())
                 Text(reminder.title.isEmpty ? "status_bar_no_title".loco() : reminder.title)
-                    .font(.system(size: MenuStyleConstants.defaultFontSize))
+                    .font(.system(size: metrics.rowFontSize))
                     .foregroundStyle(reminder.isOverdue ? Color.red : Color.primary)
                     .lineLimit(1)
                 Spacer(minLength: 0)
@@ -1597,6 +1653,45 @@ struct DropdownPanelView: View {
         moreActionsHoverDisarmed = false
     }
 
+    private var panelShape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
+    }
+
+    /// The panel's surface.
+    ///
+    /// Liquid Glass where the OS has it, `.regularMaterial` everywhere else. The
+    /// fallback is not a consolation prize — it is what macOS 15–25 users get, and
+    /// it is the same material Dot and most modern menu-bar apps use.
+    ///
+    /// Deliberately NOT a hand-built blur. Letting the system own the surface means
+    /// it tracks light/dark, accent, reduce-transparency and whatever the next OS
+    /// does, none of which a hard-coded translucency would.
+    ///
+    /// This is the ONE glass layer in the panel. Inner cards use a plain fill:
+    /// stacking translucent surfaces does not compound refraction, it just
+    /// accumulates haze and eats the contrast the agenda needs.
+    @ViewBuilder
+    private var panelSurface: some View {
+        if #available(macOS 26.0, *) {
+            Color.clear.glassEffect(.regular, in: panelShape)
+        } else {
+            panelShape.fill(.regularMaterial)
+        }
+    }
+
+    /// A hairline so the panel separates from a light desktop. Glass already
+    /// carries its own specular edge, so it needs only a whisper here; flat
+    /// material has none and needs the full hairline to avoid bleeding into a
+    /// pale wallpaper.
+    @ViewBuilder
+    private var panelEdge: some View {
+        if #available(macOS 26.0, *) {
+            panelShape.strokeBorder(Color.white.opacity(0.14))
+        } else {
+            panelShape.strokeBorder(Color.primary.opacity(0.10))
+        }
+    }
+
     /// Shows the More-actions flyout beside the row, the way a submenu hangs off
     /// its parent item.
     @MainActor
@@ -1677,6 +1772,15 @@ struct DropdownPanelView: View {
         }
         menu.addItem(.separator())
 
+        // Closes a real parity gap: `MenuBuilder.buildQuickActionsMenu` has offered
+        // this for ages, so the calendar window was reachable ONLY by right-clicking
+        // the status item. `handlers.openCalendar` was wired end-to-end and simply
+        // never called from the panel, which made a whole feature invisible to
+        // anyone on the default dropdown.
+        menu.addItem(ClosureMenuItem(
+            title: "status_bar_quick_action_open_calendar".loco(),
+            handler: dismissThen(handlers.openCalendar)
+        ))
         menu.addItem(ClosureMenuItem(
             title: "status_bar_quick_action_camera_check".loco(),
             handler: dismissThen(handlers.openCameraPreview)
@@ -1786,13 +1890,13 @@ struct DropdownPanelView: View {
         title: String,
         trailingSymbol: String? = nil
     ) -> some View {
-        HStack(spacing: Self.metrics.columnSpacing) {
+        HStack(spacing: metrics.columnSpacing) {
             Image(systemName: symbol)
                 .font(.system(size: 12))
-                .frame(width: Self.metrics.actionSymbolWidth)
+                .frame(width: metrics.actionSymbolWidth)
                 .foregroundStyle(.secondary)
             Text(title)
-                .font(.system(size: MenuStyleConstants.defaultFontSize))
+                .font(.system(size: metrics.rowFontSize))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
             Spacer(minLength: 0)
@@ -1810,9 +1914,9 @@ struct DropdownPanelView: View {
 
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
-            .font(.system(size: MenuStyleConstants.defaultFontSize - 2, weight: .semibold))
+            .font(.system(size: metrics.rowFontSize - 2, weight: .semibold))
             .foregroundStyle(.secondary)
-            .padding(.horizontal, Self.metrics.sectionHeaderInset)
+            .padding(.horizontal, metrics.sectionHeaderInset)
             .padding(.top, 4)
             .padding(.bottom, 2)
     }
@@ -1923,18 +2027,21 @@ private struct PanelRow<Content: View>: View {
     @State private var isHovered = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private static var metrics: DropdownMetrics { .standard }
+    /// Read from the environment, not a global: the panel injects the grid for
+    /// the user's chosen density, and a row that reached for `.standard` directly
+    /// would keep the old rhythm while everything around it changed.
+    @Environment(\.dropdownMetrics) private var metrics
 
     var body: some View {
         content(isHovered)
-            .padding(.horizontal, Self.metrics.rowInnerPadding)
-            .padding(.vertical, Self.metrics.rowVerticalPadding)
+            .padding(.horizontal, metrics.rowInnerPadding)
+            .padding(.vertical, metrics.rowVerticalPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
                     .fill(highlight)
             )
-            .padding(.horizontal, Self.metrics.rowOuterPadding)
+            .padding(.horizontal, metrics.rowOuterPadding)
             .contentShape(Rectangle())
             // Scoped pointer style (macOS 15+): unlike NSCursor.push/pop it can't
             // strand a pointing-hand cursor when the panel closes mid-hover.
@@ -1953,6 +2060,76 @@ private struct PanelRow<Content: View>: View {
         if isSelected { return Color.accentColor.opacity(0.22) }
         if isHovered, action != nil { return Color.accentColor.opacity(0.18) }
         return .clear
+    }
+}
+
+// MARK: - Card container
+
+/// A bounded surface for a panel component that has its own internal structure.
+///
+/// The rule this encodes: **card = widget, flat = list.** A timeline or a month
+/// grid has its own coordinate system, and a frame tells the eye "parse this as
+/// one object". Lists want the opposite — the agenda, the action rows and the
+/// footer stay flat so hover targets run full-bleed and the left edge stays
+/// unbroken for scanning. A card costs ~24pt of the panel's 330, which a grid can
+/// absorb and a truncating event title cannot.
+///
+/// Deliberately a plain fill, never `glassEffect`, even on macOS 26 where the
+/// panel behind it IS glass. Stacked translucency does not compound refraction —
+/// it accumulates haze and eats contrast. The panel is the one glass layer; a
+/// card sits ON it.
+private struct PanelCard<Content: View>: View {
+    var title: String?
+    @ViewBuilder let content: Content
+
+    @Environment(\.dropdownMetrics) private var metrics
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            if let title {
+                Text(title)
+                    .font(.system(size: metrics.secondaryFontSize - 2, weight: .semibold))
+                    .textCase(.uppercase)
+                    .kerning(0.5)
+                    .foregroundStyle(.secondary)
+            }
+            content
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 9)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                .fill(Color.primary.opacity(0.05))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.06))
+        )
+        .padding(.horizontal, metrics.rowOuterPadding)
+        .padding(.vertical, 3)
+    }
+}
+
+// MARK: - Layout grid propagation
+
+/// Carries the current density's layout grid down the panel.
+///
+/// The grid used to be a static on each view, which meant every row silently
+/// agreed on `.standard`. Once density became a preference that stopped being
+/// true, and a static would have left nested rows on the old rhythm while their
+/// container moved. The environment is the mechanism that guarantees one panel
+/// renders with exactly one grid.
+private struct DropdownMetricsKey: EnvironmentKey {
+    /// Only reached by a view rendered outside the panel (a `#Preview`, say).
+    /// Inside the panel the value is always injected.
+    static let defaultValue = DropdownMetrics.standard
+}
+
+extension EnvironmentValues {
+    var dropdownMetrics: DropdownMetrics {
+        get { self[DropdownMetricsKey.self] }
+        set { self[DropdownMetricsKey.self] = newValue }
     }
 }
 

@@ -324,9 +324,33 @@ struct DropdownDisplaySection: View {
     @Default(.remindersIncludeOverdue) var remindersIncludeOverdue
     @Default(.eventActionHighlightMinutes) var eventActionHighlightMinutes
     @Default(.dropdownMaxEventRows) var dropdownMaxEventRows
+    @Default(.dropdownDensity) var dropdownDensityRaw
+
+    /// Bridges the raw-string Default to the hostless enum. An unrecognised
+    /// stored value reads back as `.standard` rather than leaving the picker
+    /// with no selection.
+    private var densityBinding: Binding<DropdownDensity> {
+        Binding(
+            get: { DropdownDensity(rawValue: dropdownDensityRaw) ?? .standard },
+            set: { dropdownDensityRaw = $0.rawValue }
+        )
+    }
 
     var body: some View {
         Section {
+            Picker(
+                "preferences_dropdown_density_title".loco(),
+                selection: densityBinding
+            ) {
+                Text("preferences_dropdown_density_compact".loco()).tag(DropdownDensity.compact)
+                Text("preferences_dropdown_density_standard".loco()).tag(DropdownDensity.standard)
+                Text("preferences_dropdown_density_roomy".loco()).tag(DropdownDensity.roomy)
+            }
+            .pickerStyle(.segmented)
+            .annotation("preferences_dropdown_density_help")
+
+            Divider()
+
             Text("preferences_dropdown_max_rows_title".loco())
             PresetNumberPicker(
                 presets: [5, 10, 15, 0],

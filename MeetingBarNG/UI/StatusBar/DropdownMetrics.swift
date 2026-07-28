@@ -46,6 +46,36 @@ public enum AgendaTimeColumn: String, Codable, CaseIterable, Sendable {
     case startAndEnd
 }
 
+// MARK: - Density
+
+/// How tightly the dropdown packs its rows.
+///
+/// Deliberately three named steps rather than a free number: the values below are
+/// tuned together (row height, type size and the time column have to move as a
+/// set, or the columns stop lining up), and a slider would let a user land on a
+/// combination nobody ever looked at.
+///
+/// Panel WIDTH is deliberately NOT part of this. Density changes vertical rhythm
+/// and type size only, so the panel keeps one width across all three and the
+/// window never resizes underneath the user.
+public enum DropdownDensity: String, Codable, CaseIterable, Sendable {
+    /// Fits roughly two more rows per screen. Reads closer to a spreadsheet, and
+    /// the hover target for a row's trailing action gets tight.
+    case compact
+    /// The shipping rhythm, matched to macOS's own menu rows.
+    case standard
+    /// Easiest to parse per row; costs about two rows to the fold on a busy day.
+    case roomy
+
+    public var metrics: DropdownMetrics {
+        switch self {
+        case .compact: DropdownMetrics.compact
+        case .standard: DropdownMetrics.standard
+        case .roomy: DropdownMetrics.roomy
+        }
+    }
+}
+
 // MARK: - Metrics
 
 /// Every fixed dimension in the dropdown panel, in one place.
@@ -75,6 +105,12 @@ public struct DropdownMetrics: Equatable, Sendable {
     public var trailingAffordanceWidth: CGFloat
     /// Slot reserved for the detail disclosure chevron.
     public var disclosureWidth: CGFloat
+    /// Type size for a row's primary text (event title, action label). Lives here
+    /// rather than at the call site so density moves size and spacing together —
+    /// changing one without the other is what makes a list look wrong.
+    public var rowFontSize: CGFloat
+    /// Type size for supporting text on a row (the time column, metadata).
+    public var secondaryFontSize: CGFloat
 
     public init(
         panelWidth: CGFloat,
@@ -89,8 +125,12 @@ public struct DropdownMetrics: Equatable, Sendable {
         serviceIconWidth: CGFloat,
         actionSymbolWidth: CGFloat,
         trailingAffordanceWidth: CGFloat,
-        disclosureWidth: CGFloat
+        disclosureWidth: CGFloat,
+        rowFontSize: CGFloat = 13,
+        secondaryFontSize: CGFloat = 12
     ) {
+        self.rowFontSize = rowFontSize
+        self.secondaryFontSize = secondaryFontSize
         self.panelWidth = panelWidth
         self.rowOuterPadding = rowOuterPadding
         self.rowInnerPadding = rowInnerPadding
@@ -119,7 +159,50 @@ public struct DropdownMetrics: Equatable, Sendable {
         serviceIconWidth: 14,
         actionSymbolWidth: 18,
         trailingAffordanceWidth: 48,
-        disclosureWidth: 14
+        disclosureWidth: 14,
+        rowFontSize: 13,
+        secondaryFontSize: 12
+    )
+
+    /// Tighter vertical rhythm and a step down in type. The time column narrows
+    /// with the font — it is sized to fit "12:00 PM", so it has to shrink in step
+    /// or every row carries dead space.
+    public static let compact = DropdownMetrics(
+        panelWidth: 330,
+        rowOuterPadding: 6,
+        rowInnerPadding: 10,
+        rowVerticalPadding: 2.5,
+        columnSpacing: 7,
+        timeColumnWidth: 62,
+        markerDotDiameter: 6,
+        markerBarWidth: 3,
+        markerBarHeight: 13,
+        serviceIconWidth: 14,
+        actionSymbolWidth: 17,
+        trailingAffordanceWidth: 46,
+        disclosureWidth: 14,
+        rowFontSize: 12,
+        secondaryFontSize: 11
+    )
+
+    /// More air per row. Marker and column widths grow with the type so the
+    /// leading grid stays proportional rather than looking stranded.
+    public static let roomy = DropdownMetrics(
+        panelWidth: 330,
+        rowOuterPadding: 6,
+        rowInnerPadding: 11,
+        rowVerticalPadding: 8,
+        columnSpacing: 9,
+        timeColumnWidth: 70,
+        markerDotDiameter: 8,
+        markerBarWidth: 3,
+        markerBarHeight: 19,
+        serviceIconWidth: 15,
+        actionSymbolWidth: 19,
+        trailingAffordanceWidth: 50,
+        disclosureWidth: 15,
+        rowFontSize: 14,
+        secondaryFontSize: 12.5
     )
 
     /// Distance from the panel's leading edge to a row's content box. Section
