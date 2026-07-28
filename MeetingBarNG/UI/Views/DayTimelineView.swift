@@ -253,8 +253,11 @@ struct DayRelativeTimelineView: View {
                         let endX    = layout.xPosition(of: min(seg.end, layout.visibleRange.upperBound), width: width)
                         let widthPx = max(endX - startX, DayTimelineLayout.segmentHeight / 2)
 
+                        // Raised from 0.55/0.25. Behind-window vibrancy lightens
+                        // with the DESKTOP, so over a pale wallpaper a quarter-
+                        // opacity capsule all but vanished against the surface.
                         Capsule()
-                            .fill(seg.color.opacity(seg.isHighlighted ? 0.55 : 0.25))
+                            .fill(seg.color.opacity(seg.isHighlighted ? 0.70 : 0.42))
                             .overlay(
                                 Capsule().stroke(
                                     seg.color,

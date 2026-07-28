@@ -23,6 +23,8 @@ struct DaySummaryHeaderAction: Identifiable {
 }
 
 struct DaySummaryHeaderView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     let greeting: String
     let summary: String
     /// SF Symbol reflecting the time of day (chosen by MenuBuilder).
@@ -57,7 +59,7 @@ struct DaySummaryHeaderView: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .strokeBorder(Color.white.opacity(0.10))
+                        .strokeBorder(PanelChrome.rim(colorScheme, top: 0.12, bottom: 0.04))
                 )
 
             VStack(alignment: .leading, spacing: 2) {
@@ -108,6 +110,7 @@ struct DaySummaryHeaderView: View {
 private struct DaySummaryHeaderButton: View {
     let action: DaySummaryHeaderAction
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isHovered = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -128,13 +131,10 @@ private struct DaySummaryHeaderButton: View {
                 // bottom. A uniform border would flatten the button back out.
                 RoundedRectangle(cornerRadius: 7, style: .continuous)
                     .strokeBorder(
-                        LinearGradient(
-                            colors: [
-                                Color.white.opacity(isHovered ? 0.30 : 0.20),
-                                Color.white.opacity(0.04)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
+                        PanelChrome.rim(
+                            colorScheme,
+                            top: isHovered ? 0.30 : 0.20,
+                            bottom: 0.05
                         ),
                         lineWidth: 0.8
                     )

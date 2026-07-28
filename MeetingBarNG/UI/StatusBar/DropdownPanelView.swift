@@ -154,6 +154,7 @@ struct DropdownPanelView: View {
     /// Drives the whole layout grid — see `metrics` below. Stored as a raw string
     /// because the enum is hostless; an unrecognised value degrades to `.standard`
     /// rather than leaving the panel unrenderable.
+    @Environment(\.colorScheme) private var colorScheme
     @Default(.dropdownDensity) private var dropdownDensityRaw
     @Default(.timelineStyle) private var timelineStyleRaw
     @Default(.meetingCardShowsProgress) private var showsMeetingCardProgress
@@ -2151,7 +2152,12 @@ struct DropdownPanelView: View {
                 .font(.system(size: metrics.secondaryFontSize - 1, weight: .bold))
                 .textCase(.uppercase)
                 .kerning(0.75)
-                .foregroundStyle(.tertiary)
+                // `.secondary`, not `.tertiary`. Behind-window vibrancy takes
+                // its lightness from the DESKTOP while this colour takes its own
+                // from the appearance, so over a pale wallpaper the surface
+                // rises to meet a label tuned for a dark one and the heading
+                // fades out.
+                .foregroundStyle(.secondary)
             Spacer(minLength: 6)
             if showsCreateAction {
                 sectionCreateButton
@@ -2178,17 +2184,8 @@ struct DropdownPanelView: View {
         .foregroundStyle(.secondary)
         .padding(.horizontal, 6)
         .padding(.vertical, 2)
-        .background(Capsule().fill(Color.primary.opacity(0.09)))
-        .overlay(
-            Capsule().strokeBorder(
-                LinearGradient(
-                    colors: [Color.white.opacity(0.18), Color.white.opacity(0.05)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                ),
-                lineWidth: 0.8
-            )
-        )
+        .background(Capsule().fill(Color.primary.opacity(0.12)))
+        .overlay(Capsule().strokeBorder(PanelChrome.rim(colorScheme), lineWidth: 0.8))
         .contentShape(Capsule())
         .pointerStyle(.link)
         .onTapGesture(perform: perform(handlers.createMeeting))
@@ -2335,6 +2332,8 @@ private struct PanelRow<Content: View>: View {
 /// on different rows), and tinting the EDGE marks it without going back to
 /// painting the whole row.
 private struct PanelHighlight: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var isSelected: Bool
     var isHovered: Bool
     var cornerRadius: CGFloat = 7
@@ -2345,13 +2344,16 @@ private struct PanelHighlight: View {
             .fill(Color.primary.opacity(isSelected ? 0.14 : 0.09))
             .overlay(
                 shape.strokeBorder(
-                    LinearGradient(
-                        colors: isSelected
-                            ? [Color.accentColor.opacity(0.75), Color.accentColor.opacity(0.18)]
-                            : [Color.white.opacity(0.20), Color.white.opacity(0.04)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ),
+                    isSelected
+                        ? LinearGradient(
+                            colors: [
+                                Color.accentColor.opacity(0.75),
+                                Color.accentColor.opacity(0.18)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        : PanelChrome.rim(colorScheme),
                     lineWidth: 0.8
                 )
             )
@@ -2375,6 +2377,8 @@ private struct PanelHighlight: View {
 /// it accumulates haze and eats contrast. The panel is the one glass layer; a
 /// card sits ON it.
 private struct PanelCard<Content: View>: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var title: String?
     @ViewBuilder let content: Content
 
@@ -2408,20 +2412,10 @@ private struct PanelCard<Content: View>: View {
         // edge rather than a border. Same treatment as the header buttons, one
         // step softer because a card is a much larger surface.
         .overlay(
-            cardShape.strokeBorder(
-                LinearGradient(
-                    // Floor raised from 0.04 so the lower edge does not vanish:
-                    // the mockup's border is a uniform 0.16, and a gradient that
-                    // fades to nothing averages well under it.
-                    colors: [
-                        Color.white.opacity(0.20),
-                        Color.white.opacity(0.08)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                ),
-                lineWidth: 1
-            )
+            // Floor kept off zero so the lower edge does not vanish: the
+            // mockup's border is a uniform 0.16, and a gradient fading to
+            // nothing averages well under it.
+            cardShape.strokeBorder(PanelChrome.rim(colorScheme, top: 0.20, bottom: 0.08), lineWidth: 1)
         )
         .padding(.horizontal, metrics.rowOuterPadding)
         .padding(.vertical, 3)

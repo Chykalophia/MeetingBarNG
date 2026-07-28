@@ -245,12 +245,18 @@ private enum PanelBackdrop {
         // `.menu` material is the answer to both. It is the material AppKit
         // gives real menus, so the density matches native by construction rather
         // than by a tint constant someone has to keep re-tuning.
+        let reduceTransparency = NSWorkspace.shared
+            .accessibilityDisplayShouldReduceTransparency
+
         let effect = NSVisualEffectView()
         // `.menu` rather than `.popover`: this IS a menu, and the material
         // carries the vibrancy AppKit gives real menus.
         effect.material = .menu
         effect.blendingMode = .behindWindow
-        effect.state = .active
+        // System Reduce Transparency asks for an opaque surface, and this is the
+        // one place that can honour it — the SwiftUI content draws no background
+        // of its own.
+        effect.state = reduceTransparency ? .inactive : .active
         // Rounded by MASK IMAGE, not by a layer corner radius. A vibrancy
         // material is composited by the window server, which does not respect
         // `masksToBounds` — on macOS 26 that left opaque white squares in the
@@ -258,6 +264,22 @@ private enum PanelBackdrop {
         // image is the supported way to shape one, and it clips the material
         // itself rather than a layer drawn from it.
         effect.maskImage = roundedMask(radius: radius)
+
+        // A contrast floor between the material and the content.
+        //
+        // Behind-window vibrancy takes its lightness from the DESKTOP, while the
+        // content's colours take theirs from the APPEARANCE. Over a pale
+        // wallpaper the two disagree: the surface rises toward the colour the
+        // content assumed it could draw on, and everything tuned against a dark
+        // panel — the accent dot, the section heads, the icons — loses contrast
+        // at once. The scrim stops the desktop pushing the surface past a
+        // threshold. It costs some translucency, which is the honest trade for a
+        // panel that has to stay readable over any wallpaper.
+        let scrim = PanelScrimView()
+        scrim.opacity = reduceTransparency ? 1 : 0.32
+        scrim.frame = effect.bounds
+        scrim.autoresizingMask = [.width, .height]
+        effect.addSubview(scrim)
 
         content.frame = effect.bounds
         content.autoresizingMask = [.width, .height]
@@ -289,6 +311,26 @@ private enum PanelBackdrop {
         )
         image.resizingMode = .stretch
         return image
+    }
+}
+
+/// A flat wash of the window background colour, sat between the vibrancy and the
+/// panel's content.
+///
+/// A plain `NSView` with a `cgColor` set once would freeze at whatever appearance
+/// was current when it was built; `updateLayer` re-resolves it, so the scrim
+/// follows a switch between light and dark like everything else in the panel.
+private final class PanelScrimView: NSView {
+    var opacity: CGFloat = 0.32 {
+        didSet { needsDisplay = true }
+    }
+
+    override var wantsUpdateLayer: Bool { true }
+
+    override func updateLayer() {
+        layer?.backgroundColor = NSColor.windowBackgroundColor
+            .withAlphaComponent(opacity)
+            .cgColor
     }
 }
 

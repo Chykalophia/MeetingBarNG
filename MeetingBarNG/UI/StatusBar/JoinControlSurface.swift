@@ -29,6 +29,8 @@ struct JoinControlSurface: ViewModifier {
     /// presence of the treatment — a Join button is a button either way.
     let isActionImminent: Bool
 
+    @Environment(\.colorScheme) private var colorScheme
+
     /// Drawn on every version, because SwiftUI's `glassEffect` cannot render
     /// here — measured, not assumed. It samples WITHIN the window, and this
     /// panel's surface is an AppKit `NSVisualEffectView` that is not part of
@@ -61,14 +63,15 @@ struct JoinControlSurface: ViewModifier {
                 // Light from above: bright along the top edge, gone by the
                 // bottom. A uniform border would flatten the control back out.
                 Capsule().strokeBorder(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(isActionImminent ? 0.45 : 0.24),
-                            Color.white.opacity(0.05)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ),
+                    // An accent-filled pill keeps a light rim in both
+                    // appearances: the fill is dark enough to catch one.
+                    isActionImminent
+                        ? LinearGradient(
+                            colors: [Color.white.opacity(0.45), Color.white.opacity(0.08)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        : PanelChrome.rim(colorScheme, top: 0.24, bottom: 0.05),
                     lineWidth: 0.8
                 )
             )
