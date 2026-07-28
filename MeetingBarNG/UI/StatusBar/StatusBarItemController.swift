@@ -316,6 +316,33 @@ final class StatusBarItemController {
         dependencies.openDropdownPanel(menuState, dropdownPanelHandlers(), anchor)
     }
 
+    #if DEBUG
+    /// Everything `toggleDropdownPanel` would hand the panel, for the DEBUG
+    /// inspector window to host instead.
+    ///
+    /// Built from the same three lines rather than a copy, so the inspector shows
+    /// the real snapshot — including whatever `nudgeCalendarForceSync` pulls in.
+    /// `anchor` is `nil` when the status item has no window yet; the inspector
+    /// falls back to a synthetic one rather than refusing to open, since being
+    /// inspectable without a live status item is half the point.
+    func dropdownPanelSnapshotForInspector() -> DropdownInspectorSnapshot {
+        nudgeCalendarForceSync()
+
+        var appState = dependencies.appState()
+        appState.events = events
+        let menuState = StatusBarMenuState.make(from: appState)
+
+        let anchor = statusItem?.button.flatMap { button in
+            button.window.map { $0.convertToScreen(button.convert(button.bounds, to: nil)) }
+        }
+        return DropdownInspectorSnapshot(
+            state: menuState,
+            handlers: dropdownPanelHandlers(),
+            anchor: anchor
+        )
+    }
+    #endif
+
     /// The panel's side effects, routed through the same dependency closures the
     /// NSMenu's @objc actions use, so both dropdowns share one behavior surface.
     /// `dismiss` is filled in by the window host.

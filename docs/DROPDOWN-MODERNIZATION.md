@@ -98,7 +98,8 @@ Recorded so they are not rediscovered as bugs.
   `NSHostingView` like the timeline, but a month grid is the least menu-shaped thing in the app.
 - **Panel shadow is derived from content alpha.** `WindowStylePolicy` notes AppKit derives the
   drop shadow from *opaque* SwiftUI content, and the content is now translucent. If the panel
-  ever reads as flat against the desktop, the fix is an explicit window shadow.
+  ever reads as flat against the desktop, the fix is an explicit window shadow. Verified visually
+  on macOS 26 (see §6): the desktop reads through the panel and the shadow is present.
 - **Density does not yet reach `PanelCard`.** Its padding is fixed; item 10 above.
 
 ---
@@ -130,7 +131,33 @@ meeting runs, counting down through it.
 
 ---
 
-## 6. Open questions
+## 6. Inspecting the panel (development)
+
+The panel dismisses itself the instant anything else takes focus, which is correct for a menu and
+makes it impossible to screenshot — `screencapture` takes focus by existing. Two aids, both
+DEBUG-only:
+
+```sh
+open "meetingbar://dropdown-debug"     # panel in a window that STAYS OPEN; run again to close
+defaults write com.chykalophia.MeetingBarNG debugPinDropdownPanel -bool true   # real panel, pinned
+```
+
+`DropdownInspectorWindow` is the same borderless surface the real panel uses — `WindowCoordinator`
+builds both through one `installDropdownPanelSurface`, so what gets inspected cannot drift from
+what ships. It simply omits the `resignKey` override. Prefer it over the pin: it needs no relaunch
+and leaves the shipping panel's behaviour untouched.
+
+> **If a `meetingbar://` link seems to do nothing, check which bundle answered it.**
+> LaunchServices resolves the scheme across *every* registered copy, and a stale build wins on
+> recency, not on being the one you launched. This masqueraded as a broken deep link for a whole
+> session: `build/Build/Products/Debug/` (an old layout), `build/MeetingBarNG.app`, and a
+> scratchpad copy were all still registered, and the old bundle predated the deep link, so it
+> answered and did nothing. Diagnose with `ps -Ao pid,comm | grep MeetingBar` — more than one PID,
+> or a path you did not expect, is the bug. Clear with `lsregister -u <path>` plus `rm -rf`.
+
+---
+
+## 7. Open questions
 
 - **Dashboard or glance?** With header + progress + timeline + calendar all on, ~400pt precedes
   the first meeting. Currently answered by "composable, calendar off by default" — the user

@@ -496,11 +496,35 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func handleURLEvent(
         getURLEvent event: NSAppleEventDescriptor, replyEvent _: NSAppleEventDescriptor
     ) {
-        if let string = event.paramDescriptor(forKeyword: keyDirectObject)?.stringValue,
-            let url = URL(string: string) {
-            appModel?.send(.openRoute(urlHandler.route(for: url)))
+        guard let string = event.paramDescriptor(forKeyword: keyDirectObject)?.stringValue,
+              let url = URL(string: string) else { return }
+
+        #if DEBUG
+        // Intercepted ahead of the router: a development-only URL should not
+        // acquire an `AppRoute` case and an `AppEnvironment` closure that the
+        // release build still compiles. See `DropdownInspectorWindow`.
+        if DropdownInspectorWindow.matches(url) {
+            toggleDropdownInspectorWindow()
+            return
         }
+        #endif
+
+        appModel?.send(.openRoute(urlHandler.route(for: url)))
     }
+
+    #if DEBUG
+    /// Shows (or hides) the dropdown panel in a window that stays open, so it can
+    /// be screenshotted and inspected. Reached only via
+    /// `meetingbar://dropdown-debug`.
+    private func toggleDropdownInspectorWindow() {
+        guard let snapshot = statusBarItem?.dropdownPanelSnapshotForInspector() else { return }
+        windowCoordinator.toggleDropdownInspectorWindow(
+            state: snapshot.state,
+            handlers: snapshot.handlers,
+            anchor: snapshot.anchor
+        )
+    }
+    #endif
 
     @objc
     func quit(_: Any?) {

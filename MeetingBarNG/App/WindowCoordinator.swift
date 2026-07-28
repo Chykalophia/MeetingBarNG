@@ -321,6 +321,11 @@ final class WindowCoordinator {
     private var dropdownPanel: DropdownPanelWindow?
     private var dropdownPanelClosedAt: Date?
 
+    #if DEBUG
+    /// Held for the same reason as `dropdownPanel`, and released the same way.
+    private var dropdownInspector: DropdownInspectorWindow?
+    #endif
+
     /// Opens the SwiftUI dropdown panel below the status item, or closes it if
     /// it is already open (toggle). This is the default path
     /// (`Defaults[.useSwiftUIDropdown]` is `true`); the NSMenu is untouched and
@@ -362,41 +367,26 @@ final class WindowCoordinator {
         var resolvedHandlers = handlers
         resolvedHandlers.dismiss = { [weak window] in window?.close() }
 
-        let hosting = NSHostingView(
-            rootView: DropdownPanelView(state: state, handlers: resolvedHandlers)
-        )
         window.title = ""
         // NOT self-releasing: the coordinator owns the panel and drops it a
         // run-loop turn after close (see `dropdownPanel`), so AppKit is never
         // holding a freed window.
         window.isReleasedWhenClosed = false
-        // The hosting view goes INSIDE a vibrancy/glass backdrop rather than being
-        // the content view itself — see `PanelBackdrop` for why SwiftUI's own
-        // material cannot do this job here.
-        hosting.wantsLayer = true
-        hosting.layer?.backgroundColor = .clear
-        window.contentView = PanelBackdrop.wrap(hosting, radius: DropdownPanelView.cornerRadius)
-        // The shadow is derived from the content's alpha. With a translucent
-        // backdrop that derivation has to be redone AFTER the content is in
-        // place, or AppKit keeps a shadow shaped like the window's square frame.
-        window.invalidateShadow()
+        let contentHeight = installDropdownPanelSurface(
+            in: window,
+            state: state,
+            handlers: resolvedHandlers
+        )
         window.isMovableByWindowBackground = false
         window.collectionBehavior = [.moveToActiveSpace, .transient, .ignoresCycle]
         window.hidesOnDeactivate = false
-        WindowStylePolicy.applyRoundedCorners(
-            to: window,
-            radius: DropdownPanelView.cornerRadius,
-            roundsContentView: false
-        )
         window.level = DropdownPanelPresentationPolicy.level
         window.setFrame(
             DropdownPanelPlacement.frame(
                 for: anchor,
-                // The hosting view reports the SwiftUI content's height, already
-                // clamped by the view's own max height.
                 panelSize: NSSize(
                     width: DropdownPanelView.preferredWidth,
-                    height: hosting.fittingSize.height
+                    height: contentHeight
                 ),
                 screen: visibleFrame(containing: anchor)
             ),
@@ -418,6 +408,113 @@ final class WindowCoordinator {
 
         dropdownPanel = window
     }
+
+    /// Installs the panel's visible surface into `window` and reports the height
+    /// the SwiftUI content wants (already clamped by the view's own maximum).
+    ///
+    /// Shared by the real panel and the DEBUG inspector so what gets inspected
+    /// cannot drift from what ships — the backdrop, corner radius and shadow are
+    /// built in exactly one place.
+    @discardableResult
+    private func installDropdownPanelSurface(
+        in window: NSWindow,
+        state: StatusBarMenuState,
+        handlers: DropdownPanelHandlers
+    ) -> CGFloat {
+        let hosting = NSHostingView(
+            rootView: DropdownPanelView(state: state, handlers: handlers)
+        )
+        // The hosting view goes INSIDE a vibrancy/glass backdrop rather than being
+        // the content view itself — see `PanelBackdrop` for why SwiftUI's own
+        // material cannot do this job here.
+        hosting.wantsLayer = true
+        hosting.layer?.backgroundColor = .clear
+        window.contentView = PanelBackdrop.wrap(
+            hosting,
+            radius: DropdownPanelView.cornerRadius
+        )
+        // The shadow is derived from the content's alpha. With a translucent
+        // backdrop that derivation has to be redone AFTER the content is in
+        // place, or AppKit keeps a shadow shaped like the window's square frame.
+        window.invalidateShadow()
+        WindowStylePolicy.applyRoundedCorners(
+            to: window,
+            radius: DropdownPanelView.cornerRadius,
+            roundsContentView: false
+        )
+        return hosting.fittingSize.height
+    }
+
+    #if DEBUG
+    /// Opens the dropdown panel in a window that stays put, or closes it if it is
+    /// already up (toggle, so the same deep link both shows and hides it).
+    ///
+    /// Development aid only — see `DropdownInspectorWindow`. `anchor` is the real
+    /// status-item rect when the caller has one, so the panel lands where a click
+    /// would put it; `nil` falls back to the top-right of the main screen.
+    func toggleDropdownInspectorWindow(
+        state: StatusBarMenuState,
+        handlers: DropdownPanelHandlers,
+        anchor: NSRect?
+    ) {
+        if let existing = dropdownInspector {
+            existing.close()
+            return
+        }
+
+        let window = DropdownInspectorWindow(
+            contentRect: NSRect(
+                x: 0,
+                y: 0,
+                width: DropdownPanelView.preferredWidth,
+                height: DropdownPanelView.maximumHeight
+            ),
+            styleMask: [.borderless],
+            backing: .buffered,
+            defer: false
+        )
+
+        var resolvedHandlers = handlers
+        resolvedHandlers.dismiss = { [weak window] in window?.close() }
+
+        window.title = ""
+        window.isReleasedWhenClosed = false
+        let contentHeight = installDropdownPanelSurface(
+            in: window,
+            state: state,
+            handlers: resolvedHandlers
+        )
+        // Movable, unlike the real panel: dragging it off a busy desktop is often
+        // the fastest way to see how the glass reads over a different backdrop.
+        window.isMovableByWindowBackground = true
+        window.hidesOnDeactivate = false
+        window.level = DropdownInspectorPresentationPolicy.level
+
+        let screen = visibleFrame(containing: anchor ?? .zero)
+        let resolvedAnchor = anchor
+            ?? DropdownInspectorPresentationPolicy.syntheticAnchor(in: screen)
+        window.setFrame(
+            DropdownPanelPlacement.frame(
+                for: resolvedAnchor,
+                panelSize: NSSize(
+                    width: DropdownPanelView.preferredWidth,
+                    height: contentHeight
+                ),
+                screen: screen
+            ),
+            display: false
+        )
+        window.onClose = { [weak self] in
+            DispatchQueue.main.async { self?.dropdownInspector = nil }
+        }
+
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
+
+        dropdownInspector = window
+    }
+    #endif
 
     /// The visible frame of the screen the status item lives on, falling back to
     /// the main screen (and finally to a sane rect when there is no screen at
