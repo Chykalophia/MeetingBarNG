@@ -1,0 +1,50 @@
+MeetingBarNG/UI/StatusBar/MeetingProgressRenderer.swift
+  s_b8ddb6808b4a67::t_1f6c9b8c3da3b1 1-32,36-41,45-99,102-105,107-164,208-236
+  s_b8ddb6808b4a67::t_156d7fb3065db5 42-44
+  s_b8ddb6808b4a67::t_e88598340ce1d5 33-35
+  s_b8ddb6808b4a67::t_dbe2e5243f5198 100-101,106
+  s_b8ddb6808b4a67::t_a75afae7fa543b 165-207
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_b8ddb6808b4a67::t_cd808db0fa90e4 98-102
+  s_b8ddb6808b4a67::t_a87d6d2075fc60 587-615,627-649
+  s_b8ddb6808b4a67::t_427b398fe12f77 616-626
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_b8ddb6808b4a67::t_48893b1b697dbb 262-269
+docs/DROPDOWN-MODERNIZATION.md
+  s_b8ddb6808b4a67::t_0b3b17094e583b 81-82
+  s_b8ddb6808b4a67::t_e51867d9d3ddc1 129-150
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_b8ddb6808b4a67::t_df9219b341dc88 256-266
+MeetingBarNG/UI/StatusBar/MeetingProgress.swift
+  s_b8ddb6808b4a67::t_8219123141d1bc 1-123
+MeetingBarNG/Preferences/MenuBarTab.swift
+  s_b8ddb6808b4a67::t_06866537652357 459-497
+  s_b8ddb6808b4a67::t_c256e915886869 73-75
+  s_b8ddb6808b4a67::t_149a064e5d2694 101
+MeetingBarLogicTests/MeetingProgressTests.swift
+  s_b8ddb6808b4a67::t_b185b274bdab65 1-157
+Package.swift
+  s_b8ddb6808b4a67::t_8a3e41105a5f37 55
+MeetingBarNG/Preferences/SettingsIndex.swift
+  s_b8ddb6808b4a67::t_b08bd7e72b15b6 332-341
+  s_b8ddb6808b4a67::t_91af89f27209f3 331
+MeetingBarNG/UI/StatusBar/MeetingSummaryView.swift
+  s_b8ddb6808b4a67::t_951eda6123fd04 116-119
+  s_b8ddb6808b4a67::t_dc2ea8ae6562c7 90-94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "286fa4250956d434363d8bc58e070b1050af2177",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
