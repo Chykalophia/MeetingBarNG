@@ -226,7 +226,7 @@ struct DropdownPanelView: View {
 
     /// A long day scrolls inside the panel instead of growing past the screen.
     /// `DropdownPanelPlacement` trims this further when the display is short.
-    static let maximumHeight: CGFloat = 600
+    static let maximumHeight: CGFloat = 760
 
     /// Shared with the window host so the AppKit corner mask matches the
     /// SwiftUI background exactly (no hairline at the corners).
@@ -247,34 +247,42 @@ struct DropdownPanelView: View {
     /// shifts the row's layout.
 
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.vertical) {
-                VStack(alignment: .leading, spacing: 0) {
-                    ForEach(Array(visibleModules.enumerated()), id: \.element) { pair in
-                        if pair.offset > 0 { separator }
-                        moduleBlock(pair.element)
+        VStack(alignment: .leading, spacing: 0) {
+            ScrollViewReader { proxy in
+                ScrollView(.vertical) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ForEach(Array(visibleModules.enumerated()), id: \.element) { pair in
+                            if pair.offset > 0 { separator }
+                            moduleBlock(pair.element)
+                        }
                     }
-                    // The Preferences footer is pinned, never a module, so the user
-                    // can't hide Settings/Quit — same guarantee as the real menu.
-                    separator
-                    footerBlock
+                    .padding(.vertical, 6)
+                    .frame(width: Self.preferredWidth, alignment: .leading)
                 }
-                .padding(.vertical, 6)
+                .scrollDisabled(isPreview)
+                .onChange(of: selectionIndex) { _, _ in
+                    guard let selectedRow else { return }
+                    withAnimation(revealAnimation) {
+                        proxy.scrollTo(selectedRow, anchor: .center)
+                    }
+                }
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            // A menu never shows a scrollbar. The panel scrolls only when a very
+            // long day overflows `maximumHeight`, and even then the indicator stays
+            // hidden so it reads as a menu rather than a scroll view.
+            .scrollIndicators(.hidden)
+
+            // OUTSIDE the scroll view, so Preferences and Quit are always on
+            // screen. "Pinned" previously meant only that they could not be
+            // hidden by the composer — they still scrolled away, and a dense day
+            // (or the calendar module) pushed them past the fold, which reads as
+            // the panel being broken rather than scrollable.
+            separator
+            footerBlock
+                .padding(.bottom, 6)
                 .frame(width: Self.preferredWidth, alignment: .leading)
-            }
-            .scrollDisabled(isPreview)
-            .onChange(of: selectionIndex) { _, _ in
-                guard let selectedRow else { return }
-                withAnimation(revealAnimation) {
-                    proxy.scrollTo(selectedRow, anchor: .center)
-                }
-            }
         }
-        .scrollBounceBehavior(.basedOnSize)
-        // A menu never shows a scrollbar. The panel scrolls only when a very
-        // long day overflows `maximumHeight`, and even then the indicator stays
-        // hidden so it reads as a menu rather than a scroll view.
-        .scrollIndicators(.hidden)
         .frame(width: Self.preferredWidth)
         .frame(maxHeight: isPreview ? .infinity : Self.maximumHeight)
         .background(panelSurface)
@@ -379,7 +387,8 @@ struct DropdownPanelView: View {
                 agenda: state.menu.showAgendaInMenu,
                 join: state.menu.showJoinSectionInMenu,
                 bookmarks: state.menu.showBookmarksInMenu,
-                calendar: state.menu.showCalendarInMenu
+                calendar: state.menu.showCalendarInMenu,
+            upNext: state.menu.showUpNextInMenu
             )
         )
         .filter(hasContent)
@@ -395,6 +404,7 @@ struct DropdownPanelView: View {
         case .join: true
         case .bookmarks: !state.meetings.bookmarks.isEmpty
         case .calendar: state.hasSelectedCalendars
+        case .upNext: state.nextEvent != nil
         }
     }
 
@@ -408,6 +418,7 @@ struct DropdownPanelView: View {
         case .join: joinBlock
         case .bookmarks: bookmarksBlock
         case .calendar: calendarBlock
+        case .upNext: upNextBlock
         }
     }
 
@@ -590,6 +601,72 @@ struct DropdownPanelView: View {
     }
 
     // MARK: - Timeline
+
+    // MARK: - Up next
+
+    /// The "Next · <title> — in 24m" card with a bar filling toward the start.
+    ///
+    /// Deliberately meeting-relative rather than the reference's year/day
+    /// progress: "1.2% of today" is trivia, this is actionable. The bar reaches
+    /// full at exactly the moment `eventActionHighlightMinutes` un-mutes the Join
+    /// button and boldens the menu bar — one threshold made visible in a third
+    /// place, rather than a fourth unrelated setting.
+    @ViewBuilder
+    private var upNextBlock: some View {
+        if let event = state.nextEvent {
+            PanelCard {
+                VStack(alignment: .leading, spacing: 7) {
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text("dropdown_panel_up_next".loco())
+                            .font(.system(size: metrics.secondaryFontSize - 1))
+                            .foregroundStyle(.secondary)
+                        Text(event.title ?? "status_bar_no_title".loco())
+                            .font(.system(size: metrics.secondaryFontSize, weight: .semibold))
+                            .lineLimit(1)
+                        Spacer(minLength: 6)
+                        Text(upNextCountdown(event))
+                            .font(.system(size: metrics.secondaryFontSize - 1))
+                            .foregroundStyle(isActionImminent(event) ? Color.accentColor : .secondary)
+                            .monospacedDigit()
+                    }
+                    upNextBar(event)
+                }
+            }
+        }
+    }
+
+    private func upNextBar(_ event: MBEvent) -> some View {
+        GeometryReader { proxy in
+            let fraction = upNextFraction(event)
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color.primary.opacity(0.10))
+                Capsule()
+                    .fill(isActionImminent(event) ? Color.accentColor : Color.accentColor.opacity(0.55))
+                    .frame(width: max(0, min(1, fraction)) * proxy.size.width)
+            }
+        }
+        .frame(height: 4)
+    }
+
+    /// 0 an hour out, 1 at the start — then holds full while the meeting runs, so
+    /// the bar never appears to "reset" the moment a meeting begins.
+    private func upNextFraction(_ event: MBEvent) -> Double {
+        guard event.startDate > clock else { return 1 }
+        let window: TimeInterval = 3600
+        let remaining = event.startDate.timeIntervalSince(clock)
+        return 1 - min(1, remaining / window)
+    }
+
+    private func upNextCountdown(_ event: MBEvent) -> String {
+        if event.startDate <= clock {
+            return "dropdown_panel_up_next_now".loco()
+        }
+        let minutes = Int((event.startDate.timeIntervalSince(clock) / 60).rounded())
+        if minutes >= 60 {
+            return "dropdown_panel_up_next_in_hm".loco(minutes / 60, minutes % 60)
+        }
+        return "dropdown_panel_up_next_in_m".loco(max(minutes, 0))
+    }
 
     // MARK: - Calendar
 
@@ -1734,10 +1811,16 @@ struct DropdownPanelView: View {
     /// accumulates haze and eats the contrast the agenda needs.
     @ViewBuilder
     private var panelSurface: some View {
-        if #available(macOS 26.0, *) {
-            Color.clear.glassEffect(.regular, in: panelShape)
-        } else {
+        if isPreview {
+            // Hosted inside the Preferences window, where there is no AppKit
+            // backdrop and SwiftUI's own material CAN sample what is behind it
+            // (the Preferences window), so it works here and only here.
             panelShape.fill(.regularMaterial)
+        } else {
+            // Live panel: `PanelBackdrop` supplies a real NSVisualEffectView /
+            // NSGlassEffectView beneath this view, blending against the DESKTOP.
+            // Painting anything here would sit opaquely on top of it.
+            Color.clear
         }
     }
 
@@ -1747,8 +1830,10 @@ struct DropdownPanelView: View {
     /// pale wallpaper.
     @ViewBuilder
     private var panelEdge: some View {
-        if #available(macOS 26.0, *) {
-            panelShape.strokeBorder(Color.white.opacity(0.14))
+        if #available(macOS 26.0, *), !isPreview {
+            // Glass draws its own specular rim; a second stroke on top of it just
+            // reads as a drawn outline and flattens the effect.
+            EmptyView()
         } else {
             panelShape.strokeBorder(Color.primary.opacity(0.10))
         }

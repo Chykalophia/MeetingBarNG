@@ -45,10 +45,35 @@ final class EventDeduplicationTests: XCTestCase {
         XCTAssertEqual(EventDeduplication.keptIndices(events), [0])
     }
 
-    func test_differentExternalIdentifiersAreKept() {
+    /// THE REGRESSION THIS FILE EXISTS FOR.
+    ///
+    /// Two rows reading "12:00 PM · Peter: Lunch" survived on real data purely
+    /// because the providers disagreed about an identifier the user cannot see.
+    /// The identifier is now one of two signals, not a short circuit: matching
+    /// EITHER the identifier or the visible composite collapses the pair.
+    func test_differentExternalIdentifiersStillCollapseWhenTheRowsLookIdentical() {
         let events = [
-            event(0, externalIdentifier: "id-1", start: date(12), end: date(13)),
-            event(1, externalIdentifier: "id-2", start: date(12), end: date(13))
+            event(0, externalIdentifier: "id-1", title: "Peter: Lunch", start: date(12), end: date(13)),
+            event(1, externalIdentifier: "id-2", title: "Peter: Lunch", start: date(12), end: date(13))
+        ]
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [0])
+    }
+
+    /// The identifier still earns its keep: different ids AND a visibly different
+    /// row must stay two events. This is the guard against over-merging.
+    func test_differentExternalIdentifiersAreKeptWhenTheRowsDiffer() {
+        let events = [
+            event(0, externalIdentifier: "id-1", title: "Lunch", start: date(12), end: date(13)),
+            event(1, externalIdentifier: "id-2", title: "Standup", start: date(12), end: date(13))
+        ]
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [0, 1])
+    }
+
+    /// Same start minute, different titles — genuinely two meetings, kept.
+    func test_concurrentDifferentMeetingsAreKept() {
+        let events = [
+            event(0, title: "Design review", start: date(12), end: date(13)),
+            event(1, title: "1:1 with Sam", start: date(12), end: date(13))
         ]
         XCTAssertEqual(EventDeduplication.keptIndices(events), [0, 1])
     }

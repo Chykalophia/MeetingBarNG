@@ -17,14 +17,17 @@ final class DropdownDensityTests: XCTestCase {
 
     // MARK: - The shipping look must not move
 
-    /// `.standard` IS the shipping panel. If this fails, every existing user's
-    /// dropdown just changed shape because a density preset was edited.
-    func test_standardIsUnchanged() {
+    /// `.standard` IS the shipping panel. A failure here means every user's
+    /// dropdown just changed shape — which is sometimes intended (these numbers
+    /// were widened from the inherited NSMenu 330pt on 2026-07-28) and sometimes
+    /// a density preset being edited by accident. Either way it should be a
+    /// decision, not a surprise, which is why the values are spelled out.
+    func test_standardMatchesTheShippingPanel() {
         let grid = DropdownDensity.standard.metrics
-        XCTAssertEqual(grid.panelWidth, 330)
-        XCTAssertEqual(grid.rowOuterPadding, 6)
-        XCTAssertEqual(grid.rowInnerPadding, 10)
-        XCTAssertEqual(grid.rowVerticalPadding, 5)
+        XCTAssertEqual(grid.panelWidth, 360)
+        XCTAssertEqual(grid.rowOuterPadding, 8)
+        XCTAssertEqual(grid.rowInnerPadding, 12)
+        XCTAssertEqual(grid.rowVerticalPadding, 6)
         XCTAssertEqual(grid.columnSpacing, 8)
         XCTAssertEqual(grid.timeColumnWidth, 66)
         XCTAssertEqual(grid.rowFontSize, 13)

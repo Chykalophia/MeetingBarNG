@@ -147,10 +147,10 @@ public struct DropdownMetrics: Equatable, Sendable {
     }
 
     public static let standard = DropdownMetrics(
-        panelWidth: 330,
-        rowOuterPadding: 6,
-        rowInnerPadding: 10,
-        rowVerticalPadding: 5,
+        panelWidth: 360,
+        rowOuterPadding: 8,
+        rowInnerPadding: 12,
+        rowVerticalPadding: 6,
         columnSpacing: 8,
         timeColumnWidth: 66,
         markerDotDiameter: 7,
@@ -168,10 +168,10 @@ public struct DropdownMetrics: Equatable, Sendable {
     /// with the font — it is sized to fit "12:00 PM", so it has to shrink in step
     /// or every row carries dead space.
     public static let compact = DropdownMetrics(
-        panelWidth: 330,
-        rowOuterPadding: 6,
-        rowInnerPadding: 10,
-        rowVerticalPadding: 2.5,
+        panelWidth: 360,
+        rowOuterPadding: 8,
+        rowInnerPadding: 12,
+        rowVerticalPadding: 3.5,
         columnSpacing: 7,
         timeColumnWidth: 62,
         markerDotDiameter: 6,
@@ -188,10 +188,10 @@ public struct DropdownMetrics: Equatable, Sendable {
     /// More air per row. Marker and column widths grow with the type so the
     /// leading grid stays proportional rather than looking stranded.
     public static let roomy = DropdownMetrics(
-        panelWidth: 330,
-        rowOuterPadding: 6,
-        rowInnerPadding: 11,
-        rowVerticalPadding: 8,
+        panelWidth: 360,
+        rowOuterPadding: 8,
+        rowInnerPadding: 12,
+        rowVerticalPadding: 9,
         columnSpacing: 9,
         timeColumnWidth: 70,
         markerDotDiameter: 8,

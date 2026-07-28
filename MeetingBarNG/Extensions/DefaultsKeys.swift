@@ -154,6 +154,9 @@ extension Defaults.Keys {
     /// deliberate choice to make the dropdown a day dashboard rather than a
     /// what's-next glance.
     static let showCalendarInMenu = Key<Bool>("showCalendarInMenu", default: false)
+    /// The "Next · <meeting> — in 24m" progress card. ON: it is one row tall
+    /// and answers the question the app exists to answer.
+    static let showUpNextInMenu = Key<Bool>("showUpNextInMenu", default: true)
 
     // Calendar window (MeetingBarNG). The month ⇄ week fold, stored as a
     // `CalendarGridMode` raw value so an unknown/renamed value degrades to the

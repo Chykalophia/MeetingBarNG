@@ -294,6 +294,11 @@
 "preferences_dropdown_block_join" = "Join & actions";
 "preferences_dropdown_block_bookmarks" = "Saved links";
 "preferences_dropdown_block_calendar" = "Month calendar";
+"preferences_dropdown_block_up_next" = "Up next";
+"dropdown_panel_up_next" = "Next ·";
+"dropdown_panel_up_next_now" = "now";
+"dropdown_panel_up_next_in_m" = "in %dm";
+"dropdown_panel_up_next_in_hm" = "in %dh %dm";
 "preferences_dropdown_greeting_name_title" = "Your name";
 "preferences_dropdown_greeting_name_placeholder" = "Your macOS account name";
 "preferences_dropdown_greeting_name_help" = "Used in the dropdown greeting, e.g. “Good morning, Alex”.";

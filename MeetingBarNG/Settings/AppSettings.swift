@@ -78,6 +78,8 @@ struct MenuSettings: Equatable {
     var showBookmarksInMenu: Bool
     /// Compact month grid in the dropdown. OFF by default.
     var showCalendarInMenu: Bool
+    /// The up-next progress card. ON by default.
+    var showUpNextInMenu: Bool
 }
 
 struct NotificationSettings: Equatable {
@@ -291,7 +293,8 @@ extension AppSettings {
                 showAgendaInMenu: Defaults[.showAgendaInMenu],
                 showJoinSectionInMenu: Defaults[.showJoinSectionInMenu],
                 showBookmarksInMenu: Defaults[.showBookmarksInMenu],
-                showCalendarInMenu: Defaults[.showCalendarInMenu]
+                showCalendarInMenu: Defaults[.showCalendarInMenu],
+                showUpNextInMenu: Defaults[.showUpNextInMenu]
             ),
             notifications: NotificationSettings(
                 joinEventNotification: Defaults[.joinEventNotification],
@@ -374,7 +377,8 @@ extension AppSettings {
                 showAgendaInMenu: true,
                 showJoinSectionInMenu: true,
                 showBookmarksInMenu: true,
-                showCalendarInMenu: false
+                showCalendarInMenu: false,
+                showUpNextInMenu: true
             ),
             notifications: NotificationSettings(
                 joinEventNotification: true,

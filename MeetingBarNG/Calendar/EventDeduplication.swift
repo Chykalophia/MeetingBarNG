@@ -48,10 +48,28 @@ enum EventDeduplication {
     /// keep, dropping later duplicates. Order is preserved and the first
     /// occurrence always wins.
     static func keptIndices(_ events: [DeduplicationEvent]) -> [Int] {
-        var seenKeys = Set<String>()
+        var seenIdentifiers = Set<String>()
+        var seenComposites = Set<String>()
         var kept: [Int] = []
         kept.reserveCapacity(events.count)
-        for event in events where seenKeys.insert(deduplicationKey(for: event)).inserted {
+
+        for event in events {
+            let composite = compositeKey(for: event)
+            let identifier = sharedIdentifier(for: event)
+
+            // EITHER signal is sufficient. The identifier catches copies whose
+            // title or time drifted apart; the composite catches copies whose
+            // identifiers drifted apart. Requiring both, or checking the
+            // identifier FIRST and returning, is what left a duplicate on screen:
+            // two rows reading "12:00 PM · Peter: Lunch" survived purely because
+            // the providers disagreed about an id the user cannot see.
+            let alreadySeen =
+                seenComposites.contains(composite)
+                || (identifier.map(seenIdentifiers.contains) ?? false)
+            guard !alreadySeen else { continue }
+
+            seenComposites.insert(composite)
+            if let identifier { seenIdentifiers.insert(identifier) }
             kept.append(event.sourceIndex)
         }
         return kept
@@ -64,11 +82,19 @@ enum EventDeduplication {
     /// STARTING MINUTE, which catches true duplicates that differ only by the
     /// calendar they came from — or by an end time the user cannot see.
     /// Prefixes keep the two key spaces from colliding.
-    private static func deduplicationKey(for event: DeduplicationEvent) -> String {
-        if let externalIdentifier = event.externalIdentifier, !externalIdentifier.isEmpty {
-            return "ext:\(externalIdentifier)"
-        }
-        return "composite:\(normalizedTitle(event.title))|\(startMinute(event))|\(event.isAllDay)"
+    /// The provider's shared identifier, when it has one. Copies of a single
+    /// invite across calendars usually carry the same one — but only usually,
+    /// which is why it is one of two signals rather than the deciding one.
+    private static func sharedIdentifier(for event: DeduplicationEvent) -> String? {
+        guard let identifier = event.externalIdentifier, !identifier.isEmpty else { return nil }
+        return identifier
+    }
+
+    /// Title + starting minute + all-day-ness: what the user can actually see on
+    /// the row. Two events matching here are indistinguishable on screen, so
+    /// showing both reads as a bug regardless of what the providers think.
+    private static func compositeKey(for event: DeduplicationEvent) -> String {
+        "composite:\(normalizedTitle(event.title))|\(startMinute(event))|\(event.isAllDay)"
     }
 
     /// Case-, diacritic- AND whitespace-insensitive.

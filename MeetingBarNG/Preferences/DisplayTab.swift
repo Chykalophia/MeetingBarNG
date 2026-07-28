@@ -34,6 +34,7 @@ struct DropdownComposerSection: View {
     @Default(.showJoinSectionInMenu) var showJoinSectionInMenu
     @Default(.showBookmarksInMenu) var showBookmarksInMenu
     @Default(.showCalendarInMenu) var showCalendarInMenu
+    @Default(.showUpNextInMenu) var showUpNextInMenu
 
     // Greeting gear: the name field.
     @Default(.greetingName) var greetingName
@@ -80,7 +81,8 @@ struct DropdownComposerSection: View {
             agenda: showAgendaInMenu,
             join: showJoinSectionInMenu,
             bookmarks: showBookmarksInMenu,
-            calendar: showCalendarInMenu
+            calendar: showCalendarInMenu,
+            upNext: showUpNextInMenu
         )
     }
 
@@ -174,7 +176,7 @@ struct DropdownComposerSection: View {
     private func hasGear(_ module: DropdownModule) -> Bool {
         switch module {
         case .greeting, .agenda: return true
-        case .timeline, .meeting, .join, .bookmarks, .calendar: return false
+        case .timeline, .meeting, .join, .bookmarks, .calendar, .upNext: return false
         }
     }
 
@@ -236,7 +238,7 @@ struct DropdownComposerSection: View {
                     isEnabled: shortenEventTitle
                 )
 
-            case .timeline, .meeting, .join, .bookmarks, .calendar:
+            case .timeline, .meeting, .join, .bookmarks, .calendar, .upNext:
                 EmptyView()
             }
         }
@@ -258,6 +260,7 @@ struct DropdownComposerSection: View {
         case .join: return "preferences_dropdown_block_join".loco()
         case .bookmarks: return "preferences_dropdown_block_bookmarks".loco()
         case .calendar: return "preferences_dropdown_block_calendar".loco()
+        case .upNext: return "preferences_dropdown_block_up_next".loco()
         }
     }
 
@@ -270,6 +273,7 @@ struct DropdownComposerSection: View {
         case .join: return "arrow.up.right.square"
         case .bookmarks: return "bookmark"
         case .calendar: return "calendar"
+        case .upNext: return "chart.bar.fill"
         }
     }
 
@@ -282,6 +286,7 @@ struct DropdownComposerSection: View {
         case .join: return showJoinSectionInMenu
         case .bookmarks: return showBookmarksInMenu
         case .calendar: return showCalendarInMenu
+        case .upNext: return showUpNextInMenu
         }
     }
 
@@ -296,6 +301,7 @@ struct DropdownComposerSection: View {
         case .join: showJoinSectionInMenu = value
         case .bookmarks: showBookmarksInMenu = value
         case .calendar: showCalendarInMenu = value
+        case .upNext: showUpNextInMenu = value
         }
     }
 

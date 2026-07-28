@@ -122,6 +122,21 @@ struct DayRelativeTimelineView: View {
             DayTimelineLayout.rowHeight * CGFloat(max(eventRows.count - 1, 0))
     }
 
+    /// Half the width of the widest hour label ("12 PM" / "10 AM" at `.caption2`).
+    ///
+    /// An estimate on purpose: measuring the rendered string would need a layout
+    /// pass per tick for a value that only decides whether an edge label is
+    /// nudged a few points inward. Over-estimating is the safe direction — it
+    /// insets the label slightly more than needed rather than letting it clip.
+    private static let hourLabelHalfWidth: CGFloat = 18
+
+    /// Keeps an hour label inside the view, leaving interior labels untouched.
+    private func clampedLabelX(_ x: CGFloat, width: CGFloat) -> CGFloat {
+        let inset = Self.hourLabelHalfWidth
+        guard width > inset * 2 else { return width / 2 }
+        return min(max(x, inset), width - inset)
+    }
+
     // MARK: Body
     var body: some View {
         GeometryReader { proxy in
@@ -142,7 +157,14 @@ struct DayRelativeTimelineView: View {
                     Text(hourFormatter.string(from: tick))
                         .font(.caption2)
                         .foregroundColor(.secondary)
-                        .position(x: x, y: -8)
+                        .fixedSize()
+                        // `.position` CENTRES on x, so a tick at either edge put
+                        // half its label outside the view. At the panel's old full
+                        // width nothing clipped it so it went unnoticed; inside a
+                        // card the overflow is visibly cut ("4 P"). Clamping keeps
+                        // the first and last labels inside their own bounds — the
+                        // tick lines still mark the true positions.
+                        .position(x: clampedLabelX(x, width: width), y: -8)
                 }
 
                 // Event rows

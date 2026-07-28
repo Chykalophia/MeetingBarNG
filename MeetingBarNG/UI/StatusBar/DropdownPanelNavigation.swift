@@ -91,7 +91,7 @@ enum DropdownPanelNavigation {
 
         for module in content.modules {
             switch module {
-            case .greeting, .timeline, .calendar:
+            case .greeting, .timeline, .calendar, .upNext:
                 // Presentation-only modules: nothing for Up/Down to land on.
                 // The calendar has its own internal hit targets (day cells, month
                 // arrows), which arrow keys cannot address without stealing them

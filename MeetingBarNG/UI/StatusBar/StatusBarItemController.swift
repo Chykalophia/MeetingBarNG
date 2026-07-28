@@ -571,6 +571,42 @@ final class StatusBarItemController {
      * ------------------------
      */
 
+    /// The NSMenu items for one dropdown module, or `nil` when the module
+    /// contributes nothing to the classic menu.
+    ///
+    /// Extracted from `updateMenu` so that adding a module does not keep pushing
+    /// that function past the cyclomatic-complexity limit — the switch grows with
+    /// every module, and it is the only part of `updateMenu` that does.
+    private func menuBlock(
+        for module: DropdownModule,
+        builder: MenuBuilder,
+        state menuState: StatusBarMenuState
+    ) -> [NSMenuItem]? {
+        switch module {
+        case .greeting:
+            return menuState.shouldShowGreetingHeader ? builder.buildGreetingHeaderBlock() : nil
+        case .upNext, .calendar:
+            // Panel-only modules. Both could be hosted here via NSHostingView the
+            // way the timeline and meeting card already are, but the classic
+            // NSMenu is the opt-out fallback: a month grid is the least
+            // menu-shaped thing in the app, and a live progress bar would need a
+            // hosted view redrawing on a timer while the menu is tracking.
+            // Deliberate parity gap — switching the panel off switches these off.
+            return nil
+        case .timeline:
+            return builder.buildTimelineBlock()
+        case .meeting:
+            return builder.buildMeetingControlSection()
+        case .agenda:
+            return menuState.hasSelectedCalendars ? builder.buildAgendaBlock() : nil
+        case .join:
+            return builder.buildJoinSection(nextEvent: menuState.nextEvent, includeJoinAction: false)
+        case .bookmarks:
+            guard !menuState.meetings.bookmarks.isEmpty else { return nil }
+            return builder.buildBookmarksSection(bookmarks: menuState.meetings.bookmarks)
+        }
+    }
+
     func updateMenu() {
         guard let statusItem else { return }
         // Don't update the menu while it's open to avoid flickering
@@ -595,39 +631,8 @@ final class StatusBarItemController {
             enabled: enabledDropdownModuleRawValues(menuState)
         )
 
-        var blocks: [[NSMenuItem]] = []
-        for module in modules {
-            switch module {
-            case .greeting:
-                if menuState.shouldShowGreetingHeader {
-                    blocks.append(builder.buildGreetingHeaderBlock())
-                }
-            case .calendar:
-                // Panel-only module. The compact month grid could be hosted here
-                // via NSHostingView the way the timeline and meeting card already
-                // are, but the classic NSMenu is the opt-out fallback and a month
-                // grid is the least menu-shaped thing in the app. Deliberate parity
-                // gap: switching the panel off also switches this off.
-                break
-            case .timeline:
-                blocks.append(builder.buildTimelineBlock())
-            case .meeting:
-                blocks.append(builder.buildMeetingControlSection())
-            case .agenda:
-                if menuState.hasSelectedCalendars {
-                    blocks.append(builder.buildAgendaBlock())
-                }
-            case .join:
-                blocks.append(builder.buildJoinSection(
-                    nextEvent: menuState.nextEvent,
-                    includeJoinAction: false
-                ))
-            case .bookmarks:
-                if !menuState.meetings.bookmarks.isEmpty {
-                    blocks.append(builder.buildBookmarksSection(
-                        bookmarks: menuState.meetings.bookmarks))
-                }
-            }
+        var blocks: [[NSMenuItem]] = modules.compactMap {
+            menuBlock(for: $0, builder: builder, state: menuState)
         }
         // The Preferences footer is pinned, never a module, so the user can't
         // hide Settings/Quit.
@@ -653,7 +658,8 @@ final class StatusBarItemController {
             agenda: menuState.menu.showAgendaInMenu,
             join: menuState.menu.showJoinSectionInMenu,
             bookmarks: menuState.menu.showBookmarksInMenu,
-            calendar: Defaults[.showCalendarInMenu]
+            calendar: Defaults[.showCalendarInMenu],
+            upNext: Defaults[.showUpNextInMenu]
         )
     }
 

@@ -35,18 +35,30 @@ struct DaySummaryHeaderView: View {
     static let preferredHeight: CGFloat = 54
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 11) {
+            // The time-of-day glyph sits in its own rounded tile. It is the only
+            // contained icon in the panel BY DESIGN: it is decorative identity,
+            // not an action. The trailing action icons stay bare — a container
+            // around a button reads as a second, competing affordance.
             Image(systemName: symbolName)
-                .font(.system(size: 20, weight: .medium))
+                .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(.tint)
-                .frame(width: 24)
+                .frame(width: 32, height: 32)
+                .background(
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(Color.primary.opacity(0.07))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.10))
+                )
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(greeting)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(.primary)
                 Text(summary)
-                    .font(.caption)
+                    .font(.system(size: 11.5))
                     .foregroundColor(.secondary)
             }
 
@@ -61,7 +73,8 @@ struct DaySummaryHeaderView: View {
             }
         }
         .padding(.horizontal, 14)
-        .padding(.vertical, 8)
+        .padding(.top, 12)
+        .padding(.bottom, 10)
         .frame(width: Self.preferredWidth, alignment: .leading)
     }
 }

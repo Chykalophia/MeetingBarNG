@@ -192,9 +192,60 @@ enum OnboardingWindowPresentationPolicy {
     static let isMovableByWindowBackground = true
 }
 
+/// The dropdown panel's real translucent surface.
+///
+/// SwiftUI's `.regularMaterial` / `glassEffect` inside an `NSHostingView` blend
+/// WITHIN the window. Over a borderless transparent window that means sampling
+/// nothing, so the panel composited over emptiness and read as flat — which is
+/// exactly what it looked like. Desktop translucency needs an AppKit surface
+/// with `.behindWindow` blending, which is what this builds.
+///
+/// On macOS 26 the equivalent is `NSGlassEffectView`, which hosts its content
+/// directly and owns its own corner rounding.
+private enum PanelBackdrop {
+    @MainActor
+    static func wrap(_ content: NSView, radius: CGFloat) -> NSView {
+        if #available(macOS 26.0, *) {
+            let glass = NSGlassEffectView()
+            glass.cornerRadius = radius
+            glass.contentView = content
+            // Clipped after all. Leaving it unclipped to preserve the specular
+            // rim let the window's own square backing show as a black box behind
+            // the rounded corners — far worse than a slightly tighter rim.
+            glass.wantsLayer = true
+            glass.layer?.cornerRadius = radius
+            glass.layer?.masksToBounds = true
+            return glass
+        }
+
+        let effect = NSVisualEffectView()
+        // `.menu` rather than `.popover`: this IS a menu, and the material
+        // carries the vibrancy AppKit gives real menus.
+        effect.material = .menu
+        effect.blendingMode = .behindWindow
+        effect.state = .active
+        effect.wantsLayer = true
+        effect.layer?.cornerRadius = radius
+        effect.layer?.masksToBounds = true
+
+        content.frame = effect.bounds
+        content.autoresizingMask = [.width, .height]
+        effect.addSubview(content)
+        return effect
+    }
+}
+
 private enum WindowStylePolicy {
     @MainActor
-    static func applyRoundedCorners(to window: NSWindow, radius: CGFloat = 12) {
+    /// - Parameter roundsContentView: pass `false` when the content view is a
+    ///   backdrop that already owns its rounding (`PanelBackdrop`). Layer-masking
+    ///   an `NSGlassEffectView` shears off the specular rim it draws just outside
+    ///   its own bounds, which is the difference between glass and a grey box.
+    static func applyRoundedCorners(
+        to window: NSWindow,
+        radius: CGFloat = 12,
+        roundsContentView: Bool = true
+    ) {
         // Clear, non-opaque window so AppKit derives the drop shadow from the
         // opaque SwiftUI content (which paints its own rounded background and
         // hairline border). A shadow set on the content layer itself can't
@@ -203,7 +254,7 @@ private enum WindowStylePolicy {
         window.backgroundColor = .clear
         window.hasShadow = true
 
-        guard let contentView = window.contentView else { return }
+        guard roundsContentView, let contentView = window.contentView else { return }
 
         contentView.wantsLayer = true
         contentView.layer?.cornerRadius = radius
@@ -290,11 +341,24 @@ final class WindowCoordinator {
         // run-loop turn after close (see `dropdownPanel`), so AppKit is never
         // holding a freed window.
         window.isReleasedWhenClosed = false
-        window.contentView = hosting
+        // The hosting view goes INSIDE a vibrancy/glass backdrop rather than being
+        // the content view itself — see `PanelBackdrop` for why SwiftUI's own
+        // material cannot do this job here.
+        hosting.wantsLayer = true
+        hosting.layer?.backgroundColor = .clear
+        window.contentView = PanelBackdrop.wrap(hosting, radius: DropdownPanelView.cornerRadius)
+        // The shadow is derived from the content's alpha. With a translucent
+        // backdrop that derivation has to be redone AFTER the content is in
+        // place, or AppKit keeps a shadow shaped like the window's square frame.
+        window.invalidateShadow()
         window.isMovableByWindowBackground = false
         window.collectionBehavior = [.moveToActiveSpace, .transient, .ignoresCycle]
         window.hidesOnDeactivate = false
-        WindowStylePolicy.applyRoundedCorners(to: window, radius: DropdownPanelView.cornerRadius)
+        WindowStylePolicy.applyRoundedCorners(
+            to: window,
+            radius: DropdownPanelView.cornerRadius,
+            roundsContentView: false
+        )
         window.level = DropdownPanelPresentationPolicy.level
         window.setFrame(
             DropdownPanelPlacement.frame(
