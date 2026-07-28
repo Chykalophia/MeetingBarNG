@@ -155,12 +155,17 @@ final class DropdownPanelWindow: NSWindow {
         #if DEBUG
         // Development aid: the panel dismisses the instant anything else takes
         // focus, which makes it impossible to screenshot or inspect from another
-        // process. Setting MEETINGBARNG_PIN_PANEL=1 holds it open.
+        // process. Holding it open needs a switch that survives a NORMAL launch —
+        // an environment variable does not, because `open` launches the app
+        // bundle through LaunchServices rather than inheriting the caller's
+        // environment, and running the executable directly skips the bundle so
+        // the status item never appears.
         //
-        // DEBUG-only and env-gated on purpose — it defeats the panel's defining
-        // behaviour, so it must be impossible to reach in a release build and
-        // impossible to enable by accident in a debug one.
-        if ProcessInfo.processInfo.environment["MEETINGBARNG_PIN_PANEL"] == "1" { return }
+        //   defaults write com.chykalophia.MeetingBarNG debugPinDropdownPanel -bool true
+        //
+        // DEBUG-only: it defeats the panel's defining behaviour, so it must be
+        // unreachable in a release build.
+        if Self.isPinnedForDebugging { return }
         #endif
         DispatchQueue.main.async { [weak self] in self?.close() }
     }
@@ -171,6 +176,14 @@ final class DropdownPanelWindow: NSWindow {
         handler?()
         super.close()
     }
+
+    #if DEBUG
+    /// Read once per launch: a screenshot run sets the key before launching, and
+    /// re-reading it on every focus change would be a defaults hit per keystroke.
+    static let isPinnedForDebugging = UserDefaults.standard.bool(
+        forKey: "debugPinDropdownPanel"
+    )
+    #endif
 }
 
 enum DropdownPanelPresentationPolicy {
