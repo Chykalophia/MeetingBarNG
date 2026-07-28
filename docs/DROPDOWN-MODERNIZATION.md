@@ -205,22 +205,30 @@ Corrections to earlier notes in this file, all of which were wrong:
 - The `PanelCard` "never `glassEffect`" rule is right, but for a better reason than haze: glass on
   glass does not render at all.
 
-### `GlassEffectContainer` — tried, does not work here
+### `GlassEffectContainer` — works, but does not buy anything here
 
-The one combination that could have given both. It fails outright: wrapping the panel in
-`GlassEffectContainer` and letting SwiftUI draw the surface **erased every non-glass child**. The
-screenshot is a blurred slab with four floating "Join" pills and no header, no timeline, no agenda,
-no footer — only the views carrying a `glassEffect` survived.
+First attempt looked like a total failure: the panel rendered as a blurred slab with four floating
+"Join" pills and no header, timeline, agenda or footer. The note here used to say the container
+"erases non-glass children". **That was wrong** — it restated the symptom as a cause.
 
-Read alongside Apple's guidance, that is consistent rather than surprising: the container exists to
-group glass ELEMENTS so they share one sampling pass and can morph into one another. It is not a
-general-purpose wrapper for a screenful of ordinary content. Making the panel work inside one would
-mean every row, label and icon becoming a glass element, which is neither desirable nor cheap.
+The pills were sitting at their correct positions, which means layout was fine and the content was
+merely hidden. The real cause was a misuse: a full-panel-sized `glassEffect` background had been
+made a MEMBER of the container. A container merges its glass elements into one unified layer, so a
+panel-sized member paints straight over the ordinary content, with the smaller glass elements on
+top of it. Z-order, not erasure.
 
-Conclusion: **the three-row table above is the complete option set.** Shipping `.menu` vibrancy with
-drawn controls is the best available, not a placeholder awaiting a better idea. Revisit only if
-Apple ships behind-window sampling for SwiftUI glass, which would collapse rows two and three into
-one good option.
+Re-tested with only the controls as glass members and the panel surface left to AppKit: **everything
+renders correctly.** The container is fine.
+
+It still does not help, for two reasons found in that second run:
+- The pills stay flat. The backdrop is AppKit vibrancy, which SwiftUI cannot sample — container or
+  no container.
+- Glass members are composited as a group and **ignore `.opacity(0)`**, so the hover-only Join pill
+  appeared on every agenda row at once. Anything hover-revealed cannot be a glass member.
+
+Conclusion is unchanged but now rests on the right reasoning: **the three-row table above is the
+complete option set**, and `.menu` vibrancy with drawn controls is the best available. Revisit if
+SwiftUI glass ever gains behind-window sampling, which would merge rows two and three.
 
 ---
 
