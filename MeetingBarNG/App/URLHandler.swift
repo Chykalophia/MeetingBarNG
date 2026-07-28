@@ -19,6 +19,10 @@ final class URLHandler {
             return .preferences
         }
 
+        if url.host == "dropdown" {
+            return .dropdown
+        }
+
         return .unknown(url)
     }
 }

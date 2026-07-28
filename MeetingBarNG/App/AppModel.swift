@@ -73,6 +73,10 @@ struct AppState: Equatable {
 
 enum AppRoute: Equatable {
     case preferences
+    /// Opens the dropdown panel. Deep link so the panel can be opened
+    /// without clicking the status item — used by automation and by
+    /// anything that wants to surface today's agenda directly.
+    case dropdown
     case oauthCallback(URL)
     case unknown(URL)
 }
@@ -214,6 +218,8 @@ struct AppEnvironment {
 
     /// Open Preferences from an app URL route.
     var openPreferences: @MainActor () -> Void
+    /// Opens the dropdown panel (or the classic menu, whichever is active).
+    var openDropdown: @MainActor () -> Void
 
     /// Resume an OAuth callback from an app URL route.
     var resumeOAuthFlow: @MainActor (URL) -> Void
@@ -247,6 +253,7 @@ struct AppEnvironment {
         notificationScheduler: NotificationScheduler,
         snoozeService: SnoozeService,
         openPreferences: @escaping @MainActor () -> Void = {},
+        openDropdown: @escaping @MainActor () -> Void = {},
         resumeOAuthFlow: @escaping @MainActor (URL) -> Void = { _ in }
     ) -> AppEnvironment {
         AppEnvironment(
@@ -313,6 +320,7 @@ struct AppEnvironment {
                 return .success
             },
             openPreferences: openPreferences,
+            openDropdown: openDropdown,
             resumeOAuthFlow: resumeOAuthFlow,
             clock: .live,
             remindersPublisher: remindersSync.$reminders.eraseToAnyPublisher(),
@@ -641,6 +649,8 @@ final class AppModel: ObservableObject {
         switch route {
         case .preferences:
             environment.openPreferences()
+        case .dropdown:
+            environment.openDropdown()
         case .oauthCallback(let url):
             environment.resumeOAuthFlow(url)
         case .unknown:

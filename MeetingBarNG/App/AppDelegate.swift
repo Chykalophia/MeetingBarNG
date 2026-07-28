@@ -140,6 +140,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             openPreferences: { [weak self] in
                 self?.openPreferencesWindow(nil)
             },
+            openDropdown: { [weak self] in
+                guard let self else { return }
+                // Same entry point the status-item click uses, so a deep link and
+                // a click cannot diverge — but idempotent: `openDropdownPanel`
+                // toggles, and asking to open something already open should not
+                // close it.
+                guard !self.windowCoordinator.isDropdownPanelOpen else { return }
+                self.statusBarItem?.toggleDropdownPanel()
+            },
             resumeOAuthFlow: { [weak self] url in
                 guard let calendarSync = self?.calendarSync else { return }
                 calendarSync.repository.resumeAuthorizationFlow(with: url)

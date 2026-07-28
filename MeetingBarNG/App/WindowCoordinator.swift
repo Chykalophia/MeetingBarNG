@@ -152,6 +152,16 @@ final class DropdownPanelWindow: NSWindow {
     /// open/close cycles).
     override func resignKey() {
         super.resignKey()
+        #if DEBUG
+        // Development aid: the panel dismisses the instant anything else takes
+        // focus, which makes it impossible to screenshot or inspect from another
+        // process. Setting MEETINGBARNG_PIN_PANEL=1 holds it open.
+        //
+        // DEBUG-only and env-gated on purpose — it defeats the panel's defining
+        // behaviour, so it must be impossible to reach in a release build and
+        // impossible to enable by accident in a debug one.
+        if ProcessInfo.processInfo.environment["MEETINGBARNG_PIN_PANEL"] == "1" { return }
+        #endif
         DispatchQueue.main.async { [weak self] in self?.close() }
     }
 
@@ -273,6 +283,12 @@ final class WindowCoordinator {
     /// silently discards everyone's saved geometry, so it is pinned here rather
     /// than written inline at the call site.
     static let preferencesFrameAutosaveName = "MeetingBarNGPreferencesWindow"
+
+    /// Whether the dropdown panel is currently on screen. Lets a deep link
+    /// open the panel IDEMPOTENTLY: `openDropdownPanel` toggles, which is right
+    /// for a status-item click and wrong for "meetingbar://dropdown", where a
+    /// second invocation should leave it open rather than dismiss it.
+    var isDropdownPanelOpen: Bool { dropdownPanel != nil }
 
     private weak var preferencesWindow: NSWindow?
 
