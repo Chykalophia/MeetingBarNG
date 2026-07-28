@@ -37,7 +37,7 @@ struct CompactMonthGridView: View {
     /// Dots per day. A packed conference day would otherwise draw a dozen and
     /// turn the cell into a smear; the overflow is silently dropped because the
     /// exact count is not the point — "this day is busy" is.
-    private static let maxMarkers = 3
+    static let maxMarkers = 3
 
     var body: some View {
         VStack(spacing: 5) {
@@ -91,39 +91,13 @@ struct CompactMonthGridView: View {
     }
 
     private func cell(_ day: MonthGridDay) -> some View {
-        let dots = markers[calendar.startOfDay(for: day.date)] ?? []
-        return VStack(spacing: 1) {
-            Text(dayNumber(day.date))
-                .font(.system(
-                    size: metrics.secondaryFontSize - 1,
-                    weight: day.isToday ? .bold : .regular
-                ))
-                .foregroundStyle(dayColor(day))
-            // The dot row is always present, even when empty, so a day with
-            // events is not one pixel taller than one without.
-            HStack(spacing: 2) {
-                ForEach(Array(dots.prefix(Self.maxMarkers).enumerated()), id: \.offset) { _, colour in
-                    Circle()
-                        .fill(day.isToday ? Color.white.opacity(0.9) : colour)
-                        .frame(width: 3, height: 3)
-                }
-            }
-            .frame(height: 3)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 3)
-        .background(
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(day.isToday ? Color.accentColor : .clear)
+        CompactMonthDayCell(
+            day: day,
+            dots: markers[calendar.startOfDay(for: day.date)] ?? [],
+            calendar: calendar,
+            metrics: metrics,
+            onSelect: onSelect
         )
-        .contentShape(Rectangle())
-        .pointerStyle(.link)
-        .onTapGesture { onSelect(day.date) }
-    }
-
-    private func dayColor(_ day: MonthGridDay) -> Color {
-        if day.isToday { return .white }
-        return day.isInMonth ? .primary : .secondary.opacity(0.5)
     }
 
     // MARK: - Derived
@@ -148,6 +122,72 @@ struct CompactMonthGridView: View {
         formatter.locale = calendar.locale ?? .current
         formatter.setLocalizedDateFormatFromTemplate("MMMM yyyy")
         return formatter.string(from: month)
+    }
+}
+
+/// One day in the grid. Its own view so the hover highlight is per-cell — a
+/// single `@State` on the grid would light the whole month at once, which is the
+/// same reason `PanelRow` is its own type.
+private struct CompactMonthDayCell: View {
+    let day: MonthGridDay
+    let dots: [Color]
+    let calendar: Calendar
+    let metrics: DropdownMetrics
+    let onSelect: (Date) -> Void
+
+    @State private var isHovered = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private static let maxMarkers = CompactMonthGridView.maxMarkers
+
+    var body: some View {
+        VStack(spacing: 1) {
+            Text(dayNumber(day.date))
+                .font(.system(
+                    size: metrics.secondaryFontSize - 1,
+                    weight: day.isToday ? .bold : .regular
+                ))
+                .foregroundStyle(dayColor(day))
+            // The dot row is always present, even when empty, so a day with
+            // events is not one pixel taller than one without.
+            HStack(spacing: 2) {
+                ForEach(Array(dots.prefix(Self.maxMarkers).enumerated()), id: \.offset) { _, colour in
+                    Circle()
+                        .fill(day.isToday ? Color.white.opacity(0.9) : colour)
+                        .frame(width: 3, height: 3)
+                }
+            }
+            .frame(height: 3)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 3)
+        .background(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                // Today keeps its accent fill; every OTHER day had no hover
+                // state at all, so the grid was the one part of the panel that
+                // gave no sign a cell could be clicked.
+                .fill(fill)
+        )
+        .contentShape(Rectangle())
+        .pointerStyle(.link)
+        .onHover { hovering in
+            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.10)) {
+                isHovered = hovering
+            }
+        }
+        .onTapGesture { onSelect(day.date) }
+    }
+
+    private var fill: Color {
+        if day.isToday {
+            return isHovered ? Color.accentColor.opacity(0.85) : Color.accentColor
+        }
+        return isHovered ? Color.primary.opacity(0.12) : .clear
+    }
+
+    private func dayColor(_ day: MonthGridDay) -> Color {
+        if day.isToday { return .white }
+        return day.isInMonth ? .primary : .secondary.opacity(0.5)
     }
 
     private func dayNumber(_ date: Date) -> String {

@@ -354,6 +354,7 @@ final class StatusBarItemController {
                 )
             },
             createMeeting: { createMeeting() },
+            newEvent: { [weak self] in self?.dependencies.newEvent() },
             refresh: { [weak self] in self?.dependencies.send(.refreshCalendars) },
             openPreferences: { [weak self] in self?.dependencies.openPreferences() },
             openCalendar: { [weak self] in self?.dependencies.openCalendar() },

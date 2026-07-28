@@ -382,8 +382,6 @@ struct DropdownDisplaySection: View {
             .pickerStyle(.segmented)
             .annotation("preferences_dropdown_timeline_style_help")
 
-            Divider()
-
             Picker(
                 "preferences_dropdown_density_title".loco(),
                 selection: densityBinding
@@ -394,8 +392,6 @@ struct DropdownDisplaySection: View {
             }
             .pickerStyle(.segmented)
             .annotation("preferences_dropdown_density_help")
-
-            Divider()
 
             Text("preferences_dropdown_max_rows_title".loco())
             PresetNumberPicker(
@@ -411,7 +407,6 @@ struct DropdownDisplaySection: View {
                 example: "preferences_dropdown_max_rows_example".loco(),
                 isEnabled: true
             )
-            Divider()
             Text("preferences_dropdown_action_highlight_title".loco())
             PresetNumberPicker(
                 presets: [0, 2, 5, 15],
@@ -426,7 +421,6 @@ struct DropdownDisplaySection: View {
                 example: "preferences_dropdown_action_highlight_example".loco(),
                 isEnabled: true
             )
-            Divider()
             // Reminders (Dot parity). Turning this on requests Reminders access
             // and only flips on if granted. NOT the only such gate — the
             // permission toggle on the Calendars pane requests the same access

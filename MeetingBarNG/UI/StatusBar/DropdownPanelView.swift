@@ -82,6 +82,10 @@ struct DropdownPanelHandlers {
     var joinEvent: @MainActor (MBEvent) -> Void = { _ in }
     var openBookmark: @MainActor (Bookmark) -> Void = { _ in }
     var createMeeting: @MainActor () -> Void = {}
+    /// Opens the in-app event editor. Distinct from `createMeeting`, which
+    /// starts an online meeting on the configured service — one makes a calendar
+    /// entry, the other makes a room to talk in.
+    var newEvent: @MainActor () -> Void = {}
     var refresh: @MainActor () -> Void = {}
     var openPreferences: @MainActor () -> Void = {}
     /// Wired for the Phase B quick-action rows (calendar window / command bar);
@@ -1022,7 +1026,7 @@ struct DropdownPanelView: View {
         // Only today's heading carries the create chip: "new meeting" means one
         // starting now-ish, and offering it above tomorrow would imply it lands
         // there.
-        sectionHeader(title, date: date, showsCreateAction: day == .today)
+        sectionHeader(title, date: date, showsCreateAction: showsAgendaCreateAction(day))
         if events.isEmpty {
             Text("status_bar_section_date_nothing".loco(title.lowercased()))
                 .font(.system(size: metrics.rowFontSize))
@@ -2168,6 +2172,17 @@ struct DropdownPanelView: View {
         .padding(.bottom, 3)
     }
 
+    /// Today's heading only, and only where the app can actually write an event.
+    ///
+    /// "New event" means one starting now-ish, so offering it above tomorrow
+    /// would imply it lands there. And in-app creation is EventKit-only —
+    /// Google-backed calendars are written through the macOS Calendar app's
+    /// sync — so the chip hides for that provider, the same rule the right-click
+    /// quick-actions menu applies to its own "New event…" entry.
+    private func showsAgendaCreateAction(_ day: AgendaDay) -> Bool {
+        day == .today && state.activeProvider == .macOSEventKit
+    }
+
     /// The mockup's `+ ⌘N` chip beside the day's heading — the one action that
     /// belongs next to a list of meetings rather than below it.
     ///
@@ -2188,8 +2203,11 @@ struct DropdownPanelView: View {
         .overlay(Capsule().strokeBorder(PanelChrome.rim(colorScheme), lineWidth: 0.8))
         .contentShape(Capsule())
         .pointerStyle(.link)
-        .onTapGesture(perform: perform(handlers.createMeeting))
-        .help("status_bar_section_join_create_meeting".loco())
+        // `newEvent`, not `createMeeting`. The chip is LABELLED with the ⌘N
+        // shortcut, and ⌘N opens the event editor — a chip that advertises a key
+        // and then does something else is worse than no chip.
+        .onTapGesture(perform: perform(handlers.newEvent))
+        .help("status_bar_quick_action_new_event".loco())
     }
 
     private func sectionHeaderText(_ title: String, date: Date?) -> String {
@@ -2418,7 +2436,7 @@ private struct PanelCard<Content: View>: View {
             cardShape.strokeBorder(PanelChrome.rim(colorScheme, top: 0.20, bottom: 0.08), lineWidth: 1)
         )
         .padding(.horizontal, metrics.rowOuterPadding)
-        .padding(.vertical, 3)
+        .padding(.vertical, metrics.cardSpacing)
     }
 
     private var cardShape: RoundedRectangle {

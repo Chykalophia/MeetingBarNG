@@ -38,16 +38,28 @@ struct DisplayPreviewPane: View {
     @Default(.eventTimeFormat) private var eventTimeFormat
     @Default(.statusbarEventTitleLength) private var statusbarEventTitleLength
 
-    // Dropdown toggles that affect what the preview shows — read here so the
+    // Dropdown settings that affect what the preview shows — read here so the
     // body re-evaluates when they change, which re-runs PreviewFixtures.makeState.
+    //
+    // EVERY setting the panel reads has to appear in this list. A missing one
+    // does not fail loudly; it just leaves the preview stale until some OTHER
+    // observed value changes and drags a rebuild along with it. That is exactly
+    // how adding Month Calendar appeared to do nothing until an unrelated module
+    // was toggled off and on again.
     @Default(.hideFinishedEventsInMenu) private var hideFinishedEventsInMenu
     @Default(.showRemindersInMenu) private var showRemindersInMenu
     @Default(.showGreetingInMenu) private var showGreetingInMenu
-    @Default(.showTimelineInMenu) private var showTimelineInMenu
     @Default(.showAgendaInMenu) private var showAgendaInMenu
     @Default(.showMeetingControlInMenu) private var showMeetingControlInMenu
     @Default(.showJoinSectionInMenu) private var showJoinSectionInMenu
     @Default(.showBookmarksInMenu) private var showBookmarksInMenu
+    @Default(.showCalendarInMenu) private var showCalendarInMenu
+    @Default(.dropdownModuleOrder) private var dropdownModuleOrder
+    @Default(.timelineStyle) private var timelineStyleRaw
+    @Default(.dropdownDensity) private var dropdownDensityRaw
+    @Default(.meetingCardShowsProgress) private var meetingCardShowsProgress
+    @Default(.greetingShowsDate) private var greetingShowsDate
+    @Default(.dropdownMaxEventRows) private var dropdownMaxEventRows
 
     var body: some View {
         ScrollView {
