@@ -1,0 +1,26 @@
+MeetingBarNG/UI/StatusBar/DropdownComposition.swift
+  s_b8ddb6808b4a67::t_3ee9a5e1081020 37-66
+MeetingBarNG/UI/Views/DayTimelineView.swift
+  s_b8ddb6808b4a67::t_2d3269fad2ce23 264-270
+MeetingBarLogicTests/DropdownCompositionTests.swift
+  s_b8ddb6808b4a67::t_74ad8c5b420533 144-198
+MeetingBarNG/UI/StatusBar/DropdownPanelView.swift
+  s_b8ddb6808b4a67::t_62f48ad5fb5a1d 254
+  s_b8ddb6808b4a67::t_2d0d065acdc9ba 424-432,434-436
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "c369207ea88002f0551af12d6c7d34a80318fa12",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
