@@ -796,11 +796,12 @@ struct DropdownPanelView: View {
                     isActionImminent: isActionImminent(event),
                     horizontalPadding: 0
                 )
+                // Same surface as every other selectable row — see `PanelHighlight`.
                 .background(
-                    RoundedRectangle(cornerRadius: 7, style: .continuous)
-                        .fill(isSelected(.meetingSummary(event.id))
-                            ? Color.accentColor.opacity(0.18)
-                            : Color.clear)
+                    PanelHighlight(
+                        isSelected: isSelected(.meetingSummary(event.id)),
+                        isHovered: false
+                    )
                 )
             }
             // Right-click parity: the whole per-event action set the NSMenu puts
@@ -2169,8 +2170,10 @@ private struct PanelRow<Content: View>: View {
             .padding(.vertical, metrics.rowVerticalPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(highlight)
+                PanelHighlight(
+                    isSelected: isSelected,
+                    isHovered: isHovered && action != nil
+                )
             )
             .padding(.horizontal, metrics.rowOuterPadding)
             .contentShape(Rectangle())
@@ -2187,10 +2190,42 @@ private struct PanelRow<Content: View>: View {
             .onTapGesture { action?() }
     }
 
-    private var highlight: Color {
-        if isSelected { return Color.accentColor.opacity(0.22) }
-        if isHovered, action != nil { return Color.accentColor.opacity(0.18) }
-        return .clear
+}
+
+/// The panel's hover and keyboard-selection surface.
+///
+/// Neutral glass, NOT an accent fill. A saturated blue bar is the pre-glass
+/// look: it paints over the surface instead of lifting a piece of it, and on a
+/// translucent panel it reads as a sticker. The demo's row highlight is a lighter
+/// pane of the same material — a fill you can see through plus a lit top edge,
+/// which is the same vocabulary the cards and buttons use.
+///
+/// Keyboard selection stays neutral too, but brighter and with an accent-tinted
+/// rim. Selection has to be distinguishable from hover (both can be on at once,
+/// on different rows), and tinting the EDGE marks it without going back to
+/// painting the whole row.
+private struct PanelHighlight: View {
+    var isSelected: Bool
+    var isHovered: Bool
+    var cornerRadius: CGFloat = 7
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        shape
+            .fill(Color.primary.opacity(isSelected ? 0.14 : 0.09))
+            .overlay(
+                shape.strokeBorder(
+                    LinearGradient(
+                        colors: isSelected
+                            ? [Color.accentColor.opacity(0.75), Color.accentColor.opacity(0.18)]
+                            : [Color.white.opacity(0.20), Color.white.opacity(0.04)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ),
+                    lineWidth: 0.8
+                )
+            )
+            .opacity(isSelected || isHovered ? 1 : 0)
     }
 }
 
