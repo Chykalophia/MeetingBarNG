@@ -93,7 +93,6 @@ struct StatusBarDependencies {
 @MainActor
 final class StatusBarItemController {
     var statusItem: NSStatusItem!
-    var statusItemMenu: NSMenu!
 
     /// The menu-bar progress indicator, added to the status-item button once and
     /// reused. Held weakly: the button owns it as a subview, and a strong ref
@@ -139,8 +138,6 @@ final class StatusBarItemController {
             withLength: NSStatusItem.variableLength
         )
 
-        statusItemMenu = NSMenu(title: "MeetingBar in Status Bar Menu")
-
         statusItem.button?.target = self
         statusItem.button?.action = #selector(statusMenuBarAction)
         statusItem.button?.sendAction(on: [
@@ -148,13 +145,10 @@ final class StatusBarItemController {
             NSEvent.EventTypeMask.leftMouseDown
         ])
 
-        // Temporary icon and menu before app delegate setup
+        // Temporary icon before app delegate setup
         statusItem.button?.image = MenuStyleConstants.iconNamed(MenuStyleConstants.appIconName)
         statusItem.button?.image?.size = MenuStyleConstants.iconSize
         statusItem.button?.imagePosition = .imageLeft
-        let menuItem = statusItemMenu.addItem(
-            withTitle: "window_title_onboarding".loco(), action: nil, keyEquivalent: "")
-        menuItem.isEnabled = false
 
         setupDefaultsObservers()
         setupKeyboardShortcuts()
@@ -183,17 +177,19 @@ final class StatusBarItemController {
             .showAgendaInMenu, .showJoinSectionInMenu, .showBookmarksInMenu,
             options: []
         )
+        // Only the title needs redrawing on a settings change now. The dropdown
+        // builds its whole state fresh every time it opens, so there is nothing
+        // to keep in sync between opens — that was an NSMenu requirement, since a
+        // menu is a long-lived object you mutate in place.
         .receive(on: DispatchQueue.main)
         .sink { [weak self] _ in
             self?.updateTitle()
-            self?.updateMenu()
         }
         .store(in: &cancellables)
 
         Defaults.publisher(.eventTitleFormat, options: [])
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.updateMenu()
                 self?.updateTitle()
                 self?.reconcileNotifications()
             }
@@ -203,7 +199,6 @@ final class StatusBarItemController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] change in
                 if I18N.instance.changeLanguage(to: change.newValue) {
-                    self?.updateMenu()
                     self?.updateTitle()
                     self?.reconcileNotifications()
                 }
@@ -245,7 +240,7 @@ final class StatusBarItemController {
         }
 
         KeyboardShortcuts.onKeyUp(for: .openMenuShortcut) {
-            Task { @MainActor in self.openMenu() }
+            Task { @MainActor in self.toggleDropdownPanel() }
         }
 
         KeyboardShortcuts.onKeyUp(for: .openClipboardShortcut, action: openLinkFromClipboard)
@@ -280,23 +275,19 @@ final class StatusBarItemController {
         let event = NSApp.currentEvent
 
         if event?.type == .rightMouseUp {
-            // Right button click → compact quick-actions menu (both modes).
+            // Right button click → compact quick-actions menu. Still an NSMenu,
+            // and rightly so: it is a short list of verbs, which is exactly what
+            // a menu is for.
             showQuickActionsMenu()
             return
         }
         guard event == nil || event?.type == .leftMouseDown || event?.type == .leftMouseUp else {
             return
         }
-        // Opt-OUT fallback: the panel is the default (`useSwiftUIDropdown` ships
-        // `true`), so this branch runs only for a user who has turned it off.
-        guard Defaults[.useSwiftUIDropdown] else {
-            openMenu()
-            return
-        }
         // The status-item button sends its action on BOTH left-mouse-down and
-        // left-mouse-up. The NSMenu path swallows the -up inside its tracking
-        // loop; the panel does not, so a single click would toggle it twice.
-        // Act on the down edge (and on the shortcut's synthetic nil event) only.
+        // left-mouse-up, and the panel sees both, so a single click would toggle
+        // it twice. Act on the down edge (and on the shortcut's synthetic nil
+        // event) only.
         guard event?.type != .leftMouseUp else { return }
         toggleDropdownPanel()
     }
@@ -396,15 +387,7 @@ final class StatusBarItemController {
         )
     }
 
-    func openMenu() {
-        nudgeCalendarForceSync()
-        guard let statusItem else { return }
-        statusItem.menu = statusItemMenu
-        statusItem.button?.performClick(nil)  // ...and click
-        statusItem.menu = nil
-    }
-
-    /// Opening the menu is a strong "the user wants current data now" signal, so
+    /// Opening the dropdown is a strong "the user wants current data now" signal, so
     /// proactively nudge macOS to sync (EventKit `refreshSourcesIfNecessary()`)
     /// via `CalendarSync`. Debounced there (~30s) so repeated menu-opens don't
     /// hammer EventKit.
@@ -419,8 +402,7 @@ final class StatusBarItemController {
         var appState = dependencies.appState()
         appState.events = events
         let menuState = StatusBarMenuState.make(from: appState)
-        let builder = MenuBuilder(target: self, state: menuState, installationDate: installationDate)
-        let menu = builder.buildQuickActionsMenu()
+        let menu = QuickActionsMenu.build(target: self, state: menuState)
         statusItem.menu = menu
         statusItem.button?.performClick(nil)
         statusItem.menu = nil
@@ -662,104 +644,6 @@ final class StatusBarItemController {
 
     /*
      * -----------------------
-     * MARK: - MENU SECTIONS
-     * ------------------------
-     */
-
-    /// The NSMenu items for one dropdown module, or `nil` when the module
-    /// contributes nothing to the classic menu.
-    ///
-    /// Extracted from `updateMenu` so that adding a module does not keep pushing
-    /// that function past the cyclomatic-complexity limit — the switch grows with
-    /// every module, and it is the only part of `updateMenu` that does.
-    private func menuBlock(
-        for module: DropdownModule,
-        builder: MenuBuilder,
-        state menuState: StatusBarMenuState
-    ) -> [NSMenuItem]? {
-        switch module {
-        case .greeting:
-            return menuState.shouldShowGreetingHeader ? builder.buildGreetingHeaderBlock() : nil
-        case .upNext, .calendar:
-            // Panel-only modules. Both could be hosted here via NSHostingView the
-            // way the timeline and meeting card already are, but the classic
-            // NSMenu is the opt-out fallback: a month grid is the least
-            // menu-shaped thing in the app, and a live progress bar would need a
-            // hosted view redrawing on a timer while the menu is tracking.
-            // Deliberate parity gap — switching the panel off switches these off.
-            return nil
-        case .timeline:
-            return builder.buildTimelineBlock()
-        case .meeting:
-            return builder.buildMeetingControlSection()
-        case .agenda:
-            return menuState.hasSelectedCalendars ? builder.buildAgendaBlock() : nil
-        case .join:
-            return builder.buildJoinSection(nextEvent: menuState.nextEvent, includeJoinAction: false)
-        case .bookmarks:
-            guard !menuState.meetings.bookmarks.isEmpty else { return nil }
-            return builder.buildBookmarksSection(bookmarks: menuState.meetings.bookmarks)
-        }
-    }
-
-    func updateMenu() {
-        guard let statusItem else { return }
-        // Don't update the menu while it's open to avoid flickering
-        if statusItem.menu != nil {
-            return
-        }
-
-        var appState = dependencies.appState()
-        appState.events = events
-        let menuState = StatusBarMenuState.make(from: appState)
-        let builder = MenuBuilder(
-            target: self, state: menuState, installationDate: installationDate)
-
-        statusItemMenu.autoenablesItems = false
-
-        // Composable dropdown: each module produces a separator-free block; the
-        // enabled modules (in the user's stored order) are joined below with a
-        // single separator between non-empty blocks. With the default order +
-        // all toggles on, this reproduces the classic dropdown layout exactly.
-        let modules = DropdownCompositionPolicy.resolve(
-            order: Defaults[.dropdownModuleOrder],
-            enabled: enabledDropdownModuleRawValues(menuState)
-        )
-
-        var blocks: [[NSMenuItem]] = modules.compactMap {
-            menuBlock(for: $0, builder: builder, state: menuState)
-        }
-        // The Preferences footer is pinned, never a module, so the user can't
-        // hide Settings/Quit.
-        blocks.append(builder.buildPreferencesSection())
-
-        statusItemMenu.removeAllItems()
-        for block in blocks where !block.isEmpty {
-            if !statusItemMenu.items.isEmpty {
-                statusItemMenu.addItem(.separator())
-            }
-            statusItemMenu.items += block
-        }
-    }
-
-    /// The raw values of the dropdown modules whose enabled toggle is on, used as
-    /// the `enabled` set for `DropdownCompositionPolicy.resolve`. greeting/timeline
-    /// reuse the existing preferences; the rest use the MeetingBarNG toggles.
-    private func enabledDropdownModuleRawValues(_ menuState: StatusBarMenuState) -> Set<String> {
-        DropdownCompositionPolicy.enabledRawValues(
-            greeting: menuState.showGreetingHeader,
-            timeline: menuState.menu.showTimelineInMenu,
-            meeting: menuState.menu.showMeetingControlInMenu,
-            agenda: menuState.menu.showAgendaInMenu,
-            join: menuState.menu.showJoinSectionInMenu,
-            bookmarks: menuState.menu.showBookmarksInMenu,
-            calendar: Defaults[.showCalendarInMenu],
-            upNext: Defaults[.showUpNextInMenu]
-        )
-    }
-
-    /*
-     * -----------------------
      * MARK: - Actions
      * ------------------------
      */
@@ -793,7 +677,6 @@ final class StatusBarItemController {
             AppMessageCenter.shared.post(.meetingDismissed(title: nextEvent.title))
 
             updateTitle()
-            updateMenu()
             reconcileNotifications()
         }
     }
@@ -804,7 +687,6 @@ final class StatusBarItemController {
         AppMessageCenter.shared.post(.allDismissalsRemoved)
 
         updateTitle()
-        updateMenu()
         reconcileNotifications()
     }
 
@@ -929,7 +811,6 @@ final class StatusBarItemController {
         dependencies.send(.dismissMeeting(eventID: event.id))
 
         updateTitle()
-        updateMenu()
         reconcileNotifications()
     }
 
@@ -944,7 +825,6 @@ final class StatusBarItemController {
         dependencies.send(.undismissMeeting(eventID: event.id))
 
         updateTitle()
-        updateMenu()
         reconcileNotifications()
     }
 

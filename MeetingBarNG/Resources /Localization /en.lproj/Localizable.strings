@@ -457,8 +457,6 @@
 "preferences_general_shortcut_hide_title" = "Hide the meeting title in the menu bar";
 "preferences_general_shortcut_hide_title_help" = "For blanking it before you screen-share.";
 "preferences_general_troubleshooting_title" = "Troubleshooting";
-"preferences_general_classic_menu_toggle" = "Use the classic macOS menu instead";
-"preferences_general_classic_menu_help" = "A plain system menu, kept as a way out if the normal dropdown misbehaves. Block styling does not apply to it.";
 
 // MARK: - Preferences ▸ About & Support
 

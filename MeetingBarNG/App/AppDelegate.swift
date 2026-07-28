@@ -201,7 +201,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.statusBarItem.updateTitle()
-                self?.statusBarItem.updateMenu()
             }
             .store(in: &cancellables)
 
@@ -314,7 +313,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 // Once we hit hh:mm:00, redraw
                 await MainActor.run {
                     self.statusBarItem.updateTitle()
-                    self.statusBarItem.updateMenu()
                 }
             }
         }
@@ -479,9 +477,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 guard let self else { return }
                 NSApplication.shared.terminate(self)
             },
-            onChangelogClosed: { [weak self] in
+            onChangelogClosed: {
+                // No redraw needed: the panel reads the acknowledgement when it
+                // next opens, which is what decides whether "What's new?" shows.
                 AppSettings.acknowledgeCurrentChangelog()
-                self?.statusBarItem.updateMenu()
             }
         )
     }

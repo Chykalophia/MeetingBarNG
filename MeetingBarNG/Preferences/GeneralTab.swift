@@ -177,17 +177,6 @@ private struct ShortcutRow<Recorder: View>: View {
 /// The two ways out. Hidden by scope, not by rarity: both are things you reach
 /// for when something has gone wrong, and neither is a display preference.
 private struct TroubleshootingSection: View {
-    @Default(.useSwiftUIDropdown) var useSwiftUIDropdown
-
-    /// Inverted at the binding, never in storage: the key keeps its name and its
-    /// meaning, so flipping the label costs nobody their stored value.
-    private var usesClassicMenu: Binding<Bool> {
-        Binding(
-            get: { !useSwiftUIDropdown },
-            set: { useSwiftUIDropdown = !$0 }
-        )
-    }
-
     var body: some View {
         Section {
             PreferencesDisclosure(
@@ -195,14 +184,6 @@ private struct TroubleshootingSection: View {
                 titleKey: "preferences_general_troubleshooting_title"
             ) {
                 VStack(alignment: .leading, spacing: 12) {
-                    Toggle(
-                        "preferences_general_classic_menu_toggle".loco(),
-                        isOn: usesClassicMenu
-                    )
-                    .annotation("preferences_general_classic_menu_help")
-
-                    Divider()
-
                     PreferencesResetAllButton()
                 }
                 .padding(.top, 4)

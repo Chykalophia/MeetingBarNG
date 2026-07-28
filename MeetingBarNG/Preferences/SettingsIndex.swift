@@ -586,14 +586,6 @@ enum SettingsIndex {
             tab: .general,
             labelKey: "preferences_general_shortcuts_title",
             synonyms: ["shortcut", "hotkey", "keyboard", "key", "command"]
-        ),
-        SettingsIndexEntry(
-            id: "general.classic_menu",
-            tab: .general,
-            labelKey: "preferences_general_classic_menu_toggle",
-            helpKey: "preferences_general_classic_menu_help",
-            defaultsKeys: ["useSwiftUIDropdown"],
-            synonyms: ["classic", "old menu", "fallback", "plain menu", "troubleshoot"]
         )
     ]
 

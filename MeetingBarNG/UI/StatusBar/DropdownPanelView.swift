@@ -887,18 +887,14 @@ struct DropdownPanelView: View {
     /// rows drawn and the rows the keyboard walks cannot drift apart. Summary mode
     /// renders no event rows at all, hence empty.
     private var tomorrowRenderedEvents: [MBEvent] {
-        guard showsTomorrowSection else { return [] }
-        let events = visibleEvents(state.tomorrowEvents)
-        switch tomorrowDisplayMode {
-        case .today_n_tomorrow:
-            return events
-        case .today_n_tomorrow_next:
-            return Array(events.prefix(1))
-        case .today_n_tomorrow_summary:
-            return []
-        default:
-            return []
-        }
+        DropdownEventVisibility.tomorrowRendered(
+            state.tomorrowEvents,
+            period: tomorrowDisplayMode,
+            menu: state.menu,
+            display: state.events,
+            isDeclined: isDeclined,
+            now: clock
+        )
     }
 
     private var todayRenderedEvents: [MBEvent] {
@@ -951,31 +947,11 @@ struct DropdownPanelView: View {
     private func tomorrowSummarySection(date: Date, events: [MBEvent]) -> some View {
         let title = "status_bar_section_tomorrow".loco()
         sectionHeader("\(title) (\(sectionDateText(date)))")
-        if events.isEmpty {
-            Text("status_bar_section_date_nothing".loco(title.lowercased()))
-                .font(.system(size: metrics.rowFontSize))
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, metrics.sectionHeaderInset)
-                .padding(.vertical, 4)
-        } else {
-            let count = events.count
-            let firstStart = events.first?.startDate
-            // Same manual `_one`/`_other` split the day-summary count uses —
-            // without it a lone meeting reads "1 meetings tomorrow".
-            let key = count == 1
-                ? "status_bar_tomorrow_summary_one"
-                : "status_bar_tomorrow_summary_other"
-            Text(
-                key.loco(
-                    count,
-                    firstStart?.formatted(date: .omitted, time: .shortened) ?? ""
-                )
-            )
+        Text(DropdownEventVisibility.tomorrowSummaryText(visibleTomorrowEvents: events))
             .font(.system(size: metrics.rowFontSize))
             .foregroundStyle(.secondary)
             .padding(.horizontal, metrics.sectionHeaderInset)
             .padding(.vertical, 4)
-        }
     }
 
     @ViewBuilder
@@ -2106,30 +2082,13 @@ struct DropdownPanelView: View {
     // MARK: - Formatting
 
     private func visibleEvents(_ events: [MBEvent]) -> [MBEvent] {
-        events
-            .filter(shouldRenderEvent)
-            .sorted { $0.startDate < $1.startDate }
-    }
-
-    /// The panel's own hide-finished window PLUS `MenuBuilder.shouldRenderEvent`.
-    /// Only the first of these was applied before Phase 1, so choosing "hide" for
-    /// past / declined / self-booked meetings changed the NSMenu and nothing else
-    /// — while the shipping dropdown kept showing them.
-    private func shouldRenderEvent(_ event: MBEvent) -> Bool {
-        if state.menu.hideFinishedEventsInMenu,
-            !EventListWindow.isVisible(endDate: event.endDate, now: clock) {
-            return false
-        }
-        if isDeclined(event), state.events.declinedEventsAppearance == .hide {
-            return false
-        }
-        if event.endDate < clock, state.events.pastEventsAppearance == .hide {
-            return false
-        }
-        if event.attendees.isEmpty, state.events.personalEventsAppearance == .hide {
-            return false
-        }
-        return true
+        DropdownEventVisibility.visible(
+            events,
+            menu: state.menu,
+            display: state.events,
+            isDeclined: isDeclined,
+            now: clock
+        )
     }
 
     private func eventStartText(_ event: MBEvent) -> String {
