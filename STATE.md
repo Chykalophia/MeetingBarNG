@@ -58,6 +58,12 @@ Reminders; in-app event editor; event search; meeting prep links.
   Dropdown pane drops its preview instead of clipping it, and window geometry now
   persists.
 - **Docs/comment sweep** — see "Open decisions" below for what the audit found.
+- **Dropdown modernization (IN PROGRESS)** — glass/material chrome, row density
+  (Small/Medium/Large), cards for widgets, header quick actions, and an optional
+  compact month calendar. **6 of 10 items done.** Progress note of record:
+  [`docs/DROPDOWN-MODERNIZATION.md`](docs/DROPDOWN-MODERNIZATION.md) — read that
+  before touching the panel, it carries the locked design rules (one glass layer,
+  card = widget / flat = list) and the known limitations.
 
 ---
 
