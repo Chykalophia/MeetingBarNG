@@ -1,0 +1,33 @@
+MeetingBarNG/UI/StatusBar/DropdownPanelView.swift
+  s_b8ddb6808b4a67::t_cf09e309ec8def 2155-2160
+  s_b8ddb6808b4a67::t_70881085b54ed1 2187-2188,2347-2356,2415-2418
+  s_b8ddb6808b4a67::t_54a5a89776fd7d 157,2335-2336,2380-2381
+MeetingBarNG/UI/StatusBar/DaySummaryHeaderView.swift
+  s_b8ddb6808b4a67::t_6bcb5350d1fb5b 26-27,62,113,134-137
+MeetingBarNG/UI/Views/DayTimelineView.swift
+  s_b8ddb6808b4a67::t_80f2ace1c683ae 256-258,260
+MeetingBarNG/UI/StatusBar/JoinControlSurface.swift
+  s_b8ddb6808b4a67::t_6bcb5350d1fb5b 32-33,66-74
+MeetingBarNG/App/WindowCoordinator.swift
+  s_b8ddb6808b4a67::t_0ee296778bd294 248-250,256-259
+  s_b8ddb6808b4a67::t_425998bdb67b87 268-283
+  s_b8ddb6808b4a67::t_20b29ce278672e 317-336
+MeetingBarNG/UI/StatusBar/PanelChrome.swift
+  s_b8ddb6808b4a67::t_0c58c6c40c53d0 1-40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "1bc92a74bf9be5cf8cfe631b08e299dd56e8c4d7",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
