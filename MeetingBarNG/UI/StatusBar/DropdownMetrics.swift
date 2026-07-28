@@ -101,7 +101,9 @@ public struct DropdownMetrics: Equatable, Sendable {
     public var serviceIconWidth: CGFloat
     /// Slot reserved for the leading SF Symbol on an action row.
     public var actionSymbolWidth: CGFloat
-    /// Slot reserved for the hover-revealed Join affordance.
+    /// Width of the hover-revealed Join pill. NOT the space a row reserves for it
+    /// — see `trailingGlyphWidth`. The pill is drawn as an overlay so it costs the
+    /// title nothing while hidden.
     public var trailingAffordanceWidth: CGFloat
     /// Slot reserved for the detail disclosure chevron.
     public var disclosureWidth: CGFloat
@@ -219,6 +221,17 @@ public struct DropdownMetrics: Equatable, Sendable {
     /// Width available to a row's content, between the two row insets.
     public var rowContentWidth: CGFloat { panelWidth - rowLeadingInset * 2 }
 
+    /// Space a row actually reserves at its trailing edge for the meeting glyph.
+    ///
+    /// Rows used to reserve the full `trailingAffordanceWidth` — the width of the
+    /// Join PILL, which only exists on hover. That cost every linked event ~32pt
+    /// of title for a control that was not on screen, and it showed: titles
+    /// truncated with visibly empty space to their right. The pill now draws as a
+    /// trailing overlay, so only the resting glyph is paid for.
+    ///
+    /// Density-independent: the glyph is a fixed 10pt SF Symbol at every size.
+    public var trailingGlyphWidth: CGFloat { 16 }
+
     /// Width of the time column in a given mode.
     ///
     /// `.startAndEnd` deliberately keeps the SAME width and stacks the two times
@@ -312,7 +325,8 @@ public struct AgendaRowLayout: Equatable, Sendable {
             titleOrigin += metrics.serviceIconWidth + metrics.columnSpacing
         }
 
-        let trailing = metrics.trailingAffordanceWidth
+        // The resting glyph, not the hover pill — see `trailingGlyphWidth`.
+        let trailing = metrics.trailingGlyphWidth
             + metrics.columnSpacing
             + metrics.disclosureWidth
             + metrics.columnSpacing

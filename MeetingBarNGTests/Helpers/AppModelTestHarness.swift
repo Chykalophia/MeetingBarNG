@@ -27,6 +27,7 @@ final class AppModelTestHarness {
     private(set) var snoozedEvents: [(id: String, action: NotificationEventTimeAction)] = []
     private(set) var completedOnboardingProviders: [EventStoreProvider] = []
     private(set) var openPreferencesCallCount = 0
+    private(set) var openDropdownCallCount = 0
     private(set) var resumedOAuthURLs: [URL] = []
     private(set) var startedAsyncOperationCount = 0
     private(set) var cancelledAsyncOperationCount = 0
@@ -93,6 +94,9 @@ final class AppModelTestHarness {
         },
         openPreferences: { [weak self] in
             self?.openPreferencesCallCount += 1
+        },
+        openDropdown: { [weak self] in
+            self?.openDropdownCallCount += 1
         },
         resumeOAuthFlow: { [weak self] url in
             self?.resumedOAuthURLs.append(url)

@@ -763,21 +763,25 @@ struct DropdownPanelView: View {
     private var meetingBlock: some View {
         if let event = state.nextEvent {
             let presentation = meetingSummaryPresentation(for: event)
-            MeetingSummaryView(
-                presentation: presentation,
-                onJoin: event.meetingLink == nil
-                    ? nil
-                    : { handlers.joinEvent(event); handlers.dismiss() },
-                isActionImminent: isActionImminent(event)
-            )
-            .frame(width: Self.preferredWidth)
-            .background(
-                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(isSelected(.meetingSummary(event.id))
-                        ? Color.accentColor.opacity(0.18)
-                        : Color.clear)
-                    .padding(.horizontal, 6)
-            )
+            // Carded like the timeline and the up-next bar. It used to be the one
+            // module that floated on the panel background, which made the panel's
+            // most important element read as the least deliberate.
+            PanelCard {
+                MeetingSummaryView(
+                    presentation: presentation,
+                    onJoin: event.meetingLink == nil
+                        ? nil
+                        : { handlers.joinEvent(event); handlers.dismiss() },
+                    isActionImminent: isActionImminent(event),
+                    horizontalPadding: 0
+                )
+                .background(
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .fill(isSelected(.meetingSummary(event.id))
+                            ? Color.accentColor.opacity(0.18)
+                            : Color.clear)
+                )
+            }
             // Right-click parity: the whole per-event action set the NSMenu puts
             // behind the card's "Actions" submenu.
             .contextMenu { eventContextMenu(event) }
@@ -1064,7 +1068,11 @@ struct DropdownPanelView: View {
             if layout.serviceIconOrigin != nil {
                 serviceIcon(event)
             }
+            // Priority so the title wins the free space outright. Without it the
+            // Spacer below is an equally flexible sibling and takes roughly half,
+            // truncating titles that would otherwise have fit.
             eventTitle(event, appearance: appearance)
+                .layoutPriority(1)
             if appearance.isRunning, appearance.showsActiveEmphasis {
                 runningBadge
             }
@@ -1284,33 +1292,43 @@ struct DropdownPanelView: View {
         if event.meetingLink != nil {
             let revealed = isHovered || isSelected(.event(event.id))
             let actionable = isActionImminent(event)
-            ZStack(alignment: .trailing) {
-                Image(systemName: "video.fill")
-                    .font(.system(size: 10))
-                    .foregroundStyle(.secondary)
-                    .opacity(revealed ? 0 : 1)
-                Text("notifications_meetingbar_join_event_action".loco())
-                    .font(.system(size: 10, weight: actionable ? .semibold : .regular))
-                    // Muted rather than merely translucent: dropping the opacity
-                    // of white-on-accent just goes muddy, whereas a recessed fill
-                    // still reads as a button — available, simply not urgent.
-                    .foregroundStyle(actionable ? AnyShapeStyle(.white) : AnyShapeStyle(.secondary))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 2)
-                    .background(
-                        Capsule().fill(
-                            actionable
-                                ? AnyShapeStyle(Color.accentColor)
-                                : AnyShapeStyle(.quaternary)
+            Image(systemName: "video.fill")
+                .font(.system(size: 10))
+                .foregroundStyle(.secondary)
+                .opacity(revealed ? 0 : 1)
+                // Only the resting glyph occupies layout. The pill is an OVERLAY,
+                // so revealing it neither reflows the row nor makes every linked
+                // event surrender pill-width of title while hidden.
+                .frame(width: metrics.trailingGlyphWidth, alignment: .trailing)
+                .overlay(alignment: .trailing) {
+                    Text("notifications_meetingbar_join_event_action".loco())
+                        .font(.system(size: 10, weight: actionable ? .semibold : .regular))
+                        // Muted rather than merely translucent: dropping the
+                        // opacity of white-on-accent just goes muddy, whereas a
+                        // recessed fill still reads as a button — available,
+                        // simply not urgent.
+                        .foregroundStyle(
+                            actionable ? AnyShapeStyle(.white) : AnyShapeStyle(.secondary)
                         )
-                    )
-                    .opacity(revealed ? 1 : 0)
-                    .contentShape(Capsule())
-                    .onTapGesture(perform: perform { handlers.joinEvent(event) })
-            }
-            .frame(width: metrics.trailingAffordanceWidth, alignment: .trailing)
-            .animation(revealAnimation, value: revealed)
-            .animation(revealAnimation, value: actionable)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(
+                            Capsule().fill(
+                                actionable
+                                    ? AnyShapeStyle(Color.accentColor)
+                                    : AnyShapeStyle(.quaternary)
+                            )
+                        )
+                        .fixedSize()
+                        .opacity(revealed ? 1 : 0)
+                        .contentShape(Capsule())
+                        .onTapGesture(perform: perform { handlers.joinEvent(event) })
+                        // Hidden from the pointer while hidden from the eye, or an
+                        // invisible pill would eat clicks aimed at the title.
+                        .allowsHitTesting(revealed)
+                }
+                .animation(revealAnimation, value: revealed)
+                .animation(revealAnimation, value: actionable)
         }
     }
 

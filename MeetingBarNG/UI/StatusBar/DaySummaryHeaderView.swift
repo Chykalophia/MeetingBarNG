@@ -32,14 +32,18 @@ struct DaySummaryHeaderView: View {
     var actions: [DaySummaryHeaderAction] = []
 
     static let preferredWidth: CGFloat = MeetingSummaryView.preferredWidth
-    static let preferredHeight: CGFloat = 54
+    /// 32pt tile + the vertical padding below. Must track those two or the
+    /// classic `NSMenu`'s hosted copy clips: it sizes its item from this number
+    /// rather than measuring the view.
+    static let preferredHeight: CGFloat = 58
 
     var body: some View {
         HStack(spacing: 11) {
-            // The time-of-day glyph sits in its own rounded tile. It is the only
-            // contained icon in the panel BY DESIGN: it is decorative identity,
-            // not an action. The trailing action icons stay bare — a container
-            // around a button reads as a second, competing affordance.
+            // The time-of-day glyph sits in its own rounded tile — decorative
+            // identity, not an action, so it is a flat inset tile rather than a
+            // raised one. The trailing ACTIONS are raised instead (see
+            // `DaySummaryHeaderButton`); the two treatments are what distinguish
+            // "this is what the panel is about" from "this does something".
             Image(systemName: symbolName)
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(.tint)
@@ -65,7 +69,9 @@ struct DaySummaryHeaderView: View {
             Spacer(minLength: 6)
 
             if !actions.isEmpty {
-                HStack(spacing: 1) {
+                // Spaced, not touching: once the buttons carry their own fill and
+                // rim, a 1pt gutter merged them into one segmented control.
+                HStack(spacing: 4) {
                     ForEach(actions) { action in
                         DaySummaryHeaderButton(action: action)
                     }
@@ -73,14 +79,20 @@ struct DaySummaryHeaderView: View {
             }
         }
         .padding(.horizontal, 14)
-        .padding(.top, 12)
-        .padding(.bottom, 10)
+        .padding(.top, 14)
+        .padding(.bottom, 12)
         .frame(width: Self.preferredWidth, alignment: .leading)
     }
 }
 
 /// One header icon button. Its own view so hover state is per-button — a single
 /// shared `@State` in the header would light every icon at once.
+///
+/// Raised rather than bare. A flat glyph on glass has no edge to catch light, so
+/// it read as a label rather than a control; giving it a fill, a lit top edge and
+/// a soft shadow is what makes it look pressable. The three cues have to travel
+/// together — a fill alone is just a swatch, and a border alone is the "boxed
+/// icon" look the panel avoids everywhere else.
 private struct DaySummaryHeaderButton: View {
     let action: DaySummaryHeaderAction
 
@@ -90,12 +102,31 @@ private struct DaySummaryHeaderButton: View {
     var body: some View {
         Image(systemName: action.symbol)
             .font(.system(size: 12, weight: .medium))
-            .foregroundStyle(isHovered ? .primary : .secondary)
-            .frame(width: 24, height: 24)
+            .foregroundStyle(isHovered ? AnyShapeStyle(.primary) : AnyShapeStyle(.secondary))
+            .frame(width: 26, height: 26)
             .background(
-                RoundedRectangle(cornerRadius: 7, style: .continuous)
-                    .fill(isHovered ? Color.primary.opacity(0.10) : .clear)
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color.primary.opacity(isHovered ? 0.13 : 0.07))
             )
+            .overlay(
+                // Light from above: bright along the top edge, gone by the
+                // bottom. A uniform border would flatten the button back out.
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .strokeBorder(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(isHovered ? 0.30 : 0.20),
+                                Color.white.opacity(0.04)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ),
+                        lineWidth: 0.8
+                    )
+            )
+            // Sits ON the surface rather than in it. Kept tight and low-opacity:
+            // a wider shadow would smear across the glass behind it.
+            .shadow(color: .black.opacity(isHovered ? 0.28 : 0.18), radius: 1.5, y: 1)
             .contentShape(Rectangle())
             .pointerStyle(.link)
             .onHover { hovering in
@@ -105,6 +136,8 @@ private struct DaySummaryHeaderButton: View {
             }
             .onTapGesture { action.run() }
             .help(action.help)
+            .accessibilityLabel(action.help)
+            .accessibilityAddTraits(.isButton)
     }
 }
 

@@ -364,10 +364,12 @@ final class AppModelTests: BaseTestCase {
         let oauthURL = URL(string: "com.googleusercontent.apps.123:/oauthredirect?code=abc")!
 
         harness.model.send(.openRoute(.preferences))
+        harness.model.send(.openRoute(.dropdown))
         harness.model.send(.openRoute(.oauthCallback(oauthURL)))
         harness.model.send(.openRoute(.unknown(URL(string: "meetingbar://unknown")!)))
 
         XCTAssertEqual(harness.openPreferencesCallCount, 1)
+        XCTAssertEqual(harness.openDropdownCallCount, 1)
         XCTAssertEqual(harness.resumedOAuthURLs, [oauthURL])
     }
 

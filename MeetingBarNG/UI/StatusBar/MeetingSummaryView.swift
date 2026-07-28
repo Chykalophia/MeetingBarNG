@@ -37,6 +37,12 @@ struct MeetingSummaryView: View {
     /// `EventActionProminence` at every real call site.
     var isActionImminent: Bool = true
 
+    /// The card's own horizontal inset. Defaults to the standalone value the
+    /// classic `NSMenu` needs; the panel passes `0` because `PanelCard` already
+    /// supplies the inset, and stacking both indented the title past the rows
+    /// below it.
+    var horizontalPadding: CGFloat = 12
+
     @State private var isHovered = false
 
     /// Derived rather than passed in: every call site computed exactly this, and
@@ -105,7 +111,7 @@ struct MeetingSummaryView: View {
                     .opacity(isHovered ? 1.0 : 0.9)
             }
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, horizontalPadding)
         .padding(.vertical, 6)
         .frame(
             maxWidth: .infinity,

@@ -277,4 +277,43 @@ final class AgendaRowLayoutTests: XCTestCase {
         XCTAssertEqual(result.markerFrame?.width, 7)
         XCTAssertEqual(result.titleOrigin, 66 + 8 + 7 + 8)
     }
+
+    /// A row reserves space for the RESTING glyph, not for the Join pill that
+    /// only exists on hover — the pill is drawn as an overlay. Asserted against
+    /// the arithmetic rather than a literal so the intent survives a density
+    /// retune, and pinned as a regression: reserving the pill width cost every
+    /// linked event ~32pt of title for a control that was not on screen.
+    func testRowReservesTheRestingGlyphNotTheHoverPill() {
+        let result = layout(.dot, .betweenTimeAndTitle, .startOnly)
+        let reserved = metrics.rowContentWidth - result.titleOrigin - result.titleWidth
+
+        XCTAssertEqual(
+            reserved,
+            metrics.trailingGlyphWidth + metrics.columnSpacing
+                + metrics.disclosureWidth + metrics.columnSpacing
+        )
+        XCTAssertLessThan(
+            metrics.trailingGlyphWidth,
+            metrics.trailingAffordanceWidth,
+            "the glyph must be cheaper than the pill or the change bought nothing"
+        )
+    }
+
+    /// The saving is real at every density, not just the default one.
+    func testEveryDensityGivesTheTitleMoreRoomThanThePillWouldHave() {
+        for density in DropdownDensity.allCases {
+            let metrics = density.metrics
+            let result = AgendaRowLayout.resolve(
+                metrics: metrics,
+                marker: .dot,
+                position: .betweenTimeAndTitle,
+                timeColumn: .startOnly
+            )
+            let withPill = metrics.rowContentWidth
+                - result.titleOrigin
+                - (metrics.trailingAffordanceWidth + metrics.columnSpacing
+                    + metrics.disclosureWidth + metrics.columnSpacing)
+            XCTAssertGreaterThan(result.titleWidth, withPill, "\(density)")
+        }
+    }
 }

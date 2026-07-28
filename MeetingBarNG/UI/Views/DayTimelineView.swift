@@ -43,6 +43,24 @@ enum DayTimelineLayout {
     static let rowSpacing: CGFloat = 4
 
     static var rowHeight: CGFloat { segmentHeight + rowSpacing }
+
+    /// Half the width of the widest hour label at `.caption2`, by format.
+    ///
+    /// An estimate on purpose: measuring the rendered string would need a layout
+    /// pass per tick to decide which labels survive. Over-estimating is the safe
+    /// direction — it thins one label too many rather than letting two collide.
+    static func hourLabelHalfWidth(for format: TimeFormat) -> CGFloat {
+        switch format {
+        case .am_pm: 17    // "12 PM"
+        case .military: 7  // "09"
+        }
+    }
+
+    /// Minimum clear distance between two label CENTRES before both are drawn.
+    /// Two half-widths would leave them exactly touching, so add a readable gap.
+    static func minimumLabelSpacing(for format: TimeFormat) -> CGFloat {
+        hourLabelHalfWidth(for: format) * 2 + 6
+    }
 }
 
 struct DayTimelineLayoutCalculator {
@@ -79,6 +97,48 @@ struct DayTimelineLayoutCalculator {
             current = Calendar.current.date(byAdding: .hour, value: 1, to: current)!
         }
         return out
+    }
+
+    // MARK: Hour labels
+
+    /// Keeps an hour label inside the view, leaving interior labels untouched.
+    ///
+    /// `.position` CENTRES on x, so a tick at either edge put half its label
+    /// outside the view. At the panel's old full width nothing clipped it, so it
+    /// went unnoticed; inside a card the overflow is visibly cut ("4 P").
+    func clampedLabelX(_ x: CGFloat, width: CGFloat, halfWidth: CGFloat) -> CGFloat {
+        guard width > halfWidth * 2 else { return width / 2 }
+        return min(max(x, halfWidth), width - halfWidth)
+    }
+
+    /// The hour ticks that still get a LABEL at this width — every tick keeps its
+    /// grid line, but a label is dropped when it would overlap the last one kept.
+    ///
+    /// Needed because clamping alone only stopped labels escaping the view; it
+    /// left them free to collide with each other. At a 360pt panel in 12-hour
+    /// format the nine visible hours sit ~37pt apart while "12 PM" is ~34pt wide,
+    /// so the edge labels overlapped their neighbours ("4 PM5 PM").
+    ///
+    /// Greedy from the left, which means a colliding LAST label is the one
+    /// dropped. That is the right end to lose: the earlier label is already
+    /// placed, and dropping an interior one would leave a visible hole.
+    func labelledTicks(width: CGFloat, timeFormat: TimeFormat) -> [Date] {
+        let halfWidth = DayTimelineLayout.hourLabelHalfWidth(for: timeFormat)
+        let minimumSpacing = DayTimelineLayout.minimumLabelSpacing(for: timeFormat)
+        var kept: [Date] = []
+        var lastX: CGFloat?
+
+        for tick in hourTicks() {
+            let x = clampedLabelX(
+                xPosition(of: tick, width: width),
+                width: width,
+                halfWidth: halfWidth
+            )
+            if let lastX, x - lastX < minimumSpacing { continue }
+            kept.append(tick)
+            lastX = x
+        }
+        return kept
     }
 
     // MARK: Row packing
@@ -122,19 +182,9 @@ struct DayRelativeTimelineView: View {
             DayTimelineLayout.rowHeight * CGFloat(max(eventRows.count - 1, 0))
     }
 
-    /// Half the width of the widest hour label ("12 PM" / "10 AM" at `.caption2`).
-    ///
-    /// An estimate on purpose: measuring the rendered string would need a layout
-    /// pass per tick for a value that only decides whether an edge label is
-    /// nudged a few points inward. Over-estimating is the safe direction — it
-    /// insets the label slightly more than needed rather than letting it clip.
-    private static let hourLabelHalfWidth: CGFloat = 18
-
-    /// Keeps an hour label inside the view, leaving interior labels untouched.
-    private func clampedLabelX(_ x: CGFloat, width: CGFloat) -> CGFloat {
-        let inset = Self.hourLabelHalfWidth
-        guard width > inset * 2 else { return width / 2 }
-        return min(max(x, inset), width - inset)
+    /// Ticks that get a label at this width, in the view's current time format.
+    private func labelledTicks(width: CGFloat) -> [Date] {
+        layout.labelledTicks(width: width, timeFormat: timeFormat)
     }
 
     // MARK: Body
@@ -144,27 +194,31 @@ struct DayRelativeTimelineView: View {
 
             ZStack(alignment: .topLeading) {
 
-                // Hour grid
+                // Hour grid — every tick draws its line at the TRUE position.
                 ForEach(layout.hourTicks(), id: \.self) { tick in
                     let x = layout.xPosition(of: tick, width: width)
                     Path { path in
                         path.move(to: CGPoint(x: x, y: 0))
                         path.addLine(to: CGPoint(x: x, y: contentHeight))
                     }
-                    .stroke(Color.primary.opacity(0.25)
-, lineWidth: 1)
+                    .stroke(Color.primary.opacity(0.25), lineWidth: 1)
+                }
 
+                // Hour labels — only the ticks that can be labelled without
+                // colliding, each clamped to stay inside the view.
+                ForEach(labelledTicks(width: width), id: \.self) { tick in
                     Text(hourFormatter.string(from: tick))
                         .font(.caption2)
                         .foregroundColor(.secondary)
                         .fixedSize()
-                        // `.position` CENTRES on x, so a tick at either edge put
-                        // half its label outside the view. At the panel's old full
-                        // width nothing clipped it so it went unnoticed; inside a
-                        // card the overflow is visibly cut ("4 P"). Clamping keeps
-                        // the first and last labels inside their own bounds — the
-                        // tick lines still mark the true positions.
-                        .position(x: clampedLabelX(x, width: width), y: -8)
+                        .position(
+                            x: layout.clampedLabelX(
+                                layout.xPosition(of: tick, width: width),
+                                width: width,
+                                halfWidth: DayTimelineLayout.hourLabelHalfWidth(for: timeFormat)
+                            ),
+                            y: -8
+                        )
                 }
 
                 // Event rows

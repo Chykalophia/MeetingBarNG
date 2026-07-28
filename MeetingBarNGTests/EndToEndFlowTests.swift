@@ -46,6 +46,7 @@ private final class EndToEndHarness {
     private(set) var providerChanges: [(provider: EventStoreProvider, signOut: Bool)] = []
     private(set) var openPreferencesCallCount = 0
     private(set) var openChangelogCallCount = 0
+    private(set) var openDropdownCallCount = 0
 
     /// Strong reference to the installed in-app action sink. The scheduler's
     /// runner keeps only a weak reference, so the harness owns it for the test.
@@ -103,6 +104,9 @@ private final class EndToEndHarness {
             completeOnboarding: { _ in .success },
             openPreferences: { [weak self] in
                 self?.openPreferencesCallCount += 1
+            },
+            openDropdown: { [weak self] in
+                self?.openDropdownCallCount += 1
             },
             resumeOAuthFlow: { _ in },
             clock: .live
