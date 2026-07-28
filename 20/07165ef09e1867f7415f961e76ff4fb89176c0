@@ -1,0 +1,51 @@
+MeetingBarNG/UI/StatusBar/DropdownMetrics.swift
+  s_b8ddb6808b4a67::t_ca90e507d0d05b 224-234
+  s_b8ddb6808b4a67::t_d7ed5cd92f48e6 328-329
+  s_b8ddb6808b4a67::t_53a0a5e69d6a40 104-106
+MeetingBarNGTests/AppModelTests.swift
+  s_b8ddb6808b4a67::t_0fc2ad65715f0a 367,372
+MeetingBarNGTests/TimelineLogicTests.swift
+  s_b8ddb6808b4a67::t_c7e4f68593c74b 83-156
+MeetingBarNG/UI/StatusBar/DaySummaryHeaderView.swift
+  s_b8ddb6808b4a67::t_ee57fae2c77ded 35-38
+  s_b8ddb6808b4a67::t_0faedd51fb6359 82-83
+  s_b8ddb6808b4a67::t_64af5868911b75 42-46
+  s_b8ddb6808b4a67::t_e6c4817ec71e1e 90-95,105-106,108-125,127-129,139-140
+  s_b8ddb6808b4a67::t_4100305b954b33 72-74
+MeetingBarNG/UI/StatusBar/MeetingSummaryView.swift
+  s_b8ddb6808b4a67::t_21bc45fc0cd82e 40-45
+  s_b8ddb6808b4a67::t_de3b60710674c3 114
+MeetingBarLogicTests/AgendaRowLayoutTests.swift
+  s_b8ddb6808b4a67::t_35457d42fc0812 280-318
+MeetingBarNGTests/Helpers/AppModelTestHarness.swift
+  s_b8ddb6808b4a67::t_f5b24956477bb1 30
+  s_b8ddb6808b4a67::t_26e46aa5d344b6 98-100
+MeetingBarNGTests/EndToEndFlowTests.swift
+  s_b8ddb6808b4a67::t_0343f6f3d547ac 108-110
+  s_b8ddb6808b4a67::t_eba06bbc903602 49
+MeetingBarNG/UI/Views/DayTimelineView.swift
+  s_b8ddb6808b4a67::t_75ba824864f946 185-187
+  s_b8ddb6808b4a67::t_fc51ad1ec566ab 46-63
+  s_b8ddb6808b4a67::t_0b8c905a4f6261 197,204-205,207-209,214-221
+  s_b8ddb6808b4a67::t_8dce89bf2df2a7 102-143
+MeetingBarNG/UI/StatusBar/DropdownPanelView.swift
+  s_b8ddb6808b4a67::t_62e450a400331f 1295-1311,1313-1331
+  s_b8ddb6808b4a67::t_b50da5cbc75498 766-784
+  s_b8ddb6808b4a67::t_b309e8365fc27f 1071-1073,1075
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "2007165ef09e1867f7415f961e76ff4fb89176c0",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
