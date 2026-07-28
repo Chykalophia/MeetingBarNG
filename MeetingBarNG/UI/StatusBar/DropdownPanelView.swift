@@ -156,6 +156,7 @@ struct DropdownPanelView: View {
     /// rather than leaving the panel unrenderable.
     @Default(.dropdownDensity) private var dropdownDensityRaw
     @Default(.timelineStyle) private var timelineStyleRaw
+    @Default(.meetingCardShowsProgress) private var showsMeetingCardProgress
 
     private var dropdownDensity: DropdownDensity {
         DropdownDensity(rawValue: dropdownDensityRaw) ?? .standard
@@ -382,13 +383,14 @@ struct DropdownPanelView: View {
             order: dropdownModuleOrder,
             enabled: DropdownCompositionPolicy.enabledRawValues(
                 greeting: state.showGreetingHeader,
-                timeline: state.menu.showTimelineInMenu,
+                // The style picker is the timeline's on/off now — see
+                // `TimelineStyle`.
+                timeline: timelineStyle.isVisible,
                 meeting: state.menu.showMeetingControlInMenu,
                 agenda: state.menu.showAgendaInMenu,
                 join: state.menu.showJoinSectionInMenu,
                 bookmarks: state.menu.showBookmarksInMenu,
-                calendar: state.menu.showCalendarInMenu,
-            upNext: state.menu.showUpNextInMenu
+                calendar: state.menu.showCalendarInMenu
             )
         )
         .filter(hasContent)
@@ -404,7 +406,6 @@ struct DropdownPanelView: View {
         case .join: true
         case .bookmarks: !state.meetings.bookmarks.isEmpty
         case .calendar: state.hasSelectedCalendars
-        case .upNext: state.nextEvent != nil
         }
     }
 
@@ -418,7 +419,6 @@ struct DropdownPanelView: View {
         case .join: joinBlock
         case .bookmarks: bookmarksBlock
         case .calendar: calendarBlock
-        case .upNext: upNextBlock
         }
     }
 
@@ -622,27 +622,26 @@ struct DropdownPanelView: View {
     /// full at exactly the moment `eventActionHighlightMinutes` un-mutes the Join
     /// button and boldens the menu bar — one threshold made visible in a third
     /// place, rather than a fourth unrelated setting.
+    /// The countdown bar under the meeting card.
+    ///
+    /// This used to be its own `upNext` MODULE, which meant the panel could show
+    /// the same meeting twice — a card naming it and a bar counting down to it,
+    /// each with its own toggle and its own place in the order. They were one
+    /// idea wearing two hats, so the bar is now a display option ON the card.
     @ViewBuilder
-    private var upNextBlock: some View {
-        if let event = state.nextEvent {
-            PanelCard {
-                VStack(alignment: .leading, spacing: 7) {
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text("dropdown_panel_up_next".loco())
-                            .font(.system(size: metrics.secondaryFontSize - 1))
-                            .foregroundStyle(.secondary)
-                        Text(event.title ?? "status_bar_no_title".loco())
-                            .font(.system(size: metrics.secondaryFontSize, weight: .semibold))
-                            .lineLimit(1)
-                        Spacer(minLength: 6)
-                        Text(upNextCountdown(event))
-                            .font(.system(size: metrics.secondaryFontSize - 1))
-                            .foregroundStyle(isActionImminent(event) ? Color.accentColor : .secondary)
-                            .monospacedDigit()
-                    }
-                    upNextBar(event)
+    private func meetingProgressBar(_ event: MBEvent) -> some View {
+        if showsMeetingCardProgress {
+            VStack(alignment: .leading, spacing: 5) {
+                upNextBar(event)
+                HStack(spacing: 6) {
+                    Spacer(minLength: 0)
+                    Text(upNextCountdown(event))
+                        .font(.system(size: metrics.secondaryFontSize - 1))
+                        .foregroundStyle(isActionImminent(event) ? Color.accentColor : .secondary)
+                        .monospacedDigit()
                 }
             }
+            .padding(.top, 2)
         }
     }
 
@@ -788,14 +787,17 @@ struct DropdownPanelView: View {
             // module that floated on the panel background, which made the panel's
             // most important element read as the least deliberate.
             PanelCard {
-                MeetingSummaryView(
-                    presentation: presentation,
-                    onJoin: event.meetingLink == nil
-                        ? nil
-                        : { handlers.joinEvent(event); handlers.dismiss() },
-                    isActionImminent: isActionImminent(event),
-                    horizontalPadding: 0
-                )
+                VStack(alignment: .leading, spacing: 0) {
+                    MeetingSummaryView(
+                        presentation: presentation,
+                        onJoin: event.meetingLink == nil
+                            ? nil
+                            : { handlers.joinEvent(event); handlers.dismiss() },
+                        isActionImminent: isActionImminent(event),
+                        horizontalPadding: 0
+                    )
+                    meetingProgressBar(event)
+                }
                 // Same surface as every other selectable row — see `PanelHighlight`.
                 .background(
                     PanelHighlight(
@@ -2264,7 +2266,10 @@ private struct PanelCard<Content: View>: View {
         .padding(.horizontal, metrics.cardHorizontalPadding)
         .padding(.vertical, metrics.cardVerticalPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(cardShape.fill(Color.primary.opacity(0.06)))
+        // 0.09, matching the mockup's `rgba(255,255,255,.09)` for a dark glass
+        // card. It shipped at 0.06 and read as noticeably flatter — measured
+        // against the mockup's CSS rather than adjusted by eye.
+        .background(cardShape.fill(Color.primary.opacity(0.09)))
         // A lit rim, not a flat hairline. `Color.primary.opacity(0.06)` drew the
         // same faint line along every edge, which reads as a drawn outline —
         // the pre-glass look. Real glass catches light along its top edge and
@@ -2274,9 +2279,12 @@ private struct PanelCard<Content: View>: View {
         .overlay(
             cardShape.strokeBorder(
                 LinearGradient(
+                    // Floor raised from 0.04 so the lower edge does not vanish:
+                    // the mockup's border is a uniform 0.16, and a gradient that
+                    // fades to nothing averages well under it.
                     colors: [
-                        Color.white.opacity(0.18),
-                        Color.white.opacity(0.04)
+                        Color.white.opacity(0.20),
+                        Color.white.opacity(0.08)
                     ],
                     startPoint: .top,
                     endPoint: .bottom

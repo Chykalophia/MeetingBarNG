@@ -172,6 +172,30 @@ enum TimeFormatDefaultMigration {
     }
 }
 
+/// Folds two retired controls into the ones that replaced them.
+///
+/// The dropdown had an `upNext` module that drew a second card for the meeting
+/// the `meeting` module already showed, and a `showTimelineInMenu` toggle beside
+/// a timeline STYLE picker. Both were two controls for one thing. Their
+/// replacements exist now; this carries people's existing choices across so a
+/// merge does not read as a setting being reset.
+/// Defaults plumbing for `DropdownModuleMergePolicy`, which holds the decisions.
+enum DropdownModuleMergeMigration {
+    @MainActor
+    static func migrateDefaultsIfNeeded() {
+        guard !Defaults[.dropdownModuleMergeMigrated] else { return }
+        Defaults[.dropdownModuleMergeMigrated] = true
+
+        Defaults[.meetingCardShowsProgress] = DropdownModuleMergePolicy.showsProgress(
+            hadUpNextModule: Defaults[.showUpNextInMenu]
+        )
+        Defaults[.timelineStyle] = DropdownModuleMergePolicy.timelineStyle(
+            wasVisible: Defaults[.showTimelineInMenu],
+            stored: TimelineStyle(rawValue: Defaults[.timelineStyle]) ?? .relative
+        ).rawValue
+    }
+}
+
 /// MeetingBarNG reset the app version to a sub-1.0 scheme. Because the "What's
 /// new" gate is a strictly-greater version compare, an install carrying an
 /// inherited upstream value (4.x/5.x) would never see the changelog again. This

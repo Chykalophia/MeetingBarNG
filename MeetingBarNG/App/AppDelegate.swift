@@ -63,6 +63,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         TimeFormatDefaultMigration.migrateDefaultsIfNeeded()
         ChangelogResetMigration.migrateDefaultsIfNeeded()
         MenuBarTimeFormatDefaultsMigration.migrateDefaultsIfNeeded()
+        DropdownModuleMergeMigration.migrateDefaultsIfNeeded()
 
         // Handle windows closing closing
         NotificationCenter.default.addObserver(

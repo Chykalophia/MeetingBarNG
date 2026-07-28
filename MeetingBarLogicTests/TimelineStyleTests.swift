@@ -159,9 +159,41 @@ final class TimelineStyleTests: XCTestCase {
 
     // MARK: - Style
 
-    /// No `none`: the timeline already has an on/off, and a second way to hide
-    /// one thing is how two switches end up disagreeing.
-    func testStyleRawValuesAreStableAndHaveNoHiddenCase() {
-        XCTAssertEqual(TimelineStyle.allCases.map(\.rawValue), ["relative", "day"])
+    func testStyleRawValuesAreStableAcrossLaunches() {
+        XCTAssertEqual(TimelineStyle.allCases.map(\.rawValue), ["off", "relative", "day"])
+    }
+
+    /// `off` is a style rather than a separate toggle, so exactly one control
+    /// answers both "is it shown" and "how".
+    func testOnlyOffIsHidden() {
+        for style in TimelineStyle.allCases {
+            XCTAssertEqual(style.isVisible, style != .off, "\(style)")
+        }
+    }
+
+    /// `.off` never draws, but the range function stays total — a pure function
+    /// that traps on a valid case is a crash waiting for a refactor.
+    func testOffStillAnswersWithAUsableRange() {
+        let range = DayTimelineRange.range(style: .off, now: now, bounds: nil)
+        XCTAssertTrue(range.contains(now))
+    }
+
+    // MARK: - Migration off the retired toggles
+
+    func testMigrationKeepsTheUpNextCardAsTheCountdownBar() {
+        XCTAssertTrue(DropdownModuleMergePolicy.showsProgress(hadUpNextModule: true))
+        XCTAssertFalse(DropdownModuleMergePolicy.showsProgress(hadUpNextModule: false))
+    }
+
+    func testMigrationTurnsAHiddenTimelineIntoTheOffStyle() {
+        XCTAssertEqual(
+            DropdownModuleMergePolicy.timelineStyle(wasVisible: false, stored: .day),
+            .off
+        )
+        XCTAssertEqual(
+            DropdownModuleMergePolicy.timelineStyle(wasVisible: true, stored: .day),
+            .day,
+            "a visible timeline keeps whatever style is stored"
+        )
     }
 }

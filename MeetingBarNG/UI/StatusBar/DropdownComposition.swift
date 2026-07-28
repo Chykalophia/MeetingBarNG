@@ -28,8 +28,13 @@ enum DropdownModule: String, CaseIterable, Codable, Hashable {
     case join
     /// The saved bookmarks section.
     case bookmarks
-    /// The "Next · <meeting> — in 24m" card with a progress bar.
-    case upNext
+    // NOTE: `upNext` used to live here — a "Next · <meeting> — in 24m" card with
+    // a progress bar. It described the SAME event as `meeting` and had its own
+    // toggle and its own place in the order, so both could show at once and
+    // usually did. The bar is now a display option on the meeting card. A stored
+    // order still containing "upNext" is dropped by `resolve`, which ignores raw
+    // strings it does not recognise.
+
     /// A compact month grid. Off by default: it is the tallest thing that can go
     /// in the panel (~200pt), so it earns its place only for people who want the
     /// dropdown to be a day dashboard rather than a what's-next glance.
@@ -45,7 +50,7 @@ enum DropdownModule: String, CaseIterable, Codable, Hashable {
     var isActionList: Bool {
         switch self {
         case .join, .bookmarks: true
-        case .greeting, .timeline, .meeting, .agenda, .upNext, .calendar: false
+        case .greeting, .timeline, .meeting, .agenda, .calendar: false
         }
     }
 }
@@ -81,7 +86,7 @@ struct DropdownComposition: Equatable {
     /// its home when switched on — above the agenda, so the month sits with the
     /// other widgets rather than stranded under the bookmarks.
     static let standard = DropdownComposition(
-        modules: [.greeting, .upNext, .timeline, .meeting, .calendar, .agenda, .join, .bookmarks]
+        modules: [.greeting, .timeline, .meeting, .calendar, .agenda, .join, .bookmarks]
     )
 }
 
@@ -130,8 +135,7 @@ enum DropdownCompositionPolicy {
         agenda: Bool,
         join: Bool,
         bookmarks: Bool,
-        calendar: Bool,
-        upNext: Bool
+        calendar: Bool
     ) -> Set<String> {
         // swiftlint:enable function_parameter_count
         var enabled = Set<String>()
@@ -142,7 +146,6 @@ enum DropdownCompositionPolicy {
         if join { enabled.insert(DropdownModule.join.rawValue) }
         if bookmarks { enabled.insert(DropdownModule.bookmarks.rawValue) }
         if calendar { enabled.insert(DropdownModule.calendar.rawValue) }
-        if upNext { enabled.insert(DropdownModule.upNext.rawValue) }
         return enabled
     }
 }

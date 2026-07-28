@@ -11,18 +11,44 @@
 
 import Foundation
 
-/// What span the timeline draws.
+/// What span the timeline draws, or whether it draws at all.
 ///
-/// Deliberately NOT carrying a `none` case. The timeline already has an on/off
-/// (`showTimelineInMenu`, and the composer can drop the module entirely), and a
-/// second way to hide the same thing is how two switches end up disagreeing.
+/// `off` lives HERE rather than as a separate `showTimelineInMenu` toggle. Two
+/// controls for one thing is how they end up disagreeing — a user could switch
+/// the style of a timeline that was hidden, or hide one whose style they had
+/// just set. One picker answers both questions.
 public enum TimelineStyle: String, CaseIterable, Codable, Hashable, Sendable {
+    /// Not drawn.
+    case off
     /// A window around now. Reads as "what is near me", and the marker moves
     /// across it as the day passes.
     case relative
     /// The working day end to end. Reads as "where am I in the day", and every
     /// meeting has a fixed place on the bar all day long.
     case day
+
+    public var isVisible: Bool { self != .off }
+}
+
+/// Carries two retired controls onto the ones that replaced them.
+///
+/// The dropdown had an `upNext` module drawing a second card for the meeting the
+/// `meeting` module already showed, and a `showTimelineInMenu` toggle beside a
+/// timeline STYLE picker. Both were two controls for one thing. Hostless so the
+/// decisions are tested; the Defaults plumbing lives in
+/// `DropdownModuleMergeMigration`.
+public enum DropdownModuleMergePolicy {
+    /// The countdown bar is on if the user had the up-next card.
+    public static func showsProgress(hadUpNextModule: Bool) -> Bool { hadUpNextModule }
+
+    /// A hidden timeline stays hidden; a shown one keeps the stored style, since
+    /// there was no style to preserve before this.
+    public static func timelineStyle(
+        wasVisible: Bool,
+        stored: TimelineStyle
+    ) -> TimelineStyle {
+        wasVisible ? stored : .off
+    }
 }
 
 public enum DayTimelineRange {
@@ -59,7 +85,10 @@ public enum DayTimelineRange {
         calendar: Calendar = .current
     ) -> ClosedRange<Date> {
         switch style {
-        case .relative: relativeRange(now: now, bounds: bounds)
+        // `.off` draws nothing, so its range is never read; answering with the
+        // relative window keeps this total without a fatalError in a pure
+        // function.
+        case .off, .relative: relativeRange(now: now, bounds: bounds)
         case .day: dayRange(now: now, bounds: bounds, calendar: calendar)
         }
     }

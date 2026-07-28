@@ -28,13 +28,12 @@ import SwiftUI
 struct DropdownComposerSection: View {
     @Default(.dropdownModuleOrder) var dropdownModuleOrder
     @Default(.showGreetingInMenu) var showGreetingInMenu
-    @Default(.showTimelineInMenu) var showTimelineInMenu
+    @Default(.timelineStyle) var timelineStyleRaw
     @Default(.showMeetingControlInMenu) var showMeetingControlInMenu
     @Default(.showAgendaInMenu) var showAgendaInMenu
     @Default(.showJoinSectionInMenu) var showJoinSectionInMenu
     @Default(.showBookmarksInMenu) var showBookmarksInMenu
     @Default(.showCalendarInMenu) var showCalendarInMenu
-    @Default(.showUpNextInMenu) var showUpNextInMenu
 
     // Greeting gear: the name field.
     @Default(.greetingName) var greetingName
@@ -76,13 +75,13 @@ struct DropdownComposerSection: View {
     private var enabledRawValues: Set<String> {
         DropdownCompositionPolicy.enabledRawValues(
             greeting: showGreetingInMenu,
-            timeline: showTimelineInMenu,
+            // The style picker owns the timeline's visibility.
+            timeline: (TimelineStyle(rawValue: timelineStyleRaw) ?? .relative).isVisible,
             meeting: showMeetingControlInMenu,
             agenda: showAgendaInMenu,
             join: showJoinSectionInMenu,
             bookmarks: showBookmarksInMenu,
-            calendar: showCalendarInMenu,
-            upNext: showUpNextInMenu
+            calendar: showCalendarInMenu
         )
     }
 
@@ -176,7 +175,7 @@ struct DropdownComposerSection: View {
     private func hasGear(_ module: DropdownModule) -> Bool {
         switch module {
         case .greeting, .agenda: return true
-        case .timeline, .meeting, .join, .bookmarks, .calendar, .upNext: return false
+        case .timeline, .meeting, .join, .bookmarks, .calendar: return false
         }
     }
 
@@ -238,7 +237,7 @@ struct DropdownComposerSection: View {
                     isEnabled: shortenEventTitle
                 )
 
-            case .timeline, .meeting, .join, .bookmarks, .calendar, .upNext:
+            case .timeline, .meeting, .join, .bookmarks, .calendar:
                 EmptyView()
             }
         }
@@ -260,7 +259,6 @@ struct DropdownComposerSection: View {
         case .join: return "preferences_dropdown_block_join".loco()
         case .bookmarks: return "preferences_dropdown_block_bookmarks".loco()
         case .calendar: return "preferences_dropdown_block_calendar".loco()
-        case .upNext: return "preferences_dropdown_block_up_next".loco()
         }
     }
 
@@ -273,20 +271,18 @@ struct DropdownComposerSection: View {
         case .join: return "arrow.up.right.square"
         case .bookmarks: return "bookmark"
         case .calendar: return "calendar"
-        case .upNext: return "chart.bar.fill"
         }
     }
 
     private func isEnabled(_ module: DropdownModule) -> Bool {
         switch module {
         case .greeting: return showGreetingInMenu
-        case .timeline: return showTimelineInMenu
+        case .timeline: return (TimelineStyle(rawValue: timelineStyleRaw) ?? .relative).isVisible
         case .meeting: return showMeetingControlInMenu
         case .agenda: return showAgendaInMenu
         case .join: return showJoinSectionInMenu
         case .bookmarks: return showBookmarksInMenu
         case .calendar: return showCalendarInMenu
-        case .upNext: return showUpNextInMenu
         }
     }
 
@@ -295,13 +291,14 @@ struct DropdownComposerSection: View {
     private func setEnabled(_ module: DropdownModule, _ value: Bool) {
         switch module {
         case .greeting: showGreetingInMenu = value
-        case .timeline: showTimelineInMenu = value
+        // Hiding the timeline from the composer means choosing the `off`
+        // style; showing it restores the previous one.
+        case .timeline: timelineStyleRaw = value ? TimelineStyle.relative.rawValue : TimelineStyle.off.rawValue
         case .meeting: showMeetingControlInMenu = value
         case .agenda: showAgendaInMenu = value
         case .join: showJoinSectionInMenu = value
         case .bookmarks: showBookmarksInMenu = value
         case .calendar: showCalendarInMenu = value
-        case .upNext: showUpNextInMenu = value
         }
     }
 

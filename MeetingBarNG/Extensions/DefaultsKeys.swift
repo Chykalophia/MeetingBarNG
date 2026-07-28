@@ -250,8 +250,23 @@ extension Defaults.Keys {
     static let dropdownDensity = Key<String>(
         "dropdownDensity", default: DropdownDensity.standard.rawValue)
 
+    /// Whether the dropdown's meeting card carries a countdown bar.
+    ///
+    /// Replaces the separate `upNext` MODULE, which drew a second card for the
+    /// same meeting. Migrated from `showUpNextInMenu` once, so anyone who had
+    /// that module on keeps their bar.
+    static let meetingCardShowsProgress = Key<Bool>(
+        "meetingCardShowsProgress", default: true)
+
+    /// Set once `dropdownModuleMergeMigrated` has folded `showUpNextInMenu` and
+    /// `showTimelineInMenu` into their replacements. A flag rather than a value
+    /// check, because "off" is a legitimate destination and would otherwise be
+    /// re-migrated on every launch.
+    static let dropdownModuleMergeMigrated = Key<Bool>(
+        "dropdownModuleMergeMigrated", default: false)
+
     /// How the dropdown's timeline frames time — a window around now, or the
-    /// whole working day.
+    /// whole working day. `off` hides it; there is no separate toggle.
     ///
     /// No `none`: the timeline already has an on/off (`showTimelineInMenu`, plus
     /// the composer can drop the module), and a second way to hide one thing is
