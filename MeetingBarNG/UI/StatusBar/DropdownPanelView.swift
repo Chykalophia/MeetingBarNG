@@ -791,20 +791,18 @@ struct DropdownPanelView: View {
         }
     }
 
-    /// Reuses `MenuBuilder`'s presentation mapping so the card's copy (section
-    /// title, metadata, countdown) is identical in both dropdowns. The builder's
-    /// `target` is only used for NSMenuItem actions, which this path never makes.
+    /// The meeting card's copy, from the shared `MeetingSummaryPresenter`.
+    ///
+    /// `clock`, not `Date()`, so the countdown re-reads as the panel ticks.
     private func meetingSummaryPresentation(for event: MBEvent) -> MeetingSummaryPresentation {
-        var presentation = MenuBuilder(
-            target: NSNull(),
-            state: state,
-            isFantasticalInstalled: false,
+        var presentation = MeetingSummaryPresenter.presentation(
+            for: event,
+            timeFormat: state.timeFormat,
             now: clock
         )
-        .meetingSummaryPresentation(for: event)
-        // `showMeetingServiceIcon` governs the meeting card too. Cleared here
-        // rather than in the shared builder so the classic NSMenu keeps the exact
-        // card it ships today (it is feature-frozen, not degraded).
+        // `showMeetingServiceIcon` governs the meeting card too. Applied here
+        // rather than inside the presenter because it is a PANEL display
+        // setting, not part of what the copy says.
         if !state.menu.showMeetingServiceIcon {
             presentation.meetingService = nil
         }

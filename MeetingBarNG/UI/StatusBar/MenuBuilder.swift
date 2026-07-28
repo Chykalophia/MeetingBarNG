@@ -297,49 +297,14 @@ struct MenuBuilder {
         return items
     }
 
+    /// Delegates to `MeetingSummaryPresenter`, which owns this copy now. Kept as
+    /// a method so the menu's own call sites read unchanged while the NSMenu path
+    /// is being retired.
     func meetingSummaryPresentation(for event: MBEvent) -> MeetingSummaryPresentation {
-        let isCurrent = event.startDate <= now && event.endDate > now
-        let eventTitle = event.title.isEmpty
-            ? "status_bar_no_title".loco()
-            : event.title
-        let time = eventTimePresentation(for: event)
-        let timeRange = event.isAllDay
-            ? time.start
-            : "\(time.start) – \(time.end)"
-        let meetingProvider = event.meetingLink?.service
-            .flatMap(MeetingProvider.provider(for:))?
-            .displayName
-        let account = firstMeaningfulMetadataValue([
-            event.calendar.email,
-            event.calendar.source == "unknown" ? nil : event.calendar.source,
-            event.organizer?.email
-        ])
-
-        let countdown: String?
-        if isCurrent || event.isAllDay {
-            countdown = nil
-        } else {
-            let timeLeft = StatusBarTitlePolicy.formattedTimeLeft(
-                from: now,
-                to: event.startDate,
-                calendar: Calendar.current
-            )
-            countdown = timeLeft.isEmpty ? nil : "status_bar_event_status_in".loco(timeLeft)
-        }
-
-        return MeetingSummaryPresentation(
-            sectionTitle: isCurrent
-                ? "status_bar_control_current_meeting".loco()
-                : "status_bar_control_next_meeting".loco(),
-            eventTitle: eventTitle,
-            metadata: uniqueMetadataValues([
-                timeRange,
-                meetingProvider,
-                account,
-                event.calendar.title
-            ]),
-            meetingService: event.meetingLink?.service,
-            countdown: countdown
+        MeetingSummaryPresenter.presentation(
+            for: event,
+            timeFormat: state.timeFormat,
+            now: now
         )
     }
 
@@ -518,29 +483,6 @@ struct MenuBuilder {
         hosting.autoresizingMask = [.width]
         item.view = hosting
         return item
-    }
-
-    private func firstMeaningfulMetadataValue(_ values: [String?]) -> String? {
-        values.lazy
-            .compactMap { value in
-                value?.trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-            .first { !$0.isEmpty }
-    }
-
-    private func uniqueMetadataValues(_ values: [String?]) -> [String] {
-        var seen = Set<String>()
-        return values.compactMap { value in
-            guard let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines),
-                  !trimmed.isEmpty
-            else { return nil }
-            let identity = trimmed.folding(
-                options: [.caseInsensitive, .diacriticInsensitive],
-                locale: .current
-            )
-            guard seen.insert(identity).inserted else { return nil }
-            return trimmed
-        }
     }
 
     // MARK: Date section ------------------------------------------------------
