@@ -95,6 +95,11 @@ final class StatusBarItemController {
     var statusItem: NSStatusItem!
     var statusItemMenu: NSMenu!
 
+    /// The menu-bar progress indicator, added to the status-item button once and
+    /// reused. Held weakly: the button owns it as a subview, and a strong ref
+    /// here would outlive a status item that got torn down and rebuilt.
+    private weak var meetingProgressOverlay: MeetingProgressOverlayView?
+
     /// Current event list, driven by the AppModel state.
     /// A non-nil `_eventsOverride` takes precedence (used by tests to inject
     /// events without wiring up the full app model chain).
@@ -579,6 +584,69 @@ final class StatusBarItemController {
         }
 
         ensureStatusBarButtonIsVisible(button)
+        renderMeetingProgress(on: button)
+    }
+
+    // MARK: - Meeting progress (menu bar)
+
+    /// Draws (or clears) the menu-bar progress indicator for the next meeting.
+    ///
+    /// Runs after the rest of the item is in place, because two of the styles are
+    /// sized from the button's final bounds and the ring needs the icon that was
+    /// just assigned.
+    private func renderMeetingProgress(on button: NSStatusBarButton) {
+        let style = MeetingProgressStyle(rawValue: Defaults[.meetingProgressStyle]) ?? .none
+        let progress = style.drawsSomething ? currentMeetingProgress() : nil
+
+        guard let progress else {
+            meetingProgressOverlay?.presentation = nil
+            return
+        }
+
+        if style.occupiesImageSlot {
+            // The bar takes the image slot outright. Documented as the one style
+            // that costs menu-bar width — it is not an overlay, so it cannot
+            // share the space with an icon.
+            button.image = MeetingProgressRenderer.barImage(for: progress)
+            button.imagePosition = .imageLeft
+            meetingProgressOverlay?.presentation = nil
+            return
+        }
+
+        // A ring needs something to sit around. With no icon in the item — the
+        // title-only compositions, which are common — an overlay ring lands on
+        // the first letter of the title instead, so it takes the image slot and
+        // becomes the icon.
+        if style == .ring, button.image == nil {
+            button.image = MeetingProgressRenderer.ringImage(for: progress)
+            button.imagePosition = .imageLeft
+            meetingProgressOverlay?.presentation = nil
+            return
+        }
+
+        let overlay = meetingProgressOverlay ?? {
+            let view = MeetingProgressOverlayView()
+            view.autoresizingMask = [.width, .height]
+            button.addSubview(view)
+            meetingProgressOverlay = view
+            return view
+        }()
+        overlay.frame = button.bounds
+        overlay.iconWidth = button.image?.size.width ?? 0
+        overlay.style = style
+        overlay.presentation = progress
+    }
+
+    /// The indicator's state for whichever meeting the menu bar is showing, or
+    /// `nil` when there is nothing to draw.
+    private func currentMeetingProgress() -> MeetingProgressPresentation? {
+        guard let event = events.nextEvent() else { return nil }
+        return MeetingProgressPolicy.presentation(
+            start: event.startDate,
+            end: event.endDate,
+            now: Date(),
+            leadMinutes: Defaults[.eventActionHighlightMinutes]
+        )
     }
 
     private func ensureStatusBarButtonIsVisible(_ button: NSStatusBarButton) {

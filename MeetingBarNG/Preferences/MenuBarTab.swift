@@ -70,6 +70,9 @@ struct MenuBarTab: View {
     @Default(.menuBarCountdownStyle) private var menuBarCountdownStyle
     @Default(.menuBarDateStyle) private var menuBarDateStyle
     @Default(.menuBarProgressStyle) private var menuBarProgressStyle
+    /// The MEETING indicator, not the day/year block above it — see
+    /// `MeetingProgressStyle` for why the two stay separate.
+    @Default(.meetingProgressStyle) private var meetingProgressStyle
     @Default(.menuBarWorldClockTimeZone) private var menuBarWorldClockTimeZone
     @Default(.menuBarWorldClockLabel) private var menuBarWorldClockLabel
 
@@ -95,6 +98,7 @@ struct MenuBarTab: View {
             presetSection
             blocksSection
             quietSection
+            meetingProgressSection
             linesSection
             PreferencesResetSection(tab: .menuBar)
         }
@@ -450,6 +454,45 @@ struct MenuBarTab: View {
             )
             .annotation("preferences_menubar_highlight_imminent_help")
         }
+    }
+
+    // MARK: - Meeting progress
+
+    /// How the strip shows the next meeting approaching.
+    ///
+    /// Its own section rather than an option on the `.progress` block: that block
+    /// draws a day/year bar and is event-independent, while this decorates the
+    /// whole item and only exists when there is a meeting. Putting them together
+    /// would suggest picking one excludes the other, which is false.
+    private var meetingProgressSection: some View {
+        Section(header: Text("preferences_menubar_meeting_progress_title".loco())) {
+            Picker(
+                "preferences_menubar_meeting_progress_style_title".loco(),
+                selection: meetingProgressStyleBinding
+            ) {
+                Text("preferences_menubar_meeting_progress_none".loco())
+                    .tag(MeetingProgressStyle.none)
+                Text("preferences_menubar_meeting_progress_underline".loco())
+                    .tag(MeetingProgressStyle.underline)
+                Text("preferences_menubar_meeting_progress_ring".loco())
+                    .tag(MeetingProgressStyle.ring)
+                Text("preferences_menubar_meeting_progress_capsule".loco())
+                    .tag(MeetingProgressStyle.capsule)
+                Text("preferences_menubar_meeting_progress_bar".loco())
+                    .tag(MeetingProgressStyle.bar)
+            }
+            .annotation("preferences_menubar_meeting_progress_help")
+        }
+    }
+
+    /// Bridges the raw-string Default to the hostless enum, like the dropdown's
+    /// density picker. An unrecognised stored value reads back as `.none` rather
+    /// than leaving the picker with no selection.
+    private var meetingProgressStyleBinding: Binding<MeetingProgressStyle> {
+        Binding(
+            get: { MeetingProgressStyle(rawValue: meetingProgressStyle) ?? .none },
+            set: { meetingProgressStyle = $0.rawValue }
+        )
     }
 
     /// A look-ahead preset as a short duration chip: "15m", "1h", "2h".

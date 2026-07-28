@@ -87,6 +87,11 @@ struct MeetingSummaryView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
+            // Priority so the text column wins the free space outright. Without
+            // it the Spacer below is an equally flexible sibling and takes
+            // roughly half, truncating a title that would otherwise have fit —
+            // the same bug the agenda rows had.
+            .layoutPriority(1)
 
             if onJoin != nil {
                 Spacer(minLength: 8)
@@ -108,6 +113,10 @@ struct MeetingSummaryView: View {
                                 : AnyShapeStyle(.quaternary)
                         )
                     )
+                    // Never squeezed: a half-width "Jo…" button is worse than a
+                    // shorter title, so the pill keeps its intrinsic size and the
+                    // text column absorbs whatever is left.
+                    .fixedSize()
                     .opacity(isHovered ? 1.0 : 0.9)
             }
         }

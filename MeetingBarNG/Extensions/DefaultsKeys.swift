@@ -253,6 +253,17 @@ extension Defaults.Keys {
     static let dropdownDensity = Key<String>(
         "dropdownDensity", default: DropdownDensity.standard.rawValue)
 
+    /// How the menu bar draws progress toward the next meeting.
+    ///
+    /// `.none` by default, and deliberately so: the menu bar is shared with every
+    /// other app on the machine, so decorating it is something a user opts into
+    /// rather than something an upgrade does to them.
+    ///
+    /// Stored as a raw string for the same reason as `dropdownDensity` — the enum
+    /// is hostless and cannot import Defaults.
+    static let meetingProgressStyle = Key<String>(
+        "meetingProgressStyle", default: MeetingProgressStyle.none.rawValue)
+
     // appearance of pending events should be shown in the statusbar and menu
     static let showPendingEvents = Key<PendingEventsAppereance>(
         "showPendingEvents", default: PendingEventsAppereance.show)

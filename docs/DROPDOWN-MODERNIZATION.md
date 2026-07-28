@@ -78,8 +78,8 @@ window never resizes underneath the user. Type scales with padding; padding alon
 | 5 | Calendar — window reachable from panel | **Done** `d60c6c4c` | Closed a parity gap: it was right-click-only. |
 | 6 | Calendar — inline month module | **Done** `8611e7b2` | `CompactMonthGridView`, OFF by default. Limitations in §4. |
 | 7 | Meeting-relative progress — dropdown card | **Not started** | Bar filling toward start; full exactly when Join un-mutes. |
-| 8 | Menu-bar progress — 4 styles + none | **Not started** | Biggest remaining piece. See §5. |
-| 9 | Meeting card — card treatment | **Not started** | Currently has its own background; should adopt `PanelCard`. |
+| 8 | Menu-bar progress — 4 styles + none | **Done** `2007165e`+ | `MeetingProgressStyle`. All four verified in the menu bar. See §5. |
+| 9 | Meeting card — card treatment | **Done** `2007165e` | Adopts `PanelCard`; `MeetingSummaryView` takes its inset as a parameter. |
 | 10 | Density applied to cards | **Not started** | Cards use fixed padding; should read the grid. |
 
 ---
@@ -126,8 +126,28 @@ Modelled as a **style**, not four new `MenuBarTokenKind` cases: underline/ring/c
 renderings of the title and icon that already exist, not independent tokens that could be added
 twice or reordered nonsensically.
 
-Colour follows §1's shared threshold: amber inside `eventActionHighlightMinutes`, red while the
-meeting runs, counting down through it.
+Colour follows §1's shared threshold: the accent colour inside `eventActionHighlightMinutes`, red
+while the meeting runs, counting through it; secondary before that.
+
+### How it shipped
+
+`MeetingProgressPolicy` (hostless, 16 tests) decides how full and what phase; the renderer only
+draws. Not to be confused with the pre-existing `MenuBarProgressStyle`, which says what the
+event-independent `.progress` TOKEN measures (day or year) — different question, adjacent name.
+
+- **Fill window is one hour**, not `eventActionHighlightMinutes`. That threshold answers "should
+  the Join button shout" and defaults to two minutes, at which a bar snaps empty→full with no
+  useful middle. Full means *now*: the fraction is exactly 1.0 at the start instant.
+- **Nothing is drawn when no meeting is close** — `nil`, not a zero-fraction frame. An empty ring
+  sitting there all morning says only "a meeting exists eventually".
+- **Underline / ring / capsule are an overlay `NSView` on the status-item button**, not a re-render
+  of the item. AppKit owns everything that makes menu-bar text look native (light/dark, the
+  inversion while the menu is open, accessibility); compositing under it would mean reimplementing
+  all of that. The cost is that region-filling styles are drawn *around* the text rather than
+  behind it, and stay translucent so the text reads first.
+- **The ring takes the image slot when there is no icon.** A ring needs something to encircle; with
+  a title-only composition an overlay ring lands on the first letter. Then it becomes the icon.
+- **The bar always takes the image slot**, which is why it is the one style that costs width.
 
 ---
 

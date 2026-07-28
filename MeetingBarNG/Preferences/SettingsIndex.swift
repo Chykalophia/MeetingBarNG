@@ -329,6 +329,17 @@ enum SettingsIndex {
             synonyms: ["date", "weekday", "day", "mon", "format"]
         ),
         SettingsIndexEntry(
+            id: "menubar.meeting_progress_style",
+            tab: .menuBar,
+            labelKey: "preferences_menubar_meeting_progress_style_title",
+            helpKey: "preferences_menubar_meeting_progress_help",
+            defaultsKeys: ["meetingProgressStyle"],
+            // "progress" is deliberately shared with the day/year entry below:
+            // a user searching it does not know which of the two we mean, so both
+            // should come back.
+            synonyms: ["progress", "meeting progress", "ring", "underline", "capsule", "bar", "countdown bar"]
+        ),
+        SettingsIndexEntry(
             id: "menubar.progress_style",
             tab: .menuBar,
             labelKey: "preferences_menubar_progress_style_title",
