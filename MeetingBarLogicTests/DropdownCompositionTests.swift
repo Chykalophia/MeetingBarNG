@@ -141,4 +141,59 @@ final class DropdownCompositionTests: XCTestCase {
         let resolved = DropdownCompositionPolicy.resolve(order: standardOrderRaw, enabled: enabled)
         XCTAssertEqual(resolved, [.greeting, .meeting, .agenda])
     }
+
+    // MARK: - Separators
+
+    /// Content modules run together. The panel used to draw a rule between EVERY
+    /// module, which made one sheet read as a stack of strips.
+    func test_contentModulesGetNoSeparators() {
+        XCTAssertEqual(
+            DropdownSeparatorPolicy.separatorIndices(
+                for: [.greeting, .timeline, .meeting, .calendar, .agenda]
+            ),
+            []
+        )
+    }
+
+    /// One rule marks the boundary between what is happening and what you can do
+    /// about it.
+    func test_separatorSitsAboveTheActionList() {
+        XCTAssertEqual(
+            DropdownSeparatorPolicy.separatorIndices(
+                for: [.greeting, .agenda, .join]
+            ),
+            [2]
+        )
+    }
+
+    /// Join followed by bookmarks is ONE group of verbs, so it gets one rule.
+    func test_adjacentActionListsShareASingleSeparator() {
+        XCTAssertEqual(
+            DropdownSeparatorPolicy.separatorIndices(
+                for: [.agenda, .join, .bookmarks]
+            ),
+            [1]
+        )
+    }
+
+    /// A rule against the panel's top edge separates nothing.
+    func test_neverSeparatesTheFirstModule() {
+        XCTAssertEqual(DropdownSeparatorPolicy.separatorIndices(for: [.join, .agenda]), [])
+        XCTAssertEqual(DropdownSeparatorPolicy.separatorIndices(for: []), [])
+    }
+
+    /// Content between two action lists breaks the run, so each side is marked.
+    func test_actionListsSplitByContentGetTheirOwnSeparators() {
+        XCTAssertEqual(
+            DropdownSeparatorPolicy.separatorIndices(
+                for: [.agenda, .join, .timeline, .bookmarks]
+            ),
+            [1, 3]
+        )
+    }
+
+    func test_everyModuleIsClassifiedAsContentOrAction() {
+        let actions = DropdownModule.allCases.filter(\.isActionList)
+        XCTAssertEqual(Set(actions), [.join, .bookmarks])
+    }
 }

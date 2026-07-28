@@ -34,6 +34,36 @@ enum DropdownModule: String, CaseIterable, Codable, Hashable {
     /// in the panel (~200pt), so it earns its place only for people who want the
     /// dropdown to be a day dashboard rather than a what's-next glance.
     case calendar
+
+    /// Whether this module is a list of plain VERBS rather than content.
+    ///
+    /// Drives where the panel draws a rule. A rule between two content modules
+    /// (greeting, timeline, agenda…) just adds noise — they are already separated
+    /// by their own cards and headers. A rule ABOVE the action list earns its
+    /// place: it marks the boundary between "what is happening" and "what you can
+    /// do about it", which is the one break the eye actually needs.
+    var isActionList: Bool {
+        switch self {
+        case .join, .bookmarks: true
+        case .greeting, .timeline, .meeting, .agenda, .upNext, .calendar: false
+        }
+    }
+}
+
+enum DropdownSeparatorPolicy {
+    /// Indices in `modules` that should be preceded by a rule.
+    ///
+    /// One rule above a RUN of action lists, not one per module: join followed by
+    /// bookmarks is a single group of verbs and reads as one block. Never at index
+    /// 0 — a rule against the panel's top edge separates nothing.
+    static func separatorIndices(for modules: [DropdownModule]) -> Set<Int> {
+        var indices: Set<Int> = []
+        for (index, module) in modules.enumerated() where module.isActionList && index > 0 {
+            guard !modules[index - 1].isActionList else { continue }
+            indices.insert(index)
+        }
+        return indices
+    }
 }
 
 /// An ordered list of dropdown modules. `standard` is the canonical order that

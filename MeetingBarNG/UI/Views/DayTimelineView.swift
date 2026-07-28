@@ -260,10 +260,14 @@ struct DayRelativeTimelineView: View {
                 }
             }
             .frame(height: contentHeight)
-            .padding(.top, 10)
-            .padding(.vertical, 8)
-            .padding(.horizontal, 12)
         }
+        // OUTSIDE the GeometryReader on purpose. Inset within it, the proxy still
+        // measured the FULL width while the content drew into a box 24pt
+        // narrower, so every x position was computed against the wrong width and
+        // the right-hand labels ran past the card's edge ("10 PM" clipped).
+        .padding(.top, 10)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
         .frame(maxWidth: .infinity)
         .accessibilityLabel("timeline_accessibility_label".loco(segments.count))
     }

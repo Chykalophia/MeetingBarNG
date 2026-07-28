@@ -251,7 +251,7 @@ struct DropdownPanelView: View {
                 ScrollView(.vertical) {
                     VStack(alignment: .leading, spacing: 0) {
                         ForEach(Array(visibleModules.enumerated()), id: \.element) { pair in
-                            if pair.offset > 0 { separator }
+                            if separatorIndices.contains(pair.offset) { separator }
                             moduleBlock(pair.element)
                         }
                     }
@@ -421,8 +421,19 @@ struct DropdownPanelView: View {
         }
     }
 
+    /// Which module indices get a rule above them. One rule above the run of
+    /// action lists — see `DropdownSeparatorPolicy`.
+    private var separatorIndices: Set<Int> {
+        DropdownSeparatorPolicy.separatorIndices(for: visibleModules)
+    }
+
+    /// Inset to the row grid, not full-bleed. A rule that runs into the panel's
+    /// corners fights the rounded surface and makes the panel read as a stack of
+    /// strips rather than one sheet.
     private var separator: some View {
-        Divider().padding(.vertical, 4)
+        Divider()
+            .padding(.horizontal, metrics.rowOuterPadding)
+            .padding(.vertical, 5)
     }
 
     // MARK: - Keyboard navigation
