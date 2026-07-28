@@ -205,9 +205,22 @@ Corrections to earlier notes in this file, all of which were wrong:
 - The `PanelCard` "never `glassEffect`" rule is right, but for a better reason than haze: glass on
   glass does not render at all.
 
-Not yet tried: `GlassEffectContainer` (the documented way to make several glass elements share one
-sampling pass) over the clear-window variant. It could change the density of row two, which is the
-only combination that would give both.
+### `GlassEffectContainer` — tried, does not work here
+
+The one combination that could have given both. It fails outright: wrapping the panel in
+`GlassEffectContainer` and letting SwiftUI draw the surface **erased every non-glass child**. The
+screenshot is a blurred slab with four floating "Join" pills and no header, no timeline, no agenda,
+no footer — only the views carrying a `glassEffect` survived.
+
+Read alongside Apple's guidance, that is consistent rather than surprising: the container exists to
+group glass ELEMENTS so they share one sampling pass and can morph into one another. It is not a
+general-purpose wrapper for a screenful of ordinary content. Making the panel work inside one would
+mean every row, label and icon becoming a glass element, which is neither desirable nor cheap.
+
+Conclusion: **the three-row table above is the complete option set.** Shipping `.menu` vibrancy with
+drawn controls is the best available, not a placeholder awaiting a better idea. Revisit only if
+Apple ships behind-window sampling for SwiftUI glass, which would collapse rows two and three into
+one good option.
 
 ---
 
