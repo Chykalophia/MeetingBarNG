@@ -602,6 +602,13 @@ final class StatusBarItemController {
                 if menuState.shouldShowGreetingHeader {
                     blocks.append(builder.buildGreetingHeaderBlock())
                 }
+            case .calendar:
+                // Panel-only module. The compact month grid could be hosted here
+                // via NSHostingView the way the timeline and meeting card already
+                // are, but the classic NSMenu is the opt-out fallback and a month
+                // grid is the least menu-shaped thing in the app. Deliberate parity
+                // gap: switching the panel off also switches this off.
+                break
             case .timeline:
                 blocks.append(builder.buildTimelineBlock())
             case .meeting:
@@ -645,7 +652,8 @@ final class StatusBarItemController {
             meeting: menuState.menu.showMeetingControlInMenu,
             agenda: menuState.menu.showAgendaInMenu,
             join: menuState.menu.showJoinSectionInMenu,
-            bookmarks: menuState.menu.showBookmarksInMenu
+            bookmarks: menuState.menu.showBookmarksInMenu,
+            calendar: Defaults[.showCalendarInMenu]
         )
     }
 

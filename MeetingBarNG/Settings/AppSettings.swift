@@ -76,6 +76,8 @@ struct MenuSettings: Equatable {
     var showJoinSectionInMenu: Bool
     /// When true, the saved bookmarks section is shown.
     var showBookmarksInMenu: Bool
+    /// Compact month grid in the dropdown. OFF by default.
+    var showCalendarInMenu: Bool
 }
 
 struct NotificationSettings: Equatable {
@@ -288,7 +290,8 @@ extension AppSettings {
                 showMeetingControlInMenu: Defaults[.showMeetingControlInMenu],
                 showAgendaInMenu: Defaults[.showAgendaInMenu],
                 showJoinSectionInMenu: Defaults[.showJoinSectionInMenu],
-                showBookmarksInMenu: Defaults[.showBookmarksInMenu]
+                showBookmarksInMenu: Defaults[.showBookmarksInMenu],
+                showCalendarInMenu: Defaults[.showCalendarInMenu]
             ),
             notifications: NotificationSettings(
                 joinEventNotification: Defaults[.joinEventNotification],
@@ -370,7 +373,8 @@ extension AppSettings {
                 showMeetingControlInMenu: true,
                 showAgendaInMenu: true,
                 showJoinSectionInMenu: true,
-                showBookmarksInMenu: true
+                showBookmarksInMenu: true,
+                showCalendarInMenu: false
             ),
             notifications: NotificationSettings(
                 joinEventNotification: true,

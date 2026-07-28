@@ -18,7 +18,7 @@ final class DropdownCompositionTests: XCTestCase {
     func testStandardIsTheClassicOrder() {
         XCTAssertEqual(
             DropdownComposition.standard.modules,
-            [.greeting, .timeline, .meeting, .agenda, .join, .bookmarks]
+            [.greeting, .timeline, .meeting, .calendar, .agenda, .join, .bookmarks]
         )
     }
 
@@ -44,7 +44,7 @@ final class DropdownCompositionTests: XCTestCase {
         // missing standard modules append in standard order.
         XCTAssertEqual(
             resolved,
-            [.greeting, .timeline, .meeting, .agenda, .join, .bookmarks]
+            [.greeting, .timeline, .meeting, .calendar, .agenda, .join, .bookmarks]
         )
     }
 
@@ -57,7 +57,7 @@ final class DropdownCompositionTests: XCTestCase {
         )
         XCTAssertEqual(
             resolved,
-            [.greeting, .timeline, .agenda, .join, .bookmarks, .meeting]
+            [.greeting, .timeline, .agenda, .join, .bookmarks, .meeting, .calendar]
         )
     }
 
@@ -69,7 +69,7 @@ final class DropdownCompositionTests: XCTestCase {
         // First occurrence of each wins; the rest append in standard order.
         XCTAssertEqual(
             resolved,
-            [.bookmarks, .greeting, .timeline, .meeting, .agenda, .join]
+            [.bookmarks, .greeting, .timeline, .meeting, .calendar, .agenda, .join]
         )
     }
 
@@ -103,7 +103,7 @@ final class DropdownCompositionTests: XCTestCase {
         XCTAssertEqual(
             DropdownCompositionPolicy.enabledRawValues(
                 greeting: true, timeline: false, meeting: true,
-                agenda: false, join: true, bookmarks: false
+                agenda: false, join: true, bookmarks: false, calendar: false
             ),
             ["greeting", "meeting", "join"]
         )
@@ -113,7 +113,7 @@ final class DropdownCompositionTests: XCTestCase {
         XCTAssertEqual(
             DropdownCompositionPolicy.enabledRawValues(
                 greeting: true, timeline: true, meeting: true,
-                agenda: true, join: true, bookmarks: true
+                agenda: true, join: true, bookmarks: true, calendar: true
             ),
             allEnabled
         )
@@ -123,7 +123,7 @@ final class DropdownCompositionTests: XCTestCase {
         XCTAssertTrue(
             DropdownCompositionPolicy.enabledRawValues(
                 greeting: false, timeline: false, meeting: false,
-                agenda: false, join: false, bookmarks: false
+                agenda: false, join: false, bookmarks: false, calendar: false
             ).isEmpty
         )
     }
@@ -134,7 +134,7 @@ final class DropdownCompositionTests: XCTestCase {
     func testEnabledRawValuesFeedsResolveDeterministically() {
         let enabled = DropdownCompositionPolicy.enabledRawValues(
             greeting: true, timeline: false, meeting: true,
-            agenda: true, join: false, bookmarks: false
+            agenda: true, join: false, bookmarks: false, calendar: false
         )
         let resolved = DropdownCompositionPolicy.resolve(order: standardOrderRaw, enabled: enabled)
         XCTAssertEqual(resolved, [.greeting, .meeting, .agenda])

@@ -28,6 +28,10 @@ enum DropdownModule: String, CaseIterable, Codable, Hashable {
     case join
     /// The saved bookmarks section.
     case bookmarks
+    /// A compact month grid. Off by default: it is the tallest thing that can go
+    /// in the panel (~200pt), so it earns its place only for people who want the
+    /// dropdown to be a day dashboard rather than a what's-next glance.
+    case calendar
 }
 
 /// An ordered list of dropdown modules. `standard` is the canonical order that
@@ -37,9 +41,15 @@ struct DropdownComposition: Equatable {
     var modules: [DropdownModule]
 
     /// THIS EXACT ORDER reproduces the current dropdown layout
-    /// (greeting → timeline → meeting → agenda → join → bookmarks).
+    /// (greeting → timeline → meeting → calendar → agenda → join → bookmarks).
+    ///
+    /// `calendar` has to appear here even though it ships DISABLED: `resolve`
+    /// only back-fills modules it finds in this list, so a module absent from it
+    /// could never surface for a user whose stored order predates it. Position is
+    /// its home when switched on — above the agenda, so the month sits with the
+    /// other widgets rather than stranded under the bookmarks.
     static let standard = DropdownComposition(
-        modules: [.greeting, .timeline, .meeting, .agenda, .join, .bookmarks]
+        modules: [.greeting, .timeline, .meeting, .calendar, .agenda, .join, .bookmarks]
     )
 }
 
@@ -87,7 +97,8 @@ enum DropdownCompositionPolicy {
         meeting: Bool,
         agenda: Bool,
         join: Bool,
-        bookmarks: Bool
+        bookmarks: Bool,
+        calendar: Bool
     ) -> Set<String> {
         // swiftlint:enable function_parameter_count
         var enabled = Set<String>()
@@ -97,6 +108,7 @@ enum DropdownCompositionPolicy {
         if agenda { enabled.insert(DropdownModule.agenda.rawValue) }
         if join { enabled.insert(DropdownModule.join.rawValue) }
         if bookmarks { enabled.insert(DropdownModule.bookmarks.rawValue) }
+        if calendar { enabled.insert(DropdownModule.calendar.rawValue) }
         return enabled
     }
 }

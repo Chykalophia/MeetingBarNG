@@ -167,6 +167,10 @@ struct DropdownPanelView: View {
     /// Rows one agenda section draws before the rest go behind "+N more".
     @Default(.dropdownMaxEventRows) private var dropdownMaxEventRows
 
+    /// Months stepped away from today in the compact grid. Not persisted — the
+    /// panel should always reopen on the current month.
+    @State private var calendarMonthOffset = 0
+
     /// Sections the user has unfolded this time the panel is open. Not persisted:
     /// reopening should start compact again, or the cap stops doing its job.
     @State private var expandedAgendaDays: Set<AgendaDay> = []
@@ -374,7 +378,8 @@ struct DropdownPanelView: View {
                 meeting: state.menu.showMeetingControlInMenu,
                 agenda: state.menu.showAgendaInMenu,
                 join: state.menu.showJoinSectionInMenu,
-                bookmarks: state.menu.showBookmarksInMenu
+                bookmarks: state.menu.showBookmarksInMenu,
+                calendar: state.menu.showCalendarInMenu
             )
         )
         .filter(hasContent)
@@ -389,6 +394,7 @@ struct DropdownPanelView: View {
         case .agenda: state.hasSelectedCalendars
         case .join: true
         case .bookmarks: !state.meetings.bookmarks.isEmpty
+        case .calendar: state.hasSelectedCalendars
         }
     }
 
@@ -401,6 +407,7 @@ struct DropdownPanelView: View {
         case .agenda: agendaBlock
         case .join: joinBlock
         case .bookmarks: bookmarksBlock
+        case .calendar: calendarBlock
         }
     }
 
@@ -583,6 +590,61 @@ struct DropdownPanelView: View {
     }
 
     // MARK: - Timeline
+
+    // MARK: - Calendar
+
+    /// A compact month grid, carded.
+    ///
+    /// Uses `CompactMonthGridView` rather than the window's `CalendarGridView`,
+    /// which is floored at 460pt against this panel's 330. The two share
+    /// `MonthGridLayout` — the hostless week/today computation — and disagree only
+    /// about chrome, which is the correct seam: dates are policy, layout is not.
+    private var calendarBlock: some View {
+        PanelCard {
+            CompactMonthGridView(
+                month: visibleCalendarMonth,
+                now: clock,
+                calendar: panelCalendar,
+                markers: calendarMarkers,
+                onStep: { step in
+                    withAnimation(reduceMotion ? nil : .easeOut(duration: 0.12)) {
+                        calendarMonthOffset += step
+                    }
+                },
+                onSelect: { _ in handlers.openCalendar() }
+            )
+        }
+    }
+
+    private var panelCalendar: Calendar {
+        CalendarGridViewModel.defaultCalendar()
+    }
+
+    private var visibleCalendarMonth: Date {
+        panelCalendar.date(byAdding: .month, value: calendarMonthOffset, to: clock) ?? clock
+    }
+
+    /// Event dots, derived from the events the panel ALREADY holds rather than a
+    /// month-wide fetch.
+    ///
+    /// That is a deliberate limitation, not an oversight: the panel's state
+    /// carries today and tomorrow only, so those are the days that can show dots.
+    /// The alternative — threading a month-range fetch and its async lifecycle
+    /// into the panel — is real work for a grid whose main job here is orientation
+    /// ("where am I in the month, what is today"). Tapping any day opens the full
+    /// calendar window, which does have the whole month.
+    private var calendarMarkers: [Date: [Color]] {
+        var byDay: [Date: [Color]] = [:]
+        for event in visibleEvents(state.todayEvents) + visibleEvents(state.tomorrowEvents) {
+            let day = panelCalendar.startOfDay(for: event.startDate)
+            byDay[day, default: []].append(calendarColor(for: event))
+        }
+        return byDay
+    }
+
+    private func calendarColor(for event: MBEvent) -> Color {
+        Color(nsColor: event.calendar.color)
+    }
 
     /// Carded: the timeline is a widget with its own horizontal coordinate system
     /// (a whole day mapped to the panel's width), so a frame helps the eye read it

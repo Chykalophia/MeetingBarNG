@@ -149,6 +149,11 @@ extension Defaults.Keys {
     static let showAgendaInMenu = Key<Bool>("showAgendaInMenu", default: true)
     static let showJoinSectionInMenu = Key<Bool>("showJoinSectionInMenu", default: true)
     static let showBookmarksInMenu = Key<Bool>("showBookmarksInMenu", default: true)
+    /// The compact month grid in the dropdown. OFF by default, unlike every other
+    /// module: it is the tallest block available (~200pt), so switching it on is a
+    /// deliberate choice to make the dropdown a day dashboard rather than a
+    /// what's-next glance.
+    static let showCalendarInMenu = Key<Bool>("showCalendarInMenu", default: false)
 
     // Calendar window (MeetingBarNG). The month ⇄ week fold, stored as a
     // `CalendarGridMode` raw value so an unknown/renamed value degrades to the

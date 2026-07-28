@@ -293,6 +293,7 @@
 "preferences_dropdown_block_agenda" = "Agenda";
 "preferences_dropdown_block_join" = "Join & actions";
 "preferences_dropdown_block_bookmarks" = "Saved links";
+"preferences_dropdown_block_calendar" = "Month calendar";
 "preferences_dropdown_greeting_name_title" = "Your name";
 "preferences_dropdown_greeting_name_placeholder" = "Your macOS account name";
 "preferences_dropdown_greeting_name_help" = "Used in the dropdown greeting, e.g. “Good morning, Alex”.";

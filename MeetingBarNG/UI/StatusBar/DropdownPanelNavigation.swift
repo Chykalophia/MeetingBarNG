@@ -91,8 +91,12 @@ enum DropdownPanelNavigation {
 
         for module in content.modules {
             switch module {
-            case .greeting, .timeline:
-                // Presentation-only modules: nothing to select.
+            case .greeting, .timeline, .calendar:
+                // Presentation-only modules: nothing for Up/Down to land on.
+                // The calendar has its own internal hit targets (day cells, month
+                // arrows), which arrow keys cannot address without stealing them
+                // from the list — a grid needs four directions and this model has
+                // two. Reaching a specific day is what the calendar WINDOW is for.
                 continue
             case .meeting:
                 rows.append(
