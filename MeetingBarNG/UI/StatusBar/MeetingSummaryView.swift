@@ -95,10 +95,8 @@ struct MeetingSummaryView: View {
 
             if onJoin != nil {
                 Spacer(minLength: 8)
-                // Muted rather than translucent when the meeting is still a way
-                // off: fading white-on-accent goes muddy, whereas a recessed fill
-                // still reads as a button — available, simply not urgent. Matches
-                // the event rows' trailing affordance exactly.
+                // Background comes from `joinControlSurface`, shared with the
+                // event rows' trailing pill so the two cannot drift.
                 Text("notifications_meetingbar_join_event_action".loco())
                     .font(.system(size: 12, weight: isActionImminent ? .semibold : .regular))
                     .foregroundStyle(
@@ -106,13 +104,7 @@ struct MeetingSummaryView: View {
                     )
                     .padding(.horizontal, 14)
                     .padding(.vertical, 5)
-                    .background(
-                        Capsule().fill(
-                            isActionImminent
-                                ? AnyShapeStyle(Color.accentColor)
-                                : AnyShapeStyle(.quaternary)
-                        )
-                    )
+                    .joinControlSurface(isActionImminent: isActionImminent)
                     // Never squeezed: a half-width "Jo…" button is worse than a
                     // shorter title, so the pill keeps its intrinsic size and the
                     // text column absorbs whatever is left.

@@ -1303,22 +1303,14 @@ struct DropdownPanelView: View {
                 .overlay(alignment: .trailing) {
                     Text("notifications_meetingbar_join_event_action".loco())
                         .font(.system(size: 10, weight: actionable ? .semibold : .regular))
-                        // Muted rather than merely translucent: dropping the
-                        // opacity of white-on-accent just goes muddy, whereas a
-                        // recessed fill still reads as a button — available,
-                        // simply not urgent.
                         .foregroundStyle(
                             actionable ? AnyShapeStyle(.white) : AnyShapeStyle(.secondary)
                         )
                         .padding(.horizontal, 8)
                         .padding(.vertical, 2)
-                        .background(
-                            Capsule().fill(
-                                actionable
-                                    ? AnyShapeStyle(Color.accentColor)
-                                    : AnyShapeStyle(.quaternary)
-                            )
-                        )
+                        // Same surface as the meeting card's Join button — one
+                        // affordance at two sizes.
+                        .joinControlSurface(isActionImminent: actionable)
                         .fixedSize()
                         .opacity(revealed ? 1 : 0)
                         .contentShape(Capsule())
