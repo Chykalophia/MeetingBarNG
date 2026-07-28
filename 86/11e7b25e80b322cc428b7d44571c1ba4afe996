@@ -1,0 +1,49 @@
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_b8ddb6808b4a67::t_7add52cae5dbad 152-156
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_b8ddb6808b4a67::t_c940fa15e120cd 296
+MeetingBarNG/UI/StatusBar/DropdownPanelView.swift
+  s_b8ddb6808b4a67::t_a7e6db2688bd64 397,410
+  s_b8ddb6808b4a67::t_0609b70a94b9ff 170-173
+  s_b8ddb6808b4a67::t_c27bf9176ca339 594-648
+  s_b8ddb6808b4a67::t_8c9064fbcc566c 381-382
+MeetingBarNG/UI/StatusBar/CompactMonthGridView.swift
+  s_b8ddb6808b4a67::t_5afc1bba5c5f43 1-156
+MeetingBarNG/UI/StatusBar/DropdownComposition.swift
+  s_b8ddb6808b4a67::t_1cf19fdb653daa 31-34
+  s_b8ddb6808b4a67::t_e71e0be904210e 44-50,52
+  s_b8ddb6808b4a67::t_f5b9ca14bb2fd0 100-101,111
+MeetingBarNG/UI/StatusBar/DropdownPanelNavigation.swift
+  s_b8ddb6808b4a67::t_d8617258b0f14a 94-99
+MeetingBarNG/Preferences/DisplayTab.swift
+  s_b8ddb6808b4a67::t_4f3c16fb971321 239
+  s_b8ddb6808b4a67::t_c3299e66eeea9a 177
+  s_b8ddb6808b4a67::t_0dcd48814de9ae 298
+  s_b8ddb6808b4a67::t_d885f271abeeb0 36,83,260,272,284
+  s_b8ddb6808b4a67::t_8c9064fbcc566c 82
+MeetingBarLogicTests/DropdownCompositionTests.swift
+  s_b8ddb6808b4a67::t_7180e9a5bcc1dc 137
+  s_b8ddb6808b4a67::t_d28f091ed09cf5 106,116
+  s_b8ddb6808b4a67::t_f433483319daa3 126
+  s_b8ddb6808b4a67::t_078c2a78eaf5c1 21,47,60,72
+MeetingBarNG/Settings/AppSettings.swift
+  s_b8ddb6808b4a67::t_8c9064fbcc566c 79-80,293-294,376-377
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_b8ddb6808b4a67::t_a484f3e65c2b83 605-611,655-656
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "8611e7b25e80b322cc428b7d44571c1ba4afe996",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
