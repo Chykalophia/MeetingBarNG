@@ -11,31 +11,40 @@
 
 import SwiftUI
 
-/// A raised, lit control surface — fill, a top-lit rim, and a tight shadow.
+/// Real Liquid Glass on macOS 26; a drawn imitation of it below.
 ///
-/// NOT SwiftUI's `glassEffect`, and that is a finding rather than an oversight.
-/// `WindowCoordinator`'s `PanelBackdrop` documents why the panel's own
-/// translucency is an AppKit `NSGlassEffectView`: SwiftUI's materials inside an
-/// `NSHostingView` over a borderless transparent window blend WITHIN the window,
-/// so they sample nothing and composite over emptiness. A `glassEffect` capsule
-/// in here renders as a flat dark pill — verified by screenshot, which is the
-/// only way to tell, since it compiles and "works" either way.
+/// The imitation existed on BOTH paths for a while because a `glassEffect`
+/// capsule here rendered as a flat dark pill. The cause was not SwiftUI: the
+/// panel was wrapped in an AppKit `NSGlassEffectView`, and per WWDC25 session
+/// 310 "glass can't directly sample other glass" — the inner capsule sampled the
+/// outer glass, found nothing to refract, and collapsed. Removing that wrapper
+/// (see `PanelBackdrop`) is what let the real thing work.
 ///
-/// The three cues below are what actually reads as glass on this surface, and
-/// they are the same ones `DaySummaryHeaderButton` uses. They have to travel
-/// together: a fill alone is a swatch, a border alone is a boxed icon, and
+/// The macOS 15 branch keeps the drawn version: fill, a top-lit rim, and a tight
+/// shadow, the same three cues `DaySummaryHeaderButton` uses. They have to travel
+/// together — a fill alone is a swatch, a border alone is a boxed icon, and
 /// neither alone lifts the control off the panel.
-///
-/// This is also the opposite call from `PanelCard`, which stays flat, and the
-/// difference is size rather than inconsistency: a large surface stacking
-/// translucency accumulates haze, while a control small enough to read as a lens
-/// is exactly what the treatment is for.
 struct JoinControlSurface: ViewModifier {
     /// Whether the meeting is close enough to act on. Drives the tint, not the
     /// presence of the treatment — a Join button is a button either way.
     let isActionImminent: Bool
 
+    /// Drawn on every version, because SwiftUI's `glassEffect` cannot render
+    /// here — measured, not assumed. It samples WITHIN the window, and this
+    /// panel's surface is an AppKit `NSVisualEffectView` that is not part of
+    /// SwiftUI's render tree, so a glass capsule finds nothing to refract and
+    /// composites to a flat fill. Screenshotted over both an `NSGlassEffectView`
+    /// and a `.menu` vibrancy backdrop; flat both times.
+    ///
+    /// It DOES work over a plain clear window with a SwiftUI-drawn glass panel —
+    /// but that surface cannot reach a real menu's density, so the panel would
+    /// win glassy buttons at the cost of looking unlike a macOS menu. The trade
+    /// is recorded in docs/DROPDOWN-MODERNIZATION.md §7.
     func body(content: Content) -> some View {
+        drawnGlass(content)
+    }
+
+    private func drawnGlass(_ content: Content) -> some View {
         content
             .background(
                 Capsule().fill(

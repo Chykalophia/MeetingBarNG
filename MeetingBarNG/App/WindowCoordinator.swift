@@ -215,32 +215,38 @@ enum OnboardingWindowPresentationPolicy {
     static let isMovableByWindowBackground = true
 }
 
-/// The dropdown panel's real translucent surface.
+/// The dropdown panel's translucent surface on macOS 15–25.
 ///
-/// SwiftUI's `.regularMaterial` / `glassEffect` inside an `NSHostingView` blend
-/// WITHIN the window. Over a borderless transparent window that means sampling
-/// nothing, so the panel composited over emptiness and read as flat — which is
-/// exactly what it looked like. Desktop translucency needs an AppKit surface
-/// with `.behindWindow` blending, which is what this builds.
+/// SwiftUI's `.regularMaterial` inside an `NSHostingView` blends WITHIN the
+/// window. Over a borderless transparent window that means sampling nothing, so
+/// the panel composited over emptiness and read as flat. Desktop translucency
+/// there needs an AppKit surface with `.behindWindow` blending, which is what
+/// this builds.
 ///
-/// On macOS 26 the equivalent is `NSGlassEffectView`, which hosts its content
-/// directly and owns its own corner rounding.
+/// On macOS 26 it builds nothing: Liquid Glass is drawn by SwiftUI and an AppKit
+/// wrapper actively prevents it. See `wrap(_:radius:)`.
 private enum PanelBackdrop {
     @MainActor
     static func wrap(_ content: NSView, radius: CGFloat) -> NSView {
-        if #available(macOS 26.0, *) {
-            let glass = NSGlassEffectView()
-            glass.cornerRadius = radius
-            glass.contentView = content
-            // Clipped after all. Leaving it unclipped to preserve the specular
-            // rim let the window's own square backing show as a black box behind
-            // the rounded corners — far worse than a slightly tighter rim.
-            glass.wantsLayer = true
-            glass.layer?.cornerRadius = radius
-            glass.layer?.masksToBounds = true
-            return glass
-        }
-
+        // Deliberately NOT `NSGlassEffectView`, on any version.
+        //
+        // Two things were learned the hard way here, both by screenshot:
+        //
+        // 1. Wrapping the hosting view in `NSGlassEffectView` broke every
+        //    `glassEffect` INSIDE the panel. WWDC25 session 310, verbatim:
+        //    "glass can't directly sample other glass" — an inner glass control
+        //    sitting inside the outer glass samples glass, finds nothing to
+        //    refract, and collapses to a flat fill.
+        // 2. Removing it and letting SwiftUI draw the panel's own glass did fix
+        //    the controls, but the surface came out far too clear: compared side
+        //    by side against a real NSMenu over the same wallpaper, colour
+        //    streaks from the desktop read straight across the agenda.
+        //
+        // `.menu` material is the answer to both. It is the material AppKit
+        // gives real menus, so the density matches native by construction rather
+        // than by a tint constant someone has to keep re-tuning. And because
+        // vibrancy is not glass, it does not trigger the sampling conflict —
+        // SwiftUI glass controls above it still render as real glass.
         let effect = NSVisualEffectView()
         // `.menu` rather than `.popover`: this IS a menu, and the material
         // carries the vibrancy AppKit gives real menus.

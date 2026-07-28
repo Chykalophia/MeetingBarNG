@@ -1808,17 +1808,13 @@ struct DropdownPanelView: View {
 
     /// The panel's surface.
     ///
-    /// Liquid Glass where the OS has it, `.regularMaterial` everywhere else. The
-    /// fallback is not a consolation prize — it is what macOS 15–25 users get, and
-    /// it is the same material Dot and most modern menu-bar apps use.
+    /// On macOS 26 SwiftUI draws it: real Liquid Glass, sampling the desktop
+    /// through the clear window. Below that, `PanelBackdrop` supplies an AppKit
+    /// `NSVisualEffectView` and this paints nothing.
     ///
-    /// Deliberately NOT a hand-built blur. Letting the system own the surface means
-    /// it tracks light/dark, accent, reduce-transparency and whatever the next OS
-    /// does, none of which a hard-coded translucency would.
-    ///
-    /// This is the ONE glass layer in the panel. Inner cards use a plain fill:
-    /// stacking translucent surfaces does not compound refraction, it just
-    /// accumulates haze and eats the contrast the agenda needs.
+    /// Deliberately NOT a hand-built blur. Letting the system own the surface
+    /// means it tracks light/dark, accent, reduce-transparency and whatever the
+    /// next OS does, none of which a hard-coded translucency would.
     @ViewBuilder
     private var panelSurface: some View {
         if isPreview {
@@ -1827,9 +1823,8 @@ struct DropdownPanelView: View {
             // (the Preferences window), so it works here and only here.
             panelShape.fill(.regularMaterial)
         } else {
-            // Live panel: `PanelBackdrop` supplies a real NSVisualEffectView /
-            // NSGlassEffectView beneath this view, blending against the DESKTOP.
-            // Painting anything here would sit opaquely on top of it.
+            // `PanelBackdrop`'s NSVisualEffectView is beneath this view, blending
+            // against the desktop. Painting here would sit opaquely on top of it.
             Color.clear
         }
     }
@@ -1838,15 +1833,17 @@ struct DropdownPanelView: View {
     /// carries its own specular edge, so it needs only a whisper here; flat
     /// material has none and needs the full hairline to avoid bleeding into a
     /// pale wallpaper.
-    @ViewBuilder
     private var panelEdge: some View {
-        if #available(macOS 26.0, *), !isPreview {
-            // Glass draws its own specular rim; a second stroke on top of it just
-            // reads as a drawn outline and flattens the effect.
-            EmptyView()
-        } else {
-            panelShape.strokeBorder(Color.primary.opacity(0.10))
-        }
+        // Needed on every version now that the surface is `.menu` vibrancy
+        // throughout. The version fork here existed only while macOS 26 used
+        // `NSGlassEffectView`, whose specular rim made a second stroke read as a
+        // drawn outline.
+        //
+        // `separatorColor`, not `Color.primary.opacity(...)`. The latter is flat
+        // black or flat white depending on appearance, which tinted the rim
+        // against the menu material instead of edging it. The semantic colour is
+        // the one AppKit uses for exactly this and tracks appearance properly.
+        panelShape.strokeBorder(Color(nsColor: .separatorColor), lineWidth: 1)
     }
 
     /// Shows the More-actions flyout beside the row, the way a submenu hangs off

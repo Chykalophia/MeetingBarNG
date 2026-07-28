@@ -177,7 +177,41 @@ and leaves the shipping panel's behaviour untouched.
 
 ---
 
-## 7. Open questions
+## 7. Liquid Glass — what was measured
+
+Every claim here was checked by screenshot against a real `NSMenu` over the same wallpaper. The
+code compiles and looks plausible under all of these options, so reading it proves nothing.
+
+**The rule that explains everything:** WWDC25 session 310 — *"glass can't directly sample other
+glass."* SwiftUI's `glassEffect` samples content WITHIN the window. Anything not in SwiftUI's own
+render tree — an `NSGlassEffectView` wrapper, an `NSVisualEffectView` backdrop — is invisible to
+it, so a glass control over either finds nothing to refract and composites to a flat fill.
+
+| Window surface | Panel density | SwiftUI glass controls |
+|---|---|---|
+| `NSGlassEffectView` wrapper | good | **flat** (glass on glass) |
+| Clear window, SwiftUI `glassEffect` panel | **too clear** — desktop colour reads across the agenda | real glass |
+| `NSVisualEffectView` `.menu` *(shipping)* | **matches native** by construction | **flat** |
+
+Shipping the third row: the panel is the thing the eye judges, `.menu` is literally the material
+AppKit gives menus, and matching it needs no tint constant that someone has to re-tune when Apple
+retunes the material. The Join controls are drawn instead — fill, top-lit rim, tight shadow — which
+renders on every version. `JoinControlSurface` and `DaySummaryHeaderButton` are that drawing.
+
+Corrections to earlier notes in this file, all of which were wrong:
+- "SwiftUI translucency cannot work in this window" — it can. `.regularMaterial` failed because the
+  AppKit wrapper sat between it and the desktop, and that was over-generalised to all SwiftUI
+  translucency including `glassEffect`.
+- The `PanelCard` "never `glassEffect`" rule is right, but for a better reason than haze: glass on
+  glass does not render at all.
+
+Not yet tried: `GlassEffectContainer` (the documented way to make several glass elements share one
+sampling pass) over the clear-window variant. It could change the density of row two, which is the
+only combination that would give both.
+
+---
+
+## 8. Open questions
 
 - **Dashboard or glance?** With header + progress + timeline + calendar all on, ~400pt precedes
   the first meeting. Currently answered by "composable, calendar off by default" — the user
