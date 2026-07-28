@@ -1,0 +1,21 @@
+MeetingBarNG/UI/StatusBar/DropdownPanelView.swift
+  s_b8ddb6808b4a67::t_87f87c1c8b7bfb 799,801-804
+  s_b8ddb6808b4a67::t_f2c01d533281b1 2193-2228
+  s_b8ddb6808b4a67::t_82956aafecbf41 2173-2176
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "3128663d981fa43e3cc23d615d57697e70a49866",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
