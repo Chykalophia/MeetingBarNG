@@ -48,12 +48,16 @@ demo at Medium before changing numbers.
 
 Ordered so the cheap, high-visibility structural fixes land first.
 
-**Done:** P1 `c369207e` · P2 `c369207e` · P3 `5df99a15` · P5 `9231bc8f` · P4 `f5709d10` · P6 `(this commit)`.
+**Done:** P1 `c369207e` · P2 `c369207e` · P3 `5df99a15` · P5 `9231bc8f` · P4 `f5709d10` · P6 `ff89ba39` · P7/P8/P9 `(this commit)`.
 Plus two items raised mid-review: the row hover restyle (`3128663d`) and the card
 fill/rim, measured against the mockup's CSS rather than adjusted by eye — it is
 `rgba(255,255,255,.09)` on a dark glass card and the app shipped `0.06`.
 
-**Remaining:** P7, P8, P9.
+**Remaining:** none. Two things stay deferred by decision, see below.
+
+One plan claim was WRONG and is corrected here: P8 said the demo gives action rows a tighter
+rhythm than agenda rows. It does not — `.arow` and `.row` share `padding: 6px 10px` and
+`gap: 9px` exactly. The only real difference was the icon column (16 vs the app's 18).
 
 ### P1 — Dividers and container padding *(highest visual impact, low risk)*
 - Dividers currently sit between EVERY module and run edge to edge (`Divider().padding(.vertical, 4)`).

@@ -32,34 +32,40 @@ struct DaySummaryHeaderView: View {
     var actions: [DaySummaryHeaderAction] = []
 
     static let preferredWidth: CGFloat = MeetingSummaryView.preferredWidth
-    /// 32pt tile + the vertical padding below. Must track those two or the
+    /// 26pt tile + the vertical padding below. Must track those two or the
     /// classic `NSMenu`'s hosted copy clips: it sizes its item from this number
     /// rather than measuring the view.
-    static let preferredHeight: CGFloat = 58
+    static let preferredHeight: CGFloat = 48
 
     var body: some View {
-        HStack(spacing: 11) {
+        HStack(spacing: 10) {
             // The time-of-day glyph sits in its own rounded tile — decorative
             // identity, not an action, so it is a flat inset tile rather than a
             // raised one. The trailing ACTIONS are raised instead (see
             // `DaySummaryHeaderButton`); the two treatments are what distinguish
             // "this is what the panel is about" from "this does something".
+            // 26pt, from the mockup's `.dayhead .glyph`. It shipped at 32 and
+            // was the heaviest thing in the header, which put the emphasis on
+            // decoration rather than on the greeting beside it.
             Image(systemName: symbolName)
-                .font(.system(size: 17, weight: .medium))
+                .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(.tint)
-                .frame(width: 32, height: 32)
+                .frame(width: 26, height: 26)
                 .background(
-                    RoundedRectangle(cornerRadius: 9, style: .continuous)
-                        .fill(Color.primary.opacity(0.07))
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(Color.primary.opacity(0.10))
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .strokeBorder(Color.white.opacity(0.10))
                 )
 
             VStack(alignment: .leading, spacing: 2) {
+                // 13.5/semibold from the mockup's `.dayhead .who b`. At 15 it
+                // competed with the meeting title below it, which is the line
+                // that should carry the most weight in the panel.
                 Text(greeting)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.system(size: 13.5, weight: .semibold))
                     .foregroundColor(.primary)
                 Text(summary)
                     .font(.system(size: 11.5))
@@ -84,9 +90,9 @@ struct DaySummaryHeaderView: View {
                 }
             }
         }
-        .padding(.horizontal, 14)
-        .padding(.top, 14)
-        .padding(.bottom, 12)
+        .padding(.horizontal, 12)
+        .padding(.top, 12)
+        .padding(.bottom, 10)
         .frame(width: Self.preferredWidth, alignment: .leading)
     }
 }
@@ -109,15 +115,18 @@ private struct DaySummaryHeaderButton: View {
         Image(systemName: action.symbol)
             .font(.system(size: 12, weight: .medium))
             .foregroundStyle(isHovered ? AnyShapeStyle(.primary) : AnyShapeStyle(.secondary))
-            .frame(width: 26, height: 26)
+            // Smaller than the 26pt identity tile. They were equal, which made
+            // three controls carry the same weight as the thing the header is
+            // about; the tile should lead and the actions should follow.
+            .frame(width: 22, height: 22)
             .background(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                RoundedRectangle(cornerRadius: 7, style: .continuous)
                     .fill(Color.primary.opacity(isHovered ? 0.13 : 0.07))
             )
             .overlay(
                 // Light from above: bright along the top edge, gone by the
                 // bottom. A uniform border would flatten the button back out.
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                RoundedRectangle(cornerRadius: 7, style: .continuous)
                     .strokeBorder(
                         LinearGradient(
                             colors: [

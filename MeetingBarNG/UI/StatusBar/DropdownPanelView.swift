@@ -2143,10 +2143,14 @@ struct DropdownPanelView: View {
         showsCreateAction: Bool = false
     ) -> some View {
         HStack(spacing: 6) {
+            // 10.5 / .07em / heavy, from the mockup's `.sechead b`. A small
+            // uppercase label needs the extra weight and letter-spacing to stay
+            // readable — at semibold and 9.5 it read as a faint smudge rather
+            // than as a heading.
             Text(sectionHeaderText(title, date: date))
-                .font(.system(size: metrics.secondaryFontSize - 2, weight: .semibold))
+                .font(.system(size: metrics.secondaryFontSize - 1, weight: .bold))
                 .textCase(.uppercase)
-                .kerning(0.6)
+                .kerning(0.75)
                 .foregroundStyle(.tertiary)
             Spacer(minLength: 6)
             if showsCreateAction {
@@ -2379,10 +2383,13 @@ private struct PanelCard<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             if let title {
+                // Matches the agenda's section head — see `sectionHeader`. Two
+                // kinds of small uppercase label in one panel would read as an
+                // inconsistency rather than a hierarchy.
                 Text(title)
-                    .font(.system(size: metrics.secondaryFontSize - 2, weight: .semibold))
+                    .font(.system(size: metrics.secondaryFontSize - 1, weight: .bold))
                     .textCase(.uppercase)
-                    .kerning(0.5)
+                    .kerning(0.65)
                     .foregroundStyle(.secondary)
             }
             content

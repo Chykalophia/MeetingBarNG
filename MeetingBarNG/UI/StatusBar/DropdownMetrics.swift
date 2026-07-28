@@ -99,7 +99,8 @@ public struct DropdownMetrics: Equatable, Sendable {
     public var markerBarHeight: CGFloat
     /// Slot reserved for a meeting-service icon on an agenda row.
     public var serviceIconWidth: CGFloat
-    /// Slot reserved for the leading SF Symbol on an action row.
+    /// Slot reserved for the leading SF Symbol on an action row. 16 at
+    /// standard, from the mockup's `.arow .ic`.
     public var actionSymbolWidth: CGFloat
     /// Width of the hover-revealed Join pill. NOT the space a row reserves for it
     /// — see `trailingGlyphWidth`. The pill is drawn as an overlay so it costs the
@@ -176,7 +177,7 @@ public struct DropdownMetrics: Equatable, Sendable {
         markerBarWidth: 3,
         markerBarHeight: 16,
         serviceIconWidth: 14,
-        actionSymbolWidth: 18,
+        actionSymbolWidth: 16,
         trailingAffordanceWidth: 48,
         disclosureWidth: 14,
         rowFontSize: 12.5,
@@ -200,7 +201,7 @@ public struct DropdownMetrics: Equatable, Sendable {
         markerBarWidth: 3,
         markerBarHeight: 13,
         serviceIconWidth: 14,
-        actionSymbolWidth: 17,
+        actionSymbolWidth: 15,
         trailingAffordanceWidth: 46,
         disclosureWidth: 14,
         rowFontSize: 12,
@@ -223,7 +224,7 @@ public struct DropdownMetrics: Equatable, Sendable {
         markerBarWidth: 3,
         markerBarHeight: 19,
         serviceIconWidth: 15,
-        actionSymbolWidth: 19,
+        actionSymbolWidth: 17,
         trailingAffordanceWidth: 50,
         disclosureWidth: 15,
         rowFontSize: 14,
