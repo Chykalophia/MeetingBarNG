@@ -244,23 +244,51 @@ private enum PanelBackdrop {
         //
         // `.menu` material is the answer to both. It is the material AppKit
         // gives real menus, so the density matches native by construction rather
-        // than by a tint constant someone has to keep re-tuning. And because
-        // vibrancy is not glass, it does not trigger the sampling conflict —
-        // SwiftUI glass controls above it still render as real glass.
+        // than by a tint constant someone has to keep re-tuning.
         let effect = NSVisualEffectView()
         // `.menu` rather than `.popover`: this IS a menu, and the material
         // carries the vibrancy AppKit gives real menus.
         effect.material = .menu
         effect.blendingMode = .behindWindow
         effect.state = .active
-        effect.wantsLayer = true
-        effect.layer?.cornerRadius = radius
-        effect.layer?.masksToBounds = true
+        // Rounded by MASK IMAGE, not by a layer corner radius. A vibrancy
+        // material is composited by the window server, which does not respect
+        // `masksToBounds` — on macOS 26 that left opaque white squares in the
+        // corners where the square material outran the rounded layer. The mask
+        // image is the supported way to shape one, and it clips the material
+        // itself rather than a layer drawn from it.
+        effect.maskImage = roundedMask(radius: radius)
 
         content.frame = effect.bounds
         content.autoresizingMask = [.width, .height]
         effect.addSubview(content)
         return effect
+    }
+
+    /// A resizable rounded-rectangle mask.
+    ///
+    /// Cap insets make it nine-part: the corners keep their radius at any size
+    /// while the edges stretch, so one small image masks the whole panel however
+    /// tall the day makes it.
+    @MainActor
+    private static func roundedMask(radius: CGFloat) -> NSImage {
+        let edge = radius * 2 + 1
+        let image = NSImage(
+            size: NSSize(width: edge, height: edge),
+            flipped: false
+        ) { rect in
+            NSColor.black.setFill()
+            NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius).fill()
+            return true
+        }
+        image.capInsets = NSEdgeInsets(
+            top: radius,
+            left: radius,
+            bottom: radius,
+            right: radius
+        )
+        image.resizingMode = .stretch
+        return image
     }
 }
 
