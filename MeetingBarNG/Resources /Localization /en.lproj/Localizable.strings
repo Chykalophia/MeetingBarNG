@@ -622,6 +622,9 @@
 
 // Tooltips for the inline detail disclosure on an event row. Every other panel
 // action reuses the keys above.
+// The keyboard hint on the agenda heading's create chip. Not localized as words
+// — it is the literal shortcut the user presses.
+"dropdown_panel_new_event_shortcut" = "⌘N";
 "dropdown_panel_show_details" = "Show details";
 "dropdown_panel_hide_details" = "Hide details";
 

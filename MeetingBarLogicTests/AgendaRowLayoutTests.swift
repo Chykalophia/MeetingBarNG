@@ -270,12 +270,16 @@ final class AgendaRowLayoutTests: XCTestCase {
     /// Today's shipping row — a dot between the time and the title with the
     /// start time showing — must keep the exact geometry it has, so Phase 1 is a
     /// refactor of the grid and not a silent restyle.
+    /// Spelled out as arithmetic so the relationship survives a retune: time
+    /// column, gutter, marker, gutter. The numbers moved in the polish pass when
+    /// the grid was aligned to the mockup's CSS; the STRUCTURE is what this
+    /// pins.
     func testTheShippingDefaultRowKeepsItsCurrentGeometry() {
         let result = layout(.dot, .betweenTimeAndTitle, .startOnly)
-        XCTAssertEqual(result.timeColumnWidth, 66)
-        XCTAssertEqual(result.markerFrame?.x, 66 + 8)
+        XCTAssertEqual(result.timeColumnWidth, 58)
+        XCTAssertEqual(result.markerFrame?.x, 58 + 9)
         XCTAssertEqual(result.markerFrame?.width, 7)
-        XCTAssertEqual(result.titleOrigin, 66 + 8 + 7 + 8)
+        XCTAssertEqual(result.titleOrigin, 58 + 9 + 7 + 9)
     }
 
     /// A row reserves space for the RESTING glyph, not for the Join pill that

@@ -18,19 +18,24 @@ final class DropdownDensityTests: XCTestCase {
     // MARK: - The shipping look must not move
 
     /// `.standard` IS the shipping panel. A failure here means every user's
-    /// dropdown just changed shape — which is sometimes intended (these numbers
-    /// were widened from the inherited NSMenu 330pt on 2026-07-28) and sometimes
-    /// a density preset being edited by accident. Either way it should be a
-    /// decision, not a surprise, which is why the values are spelled out.
+    /// dropdown just changed shape — sometimes intended, sometimes a density
+    /// preset edited by accident. Either way it should be a decision, not a
+    /// surprise, which is why the values are spelled out.
+    ///
+    /// Changed deliberately twice: widened from the inherited NSMenu 330pt on
+    /// 2026-07-28, then aligned to the approved mockup's own CSS in the polish
+    /// pass — row `padding: 6px 10px`, `gap: 9px`, time column `54px` at a
+    /// smaller type size, title `12.5px`. The time column sits at 58 rather than
+    /// the mockup's 54 because "12:00 PM" has to fit at this font.
     func test_standardMatchesTheShippingPanel() {
         let grid = DropdownDensity.standard.metrics
         XCTAssertEqual(grid.panelWidth, 360)
         XCTAssertEqual(grid.rowOuterPadding, 8)
-        XCTAssertEqual(grid.rowInnerPadding, 12)
+        XCTAssertEqual(grid.rowInnerPadding, 10)
         XCTAssertEqual(grid.rowVerticalPadding, 6)
-        XCTAssertEqual(grid.columnSpacing, 8)
-        XCTAssertEqual(grid.timeColumnWidth, 66)
-        XCTAssertEqual(grid.rowFontSize, 13)
+        XCTAssertEqual(grid.columnSpacing, 9)
+        XCTAssertEqual(grid.timeColumnWidth, 58)
+        XCTAssertEqual(grid.rowFontSize, 12.5)
     }
 
     // MARK: - Invariants across all three

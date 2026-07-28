@@ -1018,7 +1018,10 @@ struct DropdownPanelView: View {
         events: [MBEvent],
         day: AgendaDay
     ) -> some View {
-        sectionHeader(title, date: date)
+        // Only today's heading carries the create chip: "new meeting" means one
+        // starting now-ish, and offering it above tomorrow would imply it lands
+        // there.
+        sectionHeader(title, date: date, showsCreateAction: day == .today)
         if events.isEmpty {
             Text("status_bar_section_date_nothing".loco(title.lowercased()))
                 .font(.system(size: metrics.rowFontSize))
@@ -1099,17 +1102,45 @@ struct DropdownPanelView: View {
             if layout.serviceIconOrigin != nil {
                 serviceIcon(event)
             }
-            // Priority so the title wins the free space outright. Without it the
-            // Spacer below is an equally flexible sibling and takes roughly half,
-            // truncating titles that would otherwise have fit.
-            eventTitle(event, appearance: appearance)
-                .layoutPriority(1)
-            if appearance.isRunning, appearance.showsActiveEmphasis {
-                runningBadge
+            // Title and badge share the row's flexible space, and the fade is
+            // applied to THAT box rather than to the text: a mask on the text
+            // alone would fade the tail of every short title, because a Text is
+            // only as wide as its content. Filling the space first means the
+            // fade zone sits in empty air until a title is actually long enough
+            // to reach it.
+            HStack(spacing: 6) {
+                // Priority so the title wins the space outright. Without it the
+                // Spacer is an equally flexible sibling and takes roughly half,
+                // truncating titles that would otherwise have fit.
+                eventTitle(event, appearance: appearance)
+                    .layoutPriority(1)
+                if appearance.isRunning, appearance.showsActiveEmphasis {
+                    runningBadge
+                }
+                Spacer(minLength: 0)
             }
-            Spacer(minLength: 0)
+            .mask(titleFadeMask)
             trailingAffordance(event, isHovered: isHovered)
             disclosureChevron(event, isHovered: isHovered)
+        }
+    }
+
+    /// Softens where a long title meets the row's trailing controls.
+    ///
+    /// A hard `…` butted against the Join button reads as the text hitting a
+    /// wall. Fading it instead lets the title run out UNDER the control, which is
+    /// what the mockup does. Truncation stays on underneath as the fallback: a
+    /// title long enough to need it still gets its ellipsis, now inside the
+    /// faded stretch rather than against a hard edge.
+    private var titleFadeMask: some View {
+        HStack(spacing: 0) {
+            Rectangle()
+            LinearGradient(
+                colors: [.black, .clear],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .frame(width: 20)
         }
     }
 
@@ -1142,7 +1173,10 @@ struct DropdownPanelView: View {
                     .foregroundStyle(.tertiary)
             }
         }
-        .font(.system(size: 12).monospacedDigit())
+        // `metrics.secondaryFontSize`, not a hardcoded 12: the time column was
+        // the one part of a row that density never reached, so Small and Large
+        // moved the title and left the time behind.
+        .font(.system(size: metrics.secondaryFontSize).monospacedDigit())
         .foregroundStyle(.secondary)
         .frame(width: width, alignment: .leading)
     }
@@ -2103,15 +2137,58 @@ struct DropdownPanelView: View {
     /// It used to be unconditional — "Today (Tue, 28 Jul)" — which put the date
     /// in body type in the middle of the list while the greeting, the natural
     /// place for it, said nothing about the day.
-    private func sectionHeader(_ title: String, date: Date? = nil) -> some View {
-        Text(sectionHeaderText(title, date: date))
-            .font(.system(size: metrics.secondaryFontSize - 2, weight: .semibold))
-            .textCase(.uppercase)
-            .kerning(0.6)
-            .foregroundStyle(.tertiary)
-            .padding(.horizontal, metrics.sectionHeaderInset)
-            .padding(.top, 6)
-            .padding(.bottom, 3)
+    private func sectionHeader(
+        _ title: String,
+        date: Date? = nil,
+        showsCreateAction: Bool = false
+    ) -> some View {
+        HStack(spacing: 6) {
+            Text(sectionHeaderText(title, date: date))
+                .font(.system(size: metrics.secondaryFontSize - 2, weight: .semibold))
+                .textCase(.uppercase)
+                .kerning(0.6)
+                .foregroundStyle(.tertiary)
+            Spacer(minLength: 6)
+            if showsCreateAction {
+                sectionCreateButton
+            }
+        }
+        .padding(.horizontal, metrics.sectionHeaderInset)
+        .padding(.top, 6)
+        .padding(.bottom, 3)
+    }
+
+    /// The mockup's `+ ⌘N` chip beside the day's heading — the one action that
+    /// belongs next to a list of meetings rather than below it.
+    ///
+    /// It shows the shortcut because that is the point: the chip is a reminder
+    /// that the action has a key, not a new way to reach it. `createMeeting` is
+    /// the same handler the action row below runs.
+    private var sectionCreateButton: some View {
+        HStack(spacing: 3) {
+            Image(systemName: "plus")
+                .font(.system(size: metrics.secondaryFontSize - 3, weight: .semibold))
+            Text("dropdown_panel_new_event_shortcut".loco())
+                .font(.system(size: metrics.secondaryFontSize - 2.5, weight: .medium))
+        }
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(Capsule().fill(Color.primary.opacity(0.09)))
+        .overlay(
+            Capsule().strokeBorder(
+                LinearGradient(
+                    colors: [Color.white.opacity(0.18), Color.white.opacity(0.05)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                ),
+                lineWidth: 0.8
+            )
+        )
+        .contentShape(Capsule())
+        .pointerStyle(.link)
+        .onTapGesture(perform: perform(handlers.createMeeting))
+        .help("status_bar_section_join_create_meeting".loco())
     }
 
     private func sectionHeaderText(_ title: String, date: Date?) -> String {
