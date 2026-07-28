@@ -48,12 +48,12 @@ demo at Medium before changing numbers.
 
 Ordered so the cheap, high-visibility structural fixes land first.
 
-**Done:** P1 `c369207e` · P2 `c369207e` · P3 `5df99a15` · P5 `(this commit)`.
+**Done:** P1 `c369207e` · P2 `c369207e` · P3 `5df99a15` · P5 `9231bc8f` · P4 `(this commit)`.
 Plus two items raised mid-review: the row hover restyle (`3128663d`) and the card
 fill/rim, measured against the mockup's CSS rather than adjusted by eye — it is
 `rgba(255,255,255,.09)` on a dark glass card and the app shipped `0.06`.
 
-**Remaining:** P4, P6, P7, P8, P9.
+**Remaining:** P6, P7, P8, P9.
 
 ### P1 — Dividers and container padding *(highest visual impact, low risk)*
 - Dividers currently sit between EVERY module and run edge to edge (`Divider().padding(.vertical, 4)`).

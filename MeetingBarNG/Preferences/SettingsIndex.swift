@@ -389,6 +389,22 @@ enum SettingsIndex {
             synonyms: ["greeting", "good morning", "hello", "your name"]
         ),
         SettingsIndexEntry(
+            id: "dropdown.greeting_date",
+            tab: .dropdown,
+            labelKey: "preferences_dropdown_greeting_date_toggle",
+            helpKey: "preferences_dropdown_greeting_date_help",
+            defaultsKeys: ["greetingShowsDate"],
+            synonyms: ["date", "today", "day", "heading"]
+        ),
+        SettingsIndexEntry(
+            id: "dropdown.meeting_progress",
+            tab: .dropdown,
+            labelKey: "preferences_dropdown_meeting_progress_toggle",
+            helpKey: "preferences_dropdown_meeting_progress_help",
+            defaultsKeys: ["meetingCardShowsProgress"],
+            synonyms: ["progress", "countdown", "bar", "next meeting", "timer"]
+        ),
+        SettingsIndexEntry(
             id: "dropdown.reminders",
             tab: .dropdown,
             labelKey: "preferences_dropdown_reminders_toggle",

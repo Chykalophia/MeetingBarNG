@@ -250,6 +250,14 @@ extension Defaults.Keys {
     static let dropdownDensity = Key<String>(
         "dropdownDensity", default: DropdownDensity.standard.rawValue)
 
+    /// Whether the greeting's second line leads with today's date.
+    ///
+    /// When it does, the agenda's section head drops the parenthetical date and
+    /// becomes a plain "TODAY" label. Two places naming the same day is the
+    /// duplication this removes — so this key decides WHICH place, not whether
+    /// the date appears at all.
+    static let greetingShowsDate = Key<Bool>("greetingShowsDate", default: true)
+
     /// Whether the dropdown's meeting card carries a countdown bar.
     ///
     /// Replaces the separate `upNext` MODULE, which drew a second card for the

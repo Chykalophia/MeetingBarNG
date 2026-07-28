@@ -37,6 +37,8 @@ struct DropdownComposerSection: View {
 
     // Greeting gear: the name field.
     @Default(.greetingName) var greetingName
+    @Default(.greetingShowsDate) var greetingShowsDate
+    @Default(.meetingCardShowsProgress) var meetingCardShowsProgress
 
     // Agenda gear: the per-event-row detail toggles.
     @Default(.shortenEventTitle) var shortenEventTitle
@@ -174,8 +176,8 @@ struct DropdownComposerSection: View {
     /// show/hide with nothing to configure.
     private func hasGear(_ module: DropdownModule) -> Bool {
         switch module {
-        case .greeting, .agenda: return true
-        case .timeline, .meeting, .join, .bookmarks, .calendar: return false
+        case .greeting, .agenda, .meeting: return true
+        case .timeline, .join, .bookmarks, .calendar: return false
         }
     }
 
@@ -202,6 +204,19 @@ struct DropdownComposerSection: View {
                     prompt: Text("preferences_dropdown_greeting_name_placeholder".loco())
                 )
                 helpText("preferences_dropdown_greeting_name_help")
+                Divider()
+                Toggle(
+                    preferenceLabel("preferences_dropdown_greeting_date_toggle"),
+                    isOn: $greetingShowsDate
+                )
+                helpText("preferences_dropdown_greeting_date_help")
+
+            case .meeting:
+                Toggle(
+                    preferenceLabel("preferences_dropdown_meeting_progress_toggle"),
+                    isOn: $meetingCardShowsProgress
+                )
+                helpText("preferences_dropdown_meeting_progress_help")
 
             case .agenda:
                 Toggle(
@@ -237,7 +252,7 @@ struct DropdownComposerSection: View {
                     isEnabled: shortenEventTitle
                 )
 
-            case .timeline, .meeting, .join, .bookmarks, .calendar:
+            case .timeline, .join, .bookmarks, .calendar:
                 EmptyView()
             }
         }

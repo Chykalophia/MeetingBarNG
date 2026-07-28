@@ -259,6 +259,10 @@
 "preferences_menubar_quiet_example" = "e.g. at 30m, a 2:00 meeting shows in the menu bar at 1:30 — before that you see an alarm icon.";
 "preferences_menubar_highlight_imminent_toggle" = "Bolden the meeting when it's about to start";
 "preferences_menubar_highlight_imminent_help" = "Uses the same lead time as the dropdown's join buttons, set on the Dropdown page. Declined and tentative meetings keep their dimmed look.";
+"preferences_dropdown_greeting_date_toggle" = "Show today's date in the greeting";
+"preferences_dropdown_greeting_date_help" = "With this on, the agenda's Today heading drops its date — the day is named once, at the top, instead of twice.";
+"preferences_dropdown_meeting_progress_toggle" = "Show a countdown bar on the meeting card";
+"preferences_dropdown_meeting_progress_help" = "Fills over the hour before the meeting starts, then counts through it. Hidden while the meeting is further off than that.";
 "preferences_dropdown_timeline_style_title" = "Draw the timeline as";
 "preferences_dropdown_timeline_style_relative" = "Around now";
 "preferences_dropdown_timeline_style_day" = "Whole day";
@@ -527,6 +531,11 @@
 "menu_day_summary_no_events" = "No meetings today";
 "menu_day_summary_event_count_one" = "%d meeting today";
 "menu_day_summary_event_count_other" = "%d meetings today";
+// Used when the greeting already names the date, which makes "today" redundant
+// and pushes the line to a second row.
+"menu_day_summary_no_events_dated" = "No meetings";
+"menu_day_summary_event_count_one_dated" = "%d meeting";
+"menu_day_summary_event_count_other_dated" = "%d meetings";
 "menu_day_summary_focus_time" = "%@ free";
 
 // MARK: - Status bar

@@ -157,6 +157,7 @@ struct DropdownPanelView: View {
     @Default(.dropdownDensity) private var dropdownDensityRaw
     @Default(.timelineStyle) private var timelineStyleRaw
     @Default(.meetingCardShowsProgress) private var showsMeetingCardProgress
+    @Default(.greetingShowsDate) private var greetingShowsDate
 
     private var dropdownDensity: DropdownDensity {
         DropdownDensity(rawValue: dropdownDensityRaw) ?? .standard
@@ -593,14 +594,40 @@ struct DropdownPanelView: View {
     }
 
     private func daySummaryLine(_ summary: DaySummary) -> String {
+        // "today" is dropped once the date is named: three segments plus a
+        // redundant word wrapped this line onto a second row and grew the header.
+        let dated = greetingShowsDate
         let countText: String
         switch summary.eventCount {
-        case 0: countText = "menu_day_summary_no_events".loco()
-        case 1: countText = "menu_day_summary_event_count_one".loco(summary.eventCount)
-        default: countText = "menu_day_summary_event_count_other".loco(summary.eventCount)
+        case 0:
+            countText = (dated ? "menu_day_summary_no_events_dated" : "menu_day_summary_no_events")
+                .loco()
+        case 1:
+            countText = (dated
+                ? "menu_day_summary_event_count_one_dated"
+                : "menu_day_summary_event_count_one").loco(summary.eventCount)
+        default:
+            countText = (dated
+                ? "menu_day_summary_event_count_other_dated"
+                : "menu_day_summary_event_count_other").loco(summary.eventCount)
         }
         let freeText = "menu_day_summary_focus_time".loco(formattedFreeTime(summary.freeMinutes))
-        return "\(countText) · \(freeText)"
+        // The date leads: it answers "which day am I looking at" before the
+        // counts describe it, and it frees the agenda's head to be a plain label.
+        guard dated else { return "\(countText) · \(freeText)" }
+        return "\(greetingDateText(clock)) · \(countText) · \(freeText)"
+    }
+
+    /// "Tue 28" — deliberately shorter than the agenda's "Tue, 28 Jul".
+    ///
+    /// Three segments plus a month name overran the header's ~197pt of text
+    /// width and truncated mid-word ("6h 31m f…"). The month is the least
+    /// informative part when the line is describing TODAY, so it goes first.
+    private func greetingDateText(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = I18N.instance.locale
+        formatter.setLocalizedDateFormatFromTemplate("Ed")
+        return formatter.string(from: date)
     }
 
     private func formattedFreeTime(_ minutes: Int) -> String {
@@ -630,14 +657,27 @@ struct DropdownPanelView: View {
     /// idea wearing two hats, so the bar is now a display option ON the card.
     @ViewBuilder
     private func meetingProgressBar(_ event: MBEvent) -> some View {
-        if showsMeetingCardProgress {
+        // Nothing to draw until the meeting is inside the fill window. An empty
+        // track for a meeting three hours out is honest and nearly invisible, and
+        // it leaves the countdown floating under a bar that never moves.
+        //
+        // Shares `MeetingProgressPolicy` with the menu-bar indicator, so the two
+        // fill on the same schedule and change colour at the same instant rather
+        // than each carrying their own copy of "an hour out".
+        if showsMeetingCardProgress,
+           let progress = MeetingProgressPolicy.presentation(
+               start: event.startDate,
+               end: event.endDate,
+               now: clock,
+               leadMinutes: eventActionHighlightMinutes
+           ) {
             VStack(alignment: .leading, spacing: 5) {
-                upNextBar(event)
+                upNextBar(progress)
                 HStack(spacing: 6) {
                     Spacer(minLength: 0)
                     Text(upNextCountdown(event))
                         .font(.system(size: metrics.secondaryFontSize - 1))
-                        .foregroundStyle(isActionImminent(event) ? Color.accentColor : .secondary)
+                        .foregroundStyle(progress.phase == .upcoming ? .secondary : Color.accentColor)
                         .monospacedDigit()
                 }
             }
@@ -645,26 +685,20 @@ struct DropdownPanelView: View {
         }
     }
 
-    private func upNextBar(_ event: MBEvent) -> some View {
+    private func upNextBar(_ progress: MeetingProgressPresentation) -> some View {
         GeometryReader { proxy in
-            let fraction = upNextFraction(event)
             ZStack(alignment: .leading) {
                 Capsule().fill(Color.primary.opacity(0.10))
                 Capsule()
-                    .fill(isActionImminent(event) ? Color.accentColor : Color.accentColor.opacity(0.55))
-                    .frame(width: max(0, min(1, fraction)) * proxy.size.width)
+                    .fill(
+                        progress.phase == .upcoming
+                            ? Color.accentColor.opacity(0.55)
+                            : Color.accentColor
+                    )
+                    .frame(width: progress.fraction * proxy.size.width)
             }
         }
         .frame(height: 4)
-    }
-
-    /// 0 an hour out, 1 at the start — then holds full while the meeting runs, so
-    /// the bar never appears to "reset" the moment a meeting begins.
-    private func upNextFraction(_ event: MBEvent) -> Double {
-        guard event.startDate > clock else { return 1 }
-        let window: TimeInterval = 3600
-        let remaining = event.startDate.timeIntervalSince(clock)
-        return 1 - min(1, remaining / window)
     }
 
     private func upNextCountdown(_ event: MBEvent) -> String {
@@ -969,7 +1003,7 @@ struct DropdownPanelView: View {
     @ViewBuilder
     private func tomorrowSummarySection(date: Date, events: [MBEvent]) -> some View {
         let title = "status_bar_section_tomorrow".loco()
-        sectionHeader("\(title) (\(sectionDateText(date)))")
+        sectionHeader(title, date: date)
         Text(DropdownEventVisibility.tomorrowSummaryText(visibleTomorrowEvents: events))
             .font(.system(size: metrics.rowFontSize))
             .foregroundStyle(.secondary)
@@ -984,7 +1018,7 @@ struct DropdownPanelView: View {
         events: [MBEvent],
         day: AgendaDay
     ) -> some View {
-        sectionHeader("\(title) (\(sectionDateText(date)))")
+        sectionHeader(title, date: date)
         if events.isEmpty {
             Text("status_bar_section_date_nothing".loco(title.lowercased()))
                 .font(.system(size: metrics.rowFontSize))
@@ -2063,13 +2097,26 @@ struct DropdownPanelView: View {
         }
     }
 
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(.system(size: metrics.rowFontSize - 2, weight: .semibold))
-            .foregroundStyle(.secondary)
+    /// A small uppercase label, the way the mockup writes a section head.
+    ///
+    /// The date is appended ONLY when the greeting is not already carrying it.
+    /// It used to be unconditional — "Today (Tue, 28 Jul)" — which put the date
+    /// in body type in the middle of the list while the greeting, the natural
+    /// place for it, said nothing about the day.
+    private func sectionHeader(_ title: String, date: Date? = nil) -> some View {
+        Text(sectionHeaderText(title, date: date))
+            .font(.system(size: metrics.secondaryFontSize - 2, weight: .semibold))
+            .textCase(.uppercase)
+            .kerning(0.6)
+            .foregroundStyle(.tertiary)
             .padding(.horizontal, metrics.sectionHeaderInset)
-            .padding(.top, 4)
-            .padding(.bottom, 2)
+            .padding(.top, 6)
+            .padding(.bottom, 3)
+    }
+
+    private func sectionHeaderText(_ title: String, date: Date?) -> String {
+        guard let date, !greetingShowsDate else { return title }
+        return "\(title) (\(sectionDateText(date)))"
     }
 
     /// Reuses an existing menu-header string as a control label by dropping its

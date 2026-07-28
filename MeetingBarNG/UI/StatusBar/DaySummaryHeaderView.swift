@@ -64,6 +64,12 @@ struct DaySummaryHeaderView: View {
                 Text(summary)
                     .font(.system(size: 11.5))
                     .foregroundColor(.secondary)
+                    // One line, always. This carries up to three segments once
+                    // the date is included, and letting it wrap grew the header
+                    // and unbalanced the tile beside it. Shrinking a little is
+                    // the lesser cost; the date and count survive either way.
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
             }
 
             Spacer(minLength: 6)
