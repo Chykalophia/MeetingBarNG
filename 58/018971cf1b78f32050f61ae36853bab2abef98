@@ -1,0 +1,30 @@
+docs/DROPDOWN-MODERNIZATION.md
+  s_b8ddb6808b4a67::t_24acc49bb0a2f2 180-214
+MeetingBarNG/UI/StatusBar/JoinControlSurface.swift
+  s_b8ddb6808b4a67::t_ef0581edb649e5 32-42,44
+  s_b8ddb6808b4a67::t_a485a9f6701866 14,16-21,23-25,45-47
+MeetingBarNG/App/WindowCoordinator.swift
+  s_b8ddb6808b4a67::t_c695b301f1ef94 231,233,235-249
+  s_b8ddb6808b4a67::t_ed208826ed7a4c 218,220-224,226-227
+  s_b8ddb6808b4a67::t_fef183e32cb378 232,234
+MeetingBarNG/UI/StatusBar/DropdownPanelView.swift
+  s_b8ddb6808b4a67::t_61d66c1867a7df 1811-1813,1815-1817,1826-1827
+  s_b8ddb6808b4a67::t_15ff785a0a0e05 1837-1840
+  s_b8ddb6808b4a67::t_3b4831b3a9d649 1841-1846
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "58018971cf1b78f32050f61ae36853bab2abef98",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
