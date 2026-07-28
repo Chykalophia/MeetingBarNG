@@ -1,0 +1,55 @@
+MeetingBarNG/UI/StatusBar/DropdownMetrics.swift
+  s_b8ddb6808b4a67::t_88bca9003207c5 49-78
+  s_b8ddb6808b4a67::t_71bf1a914ec0d3 108-113
+  s_b8ddb6808b4a67::t_66d257524af1ce 128-130,132-133
+  s_b8ddb6808b4a67::t_ce01b6b9cec6d6 162-205
+MeetingBarNG/UI/StatusBar/DropdownPanelView.swift
+  s_b8ddb6808b4a67::t_04f8c33c25826d 508-509
+  s_b8ddb6808b4a67::t_0d35b2a25109b9 530
+  s_b8ddb6808b4a67::t_502424f94805d2 276-277
+  s_b8ddb6808b4a67::t_ecdd13a32912b4 229-239
+  s_b8ddb6808b4a67::t_5275ff9b61c2ab 587-589,596-602
+  s_b8ddb6808b4a67::t_3ccd2f9a51dfe4 278-280
+  s_b8ddb6808b4a67::t_50659a8f674bad 679,815,833,850,1015,1287,1340,1362,1510,1899,1917
+  s_b8ddb6808b4a67::t_96fbbdbaafd8ba 155-162
+  s_b8ddb6808b4a67::t_603019d8894c64 163
+  s_b8ddb6808b4a67::t_a1e826654f2089 1775-1783
+  s_b8ddb6808b4a67::t_a60e4cbf341ae5 2114-2135
+  s_b8ddb6808b4a67::t_04b37abd5aed2f 514-529,531-541
+  s_b8ddb6808b4a67::t_a7560795e30e58 2066-2113
+  s_b8ddb6808b4a67::t_81c26a1d273af0 203-207,681,817,835,852,908,943,1009,1172,1259-1260,1497,1501,1893,1896,1919,2030-2033,2037-2038,2044
+  s_b8ddb6808b4a67::t_791fb1bf73fb17 1656-1694
+MeetingBarNG/UI/StatusBar/DaySummaryHeaderView.swift
+  s_b8ddb6808b4a67::t_275bc14ee92012 13-24,30-32
+  s_b8ddb6808b4a67::t_4bf1f94a6d59ac 53-61
+  s_b8ddb6808b4a67::t_06b129030d6ec7 69-97
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_b8ddb6808b4a67::t_bb1269b95d63c7 238-239,247
+  s_b8ddb6808b4a67::t_88ca0dd9ab81d8 240-246
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_b8ddb6808b4a67::t_3290c3189be179 90
+  s_b8ddb6808b4a67::t_b6ff27f27ffbb6 314-318
+MeetingBarNG/Preferences/DisplayTab.swift
+  s_b8ddb6808b4a67::t_e12187b0ed1874 327-337,341-353
+MeetingBarLogicTests/DropdownDensityTests.swift
+  s_b8ddb6808b4a67::t_3a65f660275c71 1-22,31-49,52-105,107-111,113-140
+  s_b8ddb6808b4a67::t_dec3bb5009cf9c 23-30,50-51,106,112
+MeetingBarNGTests/StatusBarItem/MoreActionsMenuTests.swift
+  s_b8ddb6808b4a67::t_0e92415152611c 72-75,80
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "d60c6c4c980fbb380cc5fc4b433042c7c6e0bd09",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
