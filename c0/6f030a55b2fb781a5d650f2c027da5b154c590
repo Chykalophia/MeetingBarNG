@@ -1,0 +1,32 @@
+MeetingBarNG/App/WindowCoordinator.swift
+  s_b8ddb6808b4a67::t_68191a004b1b64 375-379,389
+  s_b8ddb6808b4a67::t_f0d418eee675c6 324-328
+  s_b8ddb6808b4a67::t_6d8fd3f946fe7f 412-518
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_b8ddb6808b4a67::t_d2721cb31d8327 328,338-342
+  s_b8ddb6808b4a67::t_1a745d29e525fd 319-327,329-337,343-345
+MeetingBarNG/App/AppDelegate.swift
+  s_b8ddb6808b4a67::t_e5b8d282863a88 499-508,510-525,527
+docs/DROPDOWN-MODERNIZATION.md
+  s_b8ddb6808b4a67::t_84972986ffcdd4 134-160
+  s_b8ddb6808b4a67::t_e2baabe5d473d4 101-102
+MeetingBarNG/App/DropdownInspectorWindow.swift
+  s_b8ddb6808b4a67::t_d413de8d1c7fc5 1-71,81-95
+  s_b8ddb6808b4a67::t_9ddebc66c804c9 72-80
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "c06f030a55b2fb781a5d650f2c027da5b154c590",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
