@@ -275,7 +275,6 @@ class EndToEndFlowTestCase: BaseTestCase {
         // and summary mode render what the panel really renders.
         let tomorrow = DropdownEventVisibility.tomorrowRendered(
             state.tomorrowEvents,
-            period: state.events.showEventsForPeriod,
             menu: state.menu,
             display: state.events,
             isDeclined: isDeclined,

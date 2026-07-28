@@ -49,14 +49,17 @@ enum DropdownEventVisibility {
     /// The look-ahead setting decides how much of tomorrow is worth showing:
     /// all of it, just the first meeting, or — in summary mode — no rows at all,
     /// because that mode replaces them with a one-line count.
+    /// The look-ahead mode is read from `display` rather than passed separately —
+    /// it lives there, and taking both invited a caller to hand over two settings
+    /// that disagreed.
     static func tomorrowRendered(
         _ events: [MBEvent],
-        period: ShowEventsForPeriod,
         menu: MenuSettings,
         display: EventDisplaySettings,
         isDeclined: (MBEvent) -> Bool,
         now: Date
     ) -> [MBEvent] {
+        let period = display.showEventsForPeriod
         guard period.includesTomorrow else { return [] }
         let visible = visible(
             events,

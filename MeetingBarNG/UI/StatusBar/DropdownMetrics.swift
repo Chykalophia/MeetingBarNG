@@ -113,6 +113,17 @@ public struct DropdownMetrics: Equatable, Sendable {
     public var rowFontSize: CGFloat
     /// Type size for supporting text on a row (the time column, metadata).
     public var secondaryFontSize: CGFloat
+    /// Inset between a card's edge and its content.
+    ///
+    /// A card is a bounded surface, so its padding is what makes it feel tight or
+    /// airy — leaving it fixed meant Small and Large moved every row but left the
+    /// cards identical, which read as a bug rather than a density.
+    public var cardHorizontalPadding: CGFloat
+    public var cardVerticalPadding: CGFloat
+    /// Card corner radius. Grows with the padding: a large inset inside a tight
+    /// radius looks like a mistake, and the two have to move together to keep the
+    /// corner's optical weight constant.
+    public var cardCornerRadius: CGFloat
 
     public init(
         panelWidth: CGFloat,
@@ -129,10 +140,16 @@ public struct DropdownMetrics: Equatable, Sendable {
         trailingAffordanceWidth: CGFloat,
         disclosureWidth: CGFloat,
         rowFontSize: CGFloat = 13,
-        secondaryFontSize: CGFloat = 12
+        secondaryFontSize: CGFloat = 12,
+        cardHorizontalPadding: CGFloat = 10,
+        cardVerticalPadding: CGFloat = 9,
+        cardCornerRadius: CGFloat = 11
     ) {
         self.rowFontSize = rowFontSize
         self.secondaryFontSize = secondaryFontSize
+        self.cardHorizontalPadding = cardHorizontalPadding
+        self.cardVerticalPadding = cardVerticalPadding
+        self.cardCornerRadius = cardCornerRadius
         self.panelWidth = panelWidth
         self.rowOuterPadding = rowOuterPadding
         self.rowInnerPadding = rowInnerPadding
@@ -163,7 +180,10 @@ public struct DropdownMetrics: Equatable, Sendable {
         trailingAffordanceWidth: 48,
         disclosureWidth: 14,
         rowFontSize: 13,
-        secondaryFontSize: 12
+        secondaryFontSize: 12,
+        cardHorizontalPadding: 10,
+        cardVerticalPadding: 9,
+        cardCornerRadius: 11
     )
 
     /// Tighter vertical rhythm and a step down in type. The time column narrows
@@ -184,7 +204,10 @@ public struct DropdownMetrics: Equatable, Sendable {
         trailingAffordanceWidth: 46,
         disclosureWidth: 14,
         rowFontSize: 12,
-        secondaryFontSize: 11
+        secondaryFontSize: 11,
+        cardHorizontalPadding: 8,
+        cardVerticalPadding: 6,
+        cardCornerRadius: 9
     )
 
     /// More air per row. Marker and column widths grow with the type so the
@@ -204,7 +227,10 @@ public struct DropdownMetrics: Equatable, Sendable {
         trailingAffordanceWidth: 50,
         disclosureWidth: 15,
         rowFontSize: 14,
-        secondaryFontSize: 12.5
+        secondaryFontSize: 12.5,
+        cardHorizontalPadding: 12,
+        cardVerticalPadding: 12,
+        cardCornerRadius: 13
     )
 
     /// Distance from the panel's leading edge to a row's content box. Section

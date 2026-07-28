@@ -23,12 +23,10 @@
 //  (the openWorldClock dependency closure, the .worldClockShortcut registration,
 //  and the @objc handler) for the multi-zone world-clock panel window; kick a
 //  debounced aggressive calendar force-sync (.forceCalendarSync) whenever the
-//  status-menu is about to show, so a stalled macOS Calendar sync surfaces (and
-//  self-corrects) on menu open; route a left-click to the SwiftUI dropdown
-//  panel (openDropdownPanel dependency + handlers) when
-//  Defaults[.useSwiftUIDropdown] is on — which it is BY DEFAULT — leaving the
-//  classic NSMenu as the fallback path; split each per-event / per-reminder
-//  @objc menu action into a
+//  dropdown is about to show, so a stalled macOS Calendar sync surfaces (and
+//  self-corrects) on open; route a left-click to the SwiftUI dropdown panel
+//  (openDropdownPanel dependency + handlers); split each per-event / per-reminder
+//  @objc action into a
 //  thin sender-unwrapping wrapper over a value-taking method (editEvent,
 //  confirmAndDeleteEvent, copyDetail, copyMeetingLink, openReferenceURL,
 //  emailAttendees, undismiss, completeReminder, snoozeReminder,
@@ -340,8 +338,8 @@ final class StatusBarItemController {
     #endif
 
     /// The panel's side effects, routed through the same dependency closures the
-    /// NSMenu's @objc actions use, so both dropdowns share one behavior surface.
-    /// `dismiss` is filled in by the window host.
+    /// same @objc handlers the right-click quick-actions menu targets, so the two
+    /// surfaces share one behavior surface. `dismiss` is filled in by the host.
     private func dropdownPanelHandlers() -> DropdownPanelHandlers {
         DropdownPanelHandlers(
             joinEvent: { [weak self] event in

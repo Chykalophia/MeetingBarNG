@@ -283,11 +283,12 @@ final class DropdownEventVisibilityTests: BaseTestCase {
         let tomorrow = [event(id: "A", startsIn: 86_400), event(id: "B", startsIn: 90_000)]
 
         func rendered(_ period: ShowEventsForPeriod) -> [String] {
-            DropdownEventVisibility.tomorrowRendered(
+            var display = events
+            display.showEventsForPeriod = period
+            return DropdownEventVisibility.tomorrowRendered(
                 tomorrow,
-                period: period,
                 menu: menu,
-                display: events,
+                display: display,
                 isDeclined: { _ in false },
                 now: now
             ).map(\.id)

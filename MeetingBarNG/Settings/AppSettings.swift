@@ -57,11 +57,11 @@ struct MenuSettings: Equatable {
     /// than the grace period ago are hidden. When false, the full day is shown.
     var hideFinishedEventsInMenu: Bool
     /// Minutes before a meeting starts at which its action control becomes a
-    /// full-strength call to action. Lives here rather than being read from
-    /// `Defaults` inside `MenuBuilder`, which reads every display setting off
-    /// this snapshot, so the classic menu's meeting card and the panel's agree.
+    /// full-strength call to action. Lives on this snapshot rather than being
+    /// read from `Defaults` at each call site, so every surface that draws the
+    /// control agrees about when a meeting is close.
     var eventActionHighlightMinutes: Int
-    /// When true, Apple Reminders due today are shown in the menu's Today section.
+    /// When true, Apple Reminders due today are shown in the dropdown's Today section.
     /// OFF by default (see `Defaults[.showRemindersInMenu]`).
     var showRemindersInMenu: Bool
     /// When true, overdue reminders are included alongside those due today.

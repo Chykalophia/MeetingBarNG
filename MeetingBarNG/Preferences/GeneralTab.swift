@@ -33,9 +33,8 @@
 //      ("Open command bar:" → "Open the search bar"), and are sorted into four
 //      labelled groups, because a flat list of ten hotkeys is a list nobody
 //      reads.
-//    • `useSwiftUIDropdown` lands here, INVERTED, as "Use the classic macOS menu
-//      instead" inside Troubleshooting. It is a renderer escape hatch, not a
-//      display preference, and the shipping default was labelled "(preview)".
+//    • Troubleshooting held a "Use the classic macOS menu instead" switch until
+//      that menu was deleted (`9c178efd`). Only "Reset all settings" remains.
 //
 
 import SwiftUI

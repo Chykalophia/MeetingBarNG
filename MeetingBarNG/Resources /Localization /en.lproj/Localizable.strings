@@ -605,11 +605,10 @@
 "status_bar_hide_meeting_names" = "Hide meeting title";
 "status_bar_whats_new" = "What's new?";
 
-// MARK: - SwiftUI dropdown panel
+// MARK: - Dropdown panel
 
-// Tooltips for the inline detail disclosure on an event row — an affordance the
-// classic menu has no equivalent for. Every other panel action reuses the keys
-// above.
+// Tooltips for the inline detail disclosure on an event row. Every other panel
+// action reuses the keys above.
 "dropdown_panel_show_details" = "Show details";
 "dropdown_panel_hide_details" = "Hide details";
 

@@ -10,8 +10,9 @@ struct MeetingSummaryPresentation: Equatable {
     let sectionTitle: String
     let eventTitle: String
     let metadata: [String]
-    /// `var` so a renderer can clear it: the SwiftUI panel honours
-    /// `showMeetingServiceIcon` on the card, the classic NSMenu does not.
+    /// `var` so the panel can clear it when `showMeetingServiceIcon` is off —
+    /// that is a display preference, not part of what the copy says, so it is
+    /// applied at the call site rather than inside `MeetingSummaryPresenter`.
     var meetingService: MeetingServices?
     /// Relative time until the meeting starts (e.g. "in 25m"); nil for
     /// running meetings, where the section title already says enough.

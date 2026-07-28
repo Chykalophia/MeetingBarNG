@@ -9,9 +9,7 @@
 //  add persistence keys for the composable menu bar, the composable menu
 //  dropdown (dropdownModuleOrder + per-module enabled bools), and Apple
 //  Reminders in the menu; add the calendar-window keys (calendarGridMode,
-//  dimWeekendsInCalendar); add the SwiftUI dropdown-panel flag
-//  (useSwiftUIDropdown, now defaulting ON — the panel is the shipping dropdown
-//  and the key is the escape hatch back to the classic NSMenu);
+//  dimWeekendsInCalendar);
 //  remove the StoreKit patronage keys (patronageDuration,
 //  processedPatronageTransactionIDs, isInstalledFromAppStore) along with the
 //  removed patronage feature.

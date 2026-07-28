@@ -71,7 +71,7 @@ window never resizes underneath the user. Type scales with padding; padding alon
 
 | # | Item | Status | Notes |
 |---|---|---|---|
-| 1 | Panel chrome — glass + material fallback | **Done** `d60c6c4c` | `glassEffect` on macOS 26, `.regularMaterial` below. Radius follows surface. |
+| 1 | Panel chrome | **Done** `58018971` | `.menu` vibrancy on every version. Why not glass: §7. |
 | 2 | Row density — Small/Medium/Large | **Done** `d60c6c4c` | `DropdownDensity` + environment-injected grid. 10 hostless tests. |
 | 3 | Cards (`PanelCard`) | **Done** `d60c6c4c` | Timeline carded. Container ready for reuse. |
 | 4 | Day header quick actions | **Done** `d60c6c4c` | Create / command bar / preferences. Three, not four. |
@@ -80,7 +80,13 @@ window never resizes underneath the user. Type scales with padding; padding alon
 | 7 | Meeting-relative progress — dropdown card | **Not started** | Bar filling toward start; full exactly when Join un-mutes. |
 | 8 | Menu-bar progress — 4 styles + none | **Done** `2007165e`+ | `MeetingProgressStyle`. All four verified in the menu bar. See §5. |
 | 9 | Meeting card — card treatment | **Done** `2007165e` | Adopts `PanelCard`; `MeetingSummaryView` takes its inset as a parameter. |
-| 10 | Density applied to cards | **Not started** | Cards use fixed padding; should read the grid. |
+| 10 | Density applied to cards | **Done** `9c178efd`+ | `cardHorizontalPadding`/`cardVerticalPadding`/`cardCornerRadius` per density. |
+
+**The classic `NSMenu` dropdown is gone** (`9c178efd`). It was a second, feature-frozen renderer of
+the same content — ~1,850 lines that every new panel feature had to be designed around. Anything
+below that reads as "the panel does X, the menu does Y" is history, not a live parity constraint.
+What survived the deletion, because it was never part of that path: the RIGHT-click quick-actions
+menu (`QuickActionsMenu`), which is still an `NSMenu` and should be — it is a short list of verbs.
 
 ---
 
@@ -94,13 +100,13 @@ Recorded so they are not rediscovered as bugs.
 - **Inline calendar is not keyboard-navigable.** A grid needs four directions;
   `DropdownPanelNavigation` has two. Wiring day cells into Up/Down would steal those keys from
   the list.
-- **Inline calendar is panel-only.** The classic `NSMenu` skips it. It *could* be hosted via
-  `NSHostingView` like the timeline, but a month grid is the least menu-shaped thing in the app.
 - **Panel shadow is derived from content alpha.** `WindowStylePolicy` notes AppKit derives the
-  drop shadow from *opaque* SwiftUI content, and the content is now translucent. If the panel
-  ever reads as flat against the desktop, the fix is an explicit window shadow. Verified visually
-  on macOS 26 (see §6): the desktop reads through the panel and the shadow is present.
-- **Density does not yet reach `PanelCard`.** Its padding is fixed; item 10 above.
+  drop shadow from *opaque* SwiftUI content, and the content is translucent. If the panel ever
+  reads as flat against the desktop, the fix is an explicit window shadow. Verified visually on
+  macOS 26 (see §6): the desktop reads through the panel and the shadow is present.
+- **The panel's corners are clipped by a mask image, not a layer.** A vibrancy material is
+  composited by the window server and ignores `masksToBounds`, which left opaque white squares in
+  the corners on macOS 26. See `PanelBackdrop.roundedMask`.
 
 ---
 

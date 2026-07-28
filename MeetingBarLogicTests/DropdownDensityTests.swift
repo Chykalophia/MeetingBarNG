@@ -80,6 +80,41 @@ final class DropdownDensityTests: XCTestCase {
         )
     }
 
+    /// Cards are bounded surfaces, so their padding is what makes them read tight
+    /// or airy. Leaving it fixed meant Small and Large moved every row but left
+    /// every card identical, which reads as a bug rather than a density.
+    func test_cardPaddingTracksDensity() {
+        let byRow = all.sorted { $0.metrics.rowVerticalPadding < $1.metrics.rowVerticalPadding }
+        XCTAssertEqual(
+            byRow.map(\.metrics.cardVerticalPadding),
+            byRow.map(\.metrics.cardVerticalPadding).sorted(),
+            "card padding must grow with row padding"
+        )
+        XCTAssertEqual(
+            byRow.map(\.metrics.cardHorizontalPadding),
+            byRow.map(\.metrics.cardHorizontalPadding).sorted()
+        )
+    }
+
+    /// A large inset inside a tight radius looks like a mistake — the corner's
+    /// optical weight only stays constant if the two move together.
+    func test_cardCornerRadiusTracksCardPadding() {
+        let byPadding = all.sorted {
+            $0.metrics.cardHorizontalPadding < $1.metrics.cardHorizontalPadding
+        }
+        let radii = byPadding.map(\.metrics.cardCornerRadius)
+        XCTAssertEqual(radii, radii.sorted())
+    }
+
+    /// A card still has to leave room for content at every density.
+    func test_cardsLeaveUsableContentWidthAtEveryDensity() {
+        for density in all {
+            let metrics = density.metrics
+            let inner = metrics.rowContentWidth - metrics.cardHorizontalPadding * 2
+            XCTAssertGreaterThan(inner, 200, "\(density)")
+        }
+    }
+
     /// The time column is sized to fit "12:00 PM" at the row's own type size, so
     /// it has to track the font. A wider font in a narrower column truncates; a
     /// narrower font in a wide column leaves dead space on every single row.

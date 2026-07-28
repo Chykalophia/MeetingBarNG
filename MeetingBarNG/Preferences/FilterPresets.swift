@@ -147,10 +147,10 @@ enum EndedMeetingsVisibility {
 /// "show as underlined" is deleted as an option value: three vocabularies
 /// (show/dim/underline/strikethrough) collapse into one (Show/Dim/Hide).
 ///
-/// The stored case still exists and the classic menu still renders it, so this
-/// is a one-shot value migration, not a schema change: anyone holding it lands
-/// on Dim — the honest neighbour — instead of meeting a picker with nothing
-/// selected.
+/// The stored case still exists on the enum, so nothing fails to decode; it is
+/// simply no longer offered. A one-shot value migration, not a schema change:
+/// anyone holding it lands on Dim — the honest neighbour — instead of meeting a
+/// picker with nothing selected.
 enum FilterVocabularyMigration {
     static let retiredRawValue = "show_underlined"
     static let replacementRawValue = "show_inactive"

@@ -6,11 +6,11 @@
 //  later) should render as a call to action or as a recessed, available-but-not-
 //  urgent control.
 //
-//  Hostless and pure so the rule is unit-testable and, more importantly, so the
-//  three surfaces that draw the control — the dropdown panel's event rows, the
-//  panel's meeting card, and the classic NSMenu's hosted card — decide it the
-//  same way. Duplicating four lines of date math across them is exactly the kind
-//  of thing that drifts once a preference is attached to it.
+//  Hostless and pure so the rule is unit-testable and, more importantly, so every
+//  surface that draws the control — the dropdown's event rows, its meeting card,
+//  and the menu bar's progress indicator — decides it the same way. Duplicating
+//  four lines of date math across them is exactly the kind of thing that drifts
+//  once a preference is attached to it.
 //
 //  Original work for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026.
 //

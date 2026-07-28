@@ -218,7 +218,7 @@ struct AppEnvironment {
 
     /// Open Preferences from an app URL route.
     var openPreferences: @MainActor () -> Void
-    /// Opens the dropdown panel (or the classic menu, whichever is active).
+    /// Opens the dropdown panel.
     var openDropdown: @MainActor () -> Void
 
     /// Resume an OAuth callback from an app URL route.

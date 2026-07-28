@@ -419,8 +419,8 @@ struct FiltersTab: View {
 
     /// "show as underlined" is retired as an option value, so anyone holding it
     /// lands on Dim once — deliberately — instead of meeting a picker with
-    /// nothing selected. The stored case still exists and the classic menu still
-    /// renders it, so this is a value migration, not a schema change.
+    /// nothing selected. The stored case still exists on the enum, so nothing
+    /// fails to decode — a value migration, not a schema change.
     private func retireDeletedOptionValues() {
         if let replacement = FilterVocabularyMigration.migrated(showPendingEvents.rawValue),
            let migrated = PendingEventsAppereance(rawValue: replacement) {

@@ -2,13 +2,12 @@
 //  DropdownPanelView.swift
 //  MeetingBarNG
 //
-//  The custom SwiftUI dropdown panel (Phases A + B of the dropdown
-//  modernization). This is THE SHIPPING DROPDOWN: `Defaults[.useSwiftUIDropdown]`
-//  defaults to `true`, so every user gets this panel. The classic `NSMenu` built
-//  by `MenuBuilder` remains as the fallback behind that switch (Preferences ▸
-//  Display), untouched and un-degraded.
+//  The SwiftUI dropdown panel — THE dropdown, and since `9c178efd` the only one.
+//  A classic `NSMenu` built by `MenuBuilder` used to sit behind a preference as a
+//  fallback; it was a second, feature-frozen renderer of this same content and
+//  has been deleted.
 //
-//  Renders the SAME resolved modules, in the same order, as the real menu —
+//  Renders modules resolved by —
 //  `DropdownCompositionPolicy.resolve(order:enabled:)` fed by the shared
 //  `enabledRawValues(...)` helper — from a real `StatusBarMenuState` snapshot, so
 //  the panel can never drift from the menu it will eventually replace. Reuses the
@@ -37,8 +36,8 @@
 //  shared code the menu uses (`StatusBarTitlePolicy.shortenTitle`,
 //  `MenuBuilder`'s render/appearance rules), and the five visual states the panel
 //  silently dropped — declined dim/strikethrough, past dim, pending/tentative,
-//  the [dismissed] marker and the running-meeting emphasis — are drawn here too,
-//  so freezing the classic menu later loses no capability. Geometry comes from
+//  the [dismissed] marker and the running-meeting emphasis — are drawn here too.
+//  Geometry comes from
 //  the hostless `DropdownMetrics` / `AgendaRowLayout` instead of four unrelated
 //  literal grids.
 //
@@ -889,7 +888,6 @@ struct DropdownPanelView: View {
     private var tomorrowRenderedEvents: [MBEvent] {
         DropdownEventVisibility.tomorrowRendered(
             state.tomorrowEvents,
-            period: tomorrowDisplayMode,
             menu: state.menu,
             display: state.events,
             isDeclined: isDeclined,
@@ -2206,19 +2204,17 @@ private struct PanelCard<Content: View>: View {
             }
             content
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 9)
+        .padding(.horizontal, metrics.cardHorizontalPadding)
+        .padding(.vertical, metrics.cardVerticalPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 11, style: .continuous)
-                .fill(Color.primary.opacity(0.05))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 11, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.06))
-        )
+        .background(cardShape.fill(Color.primary.opacity(0.05)))
+        .overlay(cardShape.strokeBorder(Color.primary.opacity(0.06)))
         .padding(.horizontal, metrics.rowOuterPadding)
         .padding(.vertical, 3)
+    }
+
+    private var cardShape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: metrics.cardCornerRadius, style: .continuous)
     }
 }
 

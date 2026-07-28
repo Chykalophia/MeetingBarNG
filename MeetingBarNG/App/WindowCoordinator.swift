@@ -361,9 +361,7 @@ final class WindowCoordinator {
     #endif
 
     /// Opens the SwiftUI dropdown panel below the status item, or closes it if
-    /// it is already open (toggle). This is the default path
-    /// (`Defaults[.useSwiftUIDropdown]` is `true`); the NSMenu is untouched and
-    /// remains available as the fallback.
+    /// it is already open (toggle).
     ///
     /// `anchor` is the status-item button's rect in screen coordinates; the
     /// window is placed by the hostless `DropdownPanelPlacement` so it hangs
