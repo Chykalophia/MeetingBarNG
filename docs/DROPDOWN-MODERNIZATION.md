@@ -94,9 +94,6 @@ menu (`QuickActionsMenu`), which is still an `NSMenu` and should be — it is a 
 
 Recorded so they are not rediscovered as bugs.
 
-- **Inline calendar dots cover today and tomorrow only.** The panel's state holds those two days.
-  A month of dots needs a month-range fetch and its async lifecycle threaded through
-  `DropdownPanelHandlers`. Tapping a day opens the calendar window, which has the whole month.
 - **Inline calendar is not keyboard-navigable.** A grid needs four directions;
   `DropdownPanelNavigation` has two. Wiring day cells into Up/Down would steal those keys from
   the list.

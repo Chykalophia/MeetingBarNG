@@ -86,6 +86,12 @@ struct DropdownPanelHandlers {
     /// starts an online meeting on the configured service — one makes a calendar
     /// entry, the other makes a room to talk in.
     var newEvent: @MainActor () -> Void = {}
+    /// Events in `[from, to)`, for the compact month grid's dots. The same shape
+    /// as `CalendarWindowHandlers.fetchEvents` and wired to the same closure —
+    /// the panel and the calendar window ask the repository one question, not two
+    /// slightly different ones. Default returns nothing, so a caller that does
+    /// not supply it simply gets no month dots.
+    var fetchEvents: @MainActor (_ from: Date, _ to: Date) async throws -> [MBEvent] = { _, _ in [] }
     var refresh: @MainActor () -> Void = {}
     var openPreferences: @MainActor () -> Void = {}
     /// Wired for the Phase B quick-action rows (calendar window / command bar);
@@ -182,6 +188,8 @@ struct DropdownPanelView: View {
     /// Months stepped away from today in the compact grid. Not persisted — the
     /// panel should always reopen on the current month.
     @State private var calendarMonthOffset = 0
+    /// Dots for the visible month, filled by `loadMonthMarkers`.
+    @State private var monthMarkers: [Date: [Color]] = [:]
 
     /// Sections the user has unfolded this time the panel is open. Not persisted:
     /// reopening should start compact again, or the cap stops doing its job.
@@ -744,6 +752,10 @@ struct DropdownPanelView: View {
                 },
                 onSelect: { _ in handlers.openCalendar() }
             )
+            // Keyed on the month, so stepping cancels the previous request
+            // rather than racing it — two months in flight could otherwise land
+            // out of order and leave the wrong dots on screen.
+            .task(id: calendarMonthOffset) { await loadMonthMarkers() }
         }
     }
 
@@ -755,22 +767,53 @@ struct DropdownPanelView: View {
         panelCalendar.date(byAdding: .month, value: calendarMonthOffset, to: clock) ?? clock
     }
 
-    /// Event dots, derived from the events the panel ALREADY holds rather than a
-    /// month-wide fetch.
+    /// Event dots for the visible month.
     ///
-    /// That is a deliberate limitation, not an oversight: the panel's state
-    /// carries today and tomorrow only, so those are the days that can show dots.
-    /// The alternative — threading a month-range fetch and its async lifecycle
-    /// into the panel — is real work for a grid whose main job here is orientation
-    /// ("where am I in the month, what is today"). Tapping any day opens the full
-    /// calendar window, which does have the whole month.
+    /// The panel's own state carries today and tomorrow only, so those two days
+    /// are drawn immediately from what is already in hand and the rest of the
+    /// month arrives from `loadMonthMarkers`. Merging rather than replacing is
+    /// what stops the grid flickering empty on every month change: the days the
+    /// panel already knows about never lose their dots while the fetch runs.
     private var calendarMarkers: [Date: [Color]] {
-        var byDay: [Date: [Color]] = [:]
+        var byDay = monthMarkers
         for event in visibleEvents(state.todayEvents) + visibleEvents(state.tomorrowEvents) {
             let day = panelCalendar.startOfDay(for: event.startDate)
-            byDay[day, default: []].append(calendarColor(for: event))
+            guard byDay[day] == nil else { continue }
+            byDay[day] = [calendarColor(for: event)]
         }
         return byDay
+    }
+
+    /// Fetches the visible month's events and reduces them to one dot list per
+    /// day.
+    ///
+    /// Driven by `.task(id:)` on the grid, so switching months cancels the
+    /// in-flight request and a closing panel cancels it too — the async lifecycle
+    /// that made this "real work" is handled by the view's own identity rather
+    /// than by hand.
+    ///
+    /// A failure leaves the previous dots alone. The grid's job here is
+    /// orientation, and silently keeping slightly stale dots is better than
+    /// blanking the month because one fetch lost a race with a calendar resync.
+    private func loadMonthMarkers() async {
+        let calendar = panelCalendar
+        guard let interval = calendar.dateInterval(of: .month, for: visibleCalendarMonth) else {
+            return
+        }
+        // A month grid shows leading and trailing days from its neighbours, so
+        // fetch a week either side or those cells are always empty.
+        let from = calendar.date(byAdding: .day, value: -7, to: interval.start) ?? interval.start
+        let to = calendar.date(byAdding: .day, value: 7, to: interval.end) ?? interval.end
+
+        guard let events = try? await handlers.fetchEvents(from, to) else { return }
+        guard !Task.isCancelled else { return }
+
+        var byDay: [Date: [Color]] = [:]
+        for event in events {
+            let day = calendar.startOfDay(for: event.startDate)
+            byDay[day, default: []].append(calendarColor(for: event))
+        }
+        monthMarkers = byDay
     }
 
     private func calendarColor(for event: MBEvent) -> Color {

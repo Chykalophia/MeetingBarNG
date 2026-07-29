@@ -190,6 +190,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             openWorldClock: { [weak self] in self?.openWorldClockWindow() },
             openCameraPreview: { [weak self] event in self?.openCameraPreviewWindow(event: event) },
             newEvent: { [weak self] in self?.openNewEventWindow() },
+            fetchEvents: dateRangeEventFetch(),
             editEvent: { [weak self] event in self?.openEditEventWindow(event) },
             deleteEvent: { [weak self] event, span in self?.deleteEvent(event, span: span) },
             quit: { [weak self] in self?.quit(nil) }
@@ -360,26 +361,34 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
     }
 
-    /// Opens the month calendar window. Its fetch closure resolves the user's
-    /// selected calendars from the repository and loads that month's own window
-    /// of events via `fetchEventsForDateRange` — independent of the main
-    /// today/tomorrow sync. Joining forwards to the AppModel's join action.
-    func openCalendarWindow() {
+    /// Events in `[from, to)` across the user's selected calendars, independent
+    /// of the main today/tomorrow sync.
+    ///
+    /// Shared by the calendar WINDOW and the dropdown's compact month grid. It
+    /// was inline in `openCalendarWindow`; the panel needing the same data is
+    /// exactly the moment to name it rather than write it twice.
+    private func dateRangeEventFetch() -> @MainActor (Date, Date) async throws -> [MBEvent] {
         let sync = calendarSync
+        return { [weak sync] from, to in
+            guard let repository = sync?.repository else { return [] }
+            let allCalendars = try await repository.fetchAllCalendars()
+            let selectedIDs = AppSettings.selectedCalendarIDs(
+                for: repository.activeProviderName
+            )
+            let selected = allCalendars.filter { selectedIDs.contains($0.id) }
+            return try await repository.fetchEventsForDateRange(
+                for: selected, from: from, to: to
+            )
+        }
+    }
+
+    /// Opens the month calendar window. Joining forwards to the AppModel's join
+    /// action.
+    func openCalendarWindow() {
         let model = appModel
         windowCoordinator.openCalendarWindow(
             handlers: CalendarWindowHandlers(
-                fetchEvents: { [weak sync] from, to in
-                    guard let repository = sync?.repository else { return [] }
-                    let allCalendars = try await repository.fetchAllCalendars()
-                    let selectedIDs = AppSettings.selectedCalendarIDs(
-                        for: repository.activeProviderName
-                    )
-                    let selected = allCalendars.filter { selectedIDs.contains($0.id) }
-                    return try await repository.fetchEventsForDateRange(
-                        for: selected, from: from, to: to
-                    )
-                },
+                fetchEvents: dateRangeEventFetch(),
                 join: { [weak model] eventID in
                     model?.send(.joinMeeting(eventID: eventID))
                 }

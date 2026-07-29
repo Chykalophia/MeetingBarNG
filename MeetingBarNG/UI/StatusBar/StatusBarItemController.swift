@@ -82,6 +82,10 @@ struct StatusBarDependencies {
     var openWorldClock: @MainActor () -> Void = {}
     var openCameraPreview: @MainActor (MBEvent?) -> Void = { _ in }
     var newEvent: @MainActor () -> Void = {}
+    /// Events in `[from, to)` — the same closure the calendar window is given, so
+    /// the panel's month dots and the window's grid ask one question.
+    var fetchEvents: @MainActor (_ from: Date, _ to: Date) async throws -> [MBEvent] =
+        { _, _ in [] }
     var editEvent: @MainActor (MBEvent) -> Void = { _ in }
     var deleteEvent: @MainActor (MBEvent, EventEditSpan) -> Void = { _, _ in }
     var quit: @MainActor () -> Void = {}
@@ -355,6 +359,10 @@ final class StatusBarItemController {
             },
             createMeeting: { createMeeting() },
             newEvent: { [weak self] in self?.dependencies.newEvent() },
+            fetchEvents: { [weak self] from, to in
+                guard let self else { return [] }
+                return try await self.dependencies.fetchEvents(from, to)
+            },
             refresh: { [weak self] in self?.dependencies.send(.refreshCalendars) },
             openPreferences: { [weak self] in self?.dependencies.openPreferences() },
             openCalendar: { [weak self] in self?.dependencies.openCalendar() },
