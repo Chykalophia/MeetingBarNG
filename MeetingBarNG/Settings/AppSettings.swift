@@ -172,13 +172,6 @@ enum TimeFormatDefaultMigration {
     }
 }
 
-/// Folds two retired controls into the ones that replaced them.
-///
-/// The dropdown had an `upNext` module that drew a second card for the meeting
-/// the `meeting` module already showed, and a `showTimelineInMenu` toggle beside
-/// a timeline STYLE picker. Both were two controls for one thing. Their
-/// replacements exist now; this carries people's existing choices across so a
-/// merge does not read as a setting being reset.
 /// Defaults plumbing for `DropdownModuleMergePolicy`, which holds the decisions.
 enum DropdownModuleMergeMigration {
     @MainActor
@@ -191,7 +184,7 @@ enum DropdownModuleMergeMigration {
         )
         Defaults[.timelineStyle] = DropdownModuleMergePolicy.timelineStyle(
             wasVisible: Defaults[.showTimelineInMenu],
-            stored: TimelineStyle(rawValue: Defaults[.timelineStyle]) ?? .relative
+            stored: TimelineSpan(rawValue: Defaults[.timelineStyle]) ?? .relative
         ).rawValue
     }
 }

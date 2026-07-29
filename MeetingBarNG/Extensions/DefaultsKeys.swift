@@ -258,6 +258,18 @@ extension Defaults.Keys {
     /// the date appears at all.
     static let greetingShowsDate = Key<Bool>("greetingShowsDate", default: true)
 
+    /// What the meeting card shows, field by field — see `MeetingCardFields`.
+    ///
+    /// Separate switches rather than named presets: the useful combinations are
+    /// not the ones a preset list would guess. "Everything except the times" and
+    /// "just the title and the bar" are both reasonable, and so is anything in
+    /// between. All default on, so the card is unchanged until someone trims it.
+    static let meetingCardShowsSectionLine = Key<Bool>(
+        "meetingCardShowsSectionLine", default: true)
+    static let meetingCardShowsTimes = Key<Bool>("meetingCardShowsTimes", default: true)
+    static let meetingCardShowsProvider = Key<Bool>("meetingCardShowsProvider", default: true)
+    static let meetingCardShowsSource = Key<Bool>("meetingCardShowsSource", default: true)
+
     /// Whether the dropdown's meeting card carries a countdown bar.
     ///
     /// Replaces the separate `upNext` MODULE, which drew a second card for the
@@ -273,14 +285,24 @@ extension Defaults.Keys {
     static let dropdownModuleMergeMigrated = Key<Bool>(
         "dropdownModuleMergeMigrated", default: false)
 
-    /// How the dropdown's timeline frames time — a window around now, or the
+    /// How the timeline is DRAWN — track, bar, or minimal. Orthogonal to the
+    /// span below: a compact bar can show the whole day, a detailed track can
+    /// show just what's near.
+    static let timelineAppearance = Key<String>(
+        "timelineAppearance", default: TimelineAppearance.track.rawValue)
+
+    /// What stretch of time the timeline covers — a window around now, or the
     /// whole working day. `off` hides it; there is no separate toggle.
+    ///
+    /// The stored key is still "timelineStyle" although the type is now
+    /// `TimelineSpan`: it shipped in v0.2.0, and renaming the key would need a
+    /// migration to buy nothing a comment cannot.
     ///
     /// No `none`: the timeline already has an on/off (`showTimelineInMenu`, plus
     /// the composer can drop the module), and a second way to hide one thing is
     /// how two switches end up disagreeing.
     static let timelineStyle = Key<String>(
-        "timelineStyle", default: TimelineStyle.relative.rawValue)
+        "timelineStyle", default: TimelineSpan.relative.rawValue)
 
     /// How the menu bar draws progress toward the next meeting.
     ///

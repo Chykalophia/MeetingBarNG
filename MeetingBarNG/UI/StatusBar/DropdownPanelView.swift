@@ -161,7 +161,12 @@ struct DropdownPanelView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Default(.dropdownDensity) private var dropdownDensityRaw
     @Default(.timelineStyle) private var timelineStyleRaw
+    @Default(.timelineAppearance) private var timelineAppearanceRaw
     @Default(.meetingCardShowsProgress) private var showsMeetingCardProgress
+    @Default(.meetingCardShowsSectionLine) private var meetingCardShowsSectionLine
+    @Default(.meetingCardShowsTimes) private var meetingCardShowsTimes
+    @Default(.meetingCardShowsProvider) private var meetingCardShowsProvider
+    @Default(.meetingCardShowsSource) private var meetingCardShowsSource
     @Default(.greetingShowsDate) private var greetingShowsDate
 
     private var dropdownDensity: DropdownDensity {
@@ -390,7 +395,7 @@ struct DropdownPanelView: View {
             enabled: DropdownCompositionPolicy.enabledRawValues(
                 greeting: state.showGreetingHeader,
                 // The style picker is the timeline's on/off now — see
-                // `TimelineStyle`.
+                // `TimelineSpan`.
                 timeline: timelineStyle.isVisible,
                 meeting: state.menu.showMeetingControlInMenu,
                 agenda: state.menu.showAgendaInMenu,
@@ -777,8 +782,12 @@ struct DropdownPanelView: View {
     /// as one object rather than as another row.
     /// An unrecognised stored value reads back as `.relative` — the shipping
     /// look — rather than leaving the bar unable to frame itself.
-    private var timelineStyle: TimelineStyle {
-        TimelineStyle(rawValue: timelineStyleRaw) ?? .relative
+    private var timelineStyle: TimelineSpan {
+        TimelineSpan(rawValue: timelineStyleRaw) ?? .relative
+    }
+
+    private var timelineAppearance: TimelineAppearance {
+        TimelineAppearance(rawValue: timelineAppearanceRaw) ?? .track
     }
 
     private var timelineBlock: some View {
@@ -786,7 +795,8 @@ struct DropdownPanelView: View {
             segments: timelineSegments,
             currentDate: clock,
             timeFormat: state.timeFormat,
-            style: timelineStyle
+            style: timelineStyle,
+            appearance: timelineAppearance
         )
         return PanelCard {
             timeline
@@ -861,7 +871,8 @@ struct DropdownPanelView: View {
         var presentation = MeetingSummaryPresenter.presentation(
             for: event,
             timeFormat: state.timeFormat,
-            now: clock
+            now: clock,
+            fields: meetingCardFields
         )
         // `showMeetingServiceIcon` governs the meeting card too. Applied here
         // rather than inside the presenter because it is a PANEL display
@@ -870,6 +881,15 @@ struct DropdownPanelView: View {
             presentation.meetingService = nil
         }
         return presentation
+    }
+
+    private var meetingCardFields: MeetingCardFields {
+        MeetingCardFields(
+            showsSectionLine: meetingCardShowsSectionLine,
+            showsTimes: meetingCardShowsTimes,
+            showsProvider: meetingCardShowsProvider,
+            showsSource: meetingCardShowsSource
+        )
     }
 
     /// The honest reason there is no meeting to show, plus the one action that

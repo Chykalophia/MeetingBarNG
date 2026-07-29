@@ -40,6 +40,8 @@ enum DayTimelineLayout {
 
     static let baseTrackHeight: CGFloat = 22
     static let segmentHeight: CGFloat = 10
+    /// Thickness of the single rail used by the `bar` and `minimal` appearances.
+    static let railHeight: CGFloat = 6
     static let rowSpacing: CGFloat = 4
 
     static var rowHeight: CGFloat { segmentHeight + rowSpacing }
@@ -170,21 +172,33 @@ struct DayRelativeTimelineView: View {
     let segments: [DaySegment]
     let currentDate: Date
     let timeFormat: TimeFormat
+    let appearance: TimelineAppearance
 
     // Cached / pre-computed values
     private let layout: DayTimelineLayoutCalculator
     private let eventRows: [[DaySegment]]
     private let contentHeight: CGFloat
 
-    /// Height the parent can rely on for sizing
-    var preferredHeight: CGFloat { contentHeight + 26 }   // top labels + vertical padding
+    /// Height the parent can rely on for sizing.
+    ///
+    /// Each appearance pays only for what it draws: `track` for its label row and
+    /// stacked segments, `bar` for one rail plus labels beneath it, `minimal` for
+    /// the rail alone.
+    var preferredHeight: CGFloat {
+        switch appearance {
+        case .track: contentHeight + 26
+        case .bar: DayTimelineLayout.railHeight + 18
+        case .minimal: DayTimelineLayout.railHeight + 4
+        }
+    }
 
     // MARK: Init
     init(
         segments: [DaySegment],
         currentDate: Date,
         timeFormat: TimeFormat,
-        style: TimelineStyle = .relative
+        style: TimelineSpan = .relative,
+        appearance: TimelineAppearance = .track
     ) {
         // The bar is framed around the events it is actually drawing, so the
         // relative style opens on content instead of on empty past.
@@ -201,10 +215,19 @@ struct DayRelativeTimelineView: View {
         self.segments     = segments
         self.currentDate  = currentDate
         self.timeFormat   = timeFormat
+        self.appearance   = appearance
         self.layout       = layout
-        self.eventRows    = layout.rows(for: segments)
-        self.contentHeight = DayTimelineLayout.baseTrackHeight +
-            DayTimelineLayout.rowHeight * CGFloat(max(eventRows.count - 1, 0))
+        // Only `track` packs overlapping meetings into extra rows; the flatter
+        // appearances put everything on one line by definition, so asking for
+        // rows would just make them taller for no visible reason.
+        let rows = appearance.stacksOverlaps
+            ? layout.rows(for: segments)
+            : (segments.isEmpty ? [] : [segments])
+        self.eventRows = rows
+        self.contentHeight = appearance == .track
+            ? DayTimelineLayout.baseTrackHeight
+                + DayTimelineLayout.rowHeight * CGFloat(max(rows.count - 1, 0))
+            : DayTimelineLayout.railHeight
     }
 
     /// Ticks that get a label at this width, in the view's current time format.
@@ -216,8 +239,88 @@ struct DayRelativeTimelineView: View {
     var body: some View {
         GeometryReader { proxy in
             let width = proxy.size.width
+            if appearance == .track {
+                trackBody(width: width)
+            } else {
+                railBody(width: width)
+            }
+        }
+        // OUTSIDE the GeometryReader on purpose. Inset within it, the proxy still
+        // measured the FULL width while the content drew into a box 24pt
+        // narrower, so every x position was computed against the wrong width and
+        // the right-hand labels ran past the card's edge ("10 PM" clipped).
+        .padding(.top, appearance == .track ? 10 : 0)
+        .padding(.vertical, appearance == .track ? 8 : 2)
+        .padding(.horizontal, 12)
+        .frame(maxWidth: .infinity)
+        .accessibilityLabel("timeline_accessibility_label".loco(segments.count))
+    }
 
-            ZStack(alignment: .topLeading) {
+    /// One rail with the meetings inline — the `bar` and `minimal` appearances.
+    ///
+    /// Everything sits on a single line, so a clash reads as one longer block
+    /// rather than as two. That is the trade these appearances make for height,
+    /// and it is why `track` still exists.
+    @ViewBuilder
+    private func railBody(width: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(Color.primary.opacity(0.14))
+                    .frame(height: DayTimelineLayout.railHeight)
+
+                ForEach(segments) { seg in
+                    let startX = layout.xPosition(
+                        of: max(seg.start, layout.visibleRange.lowerBound), width: width
+                    )
+                    let endX = layout.xPosition(
+                        of: min(seg.end, layout.visibleRange.upperBound), width: width
+                    )
+                    Capsule()
+                        .fill(seg.color.opacity(seg.isHighlighted ? 0.95 : 0.75))
+                        .frame(
+                            width: max(endX - startX, DayTimelineLayout.railHeight),
+                            height: DayTimelineLayout.railHeight
+                        )
+                        .offset(x: startX)
+                        .help(seg.title ?? "")
+                }
+
+                if layout.visibleRange.contains(currentDate) {
+                    // Taller than the rail and light, so it reads as a playhead
+                    // ON the bar rather than as another meeting.
+                    Capsule()
+                        .fill(Color.primary)
+                        .frame(width: 2, height: DayTimelineLayout.railHeight + 6)
+                        .offset(x: layout.xPosition(of: currentDate, width: width) - 1)
+                }
+            }
+            .frame(height: DayTimelineLayout.railHeight)
+
+            if appearance.showsHourLabels {
+                ZStack(alignment: .topLeading) {
+                    ForEach(labelledTicks(width: width), id: \.self) { tick in
+                        Text(hourFormatter.string(from: tick))
+                            .font(.system(size: 9))
+                            .foregroundColor(.secondary)
+                            .fixedSize()
+                            .position(
+                                x: layout.clampedLabelX(
+                                    layout.xPosition(of: tick, width: width),
+                                    width: width,
+                                    halfWidth: DayTimelineLayout.hourLabelHalfWidth(for: timeFormat)
+                                ),
+                                y: 5
+                            )
+                    }
+                }
+                .frame(height: 11)
+            }
+        }
+    }
+
+    private func trackBody(width: CGFloat) -> some View {
+        ZStack(alignment: .topLeading) {
 
                 // Hour grid — every tick draws its line at the TRUE position.
                 ForEach(layout.hourTicks(), id: \.self) { tick in
@@ -286,18 +389,8 @@ struct DayRelativeTimelineView: View {
                         .frame(width: 6, height: 6)
                         .offset(x: x - 3, y: -5)
                 }
-            }
-            .frame(height: contentHeight)
         }
-        // OUTSIDE the GeometryReader on purpose. Inset within it, the proxy still
-        // measured the FULL width while the content drew into a box 24pt
-        // narrower, so every x position was computed against the wrong width and
-        // the right-hand labels ran past the card's edge ("10 PM" clipped).
-        .padding(.top, 10)
-        .padding(.vertical, 8)
-        .padding(.horizontal, 12)
-        .frame(maxWidth: .infinity)
-        .accessibilityLabel("timeline_accessibility_label".loco(segments.count))
+        .frame(height: contentHeight)
     }
 
     private var hourFormatter: DateFormatter {

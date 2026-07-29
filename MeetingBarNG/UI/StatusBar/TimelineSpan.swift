@@ -1,5 +1,5 @@
 //
-//  TimelineStyle.swift
+//  TimelineSpan.swift
 //  MeetingBarNG
 //
 //  How the dropdown's timeline bar frames time. Hostless: the range is pure date
@@ -17,7 +17,7 @@ import Foundation
 /// controls for one thing is how they end up disagreeing — a user could switch
 /// the style of a timeline that was hidden, or hide one whose style they had
 /// just set. One picker answers both questions.
-public enum TimelineStyle: String, CaseIterable, Codable, Hashable, Sendable {
+public enum TimelineSpan: String, CaseIterable, Codable, Hashable, Sendable {
     /// Not drawn.
     case off
     /// A window around now. Reads as "what is near me", and the marker moves
@@ -37,6 +37,31 @@ public enum TimelineStyle: String, CaseIterable, Codable, Hashable, Sendable {
 /// timeline STYLE picker. Both were two controls for one thing. Hostless so the
 /// decisions are tested; the Defaults plumbing lives in
 /// `DropdownModuleMergeMigration`.
+/// How the timeline is DRAWN. Orthogonal to `TimelineSpan`, which says what
+/// stretch of time it covers.
+///
+/// The two were briefly conflated — a picker labelled "Draw the timeline as"
+/// offered Around now / Whole day, which are spans. You can want a compact bar
+/// showing the whole day, or a detailed track around now, and every combination
+/// in between is meaningful.
+public enum TimelineAppearance: String, CaseIterable, Codable, Hashable, Sendable {
+    /// Hour grid, labels above, meetings as capsules packed into as many rows as
+    /// overlaps require. The most informative and the tallest — the only one that
+    /// shows two meetings clashing.
+    case track
+    /// One rail with the meetings inline and the hours labelled beneath it.
+    /// Roughly half the height of `track`; loses overlap, keeps duration.
+    case bar
+    /// The rail alone, no labels. A glance at shape and position, nothing more.
+    case minimal
+
+    /// Whether hour labels are drawn, and where relative to the track.
+    public var showsHourLabels: Bool { self != .minimal }
+
+    /// `track` stacks overlapping meetings; the others flatten them onto one line.
+    public var stacksOverlaps: Bool { self == .track }
+}
+
 public enum DropdownModuleMergePolicy {
     /// The countdown bar is on if the user had the up-next card.
     public static func showsProgress(hadUpNextModule: Bool) -> Bool { hadUpNextModule }
@@ -45,8 +70,8 @@ public enum DropdownModuleMergePolicy {
     /// there was no style to preserve before this.
     public static func timelineStyle(
         wasVisible: Bool,
-        stored: TimelineStyle
-    ) -> TimelineStyle {
+        stored: TimelineSpan
+    ) -> TimelineSpan {
         wasVisible ? stored : .off
     }
 }
@@ -79,7 +104,7 @@ public enum DayTimelineRange {
     /// - Parameter bounds: the earliest start and latest end among the events
     ///   being drawn, or `nil` when there are none.
     public static func range(
-        style: TimelineStyle,
+        style: TimelineSpan,
         now: Date,
         bounds: (first: Date, last: Date)?,
         calendar: Calendar = .current

@@ -1,12 +1,12 @@
 //
-//  TimelineStyleTests.swift
+//  TimelineSpanTests.swift
 //  MeetingBarLogicTests
 //
 
 import XCTest
 @testable import MeetingBarLogic
 
-final class TimelineStyleTests: XCTestCase {
+final class TimelineSpanTests: XCTestCase {
     /// 2026-07-28 16:00 local, so "the afternoon" means the same thing in every
     /// assertion below.
     private let now = Calendar.current.date(
@@ -160,13 +160,13 @@ final class TimelineStyleTests: XCTestCase {
     // MARK: - Style
 
     func testStyleRawValuesAreStableAcrossLaunches() {
-        XCTAssertEqual(TimelineStyle.allCases.map(\.rawValue), ["off", "relative", "day"])
+        XCTAssertEqual(TimelineSpan.allCases.map(\.rawValue), ["off", "relative", "day"])
     }
 
     /// `off` is a style rather than a separate toggle, so exactly one control
     /// answers both "is it shown" and "how".
     func testOnlyOffIsHidden() {
-        for style in TimelineStyle.allCases {
+        for style in TimelineSpan.allCases {
             XCTAssertEqual(style.isVisible, style != .off, "\(style)")
         }
     }

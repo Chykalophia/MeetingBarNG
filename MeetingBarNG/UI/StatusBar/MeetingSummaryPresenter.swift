@@ -16,6 +16,26 @@
 
 import Foundation
 
+/// What the meeting card is allowed to show.
+///
+/// Individual switches rather than named presets. The useful combinations are
+/// not the ones a preset list would guess — "everything except the times" and
+/// "just the title and the bar" are both reasonable, and so is anything between.
+///
+/// The title is not a member: a card with no title is not a card.
+struct MeetingCardFields: Equatable, Sendable {
+    /// The "Next meeting • in 2h" line above the title.
+    var showsSectionLine = true
+    /// The start–end range in the metadata line.
+    var showsTimes = true
+    /// The meeting service ("Google Meet", "Zoom").
+    var showsProvider = true
+    /// Which calendar and account the meeting came from.
+    var showsSource = true
+
+    static let all = MeetingCardFields()
+}
+
 enum MeetingSummaryPresenter {
     /// The meeting card's copy for `event`.
     ///
@@ -26,7 +46,8 @@ enum MeetingSummaryPresenter {
     static func presentation(
         for event: MBEvent,
         timeFormat: TimeFormat,
-        now: Date
+        now: Date,
+        fields: MeetingCardFields = .all
     ) -> MeetingSummaryPresentation {
         let isCurrent = event.startDate <= now && event.endDate > now
         let eventTitle = event.title.isEmpty
@@ -34,17 +55,19 @@ enum MeetingSummaryPresenter {
             : event.title
         let time = timeStrings(for: event, timeFormat: timeFormat)
         let timeRange = event.isAllDay ? time.start : "\(time.start) – \(time.end)"
-        let meetingProvider = event.meetingLink?.service
-            .flatMap(MeetingProvider.provider(for:))?
-            .displayName
-        let account = firstMeaningfulValue([
-            event.calendar.email,
-            event.calendar.source == "unknown" ? nil : event.calendar.source,
-            event.organizer?.email
-        ])
+        let meetingProvider = fields.showsProvider
+            ? event.meetingLink?.service.flatMap(MeetingProvider.provider(for:))?.displayName
+            : nil
+        let account = fields.showsSource
+            ? firstMeaningfulValue([
+                event.calendar.email,
+                event.calendar.source == "unknown" ? nil : event.calendar.source,
+                event.organizer?.email
+            ])
+            : nil
 
         let countdown: String?
-        if isCurrent || event.isAllDay {
+        if !fields.showsSectionLine || isCurrent || event.isAllDay {
             countdown = nil
         } else {
             let timeLeft = StatusBarTitlePolicy.formattedTimeLeft(
@@ -56,15 +79,20 @@ enum MeetingSummaryPresenter {
         }
 
         return MeetingSummaryPresentation(
-            sectionTitle: isCurrent
-                ? "status_bar_control_current_meeting".loco()
-                : "status_bar_control_next_meeting".loco(),
+            // Empty rather than optional: the view already drops an empty
+            // section line, and an extra optional would mean two ways to say
+            // "nothing here".
+            sectionTitle: fields.showsSectionLine
+                ? (isCurrent
+                    ? "status_bar_control_current_meeting".loco()
+                    : "status_bar_control_next_meeting".loco())
+                : "",
             eventTitle: eventTitle,
             metadata: uniqueValues([
-                timeRange,
+                fields.showsTimes ? timeRange : nil,
                 meetingProvider,
                 account,
-                event.calendar.title
+                fields.showsSource ? event.calendar.title : nil
             ]),
             meetingService: event.meetingLink?.service,
             countdown: countdown

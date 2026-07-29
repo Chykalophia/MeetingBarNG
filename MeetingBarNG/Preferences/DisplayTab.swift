@@ -39,6 +39,10 @@ struct DropdownComposerSection: View {
     @Default(.greetingName) var greetingName
     @Default(.greetingShowsDate) var greetingShowsDate
     @Default(.meetingCardShowsProgress) var meetingCardShowsProgress
+    @Default(.meetingCardShowsSectionLine) var meetingCardShowsSectionLine
+    @Default(.meetingCardShowsTimes) var meetingCardShowsTimes
+    @Default(.meetingCardShowsProvider) var meetingCardShowsProvider
+    @Default(.meetingCardShowsSource) var meetingCardShowsSource
 
     // Agenda gear: the per-event-row detail toggles.
     @Default(.shortenEventTitle) var shortenEventTitle
@@ -78,7 +82,7 @@ struct DropdownComposerSection: View {
         DropdownCompositionPolicy.enabledRawValues(
             greeting: showGreetingInMenu,
             // The style picker owns the timeline's visibility.
-            timeline: (TimelineStyle(rawValue: timelineStyleRaw) ?? .relative).isVisible,
+            timeline: (TimelineSpan(rawValue: timelineStyleRaw) ?? .relative).isVisible,
             meeting: showMeetingControlInMenu,
             agenda: showAgendaInMenu,
             join: showJoinSectionInMenu,
@@ -213,10 +217,26 @@ struct DropdownComposerSection: View {
 
             case .meeting:
                 Toggle(
+                    preferenceLabel("preferences_dropdown_meeting_section_line_toggle"),
+                    isOn: $meetingCardShowsSectionLine
+                )
+                Toggle(
+                    preferenceLabel("preferences_dropdown_meeting_times_toggle"),
+                    isOn: $meetingCardShowsTimes
+                )
+                Toggle(
+                    preferenceLabel("preferences_dropdown_meeting_provider_toggle"),
+                    isOn: $meetingCardShowsProvider
+                )
+                Toggle(
+                    preferenceLabel("preferences_dropdown_meeting_source_toggle"),
+                    isOn: $meetingCardShowsSource
+                )
+                Toggle(
                     preferenceLabel("preferences_dropdown_meeting_progress_toggle"),
                     isOn: $meetingCardShowsProgress
                 )
-                helpText("preferences_dropdown_meeting_progress_help")
+                helpText("preferences_dropdown_meeting_fields_help")
 
             case .agenda:
                 Toggle(
@@ -292,7 +312,7 @@ struct DropdownComposerSection: View {
     private func isEnabled(_ module: DropdownModule) -> Bool {
         switch module {
         case .greeting: return showGreetingInMenu
-        case .timeline: return (TimelineStyle(rawValue: timelineStyleRaw) ?? .relative).isVisible
+        case .timeline: return (TimelineSpan(rawValue: timelineStyleRaw) ?? .relative).isVisible
         case .meeting: return showMeetingControlInMenu
         case .agenda: return showAgendaInMenu
         case .join: return showJoinSectionInMenu
@@ -308,7 +328,7 @@ struct DropdownComposerSection: View {
         case .greeting: showGreetingInMenu = value
         // Hiding the timeline from the composer means choosing the `off`
         // style; showing it restores the previous one.
-        case .timeline: timelineStyleRaw = value ? TimelineStyle.relative.rawValue : TimelineStyle.off.rawValue
+        case .timeline: timelineStyleRaw = value ? TimelineSpan.relative.rawValue : TimelineSpan.off.rawValue
         case .meeting: showMeetingControlInMenu = value
         case .agenda: showAgendaInMenu = value
         case .join: showJoinSectionInMenu = value
@@ -350,6 +370,7 @@ struct DropdownDisplaySection: View {
     @Default(.dropdownMaxEventRows) var dropdownMaxEventRows
     @Default(.dropdownDensity) var dropdownDensityRaw
     @Default(.timelineStyle) var timelineStyleRaw
+    @Default(.timelineAppearance) var timelineAppearanceRaw
 
     /// Bridges the raw-string Default to the hostless enum. An unrecognised
     /// stored value reads back as `.standard` rather than leaving the picker
@@ -361,9 +382,16 @@ struct DropdownDisplaySection: View {
         )
     }
 
-    private var timelineStyleBinding: Binding<TimelineStyle> {
+    private var timelineAppearanceBinding: Binding<TimelineAppearance> {
         Binding(
-            get: { TimelineStyle(rawValue: timelineStyleRaw) ?? .relative },
+            get: { TimelineAppearance(rawValue: timelineAppearanceRaw) ?? .track },
+            set: { timelineAppearanceRaw = $0.rawValue }
+        )
+    }
+
+    private var timelineStyleBinding: Binding<TimelineSpan> {
+        Binding(
+            get: { TimelineSpan(rawValue: timelineStyleRaw) ?? .relative },
             set: { timelineStyleRaw = $0.rawValue }
         )
     }
@@ -371,13 +399,27 @@ struct DropdownDisplaySection: View {
     var body: some View {
         Section {
             Picker(
+                "preferences_dropdown_timeline_appearance_title".loco(),
+                selection: timelineAppearanceBinding
+            ) {
+                Text("preferences_dropdown_timeline_appearance_track".loco())
+                    .tag(TimelineAppearance.track)
+                Text("preferences_dropdown_timeline_appearance_bar".loco())
+                    .tag(TimelineAppearance.bar)
+                Text("preferences_dropdown_timeline_appearance_minimal".loco())
+                    .tag(TimelineAppearance.minimal)
+            }
+            .pickerStyle(.segmented)
+            .annotation("preferences_dropdown_timeline_appearance_help")
+
+            Picker(
                 "preferences_dropdown_timeline_style_title".loco(),
                 selection: timelineStyleBinding
             ) {
                 Text("preferences_dropdown_timeline_style_relative".loco())
-                    .tag(TimelineStyle.relative)
+                    .tag(TimelineSpan.relative)
                 Text("preferences_dropdown_timeline_style_day".loco())
-                    .tag(TimelineStyle.day)
+                    .tag(TimelineSpan.day)
             }
             .pickerStyle(.segmented)
             .annotation("preferences_dropdown_timeline_style_help")

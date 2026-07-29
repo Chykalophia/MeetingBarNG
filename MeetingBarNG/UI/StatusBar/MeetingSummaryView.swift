@@ -65,9 +65,14 @@ struct MeetingSummaryView: View {
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 3) {
-                Text(presentation.sectionTitleText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                // Dropped entirely when empty, rather than drawn as a blank line.
+                // An empty `Text` still takes a row's height, which would leave a
+                // gap where the section line used to be.
+                if !presentation.sectionTitleText.isEmpty {
+                    Text(presentation.sectionTitleText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
 
                 HStack(spacing: 7) {
                     if let providerIcon {

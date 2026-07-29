@@ -329,6 +329,14 @@ enum SettingsIndex {
             synonyms: ["date", "weekday", "day", "mon", "format"]
         ),
         SettingsIndexEntry(
+            id: "dropdown.timeline_appearance",
+            tab: .dropdown,
+            labelKey: "preferences_dropdown_timeline_appearance_title",
+            helpKey: "preferences_dropdown_timeline_appearance_help",
+            defaultsKeys: ["timelineAppearance"],
+            synonyms: ["timeline", "style", "track", "bar", "minimal", "look"]
+        ),
+        SettingsIndexEntry(
             id: "dropdown.timeline_style",
             tab: .dropdown,
             labelKey: "preferences_dropdown_timeline_style_title",
