@@ -35,7 +35,15 @@ import SwiftUI
 enum PreferencesWindowMetrics {
     /// Fixed, non-resizable sidebar width, subtracted from every width below to
     /// get the detail column.
-    static let sidebarWidth: CGFloat = 240
+    ///
+    /// 215pt is what System Settings uses, and the panes here have short names,
+    /// so matching it is both standard and sufficient. It is pinned with equal
+    /// min/ideal/max at the call site: the single-value
+    /// `navigationSplitViewColumnWidth` sets an IDEAL, which AppKit is free to
+    /// override from a persisted divider position — which is how the sidebar
+    /// ended up ~150pt wide and truncating "About & Support" despite a 240
+    /// constant sitting right here.
+    static let sidebarWidth: CGFloat = 215
 
     /// Wide enough that the Dropdown pane clears `minimumTwoColumnWidth` and so
     /// opens showing its preview — the default view should be the good one, not
@@ -75,6 +83,7 @@ enum SidebarSelection: Hashable {
 struct PreferencesShellV2: View {
     @State private var selection: SidebarSelection = .tab(.defaultSelection)
     @State private var searchQuery = ""
+    @Environment(\.colorScheme) private var colorScheme
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     private let navigation = PreferencesNavigation.shared
 
@@ -89,7 +98,11 @@ struct PreferencesShellV2: View {
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             sidebar
-                .navigationSplitViewColumnWidth(PreferencesWindowMetrics.sidebarWidth)
+                .navigationSplitViewColumnWidth(
+                    min: PreferencesWindowMetrics.sidebarWidth,
+                    ideal: PreferencesWindowMetrics.sidebarWidth,
+                    max: PreferencesWindowMetrics.sidebarWidth
+                )
                 .toolbar(removing: .sidebarToggle)
         } detail: {
             detail
@@ -120,10 +133,6 @@ struct PreferencesShellV2: View {
     private var sidebar: some View {
         List(selection: sidebarSelection) {
             Section {
-                searchField
-            }
-
-            Section {
                 ForEach(PreferencesTab.allCases) { tab in
                     Label(tab.titleKey.loco(), systemImage: tab.systemImage)
                         .tag(SidebarSelection.tab(tab))
@@ -137,20 +146,35 @@ struct PreferencesShellV2: View {
         }
         .listStyle(.sidebar)
         .scrollDisabled(true)
+        // An explicit frame as well as the column-width modifier. The modifier
+        // alone lost to a divider position AppKit had already persisted from an
+        // earlier drag, which is why the sidebar kept coming back ~150pt wide and
+        // truncating "About & Support". A hard frame is not overridable.
+        .frame(width: PreferencesWindowMetrics.sidebarWidth)
+        // Above the list, not the first row in it. As a row it inherited the
+        // section's own top spacing on top of the titlebar's safe area, which is
+        // what pushed it far below the traffic lights. As a safe-area inset it
+        // sits where a search field belongs — directly under the title bar — and
+        // its horizontal padding is matched to the sidebar's row inset by hand so
+        // the magnifying glass still lines up with the icons beneath it.
+        .safeAreaInset(edge: .top, spacing: 0) {
+            searchField
+                .padding(.horizontal, 10)
+                .padding(.bottom, 6)
+        }
     }
 
-    /// Deliberately a row INSIDE the list rather than a `safeAreaInset` above it.
+    /// The sidebar's search field.
     ///
-    /// As an inset it owned its own padding, which never matched the sidebar's row
-    /// insets — the magnifying glass sat visibly left of every row icon beneath it
-    /// — and it stacked its own vertical padding on top of the window's titlebar
-    /// safe area, leaving a dead gap above the field. Worse, it painted its own
-    /// `.ultraThinMaterial`, which now fights the real titlebar material the
-    /// window's toolbar draws.
+    /// It lived as the first ROW of the list for a while, to inherit the row
+    /// insets. That fixed the alignment and created a worse problem: a section's
+    /// top spacing stacks on the titlebar safe area, so the field floated well
+    /// below the traffic lights. It is an inset again, with the horizontal
+    /// padding matched to the sidebar's rows so the original alignment complaint
+    /// does not come back.
     ///
-    /// As a list row it inherits the same insets as everything else, so it cannot
-    /// drift out of alignment again. The sidebar sets `scrollDisabled`, so living
-    /// in the list costs it nothing — it can never scroll away.
+    /// Styled like the panel's other controls — a translucent fill with a top-lit
+    /// rim — rather than `.quaternary`, which is a flat swatch with no edge.
     private var searchField: some View {
         HStack(spacing: 6) {
             Image(systemName: "magnifyingglass")
@@ -174,11 +198,13 @@ struct PreferencesShellV2: View {
         .padding(.horizontal, 6)
         .padding(.vertical, 4)
         .background(
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(.quaternary)
+            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                .fill(Color.primary.opacity(0.08))
         )
-        // Never a selectable row — clicking it belongs to the text field.
-        .selectionDisabled()
+        .overlay(
+            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                .strokeBorder(PanelChrome.rim(colorScheme), lineWidth: 0.8)
+        )
     }
 
     private var sidebarSelection: Binding<SidebarSelection?> {
