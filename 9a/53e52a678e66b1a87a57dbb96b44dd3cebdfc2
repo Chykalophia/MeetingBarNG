@@ -1,0 +1,20 @@
+MeetingBarNG/UI/StatusBar/MeetingProgressRenderer.swift
+  s_b8ddb6808b4a67::t_35bff1a64d8b98 150-161,163,168-175,181-183,185-194
+  s_b8ddb6808b4a67::t_a11d908b276fd6 29-31,39-44
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "9a53e52a678e66b1a87a57dbb96b44dd3cebdfc2",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
