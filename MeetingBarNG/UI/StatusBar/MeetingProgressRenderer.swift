@@ -17,18 +17,35 @@ import AppKit
 /// meeting is "close": secondary while it is merely approaching, the accent
 /// colour once it is inside the imminence threshold, red while it runs.
 enum MeetingProgressStyleMetrics {
-    static func color(for phase: MeetingProgressPresentation.Phase) -> NSColor {
+    /// The TRACK — the indicator's chrome. Always the label colour, so it sits
+    /// in the same visual family as the menu bar's own text on any wallpaper.
+    static let trackColor: NSColor = .labelColor
+
+    /// The FILL — the indicator's state. Saturated, never a shade of the text.
+    ///
+    /// Two failed attempts are worth recording, because they failed in opposite
+    /// directions and the fix is neither:
+    ///
+    /// `secondaryLabelColor` was invisible — a dim grey against a tinted menu
+    /// bar. Copying the mockup's solid `#fff` fixed visibility and broke
+    /// legibility: the mockup assumes a DARK menu bar, where white at 34% reads
+    /// as a mid-tone under white text. Over a light teal bar the same value
+    /// lands right next to the text colour and the meeting name washes out.
+    ///
+    /// A saturated hue escapes the trap. It is visible on a bar of any
+    /// lightness, and white-on-accent is the contrast pairing macOS already uses
+    /// for a selected menu item. Depth carries the phase: half-strength while a
+    /// meeting is merely approaching, full once it is close, red while it runs.
+    static func fillColor(for phase: MeetingProgressPresentation.Phase) -> NSColor {
         switch phase {
-        case .upcoming: .secondaryLabelColor
+        case .upcoming: NSColor.controlAccentColor.withAlphaComponent(0.60)
         case .imminent: .controlAccentColor
         case .running: .systemRed
         }
     }
 
-    /// The unfilled part of the track. Faint enough to read as "space left"
-    /// rather than as a second bar — but not so faint it vanishes against a
-    /// tinted menu bar, which is where 0.22 was failing.
-    static let trackAlpha: CGFloat = 0.35
+    /// The unfilled part of the track — `rgba(255,255,255,.28)` in the mockup.
+    static let trackAlpha: CGFloat = 0.28
 
     static let underlineHeight: CGFloat = 2
     /// Lifts the underline off the very bottom of the item. Drawn flush it sits
@@ -36,12 +53,13 @@ enum MeetingProgressStyleMetrics {
     static let underlineBottomInset: CGFloat = 2
     static let ringLineWidth: CGFloat = 1.75
     static let capsuleLineWidth: CGFloat = 1
+    /// The capsule's own background and border, from the mockup's `.cap`:
+    /// `background: rgba(255,255,255,.20)`, `border: …,.26`.
+    static let capsuleBackgroundAlpha: CGFloat = 0.14
+    static let capsuleBorderAlpha: CGFloat = 0.26
     /// The filled part of the capsule's border, drawn heavier than the track so
     /// the boundary between done and remaining is unmistakable.
-    static let capsuleProgressLineWidth: CGFloat = 2
-    /// A whisper of interior tint so the capsule reads as a container. Stays low
-    /// because this overlay sits ON TOP of the title.
-    static let capsuleInteriorAlpha: CGFloat = 0.10
+    static let capsuleProgressLineWidth: CGFloat = 2.5
     /// Width of the standalone bar, in the status item's image slot.
     static let barSize = NSSize(width: 22, height: 5)
     /// Inset the ring keeps from the icon box so it never touches the glyph.
@@ -86,7 +104,7 @@ final class MeetingProgressOverlayView: NSView {
 
     override func draw(_: NSRect) {
         guard let presentation, style.drawsSomething, !bounds.isEmpty else { return }
-        let color = MeetingProgressStyleMetrics.color(for: presentation.phase)
+        let color = MeetingProgressStyleMetrics.fillColor(for: presentation.phase)
 
         switch style {
         case .none, .bar:
@@ -106,7 +124,8 @@ final class MeetingProgressOverlayView: NSView {
         let height = MeetingProgressStyleMetrics.underlineHeight
         let baseline = MeetingProgressStyleMetrics.underlineBottomInset
         let track = NSRect(x: 0, y: baseline, width: bounds.width, height: height)
-        color.withAlphaComponent(MeetingProgressStyleMetrics.trackAlpha).setFill()
+        MeetingProgressStyleMetrics.trackColor
+            .withAlphaComponent(MeetingProgressStyleMetrics.trackAlpha).setFill()
         NSBezierPath(roundedRect: track, xRadius: height / 2, yRadius: height / 2).fill()
 
         guard fraction > 0 else { return }
@@ -127,7 +146,8 @@ final class MeetingProgressOverlayView: NSView {
         let track = NSBezierPath()
         track.appendArc(withCenter: center, radius: radius, startAngle: 0, endAngle: 360)
         track.lineWidth = MeetingProgressStyleMetrics.ringLineWidth
-        color.withAlphaComponent(MeetingProgressStyleMetrics.trackAlpha).setStroke()
+        MeetingProgressStyleMetrics.trackColor
+            .withAlphaComponent(MeetingProgressStyleMetrics.trackAlpha).setStroke()
         track.stroke()
 
         guard fraction > 0 else { return }
@@ -149,43 +169,44 @@ final class MeetingProgressOverlayView: NSView {
 
     /// A capsule whose BORDER fills left to right.
     ///
-    /// The progress used to be a translucent wash across the capsule's interior,
-    /// and it was caught between two requirements: this overlay draws ON TOP of
-    /// the title (see the type's note — AppKit owns the text, so we cannot get
-    /// behind it), so a fill heavy enough to see also greyed the meeting name.
-    /// At the alpha that kept the text clean it was invisible.
+    /// The mockup fills the capsule's INTERIOR, and that cannot be copied here.
+    /// This overlay draws on top of the title — AppKit owns that text and we
+    /// deliberately do not re-render it — so an interior fill strong enough to
+    /// see also covers the meeting name. Tried both ends and neither works:
+    /// translucent enough to read through is invisible, opaque enough to see
+    /// turns "CLARITY BREAK" into blue-on-blue.
     ///
-    /// Filling the border instead removes the conflict entirely. Nothing is
-    /// drawn over the text, so the progress can be full strength, and a capsule
-    /// that fills round its own edge reads as progress at a glance. The interior
-    /// keeps a whisper of tint so the pill still reads as a container.
+    /// The border carries the progress instead. Nothing is drawn over the text,
+    /// so the fill can be full strength, and a capsule filling round its own edge
+    /// reads as progress at a glance. The interior keeps a faint track tint so
+    /// the pill still reads as a container.
     private func drawCapsule(fraction: Double, color: NSColor) {
         let rect = bounds.insetBy(dx: 1, dy: 1)
         guard rect.width > 4, rect.height > 4 else { return }
         let radius = rect.height / 2
         let outline = NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius)
 
-        // Interior hint — low enough that the title is untouched.
         NSGraphicsContext.saveGraphicsState()
         outline.addClip()
-        color.withAlphaComponent(MeetingProgressStyleMetrics.capsuleInteriorAlpha).setFill()
+        MeetingProgressStyleMetrics.trackColor
+            .withAlphaComponent(MeetingProgressStyleMetrics.capsuleBackgroundAlpha).setFill()
         rect.fill()
         NSGraphicsContext.restoreGraphicsState()
 
-        // The unfilled part of the border.
         outline.lineWidth = MeetingProgressStyleMetrics.capsuleLineWidth
-        color.withAlphaComponent(MeetingProgressStyleMetrics.trackAlpha).setStroke()
+        MeetingProgressStyleMetrics.trackColor
+            .withAlphaComponent(MeetingProgressStyleMetrics.capsuleBorderAlpha).setStroke()
         outline.stroke()
 
         guard fraction > 0 else { return }
-        // The filled part: the same path at full strength, clipped to how far
-        // along we are. Top and bottom edges advance together, which reads as one
-        // boundary sweeping right rather than as two separate lines growing.
+        // The same path at full strength, clipped to how far along we are. Top
+        // and bottom edges advance together, so it reads as one boundary sweeping
+        // right rather than two lines growing.
         NSGraphicsContext.saveGraphicsState()
         NSRect(
-            x: rect.minX - MeetingProgressStyleMetrics.capsuleLineWidth,
+            x: bounds.minX,
             y: bounds.minY,
-            width: rect.width * fraction + MeetingProgressStyleMetrics.capsuleLineWidth,
+            width: rect.minX + rect.width * fraction,
             height: bounds.height
         ).clip()
         let progress = NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius)
@@ -208,7 +229,7 @@ enum MeetingProgressRenderer {
     @MainActor
     static func ringImage(for presentation: MeetingProgressPresentation) -> NSImage {
         let side = MeetingProgressStyleMetrics.standaloneRingSide
-        let color = MeetingProgressStyleMetrics.color(for: presentation.phase)
+        let color = MeetingProgressStyleMetrics.fillColor(for: presentation.phase)
         let lineWidth = MeetingProgressStyleMetrics.ringLineWidth
 
         let image = NSImage(size: NSSize(width: side, height: side), flipped: false) { rect in
@@ -218,7 +239,8 @@ enum MeetingProgressRenderer {
             let track = NSBezierPath()
             track.appendArc(withCenter: center, radius: radius, startAngle: 0, endAngle: 360)
             track.lineWidth = lineWidth
-            color.withAlphaComponent(MeetingProgressStyleMetrics.trackAlpha).setStroke()
+            MeetingProgressStyleMetrics.trackColor
+                .withAlphaComponent(MeetingProgressStyleMetrics.trackAlpha).setStroke()
             track.stroke()
 
             guard presentation.fraction > 0 else { return true }
@@ -248,10 +270,11 @@ enum MeetingProgressRenderer {
     @MainActor
     static func barImage(for presentation: MeetingProgressPresentation) -> NSImage {
         let size = MeetingProgressStyleMetrics.barSize
-        let color = MeetingProgressStyleMetrics.color(for: presentation.phase)
+        let color = MeetingProgressStyleMetrics.fillColor(for: presentation.phase)
         let image = NSImage(size: size, flipped: false) { rect in
             let radius = rect.height / 2
-            color.withAlphaComponent(MeetingProgressStyleMetrics.trackAlpha).setFill()
+            MeetingProgressStyleMetrics.trackColor
+                .withAlphaComponent(MeetingProgressStyleMetrics.trackAlpha).setFill()
             NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius).fill()
 
             guard presentation.fraction > 0 else { return true }
