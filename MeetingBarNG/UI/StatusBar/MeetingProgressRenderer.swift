@@ -21,25 +21,27 @@ enum MeetingProgressStyleMetrics {
     /// in the same visual family as the menu bar's own text on any wallpaper.
     static let trackColor: NSColor = .labelColor
 
-    /// The FILL — the indicator's state. Saturated, never a shade of the text.
+    /// The FILL — the indicator's state.
     ///
-    /// Two failed attempts are worth recording, because they failed in opposite
-    /// directions and the fix is neither:
+    /// Monochrome, matching the menu bar's own text, with red reserved for a
+    /// meeting that is actually running. Three attempts got here:
     ///
-    /// `secondaryLabelColor` was invisible — a dim grey against a tinted menu
-    /// bar. Copying the mockup's solid `#fff` fixed visibility and broke
-    /// legibility: the mockup assumes a DARK menu bar, where white at 34% reads
-    /// as a mid-tone under white text. Over a light teal bar the same value
-    /// lands right next to the text colour and the meeting name washes out.
+    /// `secondaryLabelColor` was a dim grey and vanished. The mockup's solid
+    /// `#fff` was visible but, filled across the INTERIOR, washed out the title.
+    /// A saturated accent fixed both — and then failed on a teal menu bar,
+    /// because blue on blue-green has almost no contrast. Hue is not the robust
+    /// axis: the wallpaper picks the bar's tint, and it can sit anywhere,
+    /// including right on top of the user's accent colour.
     ///
-    /// A saturated hue escapes the trap. It is visible on a bar of any
-    /// lightness, and white-on-accent is the contrast pairing macOS already uses
-    /// for a selected menu item. Depth carries the phase: half-strength while a
-    /// meeting is merely approaching, full once it is close, red while it runs.
+    /// `labelColor` is. macOS already guarantees the menu bar's text is legible
+    /// against whatever is behind it — it flips the text between light and dark
+    /// to make sure — so drawing in that same colour inherits the guarantee for
+    /// free. Phase reads as brightness rather than hue, which survives any
+    /// wallpaper, and red still marks "this is happening now".
     static func fillColor(for phase: MeetingProgressPresentation.Phase) -> NSColor {
         switch phase {
-        case .upcoming: NSColor.controlAccentColor.withAlphaComponent(0.60)
-        case .imminent: .controlAccentColor
+        case .upcoming: NSColor.labelColor.withAlphaComponent(0.70)
+        case .imminent: .labelColor
         case .running: .systemRed
         }
     }
