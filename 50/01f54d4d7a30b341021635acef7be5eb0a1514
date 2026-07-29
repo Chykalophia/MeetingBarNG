@@ -1,0 +1,21 @@
+MeetingBarNG/Preferences/PreferencesShellV2.swift
+  s_b8ddb6808b4a67::t_fd0fd289ab9290 149-153
+  s_b8ddb6808b4a67::t_c9d72939fb13ac 38-46,101-105
+  s_b8ddb6808b4a67::t_e5dabc8e2cb789 86,154-164,167,169-174,176-177,201-206
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "5001f54d4d7a30b341021635acef7be5eb0a1514",
+  "prompts": {},
+  "sessions": {
+    "s_b8ddb6808b4a67": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d58564d2-ed4d-4dcf-a2aa-2337ce5f587f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
