@@ -26,8 +26,9 @@ enum MeetingProgressStyleMetrics {
     }
 
     /// The unfilled part of the track. Faint enough to read as "space left"
-    /// rather than as a second bar.
-    static let trackAlpha: CGFloat = 0.22
+    /// rather than as a second bar — but not so faint it vanishes against a
+    /// tinted menu bar, which is where 0.22 was failing.
+    static let trackAlpha: CGFloat = 0.35
 
     static let underlineHeight: CGFloat = 2
     /// Lifts the underline off the very bottom of the item. Drawn flush it sits
@@ -35,6 +36,12 @@ enum MeetingProgressStyleMetrics {
     static let underlineBottomInset: CGFloat = 2
     static let ringLineWidth: CGFloat = 1.75
     static let capsuleLineWidth: CGFloat = 1
+    /// The filled part of the capsule's border, drawn heavier than the track so
+    /// the boundary between done and remaining is unmistakable.
+    static let capsuleProgressLineWidth: CGFloat = 2
+    /// A whisper of interior tint so the capsule reads as a container. Stays low
+    /// because this overlay sits ON TOP of the title.
+    static let capsuleInteriorAlpha: CGFloat = 0.10
     /// Width of the standalone bar, in the status item's image slot.
     static let barSize = NSSize(width: 22, height: 5)
     /// Inset the ring keeps from the icon box so it never touches the glyph.
@@ -140,23 +147,51 @@ final class MeetingProgressOverlayView: NSView {
         arc.stroke()
     }
 
-    /// A capsule around the whole item whose fill creeps left to right. Kept at
-    /// low alpha and clipped to the capsule so the title stays readable through it.
+    /// A capsule whose BORDER fills left to right.
+    ///
+    /// The progress used to be a translucent wash across the capsule's interior,
+    /// and it was caught between two requirements: this overlay draws ON TOP of
+    /// the title (see the type's note — AppKit owns the text, so we cannot get
+    /// behind it), so a fill heavy enough to see also greyed the meeting name.
+    /// At the alpha that kept the text clean it was invisible.
+    ///
+    /// Filling the border instead removes the conflict entirely. Nothing is
+    /// drawn over the text, so the progress can be full strength, and a capsule
+    /// that fills round its own edge reads as progress at a glance. The interior
+    /// keeps a whisper of tint so the pill still reads as a container.
     private func drawCapsule(fraction: Double, color: NSColor) {
-        let rect = bounds.insetBy(dx: 0.5, dy: 1)
+        let rect = bounds.insetBy(dx: 1, dy: 1)
         guard rect.width > 4, rect.height > 4 else { return }
         let radius = rect.height / 2
         let outline = NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius)
 
+        // Interior hint — low enough that the title is untouched.
+        NSGraphicsContext.saveGraphicsState()
+        outline.addClip()
+        color.withAlphaComponent(MeetingProgressStyleMetrics.capsuleInteriorAlpha).setFill()
+        rect.fill()
+        NSGraphicsContext.restoreGraphicsState()
+
+        // The unfilled part of the border.
         outline.lineWidth = MeetingProgressStyleMetrics.capsuleLineWidth
         color.withAlphaComponent(MeetingProgressStyleMetrics.trackAlpha).setStroke()
         outline.stroke()
 
         guard fraction > 0 else { return }
+        // The filled part: the same path at full strength, clipped to how far
+        // along we are. Top and bottom edges advance together, which reads as one
+        // boundary sweeping right rather than as two separate lines growing.
         NSGraphicsContext.saveGraphicsState()
-        outline.addClip()
-        color.withAlphaComponent(0.28).setFill()
-        NSRect(x: rect.minX, y: rect.minY, width: rect.width * fraction, height: rect.height).fill()
+        NSRect(
+            x: rect.minX - MeetingProgressStyleMetrics.capsuleLineWidth,
+            y: bounds.minY,
+            width: rect.width * fraction + MeetingProgressStyleMetrics.capsuleLineWidth,
+            height: bounds.height
+        ).clip()
+        let progress = NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius)
+        progress.lineWidth = MeetingProgressStyleMetrics.capsuleProgressLineWidth
+        color.setStroke()
+        progress.stroke()
         NSGraphicsContext.restoreGraphicsState()
     }
 }
