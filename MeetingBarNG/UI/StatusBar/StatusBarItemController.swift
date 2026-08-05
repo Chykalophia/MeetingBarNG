@@ -35,7 +35,10 @@
 //  actions" menu (open link from clipboard, toggle the menu-bar meeting title,
 //  camera check, world clock, dismiss / remove all dismissals) to those same
 //  @objc handlers, since the panel became the default dropdown and the NSMenu's
-//  quick-actions subsection had no counterpart there.
+//  quick-actions subsection had no counterpart there. Add the menu bar's Join
+//  chip: draw its capsule as an overlay on the status-item button, and route a
+//  left-click inside that capsule to joinNextMeeting() instead of to the
+//  dropdown.
 //
 
 import Cocoa
@@ -89,6 +92,11 @@ struct StatusBarDependencies {
     var editEvent: @MainActor (MBEvent) -> Void = { _ in }
     var deleteEvent: @MainActor (MBEvent, EventEditSpan) -> Void = { _, _ in }
     var quit: @MainActor () -> Void = {}
+    #if DEBUG
+    /// Opens the development harness. Guarded so the release build's dependency
+    /// struct has no member for a tool that does not exist in it.
+    var openDebugHarness: @MainActor () -> Void = {}
+    #endif
 }
 
 /// creates the menu in the system status bar, creates the menu items and controls the whole lifecycle.
@@ -100,6 +108,19 @@ final class StatusBarItemController {
     /// reused. Held weakly: the button owns it as a subview, and a strong ref
     /// here would outlive a status item that got torn down and rebuilt.
     private weak var meetingProgressOverlay: MeetingProgressOverlayView?
+
+    /// The Join chip's capsule, added and held on the same terms.
+    private weak var actionChipOverlay: MenuBarActionChipOverlayView?
+
+    /// Where a left-click means "join" rather than "open the panel", in the
+    /// status-item button's coordinates. `nil` whenever no chip is drawn — which
+    /// is what keeps the click behaviour identical to before whenever the feature
+    /// is off, the meeting is not close yet, or it has nothing to join.
+    ///
+    /// Readable (not settable) outside the controller so a test can assert the
+    /// click target actually lands on a real status item, which is the half of
+    /// this the pure geometry tests cannot reach.
+    private(set) var actionChipHitRect: CGRect?
 
     /// Current event list, driven by the AppModel state.
     /// A non-nil `_eventsOverride` takes precedence (used by tests to inject
@@ -173,6 +194,8 @@ final class StatusBarItemController {
             .menuBarTokens, .menuBarCountdownStyle, .menuBarDateStyle,
             .menuBarProgressStyle, .menuBarWorldClockTimeZone, .menuBarWorldClockLabel,
             .menuBarTwoLineLayout,
+            .menuBarShowJoinAction, .menuBarJoinActionLeadMinutes,
+            .menuBarCountdownLeadMinutes,
             .showGreetingInMenu, .greetingName,
             .showRemindersInMenu, .remindersIncludeOverdue,
             .dropdownModuleOrder, .showMeetingControlInMenu,
@@ -291,7 +314,30 @@ final class StatusBarItemController {
         // it twice. Act on the down edge (and on the shortcut's synthetic nil
         // event) only.
         guard event?.type != .leftMouseUp else { return }
+
+        // The Join chip is drawn INTO the item's title, not added as a control:
+        // a status item is one button, and its click opens the panel. So the
+        // chip's rect is tested here instead. The same rect the overlay drew, so
+        // the target cannot drift from the capsule the user is aiming at.
+        if let event, isActionChipClick(event) {
+            joinNextMeeting()
+            return
+        }
         toggleDropdownPanel()
+    }
+
+    /// Whether `event` landed on the Join chip.
+    private func isActionChipClick(_ event: NSEvent) -> Bool {
+        guard let hitRect = actionChipHitRect,
+              let button = statusItem?.button,
+              button.window != nil
+        else { return false }
+        // Modified clicks stay the panel's: ⌥-click and friends are how the rest
+        // of the app reaches alternates, and joining on one would be a surprise.
+        guard event.modifierFlags.isDisjoint(with: .deviceIndependentFlagsMask) else {
+            return false
+        }
+        return hitRect.contains(button.convert(event.locationInWindow, from: nil))
     }
 
     /// Opens (or closes, when already open) the SwiftUI dropdown panel with a
@@ -410,6 +456,18 @@ final class StatusBarItemController {
         appState.events = events
         let menuState = StatusBarMenuState.make(from: appState)
         let menu = QuickActionsMenu.build(target: self, state: menuState)
+        #if DEBUG
+        // Appended here rather than inside `QuickActionsMenu.build`, so the
+        // shipping menu builder never carries a case for a development tool.
+        menu.addItem(.separator())
+        let harness = NSMenuItem(
+            title: "Debug harness…",
+            action: #selector(openDebugHarnessAction),
+            keyEquivalent: ""
+        )
+        harness.target = self
+        menu.addItem(harness)
+        #endif
         statusItem.menu = menu
         statusItem.button?.performClick(nil)
         statusItem.menu = nil
@@ -516,13 +574,33 @@ final class StatusBarItemController {
     private func scheduleNextTick(now: Date, event: MBEvent?) {
         tickTimer?.invalidate()
 
+        var transitions = StatusBarTickPolicy.transitionDates(
+            eventStart: event?.startDate,
+            eventEnd: event?.endDate,
+            ongoingGracePeriod: Defaults[.ongoingEventVisibility].gracePeriod
+        )
+        // The instant the Join chip is due. The minute boundary would show it
+        // within 60 seconds anyway; this is what makes a meeting starting at
+        // 10:00:30 get its full two minutes rather than one and a half.
+        if let start = event?.startDate {
+            if let due = MenuBarJoinActionPolicy.appearanceDate(
+                eventStart: start,
+                settings: .current
+            ) {
+                transitions.append(due)
+            }
+            // Same reasoning for the countdown block's own lead time.
+            if let due = MenuBarCompositionPolicy.countdownAppearanceDate(
+                eventStart: start,
+                leadMinutes: Defaults[.menuBarCountdownLeadMinutes]
+            ) {
+                transitions.append(due)
+            }
+        }
+
         let fireDate = StatusBarTickPolicy.nextFireDate(
             now: now,
-            transitions: StatusBarTickPolicy.transitionDates(
-                eventStart: event?.startDate,
-                eventEnd: event?.endDate,
-                ongoingGracePeriod: Defaults[.ongoingEventVisibility].gracePeriod
-            ),
+            transitions: transitions,
             calendar: statusBarCalendar()
         )
 
@@ -574,6 +652,142 @@ final class StatusBarItemController {
 
         ensureStatusBarButtonIsVisible(button)
         renderMeetingProgress(on: button)
+        // Last: the chip is measured against the button's FINAL image and title,
+        // and `renderMeetingProgress` can still claim the image slot above.
+        renderActionChip(on: button, presentation: presentation)
+
+        #if DEBUG
+        lastRenderedPresentation = presentation
+        #endif
+    }
+
+    #if DEBUG
+    @objc
+    func openDebugHarnessAction() {
+        dependencies.openDebugHarness()
+    }
+
+    /// The last presentation drawn, for the debug harness's readout. Kept behind
+    /// the flag so the release build does not retain a presentation nothing reads.
+    private var lastRenderedPresentation: StatusBarPresentation?
+
+    /// Replaces the event list with synthetic ones, or clears back to the real
+    /// calendar when handed `nil`.
+    ///
+    /// The `events` setter cannot express "stop overriding" — it takes a
+    /// non-optional array — so the harness needs this rather than the public
+    /// seam. Redraws immediately so a click in the harness moves the menu bar
+    /// without waiting for the next tick.
+    func debugOverrideEvents(_ events: [MBEvent]?) {
+        _eventsOverride = events
+        updateTitle()
+    }
+
+    /// What the menu bar is currently drawing, for the harness's readout.
+    func debugRenderSummary() -> DebugRenderSummary {
+        DebugRenderSummary(
+            firstLine: lastRenderedPresentation?.title ?? "",
+            secondLine: lastRenderedPresentation?.time ?? "",
+            actionLabel: lastRenderedPresentation?.actionLabel ?? "",
+            chipRect: actionChipHitRect,
+            buttonWidth: statusItem?.button?.bounds.width ?? 0,
+            eventCount: events.count,
+            isOverridden: _eventsOverride != nil,
+            hasSelectedCalendars: !Defaults[.selectedCalendarIDs].isEmpty
+        )
+    }
+    #endif
+
+    // MARK: - Join chip (menu bar)
+
+    /// Positions the Join chip's capsule and its click target, or clears both.
+    ///
+    /// The chip is the trailing run of the string AppKit just laid out, which is
+    /// the whole trick: measuring that run gives its width, and the presenter
+    /// guarantees it is last (`composedLines`), so nothing has to be re-laid-out
+    /// to find it.
+    private func renderActionChip(on button: NSStatusBarButton, presentation: StatusBarPresentation) {
+        let label = presentation.actionLabel
+        let title = button.attributedTitle
+        let labelLength = label.utf16.count
+
+        guard !label.isEmpty, title.length >= labelLength, labelLength > 0 else {
+            clearActionChip()
+            return
+        }
+
+        // Verify the trailing run really is the label. Belt and braces: if the
+        // renderer ever appends something after the chip, this drops the chip
+        // rather than putting a live click target over the wrong glyphs.
+        let range = NSRange(location: title.length - labelLength, length: labelLength)
+        let trailing = title.attributedSubstring(from: range)
+        guard trailing.string == label else {
+            clearActionChip()
+            return
+        }
+
+        let isStacked = presentation.layout == .stacked
+        let lastLine = isStacked
+            ? title.attributedSubstring(from: lastLineRange(of: title))
+            : title
+        let hasImage = button.imagePosition != .noImage && button.image != nil
+
+        guard let chip = MenuBarActionChipGeometry.rect(
+            MenuBarActionChipMetrics(
+                buttonBounds: button.bounds,
+                imageWidth: hasImage ? (button.image?.size.width ?? 0) : 0,
+                imageIsTrailing: button.imagePosition == .imageRight,
+                titleWidth: renderedWidth(of: title),
+                lineWidth: renderedWidth(of: lastLine),
+                labelWidth: renderedWidth(of: trailing),
+                isStacked: isStacked
+            )
+        ) else {
+            clearActionChip()
+            return
+        }
+
+        let overlay = actionChipOverlay ?? {
+            let view = MenuBarActionChipOverlayView()
+            view.autoresizingMask = [.width, .height]
+            button.addSubview(view)
+            actionChipOverlay = view
+            return view
+        }()
+        overlay.frame = button.bounds
+        overlay.chipRect = chip
+
+        actionChipHitRect = MenuBarActionChipGeometry.hitRect(chip: chip, buttonBounds: button.bounds)
+    }
+
+    private func clearActionChip() {
+        actionChipOverlay?.chipRect = nil
+        actionChipHitRect = nil
+    }
+
+    /// Width of the widest line, so a two-line title measures as it draws.
+    /// `NSAttributedString.size()` does not wrap, and treats the newline as part
+    /// of one long run.
+    private func renderedWidth(of string: NSAttributedString) -> CGFloat {
+        guard string.length > 0 else { return 0 }
+        return ceil(
+            string.boundingRect(
+                with: CGSize(width: CGFloat.greatestFiniteMagnitude, height: .greatestFiniteMagnitude),
+                options: [.usesLineFragmentOrigin, .usesFontLeading]
+            ).width
+        )
+    }
+
+    /// The range of the text after the last newline — the stack's detail line,
+    /// which is the one the chip rides.
+    private func lastLineRange(of string: NSAttributedString) -> NSRange {
+        let text = string.string as NSString
+        let newline = text.rangeOfCharacter(from: .newlines, options: .backwards)
+        guard newline.location != NSNotFound else {
+            return NSRange(location: 0, length: string.length)
+        }
+        let start = newline.location + newline.length
+        return NSRange(location: start, length: string.length - start)
     }
 
     // MARK: - Meeting progress (menu bar)

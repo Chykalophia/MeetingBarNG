@@ -35,7 +35,12 @@ enum StatusBarTitleMode: Equatable {
     /// An upcoming event exists and should be rendered with its title.
     case nextEvent
     /// An upcoming event exists but starts beyond the configured threshold.
-    /// Render an "alarm clock" hint instead of the event title.
+    /// Drop the event and render the status icon in its place — the calendar
+    /// glyph, or the app icon when that is the chosen icon format (see
+    /// `StatusBarIconPolicy`), plus whatever event-independent blocks the user
+    /// composed. NOT an alarm-clock glyph: the app ships no such asset, and this
+    /// comment claimed one for long enough that the Menu Bar pane's help text
+    /// repeated it to users.
     case afterThreshold
 }
 
@@ -75,6 +80,10 @@ struct StatusBarEventPresentationInput: Equatable {
     let endDate: Date
     let meetingService: MeetingServices?
     let participation: StatusBarEventParticipation
+    /// Whether the event has somewhere to join. Only the Join chip reads it, and
+    /// it defaults to `false` so every existing construction site (and test) is
+    /// unchanged — a meeting is opt-in joinable, never assumed to be.
+    var hasMeetingLink: Bool = false
 }
 
 struct StatusBarPresenterSettings: Equatable {
@@ -116,6 +125,15 @@ struct StatusBarPresentation: Equatable {
     /// instead of being shouted about a minute before a meeting you are not
     /// attending.
     let emphasizeTitle: Bool
+    /// The Join chip's text, already appended to the end of the last rendered
+    /// line, or `""` when there is no chip. Composed path only — see
+    /// `composedPresentation`.
+    ///
+    /// Carried on the presentation rather than left for the renderer to work out
+    /// because the renderer needs two things from it that only the presenter
+    /// knows: that the chip is the trailing run of the drawn string (so it can be
+    /// measured), and that a click there means join rather than open the panel.
+    let actionLabel: String
     let removeDeliveredNotifications: Bool
 
     init(
@@ -128,8 +146,10 @@ struct StatusBarPresentation: Equatable {
         layout: StatusBarTitleLayout,
         titleStyle: StatusBarTitleStyle,
         emphasizeTitle: Bool = false,
+        actionLabel: String = "",
         removeDeliveredNotifications: Bool
     ) {
+        self.actionLabel = actionLabel
         self.emphasizeTitle = emphasizeTitle
         self.mode = mode
         self.title = title
@@ -662,6 +682,13 @@ struct MenuBarComposedSettings: Equatable {
     let presentation: StatusBarPresentationSettings
     let title: StatusBarTitleSettings
     let countdownStyle: CountdownStyle
+    /// How early the countdown starts counting; `0` is no limit.
+    ///
+    /// Defaulted so the memberwise init stays source-compatible, and defaulted to
+    /// the value that preserves the block's original behaviour rather than to
+    /// something merely convenient — a new setting should not move anyone's menu
+    /// bar until they ask it to.
+    var countdownLeadMinutes: Int = 0
     let dateStyle: MenuBarDateStyle
     let progressStyle: MenuBarProgressStyle
     let use24HourClock: Bool
@@ -687,6 +714,9 @@ struct MenuBarComposedSettings: Equatable {
     /// path, so it silently did nothing for anyone who composed their menu bar;
     /// implementing it here is what makes the deletion lossless.
     var twoLines: Bool = false
+    /// The Join chip appended after every block. Defaults to off so the
+    /// memberwise init stays source-compatible; production always passes it.
+    var joinAction: MenuBarJoinActionSettings = .disabled
 }
 
 /// Pure formatters for the new tokens. Hostless and fully unit-tested.
@@ -695,6 +725,44 @@ enum MenuBarCompositionPolicy {
     /// user setting yet) so the composer stays simple; ~1/8-cell resolution is
     /// plenty for a menu-bar day/year indicator.
     static let progressBarWidth = 8
+
+    /// Whether the Countdown block should render at all yet.
+    ///
+    /// A countdown is only information while it is actionable. At three hours out
+    /// it is a number that changes every minute and tells you nothing you would
+    /// act on; inside the last hour it is the reason the menu bar is there. This
+    /// is the line between the two, and the block simply does not draw before it.
+    ///
+    /// Composes with, rather than duplicates, the pane's "keep the menu bar quiet"
+    /// threshold. That one drops the WHOLE event back to the status icon — title
+    /// and all — so it answers "should this meeting be on screen"; this answers "should
+    /// it be counting". Setting only this one leaves the meeting named all day and
+    /// silent until it matters, which the quiet threshold cannot express.
+    ///
+    /// - Parameter leadMinutes: `0` (or any non-positive value, so a corrupt
+    ///   preference degrades to showing MORE rather than silently blanking the
+    ///   block) means no limit — the block's original behaviour.
+    static func showsCountdown(
+        start: Date,
+        end: Date,
+        now: Date,
+        leadMinutes: Int
+    ) -> Bool {
+        guard leadMinutes > 0 else { return true }
+        // Same "close enough to care" rule the Join chip and the bold emphasis
+        // use, so a running meeting always counts down to its end no matter how
+        // tight the lead is.
+        return EventActionProminence.isImminent(
+            start: start, end: end, now: now, leadMinutes: leadMinutes
+        )
+    }
+
+    /// The instant the countdown is due to appear, for the redraw clock, or `nil`
+    /// when there is no limit and so no transition to wake up for.
+    static func countdownAppearanceDate(eventStart: Date, leadMinutes: Int) -> Date? {
+        guard leadMinutes > 0 else { return nil }
+        return eventStart.addingTimeInterval(-Double(leadMinutes) * 60)
+    }
 
     /// Bare countdown between two dates. Returns an empty string for a
     /// non-positive interval so a stale/negative countdown never renders.
@@ -898,7 +966,13 @@ extension StatusBarPresenter {
             }
         }
 
-        let lines = composedLines(segments: segments, settings: settings)
+        let actionLabel = MenuBarJoinActionPolicy.label(
+            event: nextEvent,
+            settings: settings.joinAction,
+            now: now
+        )
+
+        let lines = composedLines(segments: segments, actionLabel: actionLabel, settings: settings)
         let layout: StatusBarTitleLayout
         if lines.second != nil {
             layout = .stacked
@@ -920,6 +994,7 @@ extension StatusBarPresenter {
                 pendingDisplay: settings.pendingDisplay,
                 tentativeDisplay: settings.tentativeDisplay
             ),
+            actionLabel: actionLabel,
             removeDeliveredNotifications: false
         )
     }
@@ -932,18 +1007,26 @@ extension StatusBarPresenter {
     /// there is no title, or nothing to put under it, the request cannot mean
     /// anything, so the strip stays on one line rather than rendering an empty
     /// second row.
+    ///
+    /// The Join chip is appended after everything else on whichever line is
+    /// drawn last — the one line, or the detail line of a stack. It is not a
+    /// block and has no place in the user's order: it is the thing you press, so
+    /// it goes where a button goes, at the end. The renderer relies on this,
+    /// measuring the chip as the trailing run of the string it draws.
     private static func composedLines(
         segments: [(kind: MenuBarTokenKind, text: String)],
+        actionLabel: String,
         settings: MenuBarComposedSettings
     ) -> (first: String, second: String?) {
-        let joined = segments.map(\.text).joined(separator: settings.tokenSeparator)
+        let action = actionLabel.isEmpty ? [] : [actionLabel]
+        let joined = (segments.map(\.text) + action).joined(separator: settings.tokenSeparator)
         guard settings.twoLines,
               let titleIndex = segments.firstIndex(where: { $0.kind == .title })
         else { return (joined, nil) }
 
-        let rest = segments.enumerated()
+        let rest = (segments.enumerated()
             .filter { $0.offset != titleIndex }
-            .map(\.element.text)
+            .map(\.element.text) + action)
             .joined(separator: settings.tokenSeparator)
         guard !rest.isEmpty else { return (joined, nil) }
         return (segments[titleIndex].text, rest)
@@ -971,6 +1054,12 @@ extension StatusBarPresenter {
                 calendar: calendar
             ).title
         case .countdown:
+            guard MenuBarCompositionPolicy.showsCountdown(
+                start: nextEvent.startDate,
+                end: nextEvent.endDate,
+                now: now,
+                leadMinutes: settings.countdownLeadMinutes
+            ) else { return "" }
             let isActive = nextEvent.startDate <= now && nextEvent.endDate > now
             let target = isActive ? nextEvent.endDate : nextEvent.startDate
             return MenuBarCompositionPolicy.countdownText(

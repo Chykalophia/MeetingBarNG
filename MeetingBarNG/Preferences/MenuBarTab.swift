@@ -68,6 +68,7 @@ struct MenuBarTab: View {
     @Default(.eventTitleFormat) private var eventTitleFormat
     @Default(.statusbarEventTitleLength) private var statusbarEventTitleLength
     @Default(.menuBarCountdownStyle) private var menuBarCountdownStyle
+    @Default(.menuBarCountdownLeadMinutes) private var menuBarCountdownLeadMinutes
     @Default(.menuBarDateStyle) private var menuBarDateStyle
     @Default(.menuBarProgressStyle) private var menuBarProgressStyle
     /// The MEETING indicator, not the day/year block above it — see
@@ -80,6 +81,10 @@ struct MenuBarTab: View {
     @Default(.showEventMaxTimeUntilEventEnabled) private var showEventMaxTimeUntilEventEnabled
     @Default(.showEventMaxTimeUntilEventThreshold) private var showEventMaxTimeUntilEventThreshold
     @Default(.menuBarHighlightImminentEvent) private var menuBarHighlightImminentEvent
+
+    // The Join chip.
+    @Default(.menuBarShowJoinAction) private var menuBarShowJoinAction
+    @Default(.menuBarJoinActionLeadMinutes) private var menuBarJoinActionLeadMinutes
 
     // Which block's gear popover is open.
     @State private var gearOpenBlock: MenuBarTokenKind?
@@ -97,6 +102,7 @@ struct MenuBarTab: View {
         PreferencesGroupedForm {
             presetSection
             blocksSection
+            joinActionSection
             quietSection
             meetingProgressSection
             linesSection
@@ -328,6 +334,22 @@ struct MenuBarTab: View {
                     Text("preferences_menubar_countdown_style_full".loco()).tag(CountdownStyle.full)
                     Text("preferences_menubar_countdown_style_digital".loco()).tag(CountdownStyle.digital)
                 }
+                Divider()
+                Text("preferences_menubar_countdown_lead_title".loco())
+                    .font(.subheadline.weight(.medium))
+                PresetNumberPicker(
+                    presets: [0, 15, 30, 60, 120],
+                    // 0 is not "0 minutes before", it is "no limit" — the block's
+                    // original behaviour, and the one preset that has to be
+                    // spelled out rather than shown as a number.
+                    presetLabel: { $0 == 0 ? "preferences_menubar_countdown_lead_always".loco() : "\($0)" },
+                    customLabel: "preferences_preset_custom".loco(),
+                    value: $menuBarCountdownLeadMinutes,
+                    range: 0 ... 720,
+                    step: 5,
+                    stepperLabel: { "preferences_menubar_countdown_lead_stepper".loco($0) },
+                    example: "preferences_menubar_countdown_lead_example".loco()
+                )
 
             case .date:
                 Picker("preferences_menubar_date_style_title".loco(), selection: dateStyle) {
@@ -419,6 +441,45 @@ struct MenuBarTab: View {
         let image = MenuStyleConstants.iconNamed(name)
         image.size = NSSize(width: 16, height: 16)
         return image
+    }
+
+    // MARK: - Join chip
+
+    /// The one thing in the menu bar you can press.
+    ///
+    /// Not a block, and its own section rather than a row in the block list, for
+    /// a reason worth stating: every block is a piece of information you arrange,
+    /// and this is a control. It has no place in the order — a button goes at the
+    /// end — and it is the only part of the item where a click does something
+    /// other than open the dropdown, which is worth its own heading.
+    ///
+    /// The lead time is a key of its own rather than the shared
+    /// `eventActionHighlightMinutes`: that one decides how things LOOK once a
+    /// meeting is near, and folding the chip into it would mean you could not
+    /// keep the bolding without also taking the button.
+    private var joinActionSection: some View {
+        Section(header: Text("preferences_menubar_join_action_title".loco())) {
+            Toggle(
+                "preferences_menubar_join_action_toggle".loco(),
+                isOn: $menuBarShowJoinAction
+            )
+            .annotation("preferences_menubar_join_action_help")
+
+            PresetNumberPicker(
+                presets: [0, 2, 5, 15],
+                // Same presets and same spelled-out zero as the dropdown's
+                // highlight lead time, which is the control this most resembles.
+                // 0 is not "no lead time" to a reader, it is "only once it runs".
+                presetLabel: { $0 == 0 ? "preferences_menubar_join_action_now".loco() : "\($0)" },
+                customLabel: "preferences_preset_custom".loco(),
+                value: $menuBarJoinActionLeadMinutes,
+                range: 0 ... 120,
+                step: 1,
+                stepperLabel: { "preferences_menubar_join_action_stepper".loco($0) },
+                example: "preferences_menubar_join_action_example".loco(),
+                isEnabled: menuBarShowJoinAction
+            )
+        }
     }
 
     // MARK: - Quiet until a meeting is close

@@ -6,7 +6,8 @@
 //  Copyright © 2020 Andrii Leitsius. All rights reserved.
 //
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
-//  add persistence keys for the composable menu bar, the composable menu
+//  add persistence keys for the composable menu bar (including its Join chip),
+//  the composable menu
 //  dropdown (dropdownModuleOrder + per-module enabled bools), and Apple
 //  Reminders in the menu; add the calendar-window keys (calendarGridMode,
 //  dimWeekendsInCalendar);
@@ -89,6 +90,12 @@ extension Defaults.Keys {
     static let menuBarTokens = Key<[String]>("menuBarTokens", default: [])
     static let menuBarCountdownStyle = Key<String>(
         "menuBarCountdownStyle", default: CountdownStyle.full.rawValue)
+    // How early the Countdown block starts counting. `0` means no limit, which is
+    // what the block has always done — so the default cannot change any existing
+    // menu bar. Distinct from `showEventMaxTimeUntilEventThreshold`, which hides
+    // the whole event (title included) behind the status icon; this hides only the
+    // countdown, so the meeting still has a name on screen all day.
+    static let menuBarCountdownLeadMinutes = Key<Int>("menuBarCountdownLeadMinutes", default: 0)
     static let menuBarDateStyle = Key<String>(
         "menuBarDateStyle", default: MenuBarDateStyle.medium.rawValue)
     static let menuBarProgressStyle = Key<String>(
@@ -109,6 +116,17 @@ extension Defaults.Keys {
         "menuBarTimeFormatMigrated",
         default: false
     )
+    // The menu bar's Join chip. Deliberately NOT a `MenuBarTokenKind`: a block
+    // would be off for everyone who already has a stored arrangement, and
+    // switching it on for them would mean a second migration rewriting their
+    // block order. This is a plain toggle whose chip always renders last, so it
+    // ships on without touching anyone's layout.
+    static let menuBarShowJoinAction = Key<Bool>("menuBarShowJoinAction", default: true)
+    // Minutes before the start at which the chip appears; 0 ⇒ only while the
+    // meeting runs. Its own key rather than `eventActionHighlightMinutes`
+    // (also 2): that one decides how things are STYLED once they are near, and
+    // reusing it would mean you could not have the bolding without the chip.
+    static let menuBarJoinActionLeadMinutes = Key<Int>("menuBarJoinActionLeadMinutes", default: 2)
 
     // World-clock panel (MeetingBarNG): the multi-zone panel window's chosen
     // zones, stored as time-zone identifiers (labels are derived at the host
