@@ -1,0 +1,106 @@
+MeetingBarNG/App/WindowCoordinator.swift
+  s_69ec74a50b1afd::t_6162b219506cf7 592-629
+  s_69ec74a50b1afd::t_e015e4ace64c2d 403
+MeetingBarNG/Preferences/SettingsIndex.swift
+  s_69ec74a50b1afd::t_9451dc9c233b99 333-342
+  s_69ec74a50b1afd::t_d873518fbd605a 310-316
+  s_69ec74a50b1afd::t_30c7cf3d83322d 309
+  s_69ec74a50b1afd::t_714804b0600cf9 332
+MeetingBarNG/App/DebugHarness.swift
+  s_69ec74a50b1afd::t_2fde1c40cdf4fd 77-90
+  s_69ec74a50b1afd::t_2dd43185490370 47,53-55
+  s_69ec74a50b1afd::t_a3c3b292bdd76f 1-46,48-52,56-76,91-265,274-282,285-312
+  s_69ec74a50b1afd::t_eec2f76965ba2c 266-273
+  s_69ec74a50b1afd::t_324104be4025ef 283-284
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_69ec74a50b1afd::t_5b87955ed2d3a6 262-267
+  s_69ec74a50b1afd::t_4b6f5cd7d5a67e 259
+  s_69ec74a50b1afd::t_e586f6813f0448 268-271
+MeetingBarNG/UI/StatusBar/MenuBarActionChipView.swift
+  s_69ec74a50b1afd::t_3a5b8b02b65fc1 1-66
+MeetingBarNG/UI/StatusBar/StatusBarItemController.swift
+  s_69ec74a50b1afd::t_cc564fe3a8634e 317-325,329-336,338-340
+  s_69ec74a50b1afd::t_fe3e0cbf18f407 577-584,599-600,603
+  s_69ec74a50b1afd::t_f4c6ce7ef7ef97 459-470
+  s_69ec74a50b1afd::t_03a85e49a62496 695-696
+  s_69ec74a50b1afd::t_bbca1e9cd0fb7e 38-41
+  s_69ec74a50b1afd::t_e84293decee62e 198
+  s_69ec74a50b1afd::t_7c5c41ab30602f 119-123
+  s_69ec74a50b1afd::t_e6d310572df302 112-118,124
+  s_69ec74a50b1afd::t_81decc864ba533 341,655-657,662,700-790
+  s_69ec74a50b1afd::t_2a3411966a3efb 658-661,663-664,670-694,697-699
+  s_69ec74a50b1afd::t_0a62ec3f439eb2 197
+  s_69ec74a50b1afd::t_ba561328fdfd9a 665-669
+  s_69ec74a50b1afd::t_211b72e0412a95 337
+  s_69ec74a50b1afd::t_1578ea781e13ba 95-99
+  s_69ec74a50b1afd::t_13420800280d23 585-598
+  s_69ec74a50b1afd::t_8bca910ad3c75b 342
+MeetingBarNG/UI/StatusBar/StatusBarPresentation+MeetingBar.swift
+  s_69ec74a50b1afd::t_aa83af574a5b09 83-96
+  s_69ec74a50b1afd::t_a8106b768e0a7c 222
+  s_69ec74a50b1afd::t_3d67fb495e57d2 235-236
+MeetingBarLogicTests/MenuBarCountdownLeadTests.swift
+  s_69ec74a50b1afd::t_97ce99fcae677e 168-174
+  s_69ec74a50b1afd::t_7ab5e2e903d670 1-167,175-192
+MeetingBarNGTests/StatusBarItem/DebugHarnessTests.swift
+  s_69ec74a50b1afd::t_b3fda9eb8860aa 1-177
+MeetingBarNGTests/StatusBarItem/MenuBarActionChipRenderingTests.swift
+  s_69ec74a50b1afd::t_e24df872b7c375 1-162
+MeetingBarNG/UI/StatusBar/MenuBarJoinAction.swift
+  s_69ec74a50b1afd::t_e91b091043f31f 1-90,112-114,122-127,129,134-142,144,147-152,179,184,186-189,191,193-196
+  s_69ec74a50b1afd::t_4cfc5be5a43cba 91-111,115-121,128,130-133,143,145-146,153-178,180-183,185,190,192
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_69ec74a50b1afd::t_407a7566f2be33 93-95,97-98
+  s_69ec74a50b1afd::t_744ba04eebe633 9-10
+  s_69ec74a50b1afd::t_6de3e8dcaa4e9d 119-129
+  s_69ec74a50b1afd::t_bf1d3f3ed18c05 96
+MeetingBarNG/UI/StatusBar/StatusBarPresentation.swift
+  s_69ec74a50b1afd::t_0becfc25d7da2c 1057-1062
+  s_69ec74a50b1afd::t_0e27ce2e046bdd 129-130
+  s_69ec74a50b1afd::t_5c068a12772b47 969-975,997
+  s_69ec74a50b1afd::t_08fc5d75fdaad5 38-43
+  s_69ec74a50b1afd::t_403ec52f8039af 128,131-136,149,152
+  s_69ec74a50b1afd::t_f9c0051dbb01e9 729-736,739-766
+  s_69ec74a50b1afd::t_2c03ce1f7b8a8b 717-719
+  s_69ec74a50b1afd::t_16d71365a327b6 83-86
+  s_69ec74a50b1afd::t_5b745e5d6c8cd2 737-738
+  s_69ec74a50b1afd::t_53ad0ac7abe06c 685-691
+  s_69ec74a50b1afd::t_7574ab80b862b5 1010-1015,1018,1021-1022,1027,1029
+Package.swift
+  s_69ec74a50b1afd::t_665f3b3e6f39d5 55
+MeetingBarLogicTests/MenuBarJoinActionTests.swift
+  s_69ec74a50b1afd::t_b62c729ce0f741 1-412
+MeetingBarNG/App/AppDelegate.swift
+  s_69ec74a50b1afd::t_84fc4382fe2eb4 523-526
+  s_69ec74a50b1afd::t_1897c68245060d 544-562
+  s_69ec74a50b1afd::t_b06bdb916e8a11 197-201
+  s_69ec74a50b1afd::t_f1e78d40784a5b 175
+MeetingBarNG/App/DebugHarnessView.swift
+  s_69ec74a50b1afd::t_5fca0e9bfd98eb 160-168
+  s_69ec74a50b1afd::t_9d57933a71a18d 1-24,26-79,92-159,169-241
+  s_69ec74a50b1afd::t_900f0fb7f26ca4 25
+  s_69ec74a50b1afd::t_e899c6114d3350 80-91
+MeetingBarNG/Preferences/MenuBarTab.swift
+  s_69ec74a50b1afd::t_0f891919de8fe0 85-88
+  s_69ec74a50b1afd::t_d28aa24d8f0bb5 71
+  s_69ec74a50b1afd::t_9b4a9db8b35244 105
+  s_69ec74a50b1afd::t_2da3f3caebbae2 446-469,474-484
+  s_69ec74a50b1afd::t_c4f2f0e279d336 470-473
+  s_69ec74a50b1afd::t_7d0be47c939e2b 337-352
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "d97aaaed4a64501954b57a946517b9fc4b1c7e05",
+  "prompts": {},
+  "sessions": {
+    "s_69ec74a50b1afd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7af6d6c3-54f6-44aa-b1d9-bd449c00ff61",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
