@@ -307,6 +307,14 @@ enum SettingsIndex {
             synonyms: ["time", "clock", "under title", "two lines", "one line", "start time", "stacked"]
         ),
         SettingsIndexEntry(
+            id: "menubar.join_action",
+            tab: .menuBar,
+            labelKey: "preferences_menubar_join_action_toggle",
+            helpKey: "preferences_menubar_join_action_help",
+            defaultsKeys: ["menuBarShowJoinAction", "menuBarJoinActionLeadMinutes"],
+            synonyms: ["join", "button", "cta", "call to action", "chip", "click", "minutes before", "lead time"]
+        ),
+        SettingsIndexEntry(
             id: "menubar.quiet",
             tab: .menuBar,
             labelKey: "preferences_menubar_quiet_toggle",
@@ -320,6 +328,17 @@ enum SettingsIndex {
             labelKey: "preferences_menubar_countdown_style_title",
             defaultsKeys: ["menuBarCountdownStyle"],
             synonyms: ["countdown", "timer", "2h 30m", "digital", "time left"]
+        ),
+        SettingsIndexEntry(
+            id: "menubar.countdown_lead",
+            tab: .menuBar,
+            labelKey: "preferences_menubar_countdown_lead_title",
+            helpKey: "preferences_menubar_countdown_lead_example",
+            defaultsKeys: ["menuBarCountdownLeadMinutes"],
+            synonyms: [
+                "countdown", "lead time", "minutes before", "too early",
+                "hours away", "hide countdown", "start counting"
+            ]
         ),
         SettingsIndexEntry(
             id: "menubar.date_style",

@@ -172,7 +172,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         notificationActionHandler = actionHandler
         notificationScheduler.setActionSink(actionHandler)
 
-        statusBarItem.configure(dependencies: StatusBarDependencies(
+        var statusBarDependencies = StatusBarDependencies(
             appState: { [weak model] in model?.state ?? AppState() },
             events: { [weak model] in model?.state.events ?? [] },
             send: { [weak model] action in model?.send(action) },
@@ -194,7 +194,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             editEvent: { [weak self] event in self?.openEditEventWindow(event) },
             deleteEvent: { [weak self] event, span in self?.deleteEvent(event, span: span) },
             quit: { [weak self] in self?.quit(nil) }
-        ))
+        )
+        #if DEBUG
+        statusBarDependencies.openDebugHarness = { [weak self] in self?.toggleDebugHarnessWindow() }
+        #endif
+        statusBarItem.configure(dependencies: statusBarDependencies)
 
         // Drive status bar from AppModel state: update title and menu whenever
         // events change.
@@ -516,6 +520,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             toggleDropdownInspectorWindow()
             return
         }
+        if DebugHarnessWindow.matches(url) {
+            toggleDebugHarnessWindow()
+            return
+        }
         #endif
 
         appModel?.send(.openRoute(urlHandler.route(for: url)))
@@ -531,6 +539,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             state: snapshot.state,
             handlers: snapshot.handlers,
             anchor: snapshot.anchor
+        )
+    }
+
+    /// Opens the development harness. Reached from the status item's right-click
+    /// menu, or via `meetingbar://debug-harness`.
+    func toggleDebugHarnessWindow() {
+        windowCoordinator.openDebugHarnessWindow(
+            handlers: DebugHarnessHandlers(
+                apply: { [weak self] scenario in
+                    // A scenario with no builder is "go back to the real
+                    // calendar", which is `nil` rather than an empty list —
+                    // an empty list is itself a scenario.
+                    self?.statusBarItem?.debugOverrideEvents(scenario.build.map { $0(Date()) })
+                },
+                summary: { [weak self] in
+                    self?.statusBarItem?.debugRenderSummary()
+                        ?? DebugHarnessHandlers().summary()
+                }
+            )
         )
     }
     #endif

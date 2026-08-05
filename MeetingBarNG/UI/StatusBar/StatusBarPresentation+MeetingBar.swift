@@ -80,7 +80,20 @@ extension StatusBarEventPresentationInput {
             startDate: event.startDate,
             endDate: event.endDate,
             meetingService: event.meetingLink?.service,
-            participation: StatusBarEventParticipation(event.participationStatus)
+            participation: StatusBarEventParticipation(event.participationStatus),
+            // Same condition the dropdown's row Join affordance uses, so the two
+            // surfaces offer Join on exactly the same meetings.
+            hasMeetingLink: event.meetingLink != nil
+        )
+    }
+}
+
+extension MenuBarJoinActionSettings {
+    static var current: MenuBarJoinActionSettings {
+        MenuBarJoinActionSettings(
+            isEnabled: Defaults[.menuBarShowJoinAction],
+            leadMinutes: Defaults[.menuBarJoinActionLeadMinutes],
+            label: "notifications_meetingbar_join_event_action".loco()
         )
     }
 }
@@ -206,6 +219,7 @@ extension MenuBarComposedSettings {
             presentation: .current,
             title: .current,
             countdownStyle: CountdownStyle(rawValue: Defaults[.menuBarCountdownStyle]) ?? .full,
+            countdownLeadMinutes: Defaults[.menuBarCountdownLeadMinutes],
             dateStyle: MenuBarDateStyle(rawValue: Defaults[.menuBarDateStyle]) ?? .medium,
             progressStyle: MenuBarProgressStyle(rawValue: Defaults[.menuBarProgressStyle]) ?? .day,
             use24HourClock: Defaults[.timeFormat] == .military,
@@ -218,7 +232,8 @@ extension MenuBarComposedSettings {
             tokenSeparator: "  ",
             pendingDisplay: StatusBarParticipationDisplay(Defaults[.showPendingEvents]),
             tentativeDisplay: StatusBarParticipationDisplay(Defaults[.showTentativeEvents]),
-            twoLines: Defaults[.menuBarTwoLineLayout]
+            twoLines: Defaults[.menuBarTwoLineLayout],
+            joinAction: .current
         )
     }
 }
