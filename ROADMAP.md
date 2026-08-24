@@ -111,8 +111,16 @@ single release.
 - [ ] Snooze by time or location trigger.
 
 ### Customization & personalization
-- [ ] Fully customizable interface (appearance + layout).
-- [ ] System / custom themes.
+- [x] Fully customizable interface (appearance + layout) — layout via the composable menu bar,
+      the dropdown module composer, row density and the meeting-card field switches;
+      appearance via the theme below.
+- [x] System / custom themes — **two axes, deliberately, and no more.** Appearance
+      (System / Light / Dark, pinned on the panel window so the AppKit vibrancy material
+      follows too) and accent (System plus the eight macOS system accents, applied as one
+      root `.tint`). A theme system owning every colour would have to re-answer, per theme,
+      every contrast decision already settled in `docs/DROPDOWN-MODERNIZATION.md` §1 — the
+      glass layer, the card fills, the muted/bright Join threshold. Both default to System,
+      so the shipping panel is unchanged. `PanelTheme`, hostless, 10 tests (2026-08-24).
 - [x] Date markers for important days — birthdays, anniversaries, deadlines, marked in both
       month grids. Managed in Preferences ▸ Display ▸ Important days. Markers store month /
       day / optional year COMPONENTS rather than a `Date`: a birthday is a calendar day, not

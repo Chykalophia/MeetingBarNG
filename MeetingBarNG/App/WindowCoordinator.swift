@@ -4,6 +4,7 @@
 //
 
 import AppKit
+import Defaults
 import SwiftUI
 
 enum FullscreenNotificationScreenSelectionPolicy {
@@ -496,6 +497,15 @@ final class WindowCoordinator {
         state: StatusBarMenuState,
         handlers: DropdownPanelHandlers
     ) -> CGFloat {
+        // Pinned on the WINDOW, not via SwiftUI's preferredColorScheme: the
+        // backdrop is an AppKit vibrancy view composited by the window server, so
+        // a SwiftUI-level scheme would restyle the content and leave the material
+        // behind it in the system appearance. `nil` deliberately leaves the window
+        // alone so it keeps following the system as that changes.
+        window.appearance = PanelThemePolicy
+            .appearance(fromRaw: Defaults[.panelAppearance])
+            .nsAppearance
+
         let hosting = NSHostingView(
             rootView: DropdownPanelView(state: state, handlers: handlers)
         )

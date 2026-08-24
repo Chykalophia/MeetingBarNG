@@ -278,6 +278,17 @@ extension Defaults.Keys {
     static let dropdownDensity = Key<String>(
         "dropdownDensity", default: DropdownDensity.standard.rawValue)
 
+    /// The dropdown panel's theme — appearance and accent.
+    ///
+    /// Raw strings for the same reason as `dropdownDensity`: the enums live in
+    /// the hostless module, which cannot import Defaults, and an unknown value
+    /// falls back to `.system` at the read site rather than failing to decode.
+    /// Both default to `system`, so the shipping panel is unchanged.
+    static let panelAppearance = Key<String>(
+        "panelAppearance", default: PanelAppearance.system.rawValue)
+    static let panelAccent = Key<String>(
+        "panelAccent", default: PanelAccent.system.rawValue)
+
     /// Whether the dropdown's month calendar is folded down to the current week.
     ///
     /// A `Bool` rather than a second `CalendarGridMode`: the calendar WINDOW

@@ -440,6 +440,22 @@ enum SettingsIndex {
             synonyms: ["birthday", "anniversary", "deadline", "important", "marker", "holiday"]
         ),
         SettingsIndexEntry(
+            id: "dropdown.theme_appearance",
+            tab: .dropdown,
+            labelKey: "preferences_theme_appearance_title",
+            helpKey: "preferences_theme_appearance_help",
+            defaultsKeys: ["panelAppearance"],
+            synonyms: ["theme", "dark mode", "light mode", "appearance", "colour scheme"]
+        ),
+        SettingsIndexEntry(
+            id: "dropdown.theme_accent",
+            tab: .dropdown,
+            labelKey: "preferences_theme_accent_title",
+            helpKey: "preferences_theme_accent_help",
+            defaultsKeys: ["panelAccent"],
+            synonyms: ["theme", "accent", "colour", "color", "tint", "highlight"]
+        ),
+        SettingsIndexEntry(
             id: "dropdown.hide_empty_days",
             tab: .dropdown,
             labelKey: "preferences_dropdown_hide_empty_days_toggle",

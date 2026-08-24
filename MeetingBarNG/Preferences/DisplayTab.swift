@@ -369,6 +369,25 @@ struct DropdownDisplaySection: View {
     @Default(.eventActionHighlightMinutes) var eventActionHighlightMinutes
     @Default(.dropdownMaxEventRows) var dropdownMaxEventRows
     @Default(.dropdownHidesEmptyDays) var dropdownHidesEmptyDays
+    @Default(.panelAppearance) var panelAppearanceRaw
+    @Default(.panelAccent) var panelAccentRaw
+
+    /// Raw strings in Defaults, enums in the UI — the enums live in the hostless
+    /// module, which cannot import Defaults. Decoding leniently on read means a
+    /// value from a future build shows as System rather than refusing to load.
+    private var appearanceBinding: Binding<PanelAppearance> {
+        Binding(
+            get: { PanelThemePolicy.appearance(fromRaw: panelAppearanceRaw) },
+            set: { panelAppearanceRaw = $0.rawValue }
+        )
+    }
+
+    private var accentBinding: Binding<PanelAccent> {
+        Binding(
+            get: { PanelThemePolicy.accent(fromRaw: panelAccentRaw) },
+            set: { panelAccentRaw = $0.rawValue }
+        )
+    }
     @Default(.dropdownDensity) var dropdownDensityRaw
     @Default(.timelineStyle) var timelineStyleRaw
     @Default(.timelineAppearance) var timelineAppearanceRaw
@@ -441,6 +460,20 @@ struct DropdownDisplaySection: View {
                 isOn: $dropdownHidesEmptyDays
             )
             .annotation("preferences_dropdown_hide_empty_days_help")
+
+            Picker("preferences_theme_appearance_title".loco(), selection: appearanceBinding) {
+                ForEach(PanelAppearance.allCases, id: \.self) { appearance in
+                    Text(appearance.localizedNameKey.loco()).tag(appearance)
+                }
+            }
+            .annotation("preferences_theme_appearance_help")
+
+            Picker("preferences_theme_accent_title".loco(), selection: accentBinding) {
+                ForEach(PanelAccent.allCases, id: \.self) { accent in
+                    Text(accent.localizedNameKey.loco()).tag(accent)
+                }
+            }
+            .annotation("preferences_theme_accent_help")
 
             Text("preferences_dropdown_max_rows_title".loco())
             PresetNumberPicker(

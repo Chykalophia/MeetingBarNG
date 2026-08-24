@@ -179,6 +179,7 @@ struct DropdownPanelView: View {
     @Default(.dropdownHidesEmptyDays) private var hidesEmptyAgendaDays
     @Default(.dateMarkers) private var storedDateMarkers
     @Default(.dropdownCalendarWeekFold) private var calendarWeekFold
+    @Default(.panelAccent) private var panelAccentRaw
     @Default(.meetingCardShowsSectionLine) private var meetingCardShowsSectionLine
     @Default(.meetingCardShowsTimes) private var meetingCardShowsTimes
     @Default(.meetingCardShowsProvider) private var meetingCardShowsProvider
@@ -320,6 +321,12 @@ struct DropdownPanelView: View {
         // Injected once, at the root, so every nested row renders against the
         // same grid rather than each resolving the density for itself.
         .environment(\.dropdownMetrics, metrics)
+        // One tint at the root rather than a themed colour threaded through every
+        // view: everything already draws with `Color.accentColor`, so overriding
+        // it here reaches the Join buttons, today's cell, the marked days and the
+        // progress bar at once. `nil` inherits the system accent, which is what
+        // the panel has always done.
+        .tint(PanelThemePolicy.accent(fromRaw: panelAccentRaw).tint)
         // Keyboard-first: the panel takes key focus on open (the window is made
         // key by the host), then Up/Down walk the flattened interactive rows and
         // Return runs the selected row's primary action. Escape is handled by
