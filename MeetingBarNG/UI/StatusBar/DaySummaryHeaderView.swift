@@ -4,17 +4,18 @@
 //
 //  Non-clickable greeting header rendered at the top of the dropdown (Dot
 //  parity). Copies the NSHostingView-backed, fixed-width pattern of
-//  MeetingSummaryView. All strings are pre-localized by MenuBuilder; this view
-//  is presentation-only.
+//  MeetingSummaryView. All strings are pre-localized by DropdownPanelView, its
+//  only caller; this view is presentation-only.
 //
 
 import SwiftUI
 
 /// A trailing icon button in the day header.
 ///
-/// Modelled as data rather than a `@ViewBuilder` so the header stays renderable
-/// from `MenuBuilder`'s `NSHostingView` too, where there is no SwiftUI action
-/// context to hand down.
+/// Modelled as data rather than a `@ViewBuilder`. This dates from when the header
+/// also had to render inside the classic `NSMenu`'s `NSHostingView`, which had no
+/// SwiftUI action context; that renderer is gone, but data-shaped actions keep the
+/// header usable from a hosting view, so the shape is retained.
 struct DaySummaryHeaderAction: Identifiable {
     let id: String
     let symbol: String
@@ -27,16 +28,16 @@ struct DaySummaryHeaderView: View {
 
     let greeting: String
     let summary: String
-    /// SF Symbol reflecting the time of day (chosen by MenuBuilder).
+    /// SF Symbol reflecting the time of day (chosen by the caller).
     let symbolName: String
-    /// Trailing quick actions. Empty by default so the classic `NSMenu`'s hosted
-    /// copy — which has no way to run SwiftUI closures — renders exactly as before.
+    /// Trailing quick actions. Defaults to empty so a host that cannot run SwiftUI
+    /// closures still renders a plain header.
     var actions: [DaySummaryHeaderAction] = []
 
     static let preferredWidth: CGFloat = MeetingSummaryView.preferredWidth
-    /// 26pt tile + the vertical padding below. Must track those two or the
-    /// classic `NSMenu`'s hosted copy clips: it sizes its item from this number
-    /// rather than measuring the view.
+    /// 26pt tile + the vertical padding below. Must track those two: a hosting view
+    /// that sizes its item from this number rather than measuring the view will clip
+    /// if they drift.
     static let preferredHeight: CGFloat = 48
 
     var body: some View {

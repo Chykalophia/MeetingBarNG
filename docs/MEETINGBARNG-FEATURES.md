@@ -1,10 +1,16 @@
 # MeetingBarNG — New Features & How to Test
 
-A testing companion for the Dot-parity work on `feat/composable-menu-bar`. Every
-feature below is built, unit-tested, and pushed. Several have **opt-in toggles or
+A testing companion for the Dot-parity work, all of which is now on `master`. Every
+feature below is built, unit-tested, and shipped. Several have **opt-in toggles or
 unassigned keyboard shortcuts** — that's by design (nothing changes behavior on
 upgrade until you turn it on), but it means you won't see them until you enable
 them. This is the map.
+
+> **Waves 1–3 were written against the pre-0.2.0 app.** Two things have changed since:
+> Preferences was rebuilt into an 8-pane IA, so a pane named below may now live
+> elsewhere (use the settings search); and the classic `NSMenu` dropdown was deleted
+> in 0.2.0, so there is only one dropdown to test. Wave 4 below covers everything
+> shipped after that.
 
 > Tip: keyboard shortcuts are all **unassigned by default**. Set them in
 > **Preferences ▸ General ▸ Keyboard Shortcuts**.
@@ -104,9 +110,64 @@ them. This is the map.
 
 ---
 
+## Wave 4 — after 0.2.0
+
+### 13. Menu-bar meeting progress (0.2.0)
+- **Where:** Preferences ▸ Menu Bar ▸ meeting progress. **Off by default.**
+- **Test:** Pick each of the four styles — **underline**, **ring** (around the icon),
+  **capsule**, **leading mini-bar**. The bar fills over the hour before a meeting, is
+  exactly full at the start, then counts through it. Nothing draws when no meeting is
+  close. It renders in the menu bar's own text colour, so check it against a light
+  wallpaper, a dark one, and a tinted menu bar.
+
+### 14. Timeline styles and coverage (0.3.0)
+- **Where:** Preferences ▸ Dropdown ▸ timeline.
+- **Test:** Two separate settings. **Style** — *Track* (hour grid, overlaps stacked),
+  *Bar* (one rail, meetings inline, hours beneath), *Minimal* (rail alone). **Covers** —
+  *Around now* vs *Whole day*. Turning the timeline off is in the same picker.
+
+### 15. Meeting-card field switches (0.3.0)
+- **Where:** Preferences ▸ Dropdown ▸ meeting card.
+- **Test:** Toggle each field independently — the "Next meeting" line, start/end times,
+  meeting service, calendar and account, countdown bar. A card that is just a title and a
+  bar is now a valid configuration. The countdown hides when the meeting is >1h out.
+
+### 16. Month dots (0.3.0)
+- **Where:** the month calendar in the dropdown.
+- **Test:** Days with meetings show a dot across the whole month, not just today. Hover
+  highlights a day cell. Navigate months quickly — previously-known days should stay put
+  while the next month loads, and a failed fetch should leave existing dots alone.
+
+### 17. Menu-bar Join chip ⚠️ on by default
+- **Where:** Preferences ▸ Menu Bar ▸ Join button.
+- **Test:** For an upcoming or active meeting **that has a link**, a Join chip appears on
+  the status item. Clicking the chip joins directly; clicking anywhere else on the item
+  still opens the dropdown. A meeting with no link shows no chip. Also check the lead-time
+  setting that controls how early it appears.
+
+### 18. Countdown lead time
+- **Where:** Preferences ▸ Menu Bar ▸ countdown.
+- **Test:** Set a lead time in minutes; the countdown should stay hidden until the meeting
+  is within it. `0` means always on, which is the previous behaviour and the default — so
+  upgraders see no change.
+
+### 19. DEBUG harness (developer tool)
+- **Where:** DEBUG builds only — excluded from release builds entirely.
+- **Test:** Opens a window for injecting synthetic events and toggling menu-bar settings,
+  so display states can be exercised without waiting on a real calendar. Use it to check
+  the Join chip and progress styles against edge cases (no link, meeting running, nothing
+  today).
+
+---
+
 ## Status
-The full Dot-parity plan (Waves 1–3) is shipped. Open threads are cosmetic/scope
-questions only — raise anything you'd like changed after testing.
+Waves 1–4 are shipped and on `master`. The Dot-parity plan is **not** complete — see
+`ROADMAP.md` for what remains open (copy meeting ID, month⇄week toggle in the menu bar,
+hide empty days, date markers, per-event reminder times, location autocomplete, quick date
+jump, themes, keyboard-first navigation beyond the dropdown panel).
+
+**Testing these requires building from source.** Releases carry notes but no artifact yet;
+a signed, notarized dmg is the next work item in `STATE.md`.
 
 ## Not in scope (by request)
 No AI/LLM, no natural-language event creation, no voice-to-text — anywhere.

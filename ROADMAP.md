@@ -40,6 +40,15 @@ single release.
 - [x] Countdown styles — `2h`, `2h 30m`, `2:30`.
 - [x] Imminent-meeting emphasis — the menu bar boldens the next meeting once it is close
       enough to act on (`menuBarHighlightImminentEvent`, 2026-07-27).
+- [x] Meeting progress in the menu bar — four styles (underline / ring / capsule / leading
+      mini-bar) plus none, drawn in the menu bar's own text colour. `MeetingProgressPolicy`
+      decides fill and phase; the renderer only draws (0.2.0, 2026-07-28). Not a Dot item —
+      Dot's day/year bars were rejected and the concept re-aimed at time-to-meeting.
+- [x] Menu-bar **Join chip** — one-click join on the status item for a meeting that has a
+      link; a click on the chip joins, anywhere else opens the dropdown
+      (`MenuBarJoinActionPolicy`, 2026-08-05). Fork addition, not a Dot item.
+- [x] Countdown lead time — `menuBarCountdownLeadMinutes` controls how early the countdown
+      appears; `0` keeps the previous always-on behaviour (2026-08-05). Fork addition.
 
 ### Meetings
 - [x] One-click join (Zoom, Google Meet, Microsoft Teams, Webex, + 50 more) — already in MeetingBar.

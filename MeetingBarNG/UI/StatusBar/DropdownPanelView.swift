@@ -9,13 +9,17 @@
 //
 //  Renders modules resolved by —
 //  `DropdownCompositionPolicy.resolve(order:enabled:)` fed by the shared
-//  `enabledRawValues(...)` helper — from a real `StatusBarMenuState` snapshot, so
-//  the panel can never drift from the menu it will eventually replace. Reuses the
-//  existing `DaySummaryHeaderView`, `DayRelativeTimelineView` and
+//  `enabledRawValues(...)` helper — from a real `StatusBarMenuState` snapshot.
+//  Reuses the existing `DaySummaryHeaderView`, `DayRelativeTimelineView` and
 //  `MeetingSummaryView` for the top three modules.
 //
-//  Phase B brings it to functional parity with the menu, and past it where
-//  SwiftUI can do things an NSMenuItem cannot:
+//  NOTE ON THE MenuBuilder REFERENCES BELOW AND THROUGHOUT THIS FILE: they name a
+//  DELETED type. They are kept as provenance — they record where a rule came from
+//  and why it looks the way it does — and are NOT a live parity constraint. There
+//  is nothing left to stay in sync with.
+//
+//  Phase B brought it to functional parity with the since-deleted menu, and past
+//  it where SwiftUI can do things an NSMenuItem cannot:
 //    • a right-click `.contextMenu` on every event row and on the meeting card,
 //      carrying the whole NSMenu action set (join / copy link / edit / delete /
 //      email attendees / dismiss / prep links / alternate meeting links);
@@ -28,13 +32,13 @@
 //    • keyboard navigation over the flattened interactive rows, ordered by the
 //      hostless, unit-tested `DropdownPanelNavigation`.
 //
-//  Preferences UX overhaul Phase 1 makes the shipping renderer honest. Five
-//  preferences the NSMenu honours were read by nothing here — the calendar-colour
+//  Preferences UX overhaul Phase 1 made the shipping renderer honest. Five
+//  preferences the NSMenu honoured were read by nothing here — the calendar-colour
 //  dot was drawn unconditionally, no service icon was drawn at all, the time
 //  column only ever showed the start, titles were never shortened and
-//  `pastEventsAppereance = .hide` hid nothing. All five now run through the SAME
-//  shared code the menu uses (`StatusBarTitlePolicy.shortenTitle`,
-//  `MenuBuilder`'s render/appearance rules), and the five visual states the panel
+//  `pastEventsAppereance = .hide` hid nothing. All five now run through the
+//  shared code that outlived the menu (`StatusBarTitlePolicy.shortenTitle` and
+//  the render/appearance rules extracted from it), and the five visual states the panel
 //  silently dropped — declined dim/strikethrough, past dim, pending/tentative,
 //  the [dismissed] marker and the running-meeting emphasis — are drawn here too.
 //  Geometry comes from
@@ -1313,12 +1317,12 @@ struct DropdownPanelView: View {
             .accessibilityLabel("status_bar_control_current_meeting".loco())
     }
 
-    /// Shortening runs through the SAME `StatusBarTitlePolicy.shortenTitle` the
-    /// NSMenu uses (`MenuBuilder.eventMenuTitle`), so the two dropdowns can never
-    /// disagree about what a shortened title looks like.
+    /// Shortening runs through `StatusBarTitlePolicy.shortenTitle`, the same helper
+    /// the deleted NSMenu used, so the menu-bar title and this panel agree about
+    /// what a shortened title looks like.
     ///
-    /// The menu's extra "uncapped" fallback cap is deliberately NOT copied: it
-    /// exists only because an NSMenu sizes itself to its widest item. This panel
+    /// The menu's extra "uncapped" fallback cap was deliberately NOT copied: it
+    /// existed only because an NSMenu sizes itself to its widest item. This panel
     /// is a fixed 330pt and truncates visually, so "don't shorten" can mean it.
     private func eventTitleText(_ event: MBEvent) -> String {
         let rawTitle: String? = event.title.isEmpty ? nil : event.title

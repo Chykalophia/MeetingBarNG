@@ -2,9 +2,9 @@
 //  DaySummaryGreeting.swift
 //  MeetingBarNG
 //
-//  Hostless policy for the menu's day-summary greeting header (Dot parity).
+//  Hostless policy for the dropdown's day-summary greeting header (Dot parity).
 //  Pure value types + math only — no AppKit/Defaults/EventKit. The host layer
-//  (StatusBarMenuState) resolves the user's name and MenuBuilder does the
+//  (StatusBarMenuState) resolves the user's name and DropdownPanelView does the
 //  localized string interpolation, mirroring how StatusBarTitlePolicy keeps
 //  `.loco()` out of the logic module.
 //
