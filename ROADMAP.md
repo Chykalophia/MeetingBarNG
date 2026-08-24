@@ -77,7 +77,16 @@ single release.
       `CalendarSourcePresentation.all` ships macOS Calendar only, because the native Google
       path needs OAuth credentials this build does not carry. The code is retained for
       installs already on it; re-introduction is tracked as its own item below.
-- [ ] Direct Google Calendar provider back in onboarding (needs shipped OAuth credentials).
+- [x] Direct Google Calendar provider back in onboarding — **available in any build that
+      carries OAuth credentials** (2026-08-24). `CalendarSourcePresentation.all` is gated on
+      `GoogleOAuthConfig.isConfigured` rather than hardcoded to macOS Calendar, and the source
+      picker is restored in onboarding and in Preferences ▸ Calendars, both rendering only
+      when a second source genuinely exists. Supply your own credentials via
+      `XCConfig/GoogleSecrets.xcconfig` — see README.
+      **Still open for a PUBLIC release:** shipping credentials in a downloadable build means
+      shipping them extractably, so a distributed binary either bundles a client anyone can
+      lift or leaves the provider unavailable. That decision is tied to the release pipeline,
+      not to this code.
 - [x] Full event search (title, notes, location, attendees) — `Calendar/EventSearch`.
 - [x] Inline event edit (title, time, duration) — `UI/EventEditor`, `EventDraftValidation`.
 - [x] Location autocomplete when creating/editing — MapKit suggestions in the event editor's

@@ -61,11 +61,65 @@ struct CalendarsTab: View {
         )
 
         PreferencesGroupedForm {
+            CalendarSourceSection(presentation: presentation)
             CalendarSyncStatusSection(presentation: presentation)
             CalendarSelectionSection(presentation: presentation)
             RemindersPermissionSection()
             CalendarTroubleshootingSection(presentation: presentation)
         }
+    }
+}
+
+// MARK: - Calendar source
+
+/// Where meetings come from, when there is more than one answer.
+///
+/// The picker was deleted in the Phase 2 overhaul because
+/// `CalendarSourcePresentation.all` held exactly one entry, making it a dropdown
+/// that could never change anything. That file said it would "return
+/// automatically when a second provider ships" — this is that. It renders only
+/// when a second source is genuinely available, so a build without Google
+/// credentials looks exactly as it did.
+private struct CalendarSourceSection: View {
+    @EnvironmentObject var appModel: AppModel
+    let presentation: PreferencesCalendarPresentation
+
+    var body: some View {
+        let sources = CalendarSourcePresentation.all
+        if sources.count > 1 {
+            Section {
+                Picker(
+                    "preferences_calendars_source_title".loco(),
+                    selection: sourceBinding
+                ) {
+                    ForEach(sources) { source in
+                        Text(source.titleKey.loco()).tag(source.provider)
+                    }
+                }
+                // Switching re-runs sign-in for the chosen provider. Selected
+                // calendars are stored PER provider, so switching back does not
+                // lose the other side's choices.
+                .disabled(appModel.state.providerChangeInProgress)
+
+                Text("preferences_calendars_source_help".loco())
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    /// `signOut: false` — switching away should not discard the other provider's
+    /// tokens, so switching back is not a fresh sign-in every time. Signing out
+    /// is a separate, deliberate action.
+    private var sourceBinding: Binding<EventStoreProvider> {
+        Binding(
+            get: { presentation.activeProvider },
+            set: { provider in
+                guard provider != presentation.activeProvider else { return }
+                appModel.send(.changeProvider(provider, signOut: false))
+            }
+        )
     }
 }
 

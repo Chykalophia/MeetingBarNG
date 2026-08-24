@@ -367,6 +367,9 @@
 "calendar_grid_jump_go" = "Go";
 "dropdown_calendar_show_week" = "Show this week only";
 "dropdown_calendar_show_month" = "Show the whole month";
+"preferences_calendars_source_title" = "Meetings come from";
+"preferences_calendars_source_help" = "Apple Calendar reads whatever your Mac already syncs. Google Calendar connects directly and carries more per-meeting detail — conference links, attendee replies, and the full description. Your calendar choices are kept separately for each, so switching back does not lose them.";
+"onboarding_source_picker_label" = "Meetings come from";
 "preferences_theme_appearance_title" = "Appearance";
 "preferences_theme_appearance_help" = "Light or dark for the dropdown only, regardless of the rest of the system. System follows your Mac, including any schedule you have set.";
 "preferences_theme_appearance_system" = "System";

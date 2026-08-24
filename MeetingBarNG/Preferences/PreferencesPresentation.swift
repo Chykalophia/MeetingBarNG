@@ -16,14 +16,35 @@ struct CalendarSourcePresentation: Equatable, Identifiable {
 
     var id: EventStoreProvider { provider }
 
-    // Option A (MeetingBarNG): ship the macOS Calendar provider only — it
-    // already surfaces Google/iCloud/Exchange accounts synced on this Mac, and
-    // the native Google provider needs OAuth credentials this build doesn't
-    // carry. `make(for: .googleCalendar)` is retained for any install still on
-    // the Google provider from a prior build.
-    static let all: [CalendarSourcePresentation] = [
-        make(for: .macOSEventKit)
-    ]
+    /// The calendar sources this BUILD can actually offer.
+    ///
+    /// macOS Calendar is always available. The direct Google provider appears
+    /// only when the build carries real OAuth credentials — supply your own in
+    /// `XCConfig/GoogleSecrets.xcconfig` and rebuild (see the example file, or
+    /// README "Google Calendar in a local build").
+    ///
+    /// Gated on the credentials rather than hidden outright, which is what it
+    /// used to be. Offering a provider that cannot possibly sign in is worse
+    /// than not offering it — but so is hiding one that works, and the previous
+    /// blanket exclusion made the setup instructions in
+    /// `GoogleSecrets.xcconfig.example` ("then pick Google Calendar in
+    /// onboarding") impossible to follow.
+    ///
+    /// Computed, not stored: a `static let` would capture the answer once at
+    /// first use, which is fine in practice but reads as though the set could
+    /// never depend on the build.
+    ///
+    /// **Why use it at all**, given macOS Calendar already syncs Google accounts:
+    /// the EventKit mirror drops data the Calendar API carries — conference
+    /// entry points, per-attendee response status, and the richer description
+    /// field meeting links are often buried in.
+    static var all: [CalendarSourcePresentation] {
+        var sources = [make(for: .macOSEventKit)]
+        if GoogleOAuthConfig.isConfigured {
+            sources.append(make(for: .googleCalendar))
+        }
+        return sources
+    }
 
     static func make(for provider: EventStoreProvider) -> CalendarSourcePresentation {
         switch provider {

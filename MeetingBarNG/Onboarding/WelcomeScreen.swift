@@ -11,6 +11,17 @@ import SwiftUI
 struct WelcomeScreen: View {
     @ObservedObject var router: OnboardingRouter
 
+    /// macOS Calendar is the default: it needs no setup and works for everyone,
+    /// so it is the right answer for anyone without a specific reason to choose
+    /// otherwise.
+    @State private var selectedProvider: EventStoreProvider = .macOSEventKit
+
+    private var sources: [CalendarSourcePresentation] { CalendarSourcePresentation.all }
+
+    private var selectedSource: CalendarSourcePresentation {
+        CalendarSourcePresentation.make(for: selectedProvider)
+    }
+
     var body: some View {
         VStack(spacing: 18) {
             Spacer()
@@ -25,13 +36,28 @@ struct WelcomeScreen: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 480)
+            // A source picker only when there is genuinely a choice. A build
+            // without Google OAuth credentials cannot offer that provider, and a
+            // one-option picker is a decision the user cannot make — so it goes
+            // straight through to granting access, exactly as before.
+            if sources.count > 1 {
+                Picker("onboarding_source_picker_label".loco(), selection: $selectedProvider) {
+                    ForEach(sources) { source in
+                        Text(source.titleKey.loco()).tag(source.provider)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .frame(maxWidth: 360)
+                Text(selectedSource.descriptionKey.loco())
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: 480)
+            }
             Spacer()
             OnboardingFooter(
                 primaryTitle: "onboarding_continue".loco(),
-                // Option A ships the macOS Calendar provider only (it already
-                // surfaces Google/iCloud/Exchange accounts synced on this Mac),
-                // so there's no source to pick — go straight to granting access.
-                primaryAction: { router.selectProvider(.macOSEventKit) }
+                primaryAction: { router.selectProvider(selectedProvider) }
             )
         }
     }

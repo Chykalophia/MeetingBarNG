@@ -153,10 +153,13 @@ Copy `XCConfig/GoogleSecrets.xcconfig.example` to `XCConfig/GoogleSecrets.xcconf
 [Google Cloud Console](https://console.cloud.google.com/apis/credentials) and fill in
 `GOOGLE_CLIENT_NUMBER`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_AUTH_KEYCHAIN_NAME`.
 
-Note that supplying credentials is not sufficient on its own today: onboarding's source
-picker is currently hard-limited to macOS Calendar
-(`CalendarSourcePresentation.all`), so re-enabling the direct Google provider also means
-restoring it there. Tracked in [`ROADMAP.md`](ROADMAP.md).
+Once credentials are in place, rebuild and **Google Calendar** appears as a choice in
+onboarding and in **Preferences ▸ Calendars ▸ Meetings come from**. Without them the app
+looks exactly as it does today — the provider is gated on the credentials actually being
+present, not hidden behind a flag.
+
+Selected calendars are stored per provider, so switching between Apple and Google and
+back does not lose either side's choices.
 
 Common commands:
 
