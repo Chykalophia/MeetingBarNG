@@ -52,6 +52,7 @@ let package = Package(
                 "UI/StatusBar/DropdownPanelNavigation.swift",
                 "UI/StatusBar/DropdownPanelPlacement.swift",
                 "UI/StatusBar/EventActionProminence.swift",
+                "UI/StatusBar/MenuBarJoinAction.swift",
                 "UI/StatusBar/MeetingProgress.swift",
                 "UI/StatusBar/TimelineSpan.swift",
                 "UI/StatusBar/StatusBarTickPolicy.swift",

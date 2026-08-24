@@ -400,6 +400,7 @@ final class WindowCoordinator {
     #if DEBUG
     /// Held for the same reason as `dropdownPanel`, and released the same way.
     private var dropdownInspector: DropdownInspectorWindow?
+    private var debugHarness: DebugHarnessWindow?
     #endif
 
     /// Opens the SwiftUI dropdown panel below the status item, or closes it if
@@ -587,6 +588,44 @@ final class WindowCoordinator {
         window.orderFrontRegardless()
 
         dropdownInspector = window
+    }
+
+    /// Opens the debug harness, or brings it forward if it is already up.
+    ///
+    /// Not a toggle, unlike the dropdown inspector: that one is reached by a deep
+    /// link and has no close button, so re-running the link is the only way to
+    /// dismiss it. This is an ordinary titled window you close with its own
+    /// button, and a toggle would make the menu item close a window you had just
+    /// gone looking for.
+    func openDebugHarnessWindow(handlers: DebugHarnessHandlers) {
+        if let existing = debugHarness {
+            NSApp.activate(ignoringOtherApps: true)
+            existing.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let window = DebugHarnessWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 420, height: 720),
+            styleMask: [.titled, .closable, .resizable, .utilityWindow],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = "Debug harness"
+        window.isReleasedWhenClosed = false
+        window.contentView = NSHostingView(rootView: DebugHarnessView(handlers: handlers))
+        // Above ordinary windows so it stays visible while you click the status
+        // item it is driving — the whole workflow is harness, menu bar, harness.
+        window.level = .floating
+        window.hidesOnDeactivate = false
+        window.center()
+        window.onClose = { [weak self] in
+            DispatchQueue.main.async { self?.debugHarness = nil }
+        }
+
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+
+        debugHarness = window
     }
     #endif
 
