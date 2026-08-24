@@ -68,6 +68,23 @@ below is currently invisible to users. This is the next work.
   synthetic events. Excluded from release builds. This work is not yet reflected in
   `docs/MEETINGBARNG-FEATURES.md`.
 
+### Shipped 2026-08-24 (this session) — Dot parity now 31 of 35
+Eight features, each hostless-policy-first with tests, each its own commit:
+copy meeting ID; hide empty days; date markers; month⇄week fold in the panel;
+quick date jump + a Today chip; arrow-key travel in the calendar window; per-event
+reminder times; opt-in location autocomplete; panel themes (appearance + accent).
+
+**Four parity items remain**, and none is a simple build:
+`Direct Google Calendar provider` (needs shipped OAuth credentials),
+`Calendar picker via command/slash`, `Snooze by location trigger` (time snooze exists),
+and the `Native SwiftUI performance pass` — which wants profiling on both architectures
+rather than code, and is the one that most needs a real device and a real calendar.
+
+**One principle changed:** location autocomplete is the first and only feature that
+sends anything off the machine. `ROADMAP.md` → "Guiding principles" now records it as a
+named, opt-in exception rather than leaving the local-first claim quietly false. Any
+future feature reaching the network belongs in that list too.
+
 ### Doc accuracy, as of this reconciliation
 - `docs/DROPDOWN-MODERNIZATION.md` — **accurate.** 9 of 10 items done; item 7 (meeting-relative
   progress in the dropdown card) is the only one not started. Read it before touching the panel;
@@ -149,9 +166,10 @@ including two GitHub API gotchas that will otherwise cost an hour, is in the pro
 3. **Dropdown item 7** — meeting-relative progress on the dropdown card. Bar fills toward start,
    full exactly when Join un-mutes, reusing `MeetingProgressPolicy` and the shared
    `eventActionHighlightMinutes` threshold.
-4. **Dot-parity leftovers**, smallest first: copy meeting ID, month⇄week toggle *in the menu bar*
-   (the calendar window has one), hide empty days, date markers, per-event reminder times,
-   location autocomplete, quick date jump, themes, keyboard-first nav beyond the panel.
+4. **Dot-parity leftovers — four left**, none of them a simple build: the direct Google
+   provider (blocked on shipped OAuth credentials), calendar picker via command/slash,
+   snooze by location trigger, and the native SwiftUI performance pass. That last one wants
+   profiling on Apple Silicon AND Intel against a real calendar, not code written blind.
 5. **Rename backlog still open:** Keychain / `Defaults` suite names derived from the old bundle id
    (see item 2), and the Mac App Store app id.
 6. **Re-enable the direct Google provider:** onboarding is hard-limited to macOS Calendar
