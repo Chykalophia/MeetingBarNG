@@ -74,6 +74,23 @@ struct CalendarGridView: View {
             minHeight: CalendarWindowPresentationPolicy.minimumSize.height
         )
         .background(Color(nsColor: .windowBackgroundColor))
+        // The window had no keyboard travel at all — the grid was mouse-only
+        // while the dropdown panel and command bar were both fully walkable.
+        //
+        // `.onMoveCommand` rather than `.onKeyPress`: the command bar already
+        // uses it, and matching one keyboard idiom across the app is worth more
+        // than the newer API's extra reach here, where only arrows matter.
+        .focusable()
+        .focusEffectDisabled()
+        .onMoveCommand { direction in
+            switch direction {
+            case .left: viewModel.moveSelection(byDays: CalendarGridNavigation.previousDay)
+            case .right: viewModel.moveSelection(byDays: CalendarGridNavigation.nextDay)
+            case .up: viewModel.moveSelection(byDays: CalendarGridNavigation.previousWeek)
+            case .down: viewModel.moveSelection(byDays: CalendarGridNavigation.nextWeek)
+            @unknown default: break
+            }
+        }
     }
 
     // MARK: - Header

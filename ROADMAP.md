@@ -111,8 +111,12 @@ single release.
 
 ### Productivity tools
 - [x] Command bar — create / search / settings from a single shortcut (`UI/CommandBar`).
-- [ ] Keyboard-first navigation throughout — the dropdown panel has full arrow/Return
-      travel (`DropdownPanelNavigation`); other surfaces are not there yet.
+- [x] Keyboard-first navigation throughout — the dropdown panel has full arrow/Return travel
+      (`DropdownPanelNavigation`), the command bar has its own, and the **calendar window**
+      now walks its grid with the arrow keys: left/right a day, up/down a week, paging
+      automatically when the selection leaves the drawn range. Padding cells from the adjacent
+      months count as visible, so selecting one does not scroll the grid out from under you.
+      `CalendarGridNavigation`, hostless, 13 tests (2026-08-24).
 - [x] World clock — as a menu-bar token and its own panel (`UI/WorldClock`).
 
 ### System & privacy (mostly already true)

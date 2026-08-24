@@ -154,6 +154,39 @@ final class CalendarGridViewModel: ObservableObject {
         selectedDay = calendar.startOfDay(for: day.date)
     }
 
+    /// The first and last day currently drawn, padding cells included.
+    ///
+    /// Read off `weeks` rather than recomputed, so it cannot disagree with what
+    /// is actually on screen.
+    var visibleRange: (start: Date, end: Date)? {
+        guard let first = weeks.first?.first?.date,
+              let last = weeks.last?.last?.date else { return nil }
+        return (first, last)
+    }
+
+    /// Moves the keyboard selection, paging the grid when it walks off the edge.
+    ///
+    /// With nothing selected yet, the first arrow press starts from the anchor of
+    /// whatever is on screen rather than from an arbitrary date — pressing Down
+    /// on a freshly-opened window should land somewhere the user can see.
+    func moveSelection(byDays days: Int) {
+        guard let visibleRange else { return }
+        let anchor = selectedDay ?? (mode == .month ? visibleMonth : visibleWeekStart)
+        let result = CalendarGridNavigation.move(
+            from: anchor,
+            byDays: days,
+            visibleRange: visibleRange,
+            calendar: calendar
+        )
+        if result.requiresPaging {
+            // goTo re-anchors BOTH modes and reloads, which is exactly what
+            // stepping past the edge needs.
+            goTo(result.selectedDay)
+        } else {
+            selectedDay = result.selectedDay
+        }
+    }
+
     var selectedDayEvents: [MBEvent] {
         guard let selectedDay else { return [] }
         return eventsByDay[calendar.startOfDay(for: selectedDay)] ?? []
