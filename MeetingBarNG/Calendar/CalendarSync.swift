@@ -254,6 +254,9 @@ public class CalendarSync: ObservableObject {
         if !AppSettings.current.events.dismissedEvents.isEmpty {
             AppSettings.refreshDismissedEvents(using: events)
         }
+        // Same cadence as the dismissal housekeeping above rather than a timer of
+        // its own: both exist only to stop a per-event list growing forever.
+        EventReminderOverrideStore.pruneExpired()
         return events.filtered().sorted { $0.startDate < $1.startDate }
     }
 

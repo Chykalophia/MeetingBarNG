@@ -89,7 +89,15 @@ single release.
 ### Reminders & focus
 - [x] Apple Reminders integration alongside events (`Calendar/ReminderSelection`,
       `RemindersStore`; opt-in, requests its own TCC permission).
-- [ ] Per-event custom reminder times.
+- [x] Per-event custom reminder times — right-click a meeting ▸ **Remind me**: use the
+      default, not for this meeting, at start, or 1/5/10/15/30/60 minutes before. Three-state
+      by design (inherit / suppressed / custom offset) so turning the global reminder on later
+      does not un-silence a meeting deliberately quieted, and a custom time fires even when
+      the global reminder is off. Only the START reminder is overridable — end, fullscreen,
+      auto-join and the on-start script stay global, because a meeting that auto-joined when
+      the others didn't is a worse surprise than a missing reminder. Keyed on the
+      per-occurrence event id, so one instance of a recurring standup can differ from the
+      rest; entries are pruned once the event has passed (2026-08-24).
 - [ ] Snooze by time or location trigger.
 
 ### Customization & personalization

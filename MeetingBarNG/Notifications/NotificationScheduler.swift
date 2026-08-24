@@ -3,6 +3,7 @@
 //  MeetingBar
 //
 
+import Defaults
 import Foundation
 import UserNotifications
 
@@ -80,7 +81,9 @@ final class NotificationScheduler {
         now: Date = Date()
     ) async {
         guard !isStopped else { return }
-        let planningEvents = events.map(NotificationPlanningEvent.init(event:))
+        // Read once per pass, not once per event.
+        let overrides = Defaults[.eventReminderOverrides]
+        let planningEvents = events.map { NotificationPlanningEvent(event: $0, overrides: overrides) }
         let plans =
             NotificationPlanner
             .plan(events: planningEvents, settings: settings, now: now)
@@ -183,7 +186,10 @@ final class NotificationScheduler {
 }
 
 extension NotificationPlanningEvent {
-    init(event: MBEvent) {
+    /// - Parameter overrides: per-event reminder overrides, passed in rather than
+    ///   read from Defaults here so the adapter stays testable and the whole list
+    ///   is read once per planning pass instead of once per event.
+    init(event: MBEvent, overrides: [EventReminderOverride] = []) {
         self.init(
             id: event.id,
             startDate: event.startDate,
@@ -191,7 +197,8 @@ extension NotificationPlanningEvent {
             status: event.status == .canceled ? .canceled : .active,
             participationStatus: event.participationStatus == .declined ? .declined : .active,
             isAllDay: event.isAllDay,
-            hasMeetingLink: event.meetingLink != nil
+            hasMeetingLink: event.meetingLink != nil,
+            startReminderOverride: EventReminderOverrideStore.override(for: event.id, in: overrides)
         )
     }
 }

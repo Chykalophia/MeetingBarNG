@@ -133,6 +133,8 @@ struct DropdownPanelHandlers {
     var copyText: @MainActor (String) -> Void = { _ in }
     var copyMeetingLink: @MainActor (MBEvent) -> Void = { _ in }
     var copyMeetingIdentifier: @MainActor (MBEvent) -> Void = { _ in }
+    /// `nil` returns the event to the global reminder setting.
+    var setReminderOverride: @MainActor (MBEvent, StartReminderOverride?) -> Void = { _, _ in }
     /// Opens a reference URL in the default browser — meeting-prep links and
     /// alternate meeting links.
     var openURL: @MainActor (URL) -> Void = { _ in }
@@ -1711,6 +1713,35 @@ struct DropdownPanelView: View {
         )
     }
 
+    /// Per-event reminder time.
+    ///
+    /// Presets only, no custom picker: a submenu is a place for a decision, not
+    /// a form, and the useful answers here are coarse. "Use the default" is
+    /// listed rather than implied so returning to it is one click, not a guess
+    /// about which preset happens to match the global setting.
+    @ViewBuilder
+    private func reminderMenu(_ event: MBEvent) -> some View {
+        Menu("status_bar_submenu_remind_me".loco()) {
+            Button("status_bar_submenu_remind_default".loco()) {
+                perform { handlers.setReminderOverride(event, nil) }()
+            }
+            Button("status_bar_submenu_remind_never".loco()) {
+                perform { handlers.setReminderOverride(event, .suppressed) }()
+            }
+            Divider()
+            Button("status_bar_submenu_remind_at_start".loco()) {
+                perform { handlers.setReminderOverride(event, .offset(0)) }()
+            }
+            ForEach([1, 5, 10, 15, 30, 60], id: \.self) { minutes in
+                Button("status_bar_submenu_remind_minutes".loco(minutes)) {
+                    perform {
+                        handlers.setReminderOverride(event, .offset(TimeInterval(minutes * 60)))
+                    }()
+                }
+            }
+        }
+    }
+
     // MARK: - Per-event context menu (full NSMenu parity)
 
     @ViewBuilder
@@ -1735,6 +1766,7 @@ struct DropdownPanelView: View {
         }
         alternateLinksMenu(event)
         prepLinksMenu(event)
+        reminderMenu(event)
         Divider()
         Button("status_bar_submenu_email_attendees".loco()) {
             perform { handlers.emailAttendees(event) }()

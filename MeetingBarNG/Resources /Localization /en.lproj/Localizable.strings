@@ -643,6 +643,11 @@
 "status_bar_submenu_attendees_status_tentative" = " [tentative]";
 "status_bar_submenu_attendees_status_unknown" = " [?]";
 "status_bar_submenu_copy_meeting_link" = "Copy meeting link";
+"status_bar_submenu_remind_me" = "Remind me";
+"status_bar_submenu_remind_default" = "Use the default";
+"status_bar_submenu_remind_never" = "Not for this meeting";
+"status_bar_submenu_remind_at_start" = "When it starts";
+"status_bar_submenu_remind_minutes" = "%d minutes before";
 "status_bar_submenu_copy_meeting_id" = "Copy meeting ID";
 "status_bar_submenu_copy_meeting_room" = "Copy room name";
 "status_bar_submenu_click_to_copy" = "Click to copy";

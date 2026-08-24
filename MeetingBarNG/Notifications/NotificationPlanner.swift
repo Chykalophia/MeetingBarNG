@@ -45,6 +45,25 @@ struct NotificationPlanningEvent: Equatable, Sendable {
     let participationStatus: ParticipationStatus
     let isAllDay: Bool
     let hasMeetingLink: Bool
+    /// Per-event override of the start reminder. `nil` follows the global setting.
+    ///
+    /// A `var` with a default so every existing construction site keeps compiling
+    /// and keeps its current behaviour — an override is opt-in per meeting.
+    var startReminderOverride: StartReminderOverride?
+}
+
+/// A per-event override of the event-start reminder.
+///
+/// Three states in total, counting the absence of one: no override follows the
+/// global setting, `.suppressed` silences this meeting alone, and `.offset`
+/// gives it its own lead time. "Inherit" has to be distinguishable from "off",
+/// or turning the global reminder on later would silently un-silence a meeting
+/// the user had deliberately quieted.
+enum StartReminderOverride: Equatable, Sendable {
+    /// No start reminder for this event, even when the global setting is on.
+    case suppressed
+    /// Seconds before the start. `0` means at the start.
+    case offset(TimeInterval)
 }
 
 struct NotificationPlanningSettings: Equatable, Sendable {
@@ -116,8 +135,12 @@ enum NotificationPlanner {
         for event in events
         where shouldConsider(event: event, dismissed: settings.dismissedEventIDs) {
             appendIfDue(
-                .eventStart, anchor: event.startDate, action: settings.eventStart, event: event,
-                now: now, into: &planned)
+                .eventStart,
+                anchor: event.startDate,
+                action: startAction(global: settings.eventStart, override: event.startReminderOverride),
+                event: event,
+                now: now,
+                into: &planned)
             appendIfDue(
                 .eventEnd, anchor: event.endDate, action: settings.eventEnd, event: event, now: now,
                 into: &planned)
@@ -148,6 +171,31 @@ enum NotificationPlanner {
         }
 
         return planned.sorted { $0.fireDate < $1.fireDate }
+    }
+
+    /// The start-reminder action for one event, after its override.
+    ///
+    /// Only the START reminder is overridable. The end reminder, fullscreen,
+    /// auto-join and the on-start script stay global on purpose: they are
+    /// workflow settings rather than per-meeting ones, and "why did this meeting
+    /// auto-join when the others didn't" is a far worse surprise than a missing
+    /// reminder.
+    private static func startAction(
+        global: NotificationPlanningSettings.Action,
+        override: StartReminderOverride?
+    ) -> NotificationPlanningSettings.Action {
+        switch override {
+        case nil:
+            return global
+        case .suppressed:
+            return .disabled
+        case .offset(let seconds):
+            // An explicit per-event time wins even when the global reminder is
+            // OFF: asking for a reminder on this meeting is a clearer signal
+            // than the blanket setting, and the alternative is a control that
+            // silently does nothing.
+            return NotificationPlanningSettings.Action(enabled: true, offset: seconds)
+        }
     }
 
     private static func shouldConsider(event: NotificationPlanningEvent, dismissed: Set<String>)

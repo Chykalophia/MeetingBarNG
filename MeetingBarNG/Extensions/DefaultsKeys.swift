@@ -80,6 +80,16 @@ extension Defaults.Keys {
     static let hideMeetingTitle = Key<Bool>("hideMeetingTitle", default: false)
     static let dismissedEvents = Key<[ProcessedEvent]>("dismissedEvents", default: [])
 
+    /// Per-event start-reminder overrides — "remind me 30 minutes before THIS
+    /// one", or "don't remind me about this one".
+    ///
+    /// Keyed on the per-occurrence `MBEvent.id`, so adjusting one instance of a
+    /// recurring standup leaves the rest alone. Entries carry the event's end
+    /// date and are pruned once it has passed, the same way `dismissedEvents`
+    /// avoids growing forever. See `EventReminderOverrideStore`.
+    static let eventReminderOverrides = Key<[EventReminderOverride]>(
+        "eventReminderOverrides", default: [])
+
     static let ongoingEventVisibility = Key<OngoingEventVisibility>(
         "ongoingEventVisibility", default: .showTenMinBeforeNext)
 

@@ -429,6 +429,13 @@ final class StatusBarItemController {
             copyText: { [weak self] value in self?.copyDetail(value) },
             copyMeetingLink: { [weak self] event in self?.copyMeetingLink(for: event) },
             copyMeetingIdentifier: { [weak self] event in self?.copyMeetingIdentifier(for: event) },
+            setReminderOverride: { event, override in
+                if let override {
+                    EventReminderOverrideStore.set(override, for: event)
+                } else {
+                    EventReminderOverrideStore.clear(for: event)
+                }
+            },
             openURL: { [weak self] url in self?.openReferenceURL(url) },
             emailAttendees: { [weak self] event in self?.emailAttendees(for: event) },
             dismissEvent: { [weak self] event in self?.dismiss(event: event) },
