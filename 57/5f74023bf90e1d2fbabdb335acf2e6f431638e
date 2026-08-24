@@ -1,0 +1,41 @@
+Package.swift
+  s_5edbb03e8b3092::t_caa9c912b19f4f 44
+ROADMAP.md
+  s_5edbb03e8b3092::t_d1afd71453689f 83-89
+  s_5edbb03e8b3092::t_3135d020bd629e 20-23
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_5edbb03e8b3092::t_34592055aef56f 361-362
+MeetingBarNG/UI/EventEditor/EventEditorView.swift
+  s_5edbb03e8b3092::t_00bfbf539d45e3 15
+  s_5edbb03e8b3092::t_15baa6a6ba1813 119-165
+  s_5edbb03e8b3092::t_1736ee4ea8626d 26-28
+MeetingBarNG/Meetings/LocationAutocompletePolicy.swift
+  s_5edbb03e8b3092::t_5ebae705ad4fac 1-54
+MeetingBarNG/Preferences/GeneralTab.swift
+  s_5edbb03e8b3092::t_9c82d38e9c5d28 48,52-65
+MeetingBarNG/UI/EventEditor/LocationSuggestions.swift
+  s_5edbb03e8b3092::t_c59eb3ce22277a 1-92
+MeetingBarLogicTests/LocationAutocompletePolicyTests.swift
+  s_5edbb03e8b3092::t_32cf355bac2c68 1-106
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_5edbb03e8b3092::t_f3a6aa59b818d7 292-302
+MeetingBarNG/Preferences/SettingsIndex.swift
+  s_5edbb03e8b3092::t_32eedd1977777e 427-433
+  s_5edbb03e8b3092::t_294fa96d14b5d8 426
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "575f74023bf90e1d2fbabdb335acf2e6f431638e",
+  "prompts": {},
+  "sessions": {
+    "s_5edbb03e8b3092": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b2ce1e37-f171-454f-9972-51bdf2806011",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
