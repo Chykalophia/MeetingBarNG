@@ -358,6 +358,16 @@
 "preferences_dropdown_density_standard" = "Medium";
 "preferences_dropdown_density_roomy" = "Large";
 "preferences_dropdown_density_help" = "How tightly meetings are packed. Small fits more on screen; Large is easier to read at a glance. The dropdown keeps the same width either way.";
+"preferences_date_markers_title" = "Important days";
+"preferences_date_markers_help" = "Mark birthdays, anniversaries, or deadlines. Marked days stand out in both month calendars, and hovering one shows what it is.";
+"preferences_date_markers_empty" = "No important days yet.";
+"preferences_date_markers_add_button" = "Add a day…";
+"preferences_date_markers_new_title" = "New important day";
+"preferences_date_markers_date_label" = "Date";
+"preferences_date_markers_label_label" = "What is it?";
+"preferences_date_markers_label_placeholder" = "Anna's birthday";
+"preferences_date_markers_repeats_toggle" = "Comes round every year";
+"preferences_date_markers_repeats_help" = "Repeats every year";
 "preferences_dropdown_hide_empty_days_toggle" = "Hide days with no meetings";
 "preferences_dropdown_hide_empty_days_help" = "Drops the Tomorrow heading entirely when tomorrow is free, instead of showing it above a \"nothing tomorrow\" line. Today always stays, so a free day still says so.";
 "preferences_dropdown_max_rows_title" = "Show at most";

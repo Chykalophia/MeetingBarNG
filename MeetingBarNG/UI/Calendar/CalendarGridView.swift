@@ -23,6 +23,7 @@ struct CalendarGridView: View {
     @Default(.dimWeekendsInCalendar) private var dimWeekends
     @Default(.showWeekNumbersInCalendar) private var showWeekNumbers
     @Default(.maxEventsPerCalendarDay) private var maxEventsPerDay
+    @Default(.dateMarkers) private var storedDateMarkers
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: 4), count: 7
@@ -150,7 +151,8 @@ struct CalendarGridView: View {
                             events: viewModel.events(on: day),
                             maxDots: maxEventsPerDay,
                             isSelected: isSelected(day),
-                            isDimmedWeekend: isDimmedWeekend(day)
+                            isDimmedWeekend: isDimmedWeekend(day),
+                            markerLabels: markerLabels(for: day)
                         )
                         .onTapGesture { viewModel.select(day) }
                     }
@@ -231,6 +233,18 @@ struct CalendarGridView: View {
     /// `Calendar.isDateInWeekend` follows the locale (not always Sat/Sun).
     private func isDimmedWeekend(_ day: MonthGridDay) -> Bool {
         dimWeekends && viewModel.calendar.isDateInWeekend(day.date)
+    }
+
+    /// Decoded per render rather than cached: the list is a handful of entries,
+    /// and caching it would need invalidation on every Defaults write for no
+    /// measurable gain.
+    private func markerLabels(for day: MonthGridDay) -> [String] {
+        guard !storedDateMarkers.isEmpty else { return [] }
+        return DateMarkerPolicy.markers(
+            on: day.date,
+            from: DateMarkerCodec.decodeAll(storedDateMarkers),
+            calendar: viewModel.calendar
+        ).map(\.label)
     }
 
     private var orderedWeekdaySymbols: [String] {
@@ -314,6 +328,12 @@ private struct DayCell: View {
     /// Weekend day with the dim-weekends preference on. Only the day number is
     /// muted — the today ring and the selection fill stay at full strength.
     let isDimmedWeekend: Bool
+    /// Labels of any user markers on this day.
+    ///
+    /// Shown as weight plus a background tint rather than an accent NUMBER, which
+    /// is how the compact grid does it: here the accent number already means
+    /// "today", and a second meaning for the same treatment would be ambiguous.
+    let markerLabels: [String]
 
     var body: some View {
         VStack(spacing: 3) {
@@ -324,7 +344,10 @@ private struct DayCell: View {
                     Circle().strokeBorder(Color.accentColor, lineWidth: 1.5)
                 }
                 Text(dayNumber)
-                    .font(.system(size: 13, weight: day.isToday ? .semibold : .regular))
+                    .font(.system(
+                        size: 13,
+                        weight: day.isToday || isMarked ? .semibold : .regular
+                    ))
                     .foregroundStyle(numberColor)
             }
             .frame(width: 26, height: 26)
@@ -337,9 +360,27 @@ private struct DayCell: View {
         .opacity(day.isInMonth ? 1 : 0.35)
         .background(
             RoundedRectangle(cornerRadius: 6)
-                .fill(isSelected ? Color.accentColor.opacity(0.12) : Color.clear)
+                .fill(cellFill)
         )
         .contentShape(Rectangle())
+        .help(markerLabels.joined(separator: " · "))
+        .accessibilityLabel(accessibilityLabel)
+    }
+
+    private var isMarked: Bool { !markerLabels.isEmpty }
+
+    private var cellFill: Color {
+        // Selection wins: it is the state the user is actively driving, and two
+        // accent washes stacked would just read as a brighter selection.
+        if isSelected { return Color.accentColor.opacity(0.12) }
+        return isMarked ? Color.accentColor.opacity(0.07) : .clear
+    }
+
+    /// VoiceOver gets the labels outright — a tooltip needs a pointer, and
+    /// neither the tint nor the weight conveys anything without sight.
+    private var accessibilityLabel: String {
+        guard isMarked else { return dayNumber }
+        return "\(dayNumber), \(markerLabels.joined(separator: ", "))"
     }
 
     private var numberColor: Color {

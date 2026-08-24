@@ -85,7 +85,13 @@ single release.
 ### Customization & personalization
 - [ ] Fully customizable interface (appearance + layout).
 - [ ] System / custom themes.
-- [ ] Date markers for important days.
+- [x] Date markers for important days — birthdays, anniversaries, deadlines, marked in both
+      month grids. Managed in Preferences ▸ Display ▸ Important days. Markers store month /
+      day / optional year COMPONENTS rather than a `Date`: a birthday is a calendar day, not
+      an instant, and a stored `Date` lands on the wrong day the moment the machine changes
+      time zone. An absent year means "every year", so the birthday case is the natural one
+      rather than a recurrence rule bolted on. `DateMarker` / `DateMarkerCodec` /
+      `DateMarkerPolicy`, hostless, 15 tests (2026-08-24).
 - [x] Hide empty days — `dropdownHidesEmptyDays` drops the Tomorrow heading entirely when
       tomorrow is free, rather than drawing it over a "nothing tomorrow" line. OFF by
       default so an upgrade never silently loses a section. **Today is never hidden**: an

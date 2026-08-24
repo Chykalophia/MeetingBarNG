@@ -29,6 +29,10 @@ struct CompactMonthGridView: View {
     /// Day-start -> calendar colours of that day's events, in order. Drives the
     /// dots; empty means a day with nothing on it.
     let markers: [Date: [Color]]
+    /// User-marked important days. Rendered by tinting the day NUMBER rather than
+    /// adding a fourth dot: the dot row already means "how busy", and overloading
+    /// it would make a marked free day look like a meeting.
+    var dateMarkers: [DateMarker] = []
     let onStep: (Int) -> Void
     let onSelect: (Date) -> Void
 
@@ -91,9 +95,11 @@ struct CompactMonthGridView: View {
     }
 
     private func cell(_ day: MonthGridDay) -> some View {
-        CompactMonthDayCell(
+        let marked = DateMarkerPolicy.markers(on: day.date, from: dateMarkers, calendar: calendar)
+        return CompactMonthDayCell(
             day: day,
             dots: markers[calendar.startOfDay(for: day.date)] ?? [],
+            markerLabels: marked.map(\.label),
             calendar: calendar,
             metrics: metrics,
             onSelect: onSelect
@@ -131,6 +137,8 @@ struct CompactMonthGridView: View {
 private struct CompactMonthDayCell: View {
     let day: MonthGridDay
     let dots: [Color]
+    /// Labels of any user markers on this day. Empty is the common case.
+    let markerLabels: [String]
     let calendar: Calendar
     let metrics: DropdownMetrics
     let onSelect: (Date) -> Void
@@ -145,7 +153,10 @@ private struct CompactMonthDayCell: View {
             Text(dayNumber(day.date))
                 .font(.system(
                     size: metrics.secondaryFontSize - 1,
-                    weight: day.isToday ? .bold : .regular
+                    // A marked day gets weight as well as colour, so it is still
+                    // distinguishable with a colour-vision deficiency and when
+                    // Increase Contrast flattens the accent.
+                    weight: day.isToday ? .bold : (isMarked ? .semibold : .regular)
                 ))
                 .foregroundStyle(dayColor(day))
             // The dot row is always present, even when empty, so a day with
@@ -176,6 +187,19 @@ private struct CompactMonthDayCell: View {
             }
         }
         .onTapGesture { onSelect(day.date) }
+        // The only place the marker's LABEL is readable — the grid cell is far
+        // too small to draw it, so colour says "something is here" and the
+        // tooltip says what.
+        .help(markerLabels.joined(separator: " · "))
+        .accessibilityLabel(accessibilityLabel)
+    }
+
+    /// VoiceOver gets the labels outright: a tooltip needs a pointer, and colour
+    /// alone conveys nothing here.
+    private var accessibilityLabel: String {
+        let dayText = dayNumber(day.date)
+        guard isMarked else { return dayText }
+        return "\(dayText), \(markerLabels.joined(separator: ", "))"
     }
 
     private var fill: Color {
@@ -185,9 +209,15 @@ private struct CompactMonthDayCell: View {
         return isHovered ? Color.primary.opacity(0.12) : .clear
     }
 
+    private var isMarked: Bool { !markerLabels.isEmpty }
+
     private func dayColor(_ day: MonthGridDay) -> Color {
+        // Today's accent fill wins: white-on-accent is already the strongest cell
+        // in the grid, and tinting the number there would reduce contrast to say
+        // something the tooltip says better.
         if day.isToday { return .white }
-        return day.isInMonth ? .primary : .secondary.opacity(0.5)
+        guard day.isInMonth else { return .secondary.opacity(0.5) }
+        return isMarked ? .accentColor : .primary
     }
 
     private func dayNumber(_ date: Date) -> String {

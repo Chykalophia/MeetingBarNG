@@ -268,6 +268,17 @@ extension Defaults.Keys {
     static let dropdownDensity = Key<String>(
         "dropdownDensity", default: DropdownDensity.standard.rawValue)
 
+    /// User-marked important days — birthdays, anniversaries, deadlines — drawn
+    /// on the month grids.
+    ///
+    /// One compact string per marker (`YYYY-MM-DD|label`, `----` for a repeating
+    /// year), for the same reason `dropdownDensity` stores a raw string: the
+    /// hostless module owns the model and cannot import Defaults, and a plist a
+    /// human can read beats a nested archive when something goes wrong. Encoding
+    /// and parsing live in `DateMarkerCodec`; an entry that does not parse costs
+    /// that one marker, not the list.
+    static let dateMarkers = Key<[String]>("dateMarkers", default: [])
+
     /// Whether an empty look-ahead day is dropped from the agenda entirely,
     /// rather than drawing a heading over a "nothing tomorrow" line.
     ///

@@ -424,6 +424,14 @@ enum SettingsIndex {
             synonyms: ["date", "today", "day", "heading"]
         ),
         SettingsIndexEntry(
+            id: "dropdown.date_markers",
+            tab: .dropdown,
+            labelKey: "preferences_date_markers_title",
+            helpKey: "preferences_date_markers_help",
+            defaultsKeys: ["dateMarkers"],
+            synonyms: ["birthday", "anniversary", "deadline", "important", "marker", "holiday"]
+        ),
+        SettingsIndexEntry(
             id: "dropdown.hide_empty_days",
             tab: .dropdown,
             labelKey: "preferences_dropdown_hide_empty_days_toggle",

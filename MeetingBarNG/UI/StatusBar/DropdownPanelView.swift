@@ -175,6 +175,7 @@ struct DropdownPanelView: View {
     @Default(.timelineAppearance) private var timelineAppearanceRaw
     @Default(.meetingCardShowsProgress) private var showsMeetingCardProgress
     @Default(.dropdownHidesEmptyDays) private var hidesEmptyAgendaDays
+    @Default(.dateMarkers) private var storedDateMarkers
     @Default(.meetingCardShowsSectionLine) private var meetingCardShowsSectionLine
     @Default(.meetingCardShowsTimes) private var meetingCardShowsTimes
     @Default(.meetingCardShowsProvider) private var meetingCardShowsProvider
@@ -751,6 +752,7 @@ struct DropdownPanelView: View {
                 now: clock,
                 calendar: panelCalendar,
                 markers: calendarMarkers,
+                dateMarkers: DateMarkerCodec.decodeAll(storedDateMarkers),
                 onStep: { step in
                     withAnimation(reduceMotion ? nil : .easeOut(duration: 0.12)) {
                         calendarMonthOffset += step

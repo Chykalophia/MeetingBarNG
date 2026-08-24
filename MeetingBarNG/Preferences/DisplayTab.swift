@@ -519,6 +519,7 @@ struct CalendarWindowDisplaySection: View {
     @Default(.calendarFirstWeekday) var calendarFirstWeekday
     @Default(.showWeekNumbersInCalendar) var showWeekNumbersInCalendar
     @Default(.maxEventsPerCalendarDay) var maxEventsPerCalendarDay
+    @Default(.dateMarkers) var dateMarkers
 
     var body: some View {
         Section {
@@ -587,6 +588,16 @@ struct CalendarWindowDisplaySection: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
+        }
+
+        Section {
+            Text("preferences_date_markers_title".loco())
+                .font(.headline)
+            Text("preferences_date_markers_help".loco())
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            DateMarkerList(rawMarkers: $dateMarkers)
         }
     }
 
