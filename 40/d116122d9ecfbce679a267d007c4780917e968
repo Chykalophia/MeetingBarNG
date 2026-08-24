@@ -1,0 +1,36 @@
+Scripts/notarize.sh
+  s_5edbb03e8b3092::t_c7ba2ff05b3f75 1-65
+docs/RELEASING.md
+  s_5edbb03e8b3092::t_35aee122d964bd 1-152
+.github/workflows/release.yml
+  s_5edbb03e8b3092::t_6d18e0f289e84a 1-237,246-269
+  s_5edbb03e8b3092::t_accdf18ddccffd 238-245
+Scripts/package-dmg.sh
+  s_5edbb03e8b3092::t_0d36a0c54eea29 1-51
+XCConfig/DeveloperID.entitlements
+  s_5edbb03e8b3092::t_4b182e1d62f6cb 1-37
+XCConfig/ExportOptions-DeveloperID.plist
+  s_5edbb03e8b3092::t_a295566e95ed70 1-45
+README.md
+  s_5edbb03e8b3092::t_e6779b17b84ea2 103-131
+Makefile
+  s_5edbb03e8b3092::t_14aaa3c4c020cd 35-101
+STATE.md
+  s_5edbb03e8b3092::t_9ce19d3c073010 125-137
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "40d116122d9ecfbce679a267d007c4780917e968",
+  "prompts": {},
+  "sessions": {
+    "s_5edbb03e8b3092": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b2ce1e37-f171-454f-9972-51bdf2806011",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
