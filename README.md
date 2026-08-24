@@ -100,6 +100,35 @@ The complete parity checklist and the deferred rename/overhaul backlog live in
 
 ---
 
+## Install
+
+> **Heads up:** the download below is not published yet. `v0.2.0` and `v0.3.0` were tagged
+> before the release pipeline existed, so they carry release notes but no artifact. Until
+> the next tagged release, [build from source](#build-from-source). Progress is tracked in
+> [`STATE.md`](STATE.md).
+
+MeetingBarNG requires **macOS 15.0 or later** (Apple Silicon and Intel).
+
+1. Download `MeetingBarNG-<version>.dmg` from the
+   [latest release](https://github.com/Chykalophia/MeetingBarNG/releases/latest).
+2. Open it and drag **MeetingBarNG** to Applications.
+3. Launch it. Grant Calendar access when asked — the app cannot show meetings without it.
+
+Builds are signed with a Developer ID certificate and notarized by Apple, so they open
+without a Gatekeeper warning and without right-click ▸ Open. To verify a download yourself:
+
+```bash
+# should print: accepted ... source=Notarized Developer ID
+spctl --assess --type open --context context:primary-signature -vv MeetingBarNG-<version>.dmg
+
+# and match the .sha256 published beside the dmg
+shasum -a 256 MeetingBarNG-<version>.dmg
+```
+
+There is no auto-updater yet; check the releases page, or watch the repo for releases.
+
+---
+
 ## Build from source
 
 MeetingBarNG requires **macOS 15.0 or later** and is built with Xcode, Swift 6, AppKit,

@@ -122,9 +122,19 @@ including two GitHub API gotchas that will otherwise cost an hour, is in the pro
 ---
 
 ## Next work
-1. **Ship an installable build.** Release workflow: build Release, sign + notarize + staple,
-   package a dmg, attach it to the tag. Plus a README install section. Needs a Developer ID cert
-   and an app-specific password in repo secrets — that part needs Peter.
+1. **Ship an installable build — pipeline BUILT 2026-08-24, never yet run.**
+   `.github/workflows/release.yml` archives → signs (Developer ID, hardened runtime) →
+   exports → packages a dmg → notarizes → staples → uploads the dmg plus a `.sha256` to the
+   tag's release. `make release-local` drives the same chain locally. Runbook and
+   troubleshooting: [`docs/RELEASING.md`](docs/RELEASING.md).
+   **Blocked on Peter only:** four repo secrets — `MACOS_CERTIFICATE_P12`,
+   `MACOS_CERTIFICATE_PASSWORD`, `AC_APPLE_ID`, `AC_PASSWORD`. Then either re-run the
+   workflow against `v0.3.0` or tag `v0.4.0`.
+   **One decision embedded there:** without a `MACOS_PROVISIONING_PROFILE` secret the build
+   drops `com.apple.developer.usernotifications.time-sensitive` (Apple gates it behind a
+   profile), so meeting alerts stop breaking through Focus. The workflow ships either way and
+   logs a warning when the profile is absent. For a meeting app this is worth fixing properly —
+   see RELEASING.md §1.
 2. **Defaults migration for upstream MeetingBar users.** The bundle id changed
    `leits.MeetingBar` → `com.chykalophia.MeetingBarNG` (2026-07-23) and `UserDefaults` is
    bundle-id-scoped. Nothing in the source reads the old domain — the four existing migrations

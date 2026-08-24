@@ -32,7 +32,73 @@ XCFILTER := $(shell command -v xcbeautify >/dev/null 2>&1 && echo 'xcbeautify --
 # Append a JUnit report to app-hosted test runs when xcbeautify is available.
 JUNIT_REPORT := $(shell command -v xcbeautify >/dev/null 2>&1 && echo '--report junit --report-path $(BUILD_DIR)/test-results')
 
-.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings lint-strings sign-local run-local
+.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings lint-strings sign-local run-local archive export-app dmg notarize release-local
+
+# ---------------------------------------------------------------------------
+# Distribution (Developer ID / direct download)
+#
+# CI does this on a tag push — see .github/workflows/release.yml. These targets
+# exist so the same pipeline can be driven locally when CI is not an option, or
+# to debug a signing failure without burning a 20-minute Actions run each time.
+#
+#   make release-local            # archive -> export -> dmg -> notarize
+#
+# Needs a "Developer ID Application" certificate in the login keychain, and for
+# notarization: AC_APPLE_ID, AC_PASSWORD (app-specific), AC_TEAM_ID.
+# ---------------------------------------------------------------------------
+VERSION := $(shell grep -m1 'MARKETING_VERSION' $(PROJECT)/project.pbxproj | sed 's/.*= *//;s/;//')
+ARCHIVE_PATH := $(BUILD_DIR)/MeetingBarNG.xcarchive
+EXPORT_PATH := $(BUILD_DIR)/export
+EXPORTED_APP := $(EXPORT_PATH)/MeetingBarNG.app
+DMG_PATH := $(BUILD_DIR)/MeetingBarNG-$(VERSION).dmg
+
+# Signed with the FULL entitlements only when a provisioning profile is available;
+# otherwise the time-sensitive-notifications key has to go, or signing fails.
+# Override with: make archive RELEASE_ENTITLEMENTS=MeetingBarNG/MeetingBarNG.entitlements PROFILE_SPECIFIER="<profile name>"
+RELEASE_ENTITLEMENTS ?= XCConfig/DeveloperID.entitlements
+PROFILE_SPECIFIER ?=
+
+archive:
+	@mkdir -p $(BUILD_DIR)
+	@echo "==> Archiving $(SCHEME) $(VERSION) for Developer ID"
+	$(XCODEBUILD) archive \
+		-project $(PROJECT) \
+		-scheme $(SCHEME) \
+		-configuration Release \
+		-destination 'generic/platform=macOS' \
+		-archivePath $(ARCHIVE_PATH) \
+		-derivedDataPath $(DERIVED_DATA_DIR) \
+		CODE_SIGN_STYLE=Manual \
+		CODE_SIGN_IDENTITY="Developer ID Application" \
+		CODE_SIGN_ENTITLEMENTS="$(RELEASE_ENTITLEMENTS)" \
+		PROVISIONING_PROFILE_SPECIFIER="$(PROFILE_SPECIFIER)" \
+		ENABLE_HARDENED_RUNTIME=YES \
+		OTHER_CODE_SIGN_FLAGS="--timestamp"
+
+export-app: archive
+	@rm -rf $(EXPORT_PATH)
+	$(XCODEBUILD) -exportArchive \
+		-archivePath $(ARCHIVE_PATH) \
+		-exportOptionsPlist XCConfig/ExportOptions-DeveloperID.plist \
+		-exportPath $(EXPORT_PATH)
+	@echo "==> Verifying signature"
+	codesign --verify --deep --strict --verbose=2 "$(EXPORTED_APP)"
+	@codesign -d --verbose=2 "$(EXPORTED_APP)" 2>&1 | grep -q "flags=.*runtime" \
+		|| { echo "ERROR: hardened runtime missing — notarization would reject this."; exit 1; }
+
+dmg: export-app
+	@chmod +x Scripts/package-dmg.sh
+	Scripts/package-dmg.sh "$(EXPORTED_APP)" "$(VERSION)" "$(DMG_PATH)"
+	codesign --force --sign "Developer ID Application" --timestamp "$(DMG_PATH)"
+	codesign --verify --verbose=2 "$(DMG_PATH)"
+
+notarize:
+	@chmod +x Scripts/notarize.sh
+	Scripts/notarize.sh "$(DMG_PATH)"
+
+release-local: dmg notarize
+	@shasum -a 256 "$(DMG_PATH)"
+	@echo "==> Ready: $(DMG_PATH)"
 
 sign-local:
 	@if ! security find-identity -p codesigning 2>/dev/null | grep -q "$(LOCAL_SIGN_IDENTITY)"; then \

@@ -1,0 +1,269 @@
+name: Release
+
+# Builds, signs, notarizes and publishes a downloadable .dmg.
+#
+# Triggered by pushing a `v*` tag. `workflow_dispatch` takes an existing tag so a
+# failed notarization can be retried without cutting a new version — notarization
+# is the step most likely to fail for reasons that have nothing to do with the code
+# (expired credentials, an Apple outage, a rejected entitlement).
+#
+# Required secrets are documented in docs/RELEASING.md. If they are missing the job
+# fails early with a named error rather than half-way through a 20-minute build.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to build and publish (e.g. v0.3.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_16.2.app/Contents/Developer
+  TEAM_ID: KGH289N6T8
+  PROJECT: MeetingBarNG.xcodeproj
+  SCHEME: MeetingBarNG
+
+jobs:
+  release:
+    name: Build, sign, notarize, publish
+    runs-on: macos-15
+    timeout-minutes: 60
+
+    steps:
+      - name: Resolve tag
+        id: tag
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          echo "Releasing $TAG"
+
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+
+      - name: Check required secrets
+        env:
+          MACOS_CERTIFICATE_P12: ${{ secrets.MACOS_CERTIFICATE_P12 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          AC_APPLE_ID: ${{ secrets.AC_APPLE_ID }}
+          AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
+        run: |
+          missing=0
+          for name in MACOS_CERTIFICATE_P12 MACOS_CERTIFICATE_PASSWORD AC_APPLE_ID AC_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Required secret $name is not set. See docs/RELEASING.md."
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
+
+      - name: Select Xcode
+        run: |
+          if [ ! -d "$DEVELOPER_DIR" ]; then
+            echo "Expected Xcode not found at $DEVELOPER_DIR"
+            ls -1 /Applications | grep '^Xcode' || true
+            exit 1
+          fi
+          sudo xcode-select -s "$DEVELOPER_DIR"
+          xcodebuild -version
+
+      - name: Import signing certificate
+        env:
+          MACOS_CERTIFICATE_P12: ${{ secrets.MACOS_CERTIFICATE_P12 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+        run: |
+          # A throwaway keychain with a random password. Nothing needs to unlock it
+          # after this job, so there is no reason to carry a KEYCHAIN_PASSWORD secret.
+          KEYCHAIN="$RUNNER_TEMP/build.keychain-db"
+          KEYCHAIN_PASSWORD="$(uuidgen)"
+          echo "KEYCHAIN=$KEYCHAIN" >> "$GITHUB_ENV"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+
+          CERT="$RUNNER_TEMP/certificate.p12"
+          echo "$MACOS_CERTIFICATE_P12" | base64 --decode > "$CERT"
+          security import "$CERT" \
+            -k "$KEYCHAIN" \
+            -P "$MACOS_CERTIFICATE_PASSWORD" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/security
+          rm -f "$CERT"
+
+          # Without this, codesign blocks on a GUI "allow access" prompt that no one
+          # is there to click, and the job hangs until it times out.
+          security set-key-partition-list \
+            -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null
+
+          security list-keychain -d user -s "$KEYCHAIN" login.keychain-db
+
+          echo "Identities available:"
+          security find-identity -v -p codesigning "$KEYCHAIN"
+
+          if ! security find-identity -v -p codesigning "$KEYCHAIN" | grep -q "Developer ID Application"; then
+            echo "::error::No 'Developer ID Application' identity in the imported certificate."
+            echo "::error::A 'Mac Developer' or 'Apple Development' certificate cannot sign for direct download."
+            exit 1
+          fi
+
+      - name: Install provisioning profile (optional)
+        id: profile
+        env:
+          MACOS_PROVISIONING_PROFILE: ${{ secrets.MACOS_PROVISIONING_PROFILE }}
+        run: |
+          # The app's real entitlements ask for
+          # com.apple.developer.usernotifications.time-sensitive, which Apple gates
+          # behind a provisioning profile. With a profile we sign the full
+          # entitlements; without one we fall back to XCConfig/DeveloperID.entitlements
+          # and LOSE the ability to break through Focus modes.
+          if [ -z "$MACOS_PROVISIONING_PROFILE" ]; then
+            echo "::warning::No MACOS_PROVISIONING_PROFILE secret. Building WITHOUT time-sensitive notifications — meeting alerts will not break through Focus. See docs/RELEASING.md."
+            echo "entitlements=XCConfig/DeveloperID.entitlements" >> "$GITHUB_OUTPUT"
+            echo "specifier=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          PROFILE_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$PROFILE_DIR"
+          PROFILE="$PROFILE_DIR/meetingbarng.provisionprofile"
+          echo "$MACOS_PROVISIONING_PROFILE" | base64 --decode > "$PROFILE"
+
+          NAME="$(security cms -D -i "$PROFILE" | plutil -extract Name raw - 2>/dev/null || true)"
+          if [ -z "$NAME" ]; then
+            echo "::error::Could not read a Name out of MACOS_PROVISIONING_PROFILE — is it a base64-encoded .provisionprofile?"
+            exit 1
+          fi
+
+          echo "Installed provisioning profile: $NAME"
+          echo "entitlements=MeetingBarNG/MeetingBarNG.entitlements" >> "$GITHUB_OUTPUT"
+          echo "specifier=$NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Archive
+        run: |
+          mkdir -p build
+          # Manual signing, explicitly. Automatic would try to reach the developer
+          # portal from a runner that has no account session and can silently pick a
+          # different identity.
+          xcodebuild archive \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -archivePath build/MeetingBarNG.xcarchive \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Developer ID Application" \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            CODE_SIGN_ENTITLEMENTS="${{ steps.profile.outputs.entitlements }}" \
+            PROVISIONING_PROFILE_SPECIFIER="${{ steps.profile.outputs.specifier }}" \
+            ENABLE_HARDENED_RUNTIME=YES \
+            OTHER_CODE_SIGN_FLAGS="--timestamp"
+
+      - name: Export app
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath build/MeetingBarNG.xcarchive \
+            -exportOptionsPlist XCConfig/ExportOptions-DeveloperID.plist \
+            -exportPath build/export
+
+          ls -la build/export
+
+      - name: Verify signature and hardened runtime
+        run: |
+          APP="build/export/MeetingBarNG.app"
+          [ -d "$APP" ] || { echo "::error::No app at $APP"; exit 1; }
+
+          codesign --verify --deep --strict --verbose=2 "$APP"
+
+          # Notarization rejects anything without the hardened runtime, but only
+          # after the upload — checking here turns a 5-minute round trip into an
+          # immediate failure.
+          if ! codesign -d --verbose=2 "$APP" 2>&1 | grep -q "flags=.*runtime"; then
+            echo "::error::Hardened runtime is not enabled — notarization would reject this."
+            exit 1
+          fi
+
+          echo "Entitlements actually signed in:"
+          codesign -d --entitlements :- "$APP" 2>/dev/null || true
+
+      - name: Package dmg
+        id: package
+        run: |
+          VERSION="${{ steps.tag.outputs.version }}"
+          DMG="build/MeetingBarNG-$VERSION.dmg"
+          chmod +x Scripts/package-dmg.sh
+          Scripts/package-dmg.sh build/export/MeetingBarNG.app "$VERSION" "$DMG"
+          echo "dmg=$DMG" >> "$GITHUB_OUTPUT"
+
+      - name: Sign the dmg
+        run: |
+          # The disk image itself is signed too, so Gatekeeper can evaluate it before
+          # the user has mounted anything.
+          codesign --force --sign "Developer ID Application" \
+            --timestamp "${{ steps.package.outputs.dmg }}"
+          codesign --verify --verbose=2 "${{ steps.package.outputs.dmg }}"
+
+      - name: Notarize and staple
+        env:
+          AC_APPLE_ID: ${{ secrets.AC_APPLE_ID }}
+          AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
+          AC_TEAM_ID: ${{ secrets.AC_TEAM_ID || 'KGH289N6T8' }}
+        run: |
+          chmod +x Scripts/notarize.sh
+          Scripts/notarize.sh "${{ steps.package.outputs.dmg }}"
+
+      - name: Checksum
+        id: checksum
+        run: |
+          DMG="${{ steps.package.outputs.dmg }}"
+          # Run from the dmg's directory so the checksum file records a bare
+          # filename — `shasum -c` next to the download then just works, which it
+          # would not if the file said "build/MeetingBarNG-x.y.z.dmg".
+          cd "$(dirname "$DMG")"
+          BASE="$(basename "$DMG")"
+          shasum -a 256 "$BASE" > "$BASE.sha256"
+          cat "$BASE.sha256"
+          echo "sha=${DMG}.sha256" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          DMG="${{ steps.package.outputs.dmg }}"
+
+          # The tag may already have a release with hand-written notes (0.2.0 and
+          # 0.3.0 do). Only create one if it is genuinely missing, so publishing an
+          # artifact never overwrites release notes.
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            echo "No release for $TAG yet — creating one from the tag."
+            gh release create "$TAG" --title "$TAG" --generate-notes
+          fi
+
+          gh release upload "$TAG" "$DMG" "${{ steps.checksum.outputs.sha }}" --clobber
+          echo "Published $(basename "$DMG") to $TAG"
+
+      - name: Clean up keychain
+        if: always()
+        run: |
+          security delete-keychain "$KEYCHAIN" 2>/dev/null || true
+          rm -f "$HOME/Library/MobileDevice/Provisioning Profiles/meetingbarng.provisionprofile" 2>/dev/null || true

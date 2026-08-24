@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Export options for Developer ID (direct download) distribution.
+	  Used by `make export-app` and by .github/workflows/release.yml.
+	  NOT for the Mac App Store — that would be method `app-store-connect`.
+	-->
+	<key>method</key>
+	<string>developer-id</string>
+
+	<key>teamID</key>
+	<string>KGH289N6T8</string>
+
+	<!--
+	  Manual so CI picks the Developer ID Application certificate deterministically.
+	  Automatic signing would try to talk to the developer portal and can silently
+	  select a different identity on a fresh runner.
+	-->
+	<key>signingStyle</key>
+	<string>manual</string>
+
+	<key>signingCertificate</key>
+	<string>Developer ID Application</string>
+
+	<!--
+	  Hardened runtime is REQUIRED for notarization. Without it, notarytool accepts
+	  the upload and then rejects it in the log, which is a slow way to find out.
+	-->
+	<key>destination</key>
+	<string>export</string>
+
+	<!-- Let Xcode manage the version-specific bits; we tag the dmg name ourselves. -->
+	<key>stripSwiftSymbols</key>
+	<true/>
+
+	<!--
+	  No symbol upload: there is no crash-reporting backend wired up, so uploading
+	  symbols would just slow the export down.
+	-->
+	<key>uploadSymbols</key>
+	<false/>
+</dict>
+</plist>
