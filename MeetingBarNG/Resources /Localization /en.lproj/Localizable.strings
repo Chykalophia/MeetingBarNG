@@ -358,6 +358,11 @@
 "preferences_dropdown_density_standard" = "Medium";
 "preferences_dropdown_density_roomy" = "Large";
 "preferences_dropdown_density_help" = "How tightly meetings are packed. Small fits more on screen; Large is easier to read at a glance. The dropdown keeps the same width either way.";
+"dropdown_calendar_today" = "Today";
+"dropdown_calendar_today_help" = "Back to the current month";
+"calendar_grid_jump_help" = "Jump to a date";
+"calendar_grid_jump_title" = "Jump to a date";
+"calendar_grid_jump_go" = "Go";
 "dropdown_calendar_show_week" = "Show this week only";
 "dropdown_calendar_show_month" = "Show the whole month";
 "preferences_date_markers_title" = "Important days";

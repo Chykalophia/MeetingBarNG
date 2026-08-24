@@ -41,6 +41,13 @@ struct CompactMonthGridView: View {
     /// Toggles the fold. Optional so previews and the Preferences live preview
     /// can render the grid without owning the setting.
     var onToggleFold: (() -> Void)?
+    /// Returns the grid to the current period. Shown only when the user has
+    /// stepped away — until now the only way back was stepping the same number
+    /// of times in the other direction.
+    var onReturnToToday: (() -> Void)?
+    /// Whether the grid is currently showing something other than the period
+    /// containing `now`. Owned by the panel, which holds the offset.
+    var isSteppedAway = false
 
     @Environment(\.dropdownMetrics) private var metrics
 
@@ -62,6 +69,17 @@ struct CompactMonthGridView: View {
             Text(title)
                 .font(.system(size: metrics.rowFontSize, weight: .semibold))
             Spacer(minLength: 0)
+            if isSteppedAway, let onReturnToToday {
+                Text("dropdown_calendar_today".loco())
+                    .font(.system(size: metrics.secondaryFontSize - 2, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .contentShape(Rectangle())
+                    .pointerStyle(.link)
+                    .onTapGesture { onReturnToToday() }
+                    .help("dropdown_calendar_today_help".loco())
+            }
             if let onToggleFold {
                 Image(systemName: isWeekFold
                     ? "rectangle.expand.vertical"

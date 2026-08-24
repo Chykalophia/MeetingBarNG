@@ -771,7 +771,13 @@ struct DropdownPanelView: View {
                         // means anyway.
                         calendarMonthOffset = 0
                     }
-                }
+                },
+                onReturnToToday: {
+                    withAnimation(reduceMotion ? nil : .easeOut(duration: 0.12)) {
+                        calendarMonthOffset = 0
+                    }
+                },
+                isSteppedAway: calendarMonthOffset != 0
             )
             // Keyed on the anchor, so stepping cancels the previous request
             // rather than racing it — two months in flight could otherwise land

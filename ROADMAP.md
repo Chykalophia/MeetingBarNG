@@ -78,7 +78,12 @@ single release.
 - [x] Inline event edit (title, time, duration) — `UI/EventEditor`, `EventDraftValidation`.
 - [ ] Location autocomplete when creating/editing.
 - [ ] Calendar picker via command/slash.
-- [ ] Quick date jump.
+- [x] Quick date jump — the calendar window's header gains a jump button opening a graphical
+      date picker; picking a date moves the grid and selects that day. Both the month and
+      week anchors move, so switching mode after a jump lands where the user jumped to rather
+      than where the other mode was left. The dropdown's compact grid gains a **Today** chip
+      that appears only once stepped away — until now the only way back was stepping the same
+      number of times in the other direction (2026-08-24).
 - [x] Right-click event menu (join, copy, edit, delete) — full parity in both dropdowns.
 
 ### Reminders & focus

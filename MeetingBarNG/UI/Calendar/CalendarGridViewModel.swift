@@ -130,11 +130,21 @@ final class CalendarGridViewModel: ObservableObject {
     }
 
     func goToToday() {
-        visibleMonth = MonthGridLayout.startOfMonth(for: now, calendar: calendar)
+        goTo(now)
+    }
+
+    /// Jumps the grid to `date` and selects that day.
+    ///
+    /// Both anchors are moved, not just the one the current mode reads: switching
+    /// month/week after a jump should land where the user jumped TO, not back
+    /// where the other mode was left. `goToToday()` is this with `now`, kept as
+    /// its own entry point because the Today button is a distinct affordance.
+    func goTo(_ date: Date) {
+        visibleMonth = MonthGridLayout.startOfMonth(for: date, calendar: calendar)
         visibleWeekStart = MonthGridLayout.firstVisibleDayOfWeek(
-            containing: now, calendar: calendar
+            containing: date, calendar: calendar
         )
-        selectedDay = calendar.startOfDay(for: now)
+        selectedDay = calendar.startOfDay(for: date)
         reload()
     }
 

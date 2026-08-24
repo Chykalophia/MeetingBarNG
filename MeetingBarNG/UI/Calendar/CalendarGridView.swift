@@ -25,6 +25,38 @@ struct CalendarGridView: View {
     @Default(.maxEventsPerCalendarDay) private var maxEventsPerDay
     @Default(.dateMarkers) private var storedDateMarkers
 
+    @State private var isShowingJump = false
+    @State private var jumpTarget = Date()
+
+    /// Jump-to-date, in a popover rather than an always-visible field: browsing
+    /// by stepping is the common path, and a date field parked in the header
+    /// would cost width the title needs on every day the user never jumps.
+    private var jumpPopover: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("calendar_grid_jump_title".loco())
+                .font(.headline)
+            DatePicker(
+                "",
+                selection: $jumpTarget,
+                displayedComponents: .date
+            )
+            .datePickerStyle(.graphical)
+            .labelsHidden()
+            HStack {
+                Spacer()
+                Button("general_cancel".loco()) { isShowingJump = false }
+                    .keyboardShortcut(.cancelAction)
+                Button("calendar_grid_jump_go".loco()) {
+                    viewModel.goTo(jumpTarget)
+                    isShowingJump = false
+                }
+                .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding()
+        .frame(width: 300)
+    }
+
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: 4), count: 7
     )
@@ -55,6 +87,24 @@ struct CalendarGridView: View {
             Spacer(minLength: 8)
 
             modePicker
+
+            Button {
+                // Seed the picker from where the user is looking, not from the
+                // stale value of the last jump — otherwise reopening it after
+                // paging around shows a date that is nowhere on screen.
+                jumpTarget = viewModel.selectedDay ?? viewModel.visibleMonth
+                isShowingJump = true
+            } label: {
+                Image(systemName: "calendar.badge.clock")
+                    .font(.system(size: 12, weight: .medium))
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .help("calendar_grid_jump_help".loco())
+            .accessibilityLabel("calendar_grid_jump_help".loco())
+            .popover(isPresented: $isShowingJump, arrowEdge: .bottom) {
+                jumpPopover
+            }
 
             Button {
                 viewModel.goToToday()
