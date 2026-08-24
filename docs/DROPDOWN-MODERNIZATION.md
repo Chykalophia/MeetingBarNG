@@ -1,7 +1,8 @@
 # MeetingBarNG — Dropdown & Menu Bar Modernization
 
-**Status:** in progress. Started 2026-07-27. This is the progress note of record for the
-visual overhaul of the dropdown panel and the menu-bar item.
+**Status:** COMPLETE — all 10 items done as of 2026-08-24. Started 2026-07-27. This is the
+progress note of record for the visual overhaul of the dropdown panel and the menu-bar item.
+It stays as the design reference: §1's locked rules still bind anything new touching the panel.
 
 **Reference:** [Dot](https://www.trydot.app)'s dropdown, supplied by the owner as a demo
 screenshot. Copied selectively — see §2 for what was deliberately not copied.
@@ -77,7 +78,7 @@ window never resizes underneath the user. Type scales with padding; padding alon
 | 4 | Day header quick actions | **Done** `d60c6c4c` | Create / command bar / preferences. Three, not four. |
 | 5 | Calendar — window reachable from panel | **Done** `d60c6c4c` | Closed a parity gap: it was right-click-only. |
 | 6 | Calendar — inline month module | **Done** `8611e7b2` | `CompactMonthGridView`, OFF by default. Limitations in §4. |
-| 7 | Meeting-relative progress — dropdown card | **Not started** | Bar filling toward start; full exactly when Join un-mutes. |
+| 7 | Meeting-relative progress — dropdown card | **Done** `9231bc8f` | `meetingProgressBar`, a display option on the card (`meetingCardShowsProgress`). Shares `MeetingProgressPolicy` with the menu bar. Was recorded as "Not started" until 2026-08-24 — it shipped the same day this table was last written and was missed. |
 | 8 | Menu-bar progress — 4 styles + none | **Done** `2007165e`+ | `MeetingProgressStyle`. All four verified in the menu bar. See §5. |
 | 9 | Meeting card — card treatment | **Done** `2007165e` | Adopts `PanelCard`; `MeetingSummaryView` takes its inset as a parameter. |
 | 10 | Density applied to cards | **Done** `9c178efd`+ | `cardHorizontalPadding`/`cardVerticalPadding`/`cardCornerRadius` per density. |

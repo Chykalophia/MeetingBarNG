@@ -132,6 +132,7 @@ struct DropdownPanelHandlers {
     /// Click-to-copy for a detail string (location, organizer, attendee, notes).
     var copyText: @MainActor (String) -> Void = { _ in }
     var copyMeetingLink: @MainActor (MBEvent) -> Void = { _ in }
+    var copyMeetingIdentifier: @MainActor (MBEvent) -> Void = { _ in }
     /// Opens a reference URL in the default browser — meeting-prep links and
     /// alternate meeting links.
     var openURL: @MainActor (URL) -> Void = { _ in }
@@ -1676,6 +1677,16 @@ struct DropdownPanelView: View {
             }
             Button("status_bar_submenu_copy_meeting_link".loco()) {
                 perform { handlers.copyMeetingLink(event) }()
+            }
+            // Only when the URL actually carries one. Most services have no
+            // usable id, and a disabled row in a menu this long is noise —
+            // same reasoning as the Join row, which hides rather than greys.
+            if let identifier = event.meetingIdentifier {
+                Button(identifier.kind == .room
+                    ? "status_bar_submenu_copy_meeting_room".loco()
+                    : "status_bar_submenu_copy_meeting_id".loco()) {
+                    perform { handlers.copyMeetingIdentifier(event) }()
+                }
             }
         }
         alternateLinksMenu(event)

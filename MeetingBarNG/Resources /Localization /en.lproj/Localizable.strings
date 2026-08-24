@@ -624,6 +624,8 @@
 "status_bar_submenu_attendees_status_tentative" = " [tentative]";
 "status_bar_submenu_attendees_status_unknown" = " [?]";
 "status_bar_submenu_copy_meeting_link" = "Copy meeting link";
+"status_bar_submenu_copy_meeting_id" = "Copy meeting ID";
+"status_bar_submenu_copy_meeting_room" = "Copy room name";
 "status_bar_submenu_click_to_copy" = "Click to copy";
 "status_bar_submenu_dismiss_meeting" = "Dismiss meeting";
 "status_bar_submenu_undismiss_meeting" = "Remove dismissal";

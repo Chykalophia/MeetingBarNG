@@ -54,7 +54,13 @@ single release.
 - [x] One-click join (Zoom, Google Meet, Microsoft Teams, Webex, + 50 more) — already in MeetingBar.
 - [x] Meeting prep — invite links surfaced automatically (`Meetings/MeetingPrepLinks`).
 - [x] Camera / mic / lighting preview before joining (`UI/CameraPreview`, `Meetings/MicLevel`).
-- [ ] Copy meeting ID.
+- [x] Copy meeting ID — the number for a phone bridge, or the room code to paste into a
+      client already signed in, rather than the whole URL. `MeetingIdentifierPolicy`
+      (hostless, 18 tests) extracts it from the meeting URL; the per-event context menu
+      offers it only when one exists. Zoom (incl. ZoomGov/Zhumu/RingCentral), Google Meet,
+      Webex personal rooms, Chime, GoToMeeting/Webinar, BlueJeans, Jitsi, Whereby, 8x8.
+      **Teams deliberately returns nothing** — its URL carries a routing thread id, not the
+      conference ID a dial-in prompt asks for (2026-08-24).
 
 ### Calendar & event handling
 - [x] Multi-calendar via macOS Calendar (iCloud/Google/Exchange/Office 365) — already in

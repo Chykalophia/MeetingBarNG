@@ -428,6 +428,7 @@ final class StatusBarItemController {
             deleteEvent: { [weak self] event in self?.confirmAndDeleteEvent(event) },
             copyText: { [weak self] value in self?.copyDetail(value) },
             copyMeetingLink: { [weak self] event in self?.copyMeetingLink(for: event) },
+            copyMeetingIdentifier: { [weak self] event in self?.copyMeetingIdentifier(for: event) },
             openURL: { [weak self] url in self?.openReferenceURL(url) },
             emailAttendees: { [weak self] event in self?.emailAttendees(for: event) },
             dismissEvent: { [weak self] event in self?.dismiss(event: event) },
@@ -1081,6 +1082,21 @@ final class StatusBarItemController {
         } else {
             AppMessageCenter.shared.post(.meetingLinkMissing(title: event.title))
         }
+    }
+
+    /// Copies the meeting's id (or room name) rather than its whole URL — what
+    /// you need for a phone bridge, or to paste into a client already signed in.
+    ///
+    /// Callers only offer this when `meetingIdentifier` is non-nil, so reaching
+    /// here without one means the event changed underneath the open menu; the
+    /// clipboard is left alone rather than cleared to nothing.
+    func copyMeetingIdentifier(for event: MBEvent) {
+        guard let identifier = event.meetingIdentifier else {
+            AppMessageCenter.shared.post(.meetingLinkMissing(title: event.title))
+            return
+        }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(identifier.value, forType: .string)
     }
 
     @objc

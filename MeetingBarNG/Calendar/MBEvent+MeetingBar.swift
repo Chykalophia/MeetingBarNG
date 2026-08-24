@@ -54,3 +54,19 @@ public extension Array where Element == MBEvent {
         return self[selected.sourceIndex]
     }
 }
+
+// MARK: - Meeting identifier
+
+extension MBEvent {
+    /// The meeting's human-usable identifier — the number for a phone bridge, or
+    /// the room code to paste into an already-signed-in client.
+    ///
+    /// `nil` for most services, and that is correct rather than a gap: only some
+    /// providers put a usable id in the URL at all. Callers should hide the
+    /// affordance rather than showing a disabled one. Extraction itself is the
+    /// hostless, unit-tested `MeetingIdentifierPolicy`.
+    var meetingIdentifier: MeetingIdentifier? {
+        guard let meetingLink else { return nil }
+        return MeetingIdentifierPolicy.identifier(from: meetingLink)
+    }
+}
