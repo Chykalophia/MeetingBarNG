@@ -1,0 +1,42 @@
+MeetingBarNG/App/WindowCoordinator.swift
+  s_5edbb03e8b3092::t_0b34d5dbfcd88c 7
+  s_5edbb03e8b3092::t_c7676162cbccc6 500-508
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_5edbb03e8b3092::t_2a04e847456530 370-385
+MeetingBarNG/Preferences/SettingsIndex.swift
+  s_5edbb03e8b3092::t_138d2da6f97c6f 442-457
+MeetingBarNG/UI/StatusBar/PanelTheme.swift
+  s_5edbb03e8b3092::t_02221f0a375218 1-77
+MeetingBarNG/UI/StatusBar/DropdownPanelView.swift
+  s_5edbb03e8b3092::t_853b05d7480580 182
+  s_5edbb03e8b3092::t_4aa540ea0bbc92 324-329
+MeetingBarNG/UI/StatusBar/PanelTheme+MeetingBar.swift
+  s_5edbb03e8b3092::t_fdcc6617ee0a27 1-74
+ROADMAP.md
+  s_5edbb03e8b3092::t_91f83e23883076 114-123
+MeetingBarLogicTests/PanelThemeTests.swift
+  s_5edbb03e8b3092::t_65acce2e00b503 1-79
+Package.swift
+  s_5edbb03e8b3092::t_42e8366d2b42c5 52
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_5edbb03e8b3092::t_adb7f0e13b12e1 281-291
+MeetingBarNG/Preferences/DisplayTab.swift
+  s_5edbb03e8b3092::t_b366f632822ce6 372-390
+  s_5edbb03e8b3092::t_00d0fe43f56c53 464-477
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "614603552da0b8501a33b0fdc6623afd12fae0fa",
+  "prompts": {},
+  "sessions": {
+    "s_5edbb03e8b3092": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b2ce1e37-f171-454f-9972-51bdf2806011",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
