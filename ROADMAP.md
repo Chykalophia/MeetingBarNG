@@ -33,7 +33,12 @@ single release.
       preview. Now the default path, not opt-in. Progress-bar and day-summary tokens
       shipped as tokens of their own (below).
 - [x] Menu-bar calendar — browse, navigate, and pick dates (`UI/Calendar/CalendarGridView`).
-- [ ] Month ⇄ week view toggle — the calendar window has one; the menu bar does not.
+- [x] Month ⇄ week view toggle — the dropdown's calendar now folds to a single week and back
+      from a button in its own header, matching the calendar window. The step buttons follow
+      the fold, so a folded week pages by weeks rather than skipping a month at a time.
+      `MonthGridLayout.anchor` / `.rows` / `.visibleRange`, hostless, 12 tests. Stored
+      separately from the window's mode (`dropdownCalendarWeekFold`): the panel is a glance
+      surface where one row often beats six, the window is where you browse (2026-08-24).
 - [x] Day summary — event count and focus-time at a glance (`DaySummaryGreeting`,
       `DaySummaryHeaderView`).
 - [x] Progress bars — day and year progress as a menu-bar token.

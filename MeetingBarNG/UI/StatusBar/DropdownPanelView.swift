@@ -176,6 +176,7 @@ struct DropdownPanelView: View {
     @Default(.meetingCardShowsProgress) private var showsMeetingCardProgress
     @Default(.dropdownHidesEmptyDays) private var hidesEmptyAgendaDays
     @Default(.dateMarkers) private var storedDateMarkers
+    @Default(.dropdownCalendarWeekFold) private var calendarWeekFold
     @Default(.meetingCardShowsSectionLine) private var meetingCardShowsSectionLine
     @Default(.meetingCardShowsTimes) private var meetingCardShowsTimes
     @Default(.meetingCardShowsProvider) private var meetingCardShowsProvider
@@ -753,17 +754,30 @@ struct DropdownPanelView: View {
                 calendar: panelCalendar,
                 markers: calendarMarkers,
                 dateMarkers: DateMarkerCodec.decodeAll(storedDateMarkers),
+                isWeekFold: calendarWeekFold,
                 onStep: { step in
                     withAnimation(reduceMotion ? nil : .easeOut(duration: 0.12)) {
                         calendarMonthOffset += step
                     }
                 },
-                onSelect: { _ in handlers.openCalendar() }
+                onSelect: { _ in handlers.openCalendar() },
+                onToggleFold: {
+                    withAnimation(reduceMotion ? nil : .easeOut(duration: 0.12)) {
+                        calendarWeekFold.toggle()
+                        // The offset counted months; after the fold it counts
+                        // weeks. Carrying it over would jump the grid somewhere
+                        // arbitrary, so folding always lands on the current
+                        // period — which is what someone folding to "this week"
+                        // means anyway.
+                        calendarMonthOffset = 0
+                    }
+                }
             )
-            // Keyed on the month, so stepping cancels the previous request
+            // Keyed on the anchor, so stepping cancels the previous request
             // rather than racing it — two months in flight could otherwise land
-            // out of order and leave the wrong dots on screen.
-            .task(id: calendarMonthOffset) { await loadMonthMarkers() }
+            // out of order and leave the wrong dots on screen. The fold is part
+            // of the key because it changes what the offset means.
+            .task(id: "\(calendarWeekFold)-\(calendarMonthOffset)") { await loadMonthMarkers() }
         }
     }
 
@@ -771,8 +785,15 @@ struct DropdownPanelView: View {
         CalendarGridViewModel.defaultCalendar()
     }
 
+    /// The date the grid is anchored on. The step UNIT follows the fold, so a
+    /// folded week pages by weeks — see `MonthGridLayout.anchor`.
     private var visibleCalendarMonth: Date {
-        panelCalendar.date(byAdding: .month, value: calendarMonthOffset, to: clock) ?? clock
+        MonthGridLayout.anchor(
+            from: clock,
+            offset: calendarMonthOffset,
+            isWeekFold: calendarWeekFold,
+            calendar: panelCalendar
+        )
     }
 
     /// Event dots for the visible month.

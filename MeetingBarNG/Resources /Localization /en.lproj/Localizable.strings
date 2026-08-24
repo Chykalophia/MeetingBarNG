@@ -358,6 +358,8 @@
 "preferences_dropdown_density_standard" = "Medium";
 "preferences_dropdown_density_roomy" = "Large";
 "preferences_dropdown_density_help" = "How tightly meetings are packed. Small fits more on screen; Large is easier to read at a glance. The dropdown keeps the same width either way.";
+"dropdown_calendar_show_week" = "Show this week only";
+"dropdown_calendar_show_month" = "Show the whole month";
 "preferences_date_markers_title" = "Important days";
 "preferences_date_markers_help" = "Mark birthdays, anniversaries, or deadlines. Marked days stand out in both month calendars, and hovering one shows what it is.";
 "preferences_date_markers_empty" = "No important days yet.";

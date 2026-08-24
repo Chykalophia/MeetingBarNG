@@ -143,3 +143,63 @@ public enum MonthGridLayout {
         return weeks
     }
 }
+
+// MARK: - Month / week fold
+
+/// Whether a compact grid shows a whole month or folds down to a single week,
+/// and what its step buttons then mean.
+///
+/// Expressed as a `Bool` rather than a second mode enum: the calendar WINDOW
+/// already owns `CalendarGridMode` for the same idea, and two enums naming one
+/// concept across two layers is how they drift apart. The hostless layer needs
+/// only "is it folded", so that is all it takes.
+public extension MonthGridLayout {
+    /// The date a grid is anchored on, given how many steps the user has taken.
+    ///
+    /// The step UNIT follows the fold: paging a week view by a whole month would
+    /// skip four weeks of the thing being looked at, and paging a month view by
+    /// one week would barely move it.
+    static func anchor(
+        from now: Date,
+        offset: Int,
+        isWeekFold: Bool,
+        calendar: Calendar
+    ) -> Date {
+        let component: Calendar.Component = isWeekFold ? .weekOfYear : .month
+        return calendar.date(byAdding: component, value: offset, to: now) ?? now
+    }
+
+    /// The rows to draw for an anchor date: every week of its month, or just the
+    /// one week containing it.
+    static func rows(
+        anchoredOn date: Date,
+        isWeekFold: Bool,
+        calendar: Calendar,
+        now: Date
+    ) -> [[MonthGridDay]] {
+        guard isWeekFold else {
+            return weeks(forMonthContaining: date, calendar: calendar, now: now)
+        }
+        return [week(containing: date, calendar: calendar, now: now)]
+    }
+
+    /// The range a folded grid actually covers, for a title that does not lie.
+    ///
+    /// A week can straddle two months, so "August 2026" over a row running
+    /// 30 Aug – 5 Sep would be wrong. Callers format the two dates; deciding
+    /// WHICH dates is the layout's business.
+    static func visibleRange(
+        anchoredOn date: Date,
+        isWeekFold: Bool,
+        calendar: Calendar
+    ) -> (start: Date, end: Date) {
+        if isWeekFold {
+            let start = firstVisibleDayOfWeek(containing: date, calendar: calendar)
+            let end = lastVisibleDayOfWeek(containing: date, calendar: calendar)
+            return (start, end)
+        }
+        let start = startOfMonth(for: date, calendar: calendar)
+        let end = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: start) ?? start
+        return (start, end)
+    }
+}

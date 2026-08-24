@@ -33,8 +33,14 @@ struct CompactMonthGridView: View {
     /// adding a fourth dot: the dot row already means "how busy", and overloading
     /// it would make a marked free day look like a meeting.
     var dateMarkers: [DateMarker] = []
+    /// Folded to a single week. The step buttons follow suit — see
+    /// `MonthGridLayout.anchor`, which the panel uses to move the anchor.
+    var isWeekFold = false
     let onStep: (Int) -> Void
     let onSelect: (Date) -> Void
+    /// Toggles the fold. Optional so previews and the Preferences live preview
+    /// can render the grid without owning the setting.
+    var onToggleFold: (() -> Void)?
 
     @Environment(\.dropdownMetrics) private var metrics
 
@@ -53,9 +59,26 @@ struct CompactMonthGridView: View {
 
     private var header: some View {
         HStack(spacing: 0) {
-            Text(monthTitle)
+            Text(title)
                 .font(.system(size: metrics.rowFontSize, weight: .semibold))
             Spacer(minLength: 0)
+            if let onToggleFold {
+                Image(systemName: isWeekFold
+                    ? "rectangle.expand.vertical"
+                    : "rectangle.compress.vertical")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 20, height: 18)
+                    .contentShape(Rectangle())
+                    .pointerStyle(.link)
+                    .onTapGesture { onToggleFold() }
+                    .help(isWeekFold
+                        ? "dropdown_calendar_show_month".loco()
+                        : "dropdown_calendar_show_week".loco())
+                    .accessibilityLabel(isWeekFold
+                        ? "dropdown_calendar_show_month".loco()
+                        : "dropdown_calendar_show_week".loco())
+            }
             stepButton(symbol: "chevron.left", step: -1)
             stepButton(symbol: "chevron.right", step: 1)
         }
@@ -109,7 +132,7 @@ struct CompactMonthGridView: View {
     // MARK: - Derived
 
     private var weeks: [[MonthGridDay]] {
-        MonthGridLayout.weeks(forMonthContaining: month, calendar: calendar, now: now)
+        MonthGridLayout.rows(anchoredOn: month, isWeekFold: isWeekFold, calendar: calendar, now: now)
     }
 
     /// Narrow symbols ("M", "T") rotated to the locale's first weekday — the grid
@@ -120,6 +143,21 @@ struct CompactMonthGridView: View {
         let offset = calendar.firstWeekday - 1
         guard offset > 0, offset < symbols.count else { return symbols }
         return Array(symbols[offset...] + symbols[..<offset])
+    }
+
+    private var title: String {
+        guard isWeekFold else { return monthTitle }
+        // A folded week can straddle two months, so "August 2026" over a row
+        // running 30 Aug – 5 Sep would be a lie. DateIntervalFormatter collapses
+        // the shared parts per locale ("30 Aug – 5 Sep", "18–24 Aug").
+        let range = MonthGridLayout.visibleRange(
+            anchoredOn: month, isWeekFold: true, calendar: calendar
+        )
+        let formatter = DateIntervalFormatter()
+        formatter.calendar = calendar
+        formatter.locale = calendar.locale ?? .current
+        formatter.dateTemplate = "MMMd"
+        return formatter.string(from: range.start, to: range.end)
     }
 
     private var monthTitle: String {

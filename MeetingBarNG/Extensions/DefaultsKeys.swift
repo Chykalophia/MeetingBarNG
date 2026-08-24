@@ -268,6 +268,17 @@ extension Defaults.Keys {
     static let dropdownDensity = Key<String>(
         "dropdownDensity", default: DropdownDensity.standard.rawValue)
 
+    /// Whether the dropdown's month calendar is folded down to the current week.
+    ///
+    /// A `Bool` rather than a second `CalendarGridMode`: the calendar WINDOW
+    /// already owns that enum for the same idea, and two enums naming one concept
+    /// across two layers is how they drift. Separate from the window's setting on
+    /// purpose — the panel is a glance surface where a single row often beats six,
+    /// and the window is where you go to browse.
+    ///
+    /// OFF by default, so the shipping panel is unchanged.
+    static let dropdownCalendarWeekFold = Key<Bool>("dropdownCalendarWeekFold", default: false)
+
     /// User-marked important days — birthdays, anniversaries, deadlines — drawn
     /// on the month grids.
     ///
