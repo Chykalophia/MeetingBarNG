@@ -1,0 +1,56 @@
+MeetingBarLogicTests/DateMarkersTests.swift
+  s_5edbb03e8b3092::t_4200e0c0284557 1-87,89-150,152-162
+  s_5edbb03e8b3092::t_6d193cc020ea3b 88
+  s_5edbb03e8b3092::t_93070defedbe96 151
+MeetingBarNG/Preferences/DateMarkerList.swift
+  s_5edbb03e8b3092::t_224dd1c9560e31 1-171
+MeetingBarNG/UI/StatusBar/DropdownPanelView.swift
+  s_5edbb03e8b3092::t_9c15551d880fac 178
+  s_5edbb03e8b3092::t_82da67b1736034 755
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_5edbb03e8b3092::t_7ef6b2c1071334 361-370
+ROADMAP.md
+  s_5edbb03e8b3092::t_f3e7a3e8dbacb1 88-94
+MeetingBarNG/UI/Calendar/CalendarGridView.swift
+  s_5edbb03e8b3092::t_63932b2c3a0be2 26
+  s_5edbb03e8b3092::t_fb8d4fd71e795e 154-155
+  s_5edbb03e8b3092::t_6d800078d35be4 347-350,363,366-383
+  s_5edbb03e8b3092::t_475d9cb93e48c4 331-336
+  s_5edbb03e8b3092::t_b9575590e7bf1b 238-249
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_5edbb03e8b3092::t_8a9a5202165e6d 271-281
+Package.swift
+  s_5edbb03e8b3092::t_a9018070e0f4be 33
+MeetingBarNG/Calendar/DateMarkers.swift
+  s_5edbb03e8b3092::t_0adf77f168ef65 1-132,135-136
+  s_5edbb03e8b3092::t_7fd76c283b7627 133-134
+MeetingBarNG/UI/StatusBar/CompactMonthGridView.swift
+  s_5edbb03e8b3092::t_f61e61d9e26642 98-99,102
+  s_5edbb03e8b3092::t_b7c64d73b94b06 32-35
+  s_5edbb03e8b3092::t_52f255021bcc39 156-159
+  s_5edbb03e8b3092::t_c69768225691f4 190-202
+  s_5edbb03e8b3092::t_7bf65cd57d533e 212-213,215-217,219-220
+  s_5edbb03e8b3092::t_b54a4bfe9d07de 140-141
+MeetingBarNG/Preferences/DisplayTab.swift
+  s_5edbb03e8b3092::t_e651f44eed1fe7 592-601
+  s_5edbb03e8b3092::t_31c61d2ee5eb89 522
+MeetingBarNG/Preferences/SettingsIndex.swift
+  s_5edbb03e8b3092::t_4363a0701f58b6 427-433
+  s_5edbb03e8b3092::t_e68da821f53ff6 426
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "668286353db5a25a9de71680dacb408b7ee114e8",
+  "prompts": {},
+  "sessions": {
+    "s_5edbb03e8b3092": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b2ce1e37-f171-454f-9972-51bdf2806011",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
