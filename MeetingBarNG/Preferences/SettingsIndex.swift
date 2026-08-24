@@ -424,6 +424,14 @@ enum SettingsIndex {
             synonyms: ["date", "today", "day", "heading"]
         ),
         SettingsIndexEntry(
+            id: "dropdown.hide_empty_days",
+            tab: .dropdown,
+            labelKey: "preferences_dropdown_hide_empty_days_toggle",
+            helpKey: "preferences_dropdown_hide_empty_days_help",
+            defaultsKeys: ["dropdownHidesEmptyDays"],
+            synonyms: ["empty", "free day", "nothing tomorrow", "hide", "blank", "tomorrow"]
+        ),
+        SettingsIndexEntry(
             id: "dropdown.meeting_progress",
             tab: .dropdown,
             labelKey: "preferences_dropdown_meeting_progress_toggle",

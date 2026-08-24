@@ -174,6 +174,7 @@ struct DropdownPanelView: View {
     @Default(.timelineStyle) private var timelineStyleRaw
     @Default(.timelineAppearance) private var timelineAppearanceRaw
     @Default(.meetingCardShowsProgress) private var showsMeetingCardProgress
+    @Default(.dropdownHidesEmptyDays) private var hidesEmptyAgendaDays
     @Default(.meetingCardShowsSectionLine) private var meetingCardShowsSectionLine
     @Default(.meetingCardShowsTimes) private var meetingCardShowsTimes
     @Default(.meetingCardShowsProvider) private var meetingCardShowsProvider
@@ -1006,7 +1007,21 @@ struct DropdownPanelView: View {
     // MARK: - Agenda
 
     private var showsTomorrowSection: Bool {
-        state.events.showEventsForPeriod.includesTomorrow
+        // Counts the events that would actually be DRAWN, not the raw ones: a day
+        // whose every meeting was filtered out as declined is empty as far as the
+        // reader is concerned, and should hide on the same terms.
+        //
+        // Summary mode renders no event rows, so `tomorrowRenderedEvents` is empty
+        // by design there — it reads the visible list directly instead.
+        let renderedCount = tomorrowDisplayMode == .today_n_tomorrow_summary
+            ? visibleEvents(state.tomorrowEvents).count
+            : tomorrowRenderedEvents.count
+        return AgendaSectionVisibilityPolicy.showsSection(
+            eventCount: renderedCount,
+            isIncludedByPeriod: state.events.showEventsForPeriod.includesTomorrow,
+            hidesEmptyDays: hidesEmptyAgendaDays,
+            isAnchorDay: false
+        )
     }
 
     private var tomorrowDisplayMode: ShowEventsForPeriod {

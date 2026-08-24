@@ -45,6 +45,7 @@ let package = Package(
                 "Meetings/MeetingProvider.swift",
                 "Meetings/MicLevel.swift",
                 // UI/StatusBar
+                "UI/StatusBar/AgendaSectionVisibility.swift",
                 "UI/StatusBar/StatusBarPresentation.swift",
                 "UI/StatusBar/WorldClockPanel.swift",
                 "UI/StatusBar/DaySummaryGreeting.swift",

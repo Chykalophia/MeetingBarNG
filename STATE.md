@@ -135,7 +135,12 @@ including two GitHub API gotchas that will otherwise cost an hour, is in the pro
    profile), so meeting alerts stop breaking through Focus. The workflow ships either way and
    logs a warning when the profile is absent. For a meeting app this is worth fixing properly —
    see RELEASING.md §1.
-2. **Defaults migration for upstream MeetingBar users.** The bundle id changed
+2. **Defaults migration for upstream MeetingBar users — DEFERRED by owner 2026-08-24**
+   until the paid Apple developer account is set up. It only bites once people can install,
+   and distribution is blocked on the same account, so there is no value in doing it first.
+   Do not pick this up ahead of that. Detail retained below.
+
+   The bundle id changed
    `leits.MeetingBar` → `com.chykalophia.MeetingBarNG` (2026-07-23) and `UserDefaults` is
    bundle-id-scoped. Nothing in the source reads the old domain — the four existing migrations
    (`StatusBarTitleFormatMigration`, `TimeFormatDefaultMigration`, `DropdownModuleMergeMigration`,

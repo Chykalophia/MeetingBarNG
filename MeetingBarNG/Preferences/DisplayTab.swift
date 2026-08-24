@@ -368,6 +368,7 @@ struct DropdownDisplaySection: View {
     @Default(.remindersIncludeOverdue) var remindersIncludeOverdue
     @Default(.eventActionHighlightMinutes) var eventActionHighlightMinutes
     @Default(.dropdownMaxEventRows) var dropdownMaxEventRows
+    @Default(.dropdownHidesEmptyDays) var dropdownHidesEmptyDays
     @Default(.dropdownDensity) var dropdownDensityRaw
     @Default(.timelineStyle) var timelineStyleRaw
     @Default(.timelineAppearance) var timelineAppearanceRaw
@@ -434,6 +435,12 @@ struct DropdownDisplaySection: View {
             }
             .pickerStyle(.segmented)
             .annotation("preferences_dropdown_density_help")
+
+            Toggle(
+                preferenceLabel("preferences_dropdown_hide_empty_days_toggle"),
+                isOn: $dropdownHidesEmptyDays
+            )
+            .annotation("preferences_dropdown_hide_empty_days_help")
 
             Text("preferences_dropdown_max_rows_title".loco())
             PresetNumberPicker(

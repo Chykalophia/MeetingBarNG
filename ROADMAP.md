@@ -86,7 +86,12 @@ single release.
 - [ ] Fully customizable interface (appearance + layout).
 - [ ] System / custom themes.
 - [ ] Date markers for important days.
-- [ ] Hide empty days.
+- [x] Hide empty days — `dropdownHidesEmptyDays` drops the Tomorrow heading entirely when
+      tomorrow is free, rather than drawing it over a "nothing tomorrow" line. OFF by
+      default so an upgrade never silently loses a section. **Today is never hidden**: an
+      agenda with no headings reads as a broken panel rather than a free day, and "nothing
+      today" is the most useful thing it can say. The rule and its reasoning live in the
+      hostless `AgendaSectionVisibilityPolicy` (8 tests) (2026-08-24).
 
 ### Productivity tools
 - [x] Command bar — create / search / settings from a single shortcut (`UI/CommandBar`).

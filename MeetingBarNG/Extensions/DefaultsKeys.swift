@@ -268,6 +268,14 @@ extension Defaults.Keys {
     static let dropdownDensity = Key<String>(
         "dropdownDensity", default: DropdownDensity.standard.rawValue)
 
+    /// Whether an empty look-ahead day is dropped from the agenda entirely,
+    /// rather than drawing a heading over a "nothing tomorrow" line.
+    ///
+    /// OFF by default, so an upgrade never silently loses a section. Today is
+    /// never hidden regardless — see `AgendaSectionVisibilityPolicy`, which owns
+    /// the rule and the reasoning.
+    static let dropdownHidesEmptyDays = Key<Bool>("dropdownHidesEmptyDays", default: false)
+
     /// Whether the greeting's second line leads with today's date.
     ///
     /// When it does, the agenda's section head drops the parenthetical date and
