@@ -45,9 +45,24 @@ import LaunchAtLogin
 
 struct GeneralTab: View {
     @Default(.timeFormat) var timeFormat
+    @Default(.locationAutocompleteEnabled) var locationAutocompleteEnabled
 
     var body: some View {
         PreferencesGroupedForm {
+            Section {
+                // The one setting in the app that turns on a network request.
+                // Its help text names what leaves the Mac rather than describing
+                // the benefit — someone who cares needs the fact, not the pitch.
+                Toggle(
+                    preferenceLabel("preferences_general_location_autocomplete_toggle"),
+                    isOn: $locationAutocompleteEnabled
+                )
+                Text("preferences_general_location_autocomplete_help".loco())
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
             Section {
                 LaunchAtLogin.Toggle {
                     Text("preferences_general_login_toggle".loco())

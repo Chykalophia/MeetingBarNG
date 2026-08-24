@@ -358,6 +358,8 @@
 "preferences_dropdown_density_standard" = "Medium";
 "preferences_dropdown_density_roomy" = "Large";
 "preferences_dropdown_density_help" = "How tightly meetings are packed. Small fits more on screen; Large is easier to read at a glance. The dropdown keeps the same width either way.";
+"preferences_general_location_autocomplete_toggle" = "Suggest locations as I type";
+"preferences_general_location_autocomplete_help" = "Off by default. When on, what you type in a meeting's Location field is sent to Apple to look up matching places — the only thing MeetingBarNG ever sends off your Mac. Nothing else about your calendar leaves the machine, and nothing is sent until you have typed at least three characters.";
 "dropdown_calendar_today" = "Today";
 "dropdown_calendar_today_help" = "Back to the current month";
 "calendar_grid_jump_help" = "Jump to a date";

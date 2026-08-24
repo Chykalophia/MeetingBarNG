@@ -12,6 +12,7 @@
 //  Created for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026.
 //
 
+import Defaults
 import SwiftUI
 
 enum EventEditorWindowPresentationPolicy {
@@ -21,6 +22,9 @@ enum EventEditorWindowPresentationPolicy {
 
 struct EventEditorView: View {
     @ObservedObject var viewModel: EventEditorViewModel
+
+    @Default(.locationAutocompleteEnabled) private var locationAutocompleteEnabled
+    @StateObject private var locationSuggestions = LocationSuggestionsModel()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -112,7 +116,53 @@ struct EventEditorView: View {
     }
 
     private var locationField: some View {
-        TextField("event_editor_location".loco(), text: $viewModel.location)
+        VStack(alignment: .leading, spacing: 4) {
+            TextField("event_editor_location".loco(), text: $viewModel.location)
+                .onChange(of: viewModel.location) { _, text in
+                    locationSuggestions.update(for: text, isEnabled: locationAutocompleteEnabled)
+                }
+            if LocationAutocompletePolicy.shouldPresentResults(
+                for: viewModel.location,
+                isEnabled: locationAutocompleteEnabled,
+                resultCount: locationSuggestions.suggestions.count
+            ) {
+                suggestionList
+            }
+        }
+        .onDisappear { locationSuggestions.clear() }
+    }
+
+    private var suggestionList: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(locationSuggestions.suggestions) { suggestion in
+                Button {
+                    viewModel.location = suggestion.fieldValue
+                    // Clear rather than re-query: the field now holds the chosen
+                    // address, and suggesting alternatives to a decision the user
+                    // just made is noise.
+                    locationSuggestions.clear()
+                } label: {
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(suggestion.title)
+                            .font(.system(size: 12))
+                        if !suggestion.subtitle.isEmpty {
+                            Text(suggestion.subtitle)
+                                .font(.system(size: 11))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .padding(.vertical, 3)
+                .padding(.horizontal, 6)
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(Color.primary.opacity(0.06))
+        )
     }
 
     private var urlField: some View {

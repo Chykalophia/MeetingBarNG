@@ -424,6 +424,14 @@ enum SettingsIndex {
             synonyms: ["date", "today", "day", "heading"]
         ),
         SettingsIndexEntry(
+            id: "general.location_autocomplete",
+            tab: .general,
+            labelKey: "preferences_general_location_autocomplete_toggle",
+            helpKey: "preferences_general_location_autocomplete_help",
+            defaultsKeys: ["locationAutocompleteEnabled"],
+            synonyms: ["location", "address", "autocomplete", "suggest", "privacy", "network", "maps"]
+        ),
+        SettingsIndexEntry(
             id: "dropdown.date_markers",
             tab: .dropdown,
             labelKey: "preferences_date_markers_title",

@@ -289,6 +289,17 @@ extension Defaults.Keys {
     /// OFF by default, so the shipping panel is unchanged.
     static let dropdownCalendarWeekFold = Key<Bool>("dropdownCalendarWeekFold", default: false)
 
+    /// Whether the event editor suggests locations as you type.
+    ///
+    /// ⚠️ OFF by default, and it must stay that way. This is the ONLY feature in
+    /// the app that sends anything off the machine: MapKit forwards the typed
+    /// text to Apple to produce suggestions, which cuts against the local-first
+    /// principle in ROADMAP.md. The gate itself is the hostless, unit-tested
+    /// `LocationAutocompletePolicy`, so "nothing is sent unless this is on" is a
+    /// provable property rather than an `if` buried in a view.
+    static let locationAutocompleteEnabled = Key<Bool>(
+        "locationAutocompleteEnabled", default: false)
+
     /// User-marked important days — birthdays, anniversaries, deadlines — drawn
     /// on the month grids.
     ///

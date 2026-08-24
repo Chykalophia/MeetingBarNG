@@ -17,6 +17,10 @@ deferring. It is intentionally opinionated about scope.
 - **Customizability over configuration sprawl:** make the defaults excellent, then let
   users compose the experience (menu-bar tokens, themes) rather than bury them in toggles.
 - **Local-first & private:** no account, no servers, calendar data stays on the Mac.
+  One deliberate, opt-in exception: location autocomplete (2026-08-24) sends the typed
+  Location text to Apple via MapKit. It ships OFF, says so plainly in Preferences, and is
+  the only thing in the app that talks to a network. Any future feature that would leave the
+  machine belongs in this list too — the principle is worth more than any single feature.
 - **Modern, native feel:** SwiftUI-forward UI, keyboard-first navigation.
 
 ---
@@ -76,7 +80,13 @@ single release.
 - [ ] Direct Google Calendar provider back in onboarding (needs shipped OAuth credentials).
 - [x] Full event search (title, notes, location, attendees) — `Calendar/EventSearch`.
 - [x] Inline event edit (title, time, duration) — `UI/EventEditor`, `EventDraftValidation`.
-- [ ] Location autocomplete when creating/editing.
+- [x] Location autocomplete when creating/editing — MapKit suggestions in the event editor's
+      Location field. **OFF by default, and it must stay that way:** this is the ONLY feature
+      that sends anything off the machine, so it is opt-in, the Preferences copy names what
+      leaves the Mac rather than selling the benefit, and the gate is the hostless,
+      unit-tested `LocationAutocompletePolicy` — "nothing is sent unless the user turned this
+      on" is a provable property, not an `if` buried in a view. Nothing is sent below three
+      typed characters, whitespace excluded (2026-08-24).
 - [ ] Calendar picker via command/slash.
 - [x] Quick date jump — the calendar window's header gains a jump button opening a graphical
       date picker; picking a date moves the grid and selects that day. Both the month and
