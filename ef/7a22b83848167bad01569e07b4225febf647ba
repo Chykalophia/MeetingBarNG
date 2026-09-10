@@ -1,0 +1,66 @@
+XCConfig/DeveloperID.entitlements
+  s_992ab8de51fa9d::t_6c7c198403b954 32-39
+XCConfig/GoogleSecrets.xcconfig.example
+  s_992ab8de51fa9d::t_c7993932a94c7b 1-68,70
+Package.swift
+  s_992ab8de51fa9d::t_3a435ddce58f53 44
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_992ab8de51fa9d::t_6e5894e8feda02 372-377
+XCConfig/Project.xcconfig
+  s_992ab8de51fa9d::t_6169404a28aafb 2-6
+ROADMAP.md
+  s_992ab8de51fa9d::t_7b34855ec41fbc 101-112
+MeetingBarNG/Info.plist
+  s_992ab8de51fa9d::t_f1a18ad4c5c915 34-41
+  s_992ab8de51fa9d::t_6169404a28aafb 50-51
+MeetingBarNG/Preferences/CalendarsTab.swift
+  s_992ab8de51fa9d::t_758c8477e6bf61 135-142,165-172
+  s_992ab8de51fa9d::t_f49d425ad53443 192-280
+MeetingBarNG/MeetingBarNG.entitlements
+  s_992ab8de51fa9d::t_6c7c198403b954 17-24
+MeetingBarNG/Calendar/Providers/Google/GoogleOAuthClient.swift
+  s_992ab8de51fa9d::t_8ed232872e0c98 1-152
+MeetingBarNG/Calendar/Providers/Google/GoogleCalendarEventStore.swift
+  s_992ab8de51fa9d::t_6169404a28aafb 21-31
+  s_992ab8de51fa9d::t_ed90e4071305dd 54-58,526-528
+  s_992ab8de51fa9d::t_09bb02ac218d2e 193-197,199
+  s_992ab8de51fa9d::t_ebc36c4e2ee5da 179-192,198,204-212,239-240,247-253,255-256,261,270-273,277-284
+  s_992ab8de51fa9d::t_4e6a10aa2217fe 9,119-137
+  s_992ab8de51fa9d::t_77e8ab9d736dc1 138,285-286
+MeetingBarNG/Calendar/CalendarSourceSelection+MeetingBar.swift
+  s_992ab8de51fa9d::t_21f1ca7a6ba4f9 29-33,38
+MeetingBarNG/Preferences/PreferencesPresentation.swift
+  s_992ab8de51fa9d::t_bbeba783908631 19,21-27,29-32
+  s_992ab8de51fa9d::t_21f1ca7a6ba4f9 34
+MeetingBarNG/Extensions/DefaultsKeys.swift
+  s_992ab8de51fa9d::t_4f731f0bf2e6a0 59-74
+  s_992ab8de51fa9d::t_706cf61f1f3da6 75
+MeetingBarLogicTests/GoogleOAuthClientTests.swift
+  s_992ab8de51fa9d::t_b85c2a47e503b9 1-172
+XCConfig/LocalSigning.entitlements
+  s_992ab8de51fa9d::t_6c7c198403b954 23-30
+MeetingBarNGTests/PreferencesPresentationTests.swift
+  s_992ab8de51fa9d::t_00a5cd8f6b2433 12-21
+MeetingBarNG/Calendar/Providers/Google/GoogleOAuthClient+MeetingBar.swift
+  s_992ab8de51fa9d::t_36314865236ac0 1-86
+README.md
+  s_992ab8de51fa9d::t_3da3cd53dddf2e 144-186
+CHANGELOG.md
+  s_992ab8de51fa9d::t_7b34855ec41fbc 15-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "ef7a22b83848167bad01569e07b4225febf647ba",
+  "prompts": {},
+  "sessions": {
+    "s_992ab8de51fa9d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bcab50db-9fd6-4682-8bc3-324438f80284",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
