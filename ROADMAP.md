@@ -98,6 +98,18 @@ single release.
       **Single Google account only.** Multiple Google accounts at once would need
       `GCEventStore` de-singletoned with per-account Keychain items and an account registry;
       not started.
+- [x] **Bring-your-own Google OAuth client** (2026-09-10). Preferences ▸ Calendars accepts a
+      user's own client id (+ optional secret, held in the Keychain), resolved against the
+      build's shipped client by `GoogleOAuthClientResolver` — a hostless type that also
+      parses both id forms the Cloud Console shows and binds stored tokens to the client
+      that issued them. Google is therefore usable in a build carrying no credentials, so
+      the source row is always listed and expresses availability on the row instead.
+      The OAuth redirect moved to a loopback listener, which is both Google's recommended
+      redirect for macOS desktop apps and the only kind a runtime-supplied client can
+      receive; clients must now be type "Desktop app".
+      **Still open for a PUBLIC release:** a shipped client id is extractable (inherent to
+      native OAuth; PKCE is the mitigation and is in place). The remaining work is
+      operational — per-user quotas, a verified consent screen, and monitoring — not code.
 - [x] Full event search (title, notes, location, attendees) — `Calendar/EventSearch`.
 - [x] Inline event edit (title, time, duration) — `UI/EventEditor`, `EventDraftValidation`.
 - [x] Location autocomplete when creating/editing — MapKit suggestions in the event editor's

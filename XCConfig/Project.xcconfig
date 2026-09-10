@@ -1,4 +1,9 @@
 DEVELOPMENT_TEAM = KGH289N6T8
+// GOOGLE_CLIENT_ID is the current name and accepts either the full client id or
+// just the part before `.apps.googleusercontent.com`. GOOGLE_CLIENT_NUMBER is the
+// former name, still read as a fallback so an existing GoogleSecrets.xcconfig
+// keeps working.
+GOOGLE_CLIENT_ID = REPLACE_BY_YOUR_GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_NUMBER = REPLACE_BY_YOUR_GOOGLE_CLIENT_NUMBER
 GOOGLE_CLIENT_SECRET = REPLACE_BY_YOUR_GOOGLE_CLIENT_SECRET
 GOOGLE_AUTH_KEYCHAIN_NAME = REPLACE_BY_YOUR_GOOGLE_AUTH_KEYCHAIN_NAME

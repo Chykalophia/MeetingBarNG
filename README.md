@@ -141,37 +141,49 @@ team (this file is git-ignored):
 DEVELOPMENT_TEAM = <your development team id>
 ```
 
-### Google Calendar in a local build (optional)
+### Google Calendar (optional)
 
-The **macOS Calendar** provider works out of the box (including Google accounts added
-in System Settings → Internet Accounts). To use the native **Google Calendar** provider
-in a local build, supply your own OAuth credentials — otherwise that provider fails
-gracefully with a "not configured" message.
+The **macOS Calendar** source works out of the box, including Google accounts added in
+System Settings → Internet Accounts. The **direct Google Calendar** source is worth adding
+anyway: the EventKit mirror drops per-meeting detail the Calendar API carries, notably
+conference entry points and per-attendee response status.
 
-Copy `XCConfig/GoogleSecrets.xcconfig.example` to `XCConfig/GoogleSecrets.xcconfig`
-(git-ignored) and follow the steps in that file to create an OAuth client in the
-[Google Cloud Console](https://console.cloud.google.com/apis/credentials) and fill in
-`GOOGLE_CLIENT_NUMBER`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_AUTH_KEYCHAIN_NAME`.
+**The two are not exclusive.** Both can be connected at once and their meetings are merged
+into one list — which matters if some calendars only exist in Calendar.app (iCloud,
+Exchange) while your work calendar is Google. A meeting arriving from both is shown
+**once**, using the Google copy for the reason above. That collapsing is the existing
+cross-calendar deduplication (Preferences ▸ Filters ▸ "Hide duplicate events") extended to
+know which source a meeting came from; turning it off shows both copies.
 
-Once credentials are in place, rebuild and **Google Calendar** appears in onboarding and
-as a toggle under **Preferences ▸ Calendars ▸ Meetings come from**. Without them the app
-looks exactly as it does today — the provider is gated on the credentials actually being
-present, not hidden behind a flag.
+Calendar selection is stored per source, so turning one off and back on does not lose its
+choices. At least one source is always connected — the last one cannot be switched off.
 
-**The two sources are not exclusive.** macOS Calendar and Google can be connected at the
-same time, and their meetings are merged into one list. That matters if some of your
-calendars only exist in Calendar.app (iCloud, Exchange) while your work calendar is
-Google — the direct Google provider carries per-meeting detail the EventKit mirror drops,
-notably conference entry points and per-attendee response status.
+Google needs an OAuth client, from either of two places.
 
-A meeting that arrives from both sources is shown **once**, using the Google copy for the
-reason above. That collapsing is the existing cross-calendar deduplication (Preferences ▸
-Filters ▸ "Hide duplicate events"), extended to know which source a meeting came from;
-turning it off shows both copies.
+**Bring your own** — Preferences ▸ Calendars ▸ "Use my own Google credentials". Create an
+OAuth client of type **Desktop app** in the
+[Google Cloud Console](https://console.cloud.google.com/apis/credentials), enable the
+Google Calendar API, add yourself under "Test users", and paste the client ID. Calls then
+run on your own project's quota under your own consent screen. This works in a build that
+carries no credentials at all.
 
-Selected calendars are stored per source, so turning one off and back on does not lose
-either side's choices. At least one source is always connected — the last one cannot be
-switched off.
+**Ship one with the build** — copy `XCConfig/GoogleSecrets.xcconfig.example` to
+`XCConfig/GoogleSecrets.xcconfig` (git-ignored) and follow the steps in it. Google Calendar
+then works out of the box for whoever runs the build.
+
+A shipped client ID is extractable from the binary. That is inherent to native OAuth rather
+than a flaw here — Google's own docs say the installed-app client secret "is obviously not
+treated as a secret", and [RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636) states
+that "secrets provisioned in client binary applications cannot be considered confidential."
+What protects the flow is PKCE, which is performed on every sign-in. An extracted client
+costs you API quota and lets someone put your app's name on a consent screen; it grants
+nobody access to anybody's calendar without that person signing in themselves.
+
+The OAuth redirect is received on a loopback listener (`http://127.0.0.1:<random port>`),
+which is why the client must be the **Desktop app** type and why the app carries the
+`com.apple.security.network.server` entitlement. Google documents loopback as the
+recommended redirect for macOS desktop apps and is retiring the custom URL schemes it
+replaces, which any other app on the Mac could register.
 
 Common commands:
 

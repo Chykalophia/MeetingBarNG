@@ -16,34 +16,22 @@ struct CalendarSourcePresentation: Equatable, Identifiable {
 
     var id: EventStoreProvider { provider }
 
-    /// The calendar sources this BUILD can actually offer.
+    /// Every calendar source the app knows about — both of them, always.
     ///
-    /// macOS Calendar is always available. The direct Google provider appears
-    /// only when the build carries real OAuth credentials — supply your own in
-    /// `XCConfig/GoogleSecrets.xcconfig` and rebuild (see the example file, or
-    /// README "Google Calendar in a local build").
+    /// This used to be gated on the build carrying Google OAuth credentials, so
+    /// a build without them listed macOS Calendar alone. Bring-your-own-client
+    /// makes that wrong: Google can now be made available at RUNTIME by entering
+    /// your own client id, and hiding the row hid the only place to do it.
+    /// Availability is expressed on the row instead — the toggle is disabled,
+    /// with the credentials field right there, until a client exists. Whether a
+    /// source can actually sign in is `CalendarSourceKind.isAvailableInThisBuild`.
     ///
-    /// Gated on the credentials rather than hidden outright, which is what it
-    /// used to be. Offering a provider that cannot possibly sign in is worse
-    /// than not offering it — but so is hiding one that works, and the previous
-    /// blanket exclusion made the setup instructions in
-    /// `GoogleSecrets.xcconfig.example` ("then pick Google Calendar in
-    /// onboarding") impossible to follow.
-    ///
-    /// Computed, not stored: a `static let` would capture the answer once at
-    /// first use, which is fine in practice but reads as though the set could
-    /// never depend on the build.
-    ///
-    /// **Why use it at all**, given macOS Calendar already syncs Google accounts:
-    /// the EventKit mirror drops data the Calendar API carries — conference
-    /// entry points, per-attendee response status, and the richer description
-    /// field meeting links are often buried in.
+    /// **Why use the direct provider at all**, given macOS Calendar already syncs
+    /// Google accounts: the EventKit mirror drops data the Calendar API carries —
+    /// conference entry points, per-attendee response status, and the richer
+    /// description field meeting links are often buried in.
     static var all: [CalendarSourcePresentation] {
-        var sources = [make(for: .macOSEventKit)]
-        if GoogleOAuthConfig.isConfigured {
-            sources.append(make(for: .googleCalendar))
-        }
-        return sources
+        CalendarSourceKind.displayOrder.map { make(for: $0.provider) }
     }
 
     static func make(for provider: EventStoreProvider) -> CalendarSourcePresentation {

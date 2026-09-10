@@ -31,7 +31,14 @@
 				<string>Editor</string>
 				<key>CFBundleURLSchemes</key>
 				<array>
-					<string>com.googleusercontent.apps.$(GOOGLE_CLIENT_NUMBER)</string>
+					<!-- The reversed-domain Google scheme
+					     (com.googleusercontent.apps.<client>) was removed when the
+					     OAuth redirect moved to a loopback listener on 127.0.0.1.
+					     A scheme has to be declared here at BUILD time, so it
+					     could never receive the redirect for a client id the user
+					     supplies at RUNTIME - and any other app on the Mac could
+					     register the same scheme, which is why Google is retiring
+					     it. See GCEventStore.redirectHandler. -->
 					<string>meetingbar</string>
 				</array>
 			</dict>
@@ -40,6 +47,8 @@
 		<string>$(CURRENT_PROJECT_VERSION)</string>
 		<key>GOOGLE_AUTH_KEYCHAIN_NAME</key>
 		<string>$(GOOGLE_AUTH_KEYCHAIN_NAME)</string>
+		<key>GOOGLE_CLIENT_ID</key>
+		<string>$(GOOGLE_CLIENT_ID)</string>
 		<key>GOOGLE_CLIENT_NUMBER</key>
 		<string>$(GOOGLE_CLIENT_NUMBER)</string>
 		<key>GOOGLE_CLIENT_SECRET</key>

@@ -132,6 +132,14 @@ private struct CalendarSourceToggle: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
+            // Google needs an OAuth client before it can be switched on at all.
+            // The credentials editor lives on the row rather than behind the
+            // toggle, because when no client exists the toggle is exactly what
+            // cannot be used.
+            if source.provider == .googleCalendar {
+                GoogleOAuthClientSection(hasClient: hasGoogleClient)
+            }
+
             // A source that failed while the other kept working would otherwise
             // just show fewer meetings, with nothing on screen saying why.
             if let failure {
@@ -154,8 +162,14 @@ private struct CalendarSourceToggle: View {
     }
 
     /// The last connected source cannot be switched off — with none connected
-    /// the app fetches nothing and looks broken rather than configured.
-    private var canToggle: Bool { !isConnected || canDisconnect }
+    /// the app fetches nothing and looks broken rather than configured. Google
+    /// additionally cannot be switched ON without a client to sign in with.
+    private var canToggle: Bool {
+        guard !isConnected else { return canDisconnect }
+        return source.provider != .googleCalendar || hasGoogleClient
+    }
+
+    private var hasGoogleClient: Bool { GoogleOAuthConfig.effectiveClient != nil }
 
     /// Connecting runs sign-in for that source and ADDS it. Disconnecting keeps
     /// its credentials (`signOut: false`) so re-enabling is not a fresh OAuth
@@ -169,6 +183,95 @@ private struct CalendarSourceToggle: View {
                     appModel.send(.changeProvider(source.provider, signOut: false))
                 } else {
                     appModel.send(.disconnectProvider(source.provider))
+                }
+            }
+        )
+    }
+}
+
+/// Bring-your-own Google OAuth client.
+///
+/// A shipped client id is extractable from any native binary — that is inherent
+/// to native OAuth, not a flaw in this app, and PKCE is why it is safe (see
+/// `GoogleOAuthClient`). What an extracted id actually costs is API quota and
+/// the ability to put this app's name on a consent screen. So the point of this
+/// section is not secrecy: it is that anyone who would rather run on THEIR
+/// project's quota, under THEIR consent screen — or whose employer requires it —
+/// can, without building from source.
+///
+/// It is also the only way to use Google at all in a build that ships no
+/// credentials, which is why it renders even when the toggle above is disabled.
+private struct GoogleOAuthClientSection: View {
+    let hasClient: Bool
+
+    @Default(.googleUseUserOAuthClient) private var useOwnClient
+    @State private var clientID: String = GoogleUserOAuthClientStore.clientID
+    @State private var clientSecret: String = GoogleUserOAuthClientStore.clientSecret
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Toggle("preferences_calendars_google_own_client".loco(), isOn: ownClientBinding)
+
+            if useOwnClient {
+                TextField(
+                    "preferences_calendars_google_client_id".loco(),
+                    text: $clientID
+                )
+                .textFieldStyle(.roundedBorder)
+                .onChange(of: clientID) { _, newValue in
+                    GoogleUserOAuthClientStore.clientID = newValue
+                }
+
+                SecureField(
+                    "preferences_calendars_google_client_secret".loco(),
+                    text: $clientSecret
+                )
+                .textFieldStyle(.roundedBorder)
+                .onChange(of: clientSecret) { _, newValue in
+                    GoogleUserOAuthClientStore.clientSecret = newValue
+                }
+
+                // Only the id can be judged locally. Whether the client actually
+                // works is Google's answer to give, at sign-in.
+                if !clientID.isEmpty, !GoogleOAuthClientResolver.isValidClientID(clientID) {
+                    Label(
+                        "preferences_calendars_google_client_id_invalid".loco(),
+                        systemImage: "exclamationmark.triangle.fill"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                }
+
+                Text("preferences_calendars_google_own_client_help".loco())
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else if !hasClient {
+                // No shipped client and no supplied one: say so, rather than
+                // leaving a disabled toggle with no explanation.
+                Label(
+                    "preferences_calendars_google_no_client".loco(),
+                    systemImage: "exclamationmark.triangle.fill"
+                )
+                .font(.caption)
+                .foregroundStyle(.orange)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.leading, 20)
+    }
+
+    /// Turning this OFF forgets the entered credentials rather than leaving a
+    /// secret sitting in the Keychain for a client no longer in use.
+    private var ownClientBinding: Binding<Bool> {
+        Binding(
+            get: { useOwnClient },
+            set: { enabled in
+                useOwnClient = enabled
+                if !enabled {
+                    GoogleUserOAuthClientStore.clear()
+                    clientID = ""
+                    clientSecret = ""
                 }
             }
         )

@@ -12,6 +12,20 @@ For upstream releases, see <https://github.com/leits/MeetingBar/releases>.
 
 ## Unreleased
 
+* **Bring your own Google credentials.** Preferences ▸ Calendars ▸ "Use my own Google
+  credentials" points the app at your own OAuth client, so calls run on your project's
+  quota under your consent screen — for anyone whose employer requires it, or who would
+  rather not trust the shipped client. It also makes Google usable in a build that ships no
+  credentials at all, which is why the Google row is now always listed rather than hidden
+  when a build carries none. Switching clients discards the previous client's tokens
+  instead of replaying a refresh token it cannot use.
+* **The Google sign-in redirect moved to a loopback listener** (`127.0.0.1`, random port,
+  torn down after the flow) from the reversed-domain URL scheme. Google documents loopback
+  as the recommended redirect for macOS desktop apps and is retiring custom schemes, which
+  any other app on the Mac could register and intercept. It is also what makes a
+  user-supplied client possible at all: a URL scheme has to be declared at build time.
+  Adds the `com.apple.security.network.server` entitlement, scoped to that listener.
+  **OAuth clients must now be of type "Desktop app", not "iOS".**
 * **Connect Apple and Google Calendar at the same time.** The two sources used to be
   either/or, so anyone with an iCloud or Exchange calendar in Calendar.app plus a Google
   work account could only ever see half their day. Preferences ▸ Calendars now shows a

@@ -6,6 +6,7 @@
 //  Copyright © 2021 Andrii Leitsius. All rights reserved.
 //
 
+import AppAuth
 import AppAuthCore
 import AppKit
 import Defaults
@@ -17,7 +18,17 @@ import Foundation
 /// `isConfigured == false`, and `GCEventStore.signIn` throws
 /// `AuthError.notConfigured` instead of trapping on a force-unwrap.
 enum GoogleOAuthConfig {
-    static let clientNumber = infoString("GOOGLE_CLIENT_NUMBER")
+    /// The build's client id. `GOOGLE_CLIENT_ID` is the current name and takes
+    /// either the full id or just the number; `GOOGLE_CLIENT_NUMBER` is the
+    /// former name, still read so an existing `GoogleSecrets.xcconfig` keeps
+    /// working. `GoogleOAuthClientResolver` normalizes whichever form arrives.
+    static let clientNumber: String = {
+        let current = infoString("GOOGLE_CLIENT_ID")
+        guard GoogleOAuthClientResolver.isValidClientID(current) else {
+            return infoString("GOOGLE_CLIENT_NUMBER")
+        }
+        return current
+    }()
     static let clientSecret = infoString("GOOGLE_CLIENT_SECRET")
     static let keychainName = infoString("GOOGLE_AUTH_KEYCHAIN_NAME")
 
@@ -40,6 +51,11 @@ enum GoogleOAuthConfig {
     }
 
     /// True when the current build carries real OAuth credentials.
+    ///
+    /// This is about the BUILD only. Whether Google can actually be used is
+    /// `effectiveClient != nil`, which is also satisfied by a user-supplied
+    /// client — a build shipping no credentials is still fully usable by
+    /// bringing your own.
     static var isConfigured: Bool {
         isConfigured(clientNumber: clientNumber, clientSecret: clientSecret, keychainName: keychainName)
     }
@@ -98,10 +114,27 @@ final class GCEventStore: NSObject,
 
     // MARK: Static constants
     private static let kIssuer       = "https://accounts.google.com"
-    private static let kClientID     = "\(googleClientNumber).apps.googleusercontent.com"
-    private static let kClientSecret = GoogleOAuthConfig.oauthClientSecret
-    private static let kRedirectURI  = "com.googleusercontent.apps.\(googleClientNumber):/oauthredirect"
     private static let kKeychainName = googleAuthKeychainName
+
+    /// Loopback HTTP listener that receives the OAuth redirect.
+    ///
+    /// REPLACES the reversed-domain custom scheme
+    /// (`com.googleusercontent.apps.<n>:/oauthredirect`). Two reasons, either
+    /// sufficient:
+    ///
+    /// 1. A custom scheme has to be declared in `CFBundleURLTypes` at BUILD
+    ///    time, so a client id supplied at RUNTIME could never receive its
+    ///    redirect — bring-your-own-client is impossible with it.
+    /// 2. Google documents loopback as the recommended redirect for macOS
+    ///    desktop apps and is retiring custom schemes over app-impersonation
+    ///    risk: any other app on the Mac can register the same scheme and
+    ///    intercept the redirect. PKCE keeps an intercepted code unusable, but
+    ///    not receiving it at all is better.
+    ///
+    /// Held per sign-in and torn down after; requires the
+    /// `com.apple.security.network.server` entitlement, which is scoped to
+    /// 127.0.0.1 on an ephemeral port for the duration of the flow.
+    private var redirectHandler: OIDRedirectHTTPHandler?
 
     // MARK: Stored properties
     @MainActor var currentAuthorizationFlow: OIDExternalUserAgentSession?
@@ -143,18 +176,40 @@ final class GCEventStore: NSObject,
     var isAuthorized: Bool { authState?.isAuthorized == true }
 
     func signIn(forcePrompt: Bool = false) async throws {
+        // Fail gracefully when there is no usable client — this build carries no
+        // credentials, or the user turned on their own and it is unusable —
+        // rather than starting a flow that cannot succeed.
+        guard let client = GoogleOAuthConfig.effectiveClient,
+              let issuerURL = URL(string: Self.kIssuer)
+        else {
+            throw AuthError.notConfigured
+        }
+
+        // Tokens are bound to the client that obtained them. If the stored
+        // session belongs to a different client (the user switched to their own,
+        // or edited the id), drop it rather than replaying a refresh token the
+        // new client cannot use — that surfaces as `invalid_grant`, which reads
+        // like a broken account rather than a changed setting.
+        //
+        // BEFORE the reusable-session check on purpose. The stored tokens still
+        // look perfectly valid — they are another client's valid tokens — so
+        // skipping first would keep using them until they expired, and only then
+        // fail on a refresh the new client cannot perform.
+        discardAuthStateIfClientChanged(to: client)
+
         if Self.shouldSkipSignIn(forcePrompt: forcePrompt, state: authState) {
             return
         }
 
-        // Fail gracefully when this build has no real Google OAuth credentials
-        // (e.g. a local debug build still on the placeholder values), rather
-        // than trapping on the invalid redirect URL below.
-        guard GoogleOAuthConfig.isConfigured,
-              let issuerURL = URL(string: Self.kIssuer),
-              let redirectURL = URL(string: Self.kRedirectURI)
-        else {
-            throw AuthError.notConfigured
+        // Start the loopback listener BEFORE building the request: the redirect
+        // URI has to carry the port it actually bound to.
+        let handler = OIDRedirectHTTPHandler(successURL: nil)
+        redirectHandler = handler
+        var listenerError: NSError?
+        let redirectURL = handler.startHTTPListener(&listenerError)
+        if let listenerError {
+            redirectHandler = nil
+            throw listenerError
         }
 
         // discover configuration for Google issuer
@@ -181,21 +236,29 @@ final class GCEventStore: NSObject,
 
         let request = OIDAuthorizationRequest(
             configuration: config,
-            clientId: Self.kClientID,
-            clientSecret: Self.kClientSecret,
+            clientId: client.clientID,
+            clientSecret: client.clientSecret,
             scopes: scopes,
             redirectURL: redirectURL,
             responseType: OIDResponseTypeCode,
             additionalParameters: extra
         )
 
+        defer {
+            // Whatever happened, stop listening. `cancelHTTPListener` is a no-op
+            // once a valid response has been received.
+            redirectHandler?.cancelHTTPListener()
+            redirectHandler = nil
+        }
+
         try await withCheckedThrowingContinuation { cont in
-            self.currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request,
-                                                                   externalUserAgent: self) { [weak self] state, error in
+            let session = OIDAuthState.authState(byPresenting: request,
+                                                 externalUserAgent: self) { [weak self] state, error in
                 guard let self else { return }
                 if let state {
                     self.authState = state    // didSet handles persistence & delegates
                     self.userEmail = state.userEmail
+                    Defaults[.googleTokenClientIdentity] = client.tokenIdentity
                     AppMessageCenter.shared.post(
                         .googleAccountConnected(email: self.userEmail ?? "")
                     )
@@ -204,7 +267,21 @@ final class GCEventStore: NSObject,
                     cont.resume(throwing: Self.authorizationError(error))
                 }
             }
+            self.currentAuthorizationFlow = session
+            // The loopback server delivers the redirect to this session; without
+            // it the browser hits 127.0.0.1 and the response goes nowhere.
+            handler.currentAuthorizationFlow = session
         }
+    }
+
+    /// Drops any stored session that belongs to a different OAuth client.
+    private func discardAuthStateIfClientChanged(to client: GoogleOAuthClient) {
+        let stored = Defaults[.googleTokenClientIdentity]
+        guard !stored.isEmpty, stored != client.tokenIdentity else { return }
+        MeetingBarLogger.calendar.info(
+            "Google OAuth client changed; discarding the previous client's session"
+        )
+        clearAuthState()
     }
 
     private static func authorizationError(_ error: Error?) -> Error {
@@ -446,6 +523,9 @@ final class GCEventStore: NSObject,
         authState  = nil
         userEmail  = nil
         Keychain.delete(for: Self.kKeychainName)
+        // Forget which client the (now deleted) tokens belonged to, so the next
+        // sign-in is not measured against a session that no longer exists.
+        Defaults[.googleTokenClientIdentity] = ""
     }
 
     // MARK: Networking helper

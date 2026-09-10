@@ -56,6 +56,23 @@ extension Defaults.Keys {
     static let enabledCalendarSourcesMigrated = Key<Bool>(
         "enabledCalendarSourcesMigrated", default: false)
 
+    // MARK: Google OAuth — bring your own client
+    //
+    // The ID is not a secret (it ships in every native OAuth binary by design;
+    // see `GoogleOAuthClient`), so it lives in Defaults. The optional secret does
+    // NOT — it goes to the Keychain via `GoogleUserOAuthClientStore`, because a
+    // value Google calls a secret should not sit in a plist regardless of how
+    // little it protects.
+    static let googleUseUserOAuthClient = Key<Bool>(
+        "googleUseUserOAuthClient", default: false)
+    static let googleUserOAuthClientID = Key<String>(
+        "googleUserOAuthClientID", default: "")
+    /// Client id the stored OAuth tokens were issued to. Tokens are bound to
+    /// their client, so a mismatch means the stored session belongs to a
+    /// different client and must be discarded rather than replayed.
+    static let googleTokenClientIdentity = Key<String>(
+        "googleTokenClientIdentity", default: "")
+
     static let onboardingCompleted = Key<Bool>("onboardingCompleted", default: false)
 
     static let showEventsForPeriod = Key<ShowEventsForPeriod>(

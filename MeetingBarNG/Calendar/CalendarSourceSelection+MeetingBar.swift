@@ -26,15 +26,16 @@ extension CalendarSourceKind {
         }
     }
 
-    /// Whether this build can use the source at all. macOS Calendar always can;
-    /// Google needs OAuth credentials compiled in from
-    /// `XCConfig/GoogleSecrets.xcconfig`. Offering a source that cannot possibly
-    /// sign in is worse than hiding it.
+    /// Whether the source can actually be signed into right now. macOS Calendar
+    /// always can; Google needs an OAuth client, from either the build
+    /// (`XCConfig/GoogleSecrets.xcconfig`) or the user's own entered in
+    /// Preferences. Keeping a source CONNECTED that cannot possibly sign in is
+    /// worse than dropping it, which is what `availableOnly` uses this for.
     @MainActor
     var isAvailableInThisBuild: Bool {
         switch self {
         case .macOSEventKit: return true
-        case .googleCalendar: return GoogleOAuthConfig.isConfigured
+        case .googleCalendar: return GoogleOAuthConfig.effectiveClient != nil
         }
     }
 }

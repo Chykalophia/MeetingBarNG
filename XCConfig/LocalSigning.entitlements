@@ -20,6 +20,14 @@
 	<true/>
 	<key>com.apple.security.network.client</key>
 	<true/>
+	<!-- Loopback-only. The Google OAuth redirect is delivered to a temporary
+	     HTTP listener on 127.0.0.1 (an ephemeral port), started for the
+	     duration of a sign-in and torn down immediately after. Google
+	     documents this as the recommended redirect for macOS desktop apps;
+	     the custom URL scheme it replaces could be registered by any other
+	     app on the Mac and is being retired for exactly that reason. -->
+	<key>com.apple.security.network.server</key>
+	<true/>
 	<key>com.apple.security.personal-information.calendars</key>
 	<true/>
 	<key>com.apple.security.personal-information.reminders</key>

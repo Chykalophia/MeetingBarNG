@@ -9,16 +9,16 @@ import XCTest
 
 final class PreferencesPresentationTests: XCTestCase {
     func testCalendarSourcesExplainDistinctDataSourcesAndAccountScopes() {
-        // macOS Calendar is always offered. The direct Google provider is offered
-        // only when THIS build carries real OAuth credentials, so the assertion
-        // has to follow the same condition — otherwise the suite fails the moment
-        // a developer drops their own credentials into GoogleSecrets.xcconfig,
-        // which is a supported and documented thing to do.
-        var expected: [EventStoreProvider] = [.macOSEventKit]
-        if GoogleOAuthConfig.isConfigured {
-            expected.append(.googleCalendar)
-        }
-        XCTAssertEqual(CalendarSourcePresentation.all.map(\.provider), expected)
+        // BOTH sources are always listed now, in every build. This used to be
+        // gated on the build carrying Google OAuth credentials — but a user can
+        // supply their own client at runtime, and hiding the row hid the only
+        // place to enter it. Whether a source can actually sign in is a separate
+        // question (`CalendarSourceKind.isAvailableInThisBuild`), expressed on
+        // the row rather than by omitting it.
+        XCTAssertEqual(
+            CalendarSourcePresentation.all.map(\.provider),
+            [.macOSEventKit, .googleCalendar]
+        )
 
         // Either way, macOS Calendar is first: it needs no setup and works for
         // everyone, so it is the answer for anyone who does not have a reason.
