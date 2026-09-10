@@ -1,0 +1,22 @@
+MeetingBarNGTests/PreferencesPresentationTests.swift
+  s_992ab8de51fa9d::t_cede9dabbc6c81 198-250
+  s_992ab8de51fa9d::t_a705d83e68d67f 339-341,344
+MeetingBarNG/Preferences/PreferencesPresentation.swift
+  s_992ab8de51fa9d::t_fb97856d2fe502 215-235,237,248
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "584efb7d78f8258e1a8a81f23993cfe9fa33d799",
+  "prompts": {},
+  "sessions": {
+    "s_992ab8de51fa9d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bcab50db-9fd6-4682-8bc3-324438f80284",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
