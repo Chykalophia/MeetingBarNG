@@ -195,6 +195,59 @@ final class PreferencesPresentationTests: XCTestCase {
         XCTAssertFalse(presentation.canReconnect)
     }
 
+    /// THE REGRESSION THIS BLOCK EXISTS FOR.
+    ///
+    /// "Grant calendar access" rendered as a prominent button next to "Up to
+    /// date · refreshed 3 seconds ago", above a list of sixteen calendars the
+    /// app had plainly just read. TCC reported `.notDetermined` while EventKit
+    /// was demonstrably working — re-signing a local build does that, because
+    /// the existing grant stops matching the new code signature while the
+    /// running process keeps its access. Asking someone to grant what they can
+    /// see already works reads as a bug.
+    func testCalendarsArrivingFromEventKitHideTheGrantAffordance() {
+        var state = AppState()
+        state.activeProvider = .macOSEventKit
+        state.connectedProviders = [.macOSEventKit]
+        state.calendars = [
+            makeFakeCalendar(id: "ek-1", title: "Home"),
+            makeFakeCalendar(id: "ek-2", title: "Work")
+        ]
+        state.providerHealth = ProviderHealth(
+            lastSuccessfulRefresh: Date(timeIntervalSince1970: 1_700_000_000)
+        )
+
+        let presentation = PreferencesCalendarPresentation.make(
+            from: state,
+            authorizationStatus: .notDetermined
+        )
+
+        XCTAssertFalse(
+            presentation.canRequestAccess,
+            "nothing to grant when EventKit is already serving calendars")
+        XCTAssertFalse(presentation.canOpenCalendarSettings)
+    }
+
+    /// Google's calendars say nothing about EventKit's access. Counting the
+    /// merged list would suppress a genuinely needed prompt the moment the other
+    /// source happened to be connected.
+    func testGoogleCalendarsDoNotVouchForEventKitAccess() {
+        var state = AppState()
+        state.activeProvider = .macOSEventKit
+        state.connectedProviders = [.macOSEventKit, .googleCalendar]
+        state.calendars = [
+            makeFakeCalendar(id: "g-1", title: "Google", provider: .googleCalendar)
+        ]
+
+        let presentation = PreferencesCalendarPresentation.make(
+            from: state,
+            authorizationStatus: .notDetermined
+        )
+
+        XCTAssertTrue(
+            presentation.canRequestAccess,
+            "EventKit has produced no calendars, so its access is still unproven")
+    }
+
     func testNotDeterminedEventKitKeepsGrantAccessEvenAfterPermissionError() {
         // A denied/aborted first prompt records an error → permissionRequired.
         // While the OS still reports `.notDetermined`, keep offering Grant
@@ -283,8 +336,12 @@ final class PreferencesPresentationTests: XCTestCase {
 
     func testGoogleProviderNeverOffersGrantAccess() {
         // Grant Access is EventKit-only, even if a status is somehow undetermined.
+        // "Google only" is now expressed by the CONNECTED set rather than by
+        // `activeProvider`: with both sources connected EventKit is still there
+        // and its grant would legitimately apply.
         var state = AppState()
         state.activeProvider = .googleCalendar
+        state.connectedProviders = [.googleCalendar]
         state.calendars = []
 
         let presentation = PreferencesCalendarPresentation.make(

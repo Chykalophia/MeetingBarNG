@@ -212,8 +212,29 @@ struct PreferencesCalendarPresentation: Equatable {
         // fall back to the Calendar-settings shortcut instead — hence
         // `canOpenCalendarSettings` is suppressed while a request can still
         // prompt (`.notDetermined`).
-        let canRequestAccess = state.activeProvider == .macOSEventKit
+        //
+        // BUT the TCC status alone is not enough to put a prominent button on
+        // screen. It can read `.notDetermined` while EventKit is demonstrably
+        // serving calendars — re-signing a local build is one way to get there,
+        // since the existing grant no longer matches the new code signature even
+        // though the running process keeps working. The result was "Grant
+        // calendar access" sitting next to "Up to date · refreshed 3 seconds
+        // ago" above a list of sixteen calendars, which reads as a bug because
+        // it is one.
+        //
+        // So the affordance needs BOTH: a status saying a prompt would achieve
+        // something, AND no evidence to the contrary. Calendars arriving FROM
+        // EVENTKIT are that evidence — if they are, there is nothing to grant.
+        // Counting all calendars would be wrong now that two sources can be
+        // connected: Google's calendars say nothing about EventKit's access.
+        let eventKitCalendarCount = state.calendars
+            .filter { $0.provider == .macOSEventKit }
+            .count
+        let eventKitAccessDemonstrablyWorks = eventKitCalendarCount > 0
+
+        let canRequestAccess = state.connectedProviders.contains(.macOSEventKit)
             && authorizationStatus == .notDetermined
+            && !eventKitAccessDemonstrablyWorks
 
         return PreferencesCalendarPresentation(
             activeProvider: state.activeProvider,
@@ -224,7 +245,7 @@ struct PreferencesCalendarPresentation: Equatable {
             canReconnect: state.activeProvider == .googleCalendar
                 && connectionState == .authRequired,
             canRequestAccess: canRequestAccess,
-            canOpenCalendarSettings: state.activeProvider == .macOSEventKit
+            canOpenCalendarSettings: state.connectedProviders.contains(.macOSEventKit)
                 && !canRequestAccess
                 && (connectionState == .permissionRequired || connectedWithoutCalendars),
             providerTitleKey: calendarSource.titleKey,
