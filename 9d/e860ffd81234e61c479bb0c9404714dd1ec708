@@ -1,0 +1,23 @@
+MeetingBarNG/Preferences/CalendarsTab.swift
+  s_992ab8de51fa9d::t_513a038bac6f27 508-515,520-522,524-532,541-555,565-567,569-578,583-585,587-588,591-594
+MeetingBarNG/Utilities/Constants.swift
+  s_992ab8de51fa9d::t_11aa83e70a2b46 37-41
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_992ab8de51fa9d::t_513a038bac6f27 166-167
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "9de860ffd81234e61c479bb0c9404714dd1ec708",
+  "prompts": {},
+  "sessions": {
+    "s_992ab8de51fa9d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bcab50db-9fd6-4682-8bc3-324438f80284",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
