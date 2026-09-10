@@ -578,7 +578,20 @@ private struct RemindersPermissionSection: View {
         if isRequesting {
             Text("preferences_calendars_reminders_requesting".loco())
         } else if isGranted {
-            Text("preferences_calendars_reminders_granted".loco())
+            VStack(alignment: .leading, spacing: 6) {
+                Text("preferences_calendars_reminders_granted".loco())
+                    .fixedSize(horizontal: false, vertical: true)
+
+                // Permission and visibility are two different questions, and
+                // this pane only answers the first. Someone who wants reminders
+                // GONE looks here — this is the most prominent place naming
+                // them — and the answer is a toggle on another pane. Saying so
+                // and offering the trip beats leaving them to find it.
+                Button("preferences_calendars_reminders_where_to_hide".loco()) {
+                    PreferencesNavigation.shared.go(to: .dropdown)
+                }
+                .controlSize(.small)
+            }
         } else if isDenied {
             Text("preferences_calendars_reminders_denied".loco())
         } else {
