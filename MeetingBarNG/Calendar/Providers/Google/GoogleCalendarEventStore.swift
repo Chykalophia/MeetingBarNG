@@ -156,6 +156,10 @@ final class GCEventStore: NSObject,
         }
     }
 
+    /// Google's event colour palette for this run. Google documents `/colors`
+    /// as rarely changing and asks that it be cached.
+    private var cachedPalette: GoogleColorPalette?
+
     private var signInTask: Task<Void, Error>?
     private var refreshTask: Task<String, Error>?
 
@@ -390,7 +394,10 @@ final class GCEventStore: NSObject,
         )
 
         let items = try await fetchJSON(url, calendarID: calendar.id)
-        return items.compactMap { GCParser.event(from: $0, calendar: calendar) }
+        let palette = await eventColorPalette()
+        return items.compactMap {
+            GCParser.event(from: $0, calendar: calendar, palette: palette)
+        }
     }
 
     static func eventsURL(calendarID: String, timeMin: String, timeMax: String) throws -> URL {
@@ -554,13 +561,31 @@ final class GCEventStore: NSObject,
         authState  = nil
         userEmail  = nil
         Keychain.delete(for: Self.kKeychainName)
+        cachedPalette = nil
         // Forget which client the (now deleted) tokens belonged to, so the next
         // sign-in is not measured against a session that no longer exists.
         Defaults[.googleTokenClientIdentity] = ""
     }
 
     // MARK: Networking helper
-    private func fetchJSON(_ url: URL, calendarID: String? = nil, retrying: Bool = false) async throws -> [[String: Any]] {
+    /// A list endpoint's `items`. Most of the API is shaped this way.
+    private func fetchJSON(_ url: URL, calendarID: String? = nil) async throws -> [[String: Any]] {
+        let root = try await fetchRootJSON(url, calendarID: calendarID)
+        guard let items = root["items"] as? [[String: Any]] else {
+            throw GoogleCalendarError.missingItems(url)
+        }
+        return items
+    }
+
+    /// The raw response object, for the endpoints that are not lists — `/colors`
+    /// returns `event` and `calendar` maps and no `items` at all, so it cannot
+    /// go through `fetchJSON`. Split out rather than duplicated so the token
+    /// refresh and status handling below stay in one place.
+    private func fetchRootJSON(
+        _ url: URL,
+        calendarID: String? = nil,
+        retrying: Bool = false
+    ) async throws -> [String: Any] {
         let token = try await validAccessToken()
 
         var req = URLRequest(url: url)
@@ -579,7 +604,7 @@ final class GCEventStore: NSObject,
                 break
             case .retryWithForcedTokenRefresh:
                 _ = try await validAccessToken(forceRefresh: true)
-                return try await fetchJSON(url, calendarID: calendarID, retrying: true)
+                return try await fetchRootJSON(url, calendarID: calendarID, retrying: true)
             case .clearAuthAndThrowAuthRequired:
                 clearAuthState()
                 throw AuthError.notSignedIn
@@ -588,11 +613,30 @@ final class GCEventStore: NSObject,
             }
         }
 
-        let root = try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
-        guard let items = root["items"] as? [[String: Any]] else {
-            throw GoogleCalendarError.missingItems(url)
+        return try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
+    }
+
+    /// Google's per-event colour palette, fetched once and kept for the run.
+    ///
+    /// Never throws: a palette that cannot be fetched means events fall back to
+    /// their calendar's colour, which is exactly the behaviour before per-event
+    /// colours existed. Failing a calendar sync over a cosmetic lookup would be
+    /// a bad trade.
+    private func eventColorPalette() async -> GoogleColorPalette {
+        if let cachedPalette { return cachedPalette }
+        guard let url = URL(string: "https://www.googleapis.com/calendar/v3/colors") else {
+            return .empty
         }
-        return items
+        do {
+            let palette = GoogleColorPalette.parse(try await fetchRootJSON(url))
+            cachedPalette = palette
+            return palette
+        } catch {
+            MeetingBarLogger.calendar.warning(
+                "Could not load Google's event colour palette; falling back to calendar colours: \(error.localizedDescription, privacy: .public)"
+            )
+            return .empty
+        }
     }
 
     private func revoke(token: String) async throws {
@@ -635,7 +679,8 @@ final class GCEventStore: NSObject,
     enum GCParser {
         // swiftlint:disable:next cyclomatic_complexity
         static func event(from item: [String: Any],
-                          calendar: MBCalendar) -> MBEvent? {
+                          calendar: MBCalendar,
+                          palette: GoogleColorPalette = .empty) -> MBEvent? {
             guard let eventID = item["id"] as? String else {
                 MeetingBarLogger.calendar.warning(
                     "Skipping Google Calendar event without a string id"
@@ -774,7 +819,13 @@ final class GCEventStore: NSObject,
                 isAllDay: isAllDay,
                 recurrent: recurrent,
                 calendar: calendar,
-                customRegexes: Defaults[.customRegexes]
+                customRegexes: Defaults[.customRegexes],
+                // `colorId` names one of the eleven per-event colours Google's
+                // web UI offers. Absent or unrecognised resolves to nil, and the
+                // event draws in its calendar's colour as it always did.
+                color: palette
+                    .background(forEventColorID: item["colorId"] as? String)
+                    .map { hexStringToUIColor(hex: $0) }
             )
         }
     }

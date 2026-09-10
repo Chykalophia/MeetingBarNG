@@ -861,7 +861,7 @@ struct DropdownPanelView: View {
     }
 
     private func calendarColor(for event: MBEvent) -> Color {
-        Color(nsColor: event.calendar.color)
+        Color(nsColor: event.displayColor)
     }
 
     /// Carded: the timeline is a widget with its own horizontal coordinate system
@@ -906,7 +906,7 @@ struct DropdownPanelView: View {
                 id: event.id,
                 start: max(event.startDate, startOfDay),
                 end: min(event.endDate, endOfDay),
-                color: Color(nsColor: event.calendar.color),
+                color: Color(nsColor: event.displayColor),
                 isHighlighted: event.id == highlightedEventID,
                 title: event.title
             )
@@ -1314,7 +1314,7 @@ struct DropdownPanelView: View {
         frame: AgendaRowLayout.MarkerFrame,
         isHollow: Bool
     ) -> some View {
-        let color = Color(nsColor: event.calendar.color)
+        let color = Color(nsColor: event.displayColor)
         Group {
             switch marker {
             case .none:

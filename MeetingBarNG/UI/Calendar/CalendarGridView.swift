@@ -463,7 +463,7 @@ private struct DayCell: View {
         HStack(spacing: 3) {
             ForEach(Array(shown.enumerated()), id: \.offset) { _, event in
                 Circle()
-                    .fill(Color(nsColor: event.calendar.color))
+                    .fill(Color(nsColor: event.displayColor))
                     .frame(width: 5, height: 5)
             }
             if events.count > cap {
@@ -487,7 +487,7 @@ private struct CalendarEventRow: View {
     var body: some View {
         HStack(spacing: 10) {
             Circle()
-                .fill(Color(nsColor: event.calendar.color))
+                .fill(Color(nsColor: event.displayColor))
                 .frame(width: 8, height: 8)
 
             VStack(alignment: .leading, spacing: 1) {

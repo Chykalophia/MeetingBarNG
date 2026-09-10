@@ -287,6 +287,66 @@ final class GoogleCalendarParserTests: XCTestCase {
         XCTAssertEqual(queryItems?.first { $0.name == "timeMin" }?.value, "2026-01-01T00:00:00Z")
         XCTAssertEqual(queryItems?.first { $0.name == "timeMax" }?.value, "2026-01-02T00:00:00Z")
     }
+    // MARK: - Per-event colour
+    //
+    // A Google event can override its calendar's colour with a `colorId`.
+    // EventKit has no equivalent, so this is the one place the app can know a
+    // day looks the way it looks in Google Calendar rather than one flat colour
+    // per calendar.
+
+    private var palette: GoogleColorPalette {
+        GoogleColorPalette(eventBackgrounds: ["11": "#dc2127"])
+    }
+
+    private func timedEvent(extra: [String: Any]) -> [String: Any] {
+        var item: [String: Any] = [
+            "id": "evt",
+            "summary": "Standup",
+            "start": ["dateTime": "2026-09-10T16:00:00Z"],
+            "end": ["dateTime": "2026-09-10T16:30:00Z"]
+        ]
+        item.merge(extra) { _, new in new }
+        return item
+    }
+
+    func testEventColorIDOverridesTheCalendarColour() throws {
+        let event = try XCTUnwrap(GCEventStore.GCParser.event(
+            from: timedEvent(extra: ["colorId": "11"]),
+            calendar: calendar,
+            palette: palette
+        ))
+
+        XCTAssertNotNil(event.color)
+        XCTAssertEqual(event.displayColor, event.color)
+        XCTAssertNotEqual(
+            event.displayColor, calendar.color,
+            "an event Google shows in red must not render in its calendar's colour")
+    }
+
+    func testEventWithoutAColorIDInheritsTheCalendarColour() throws {
+        let event = try XCTUnwrap(GCEventStore.GCParser.event(
+            from: timedEvent(extra: [:]),
+            calendar: calendar,
+            palette: palette
+        ))
+
+        XCTAssertNil(event.color)
+        XCTAssertEqual(event.displayColor, calendar.color)
+    }
+
+    /// A colour Google adds later, or a palette that could not be fetched, must
+    /// degrade to the calendar's colour rather than to black.
+    func testUnknownColorIDFallsBackToTheCalendarColour() throws {
+        for palette in [self.palette, .empty] {
+            let event = try XCTUnwrap(GCEventStore.GCParser.event(
+                from: timedEvent(extra: ["colorId": "99"]),
+                calendar: calendar,
+                palette: palette
+            ))
+            XCTAssertNil(event.color)
+            XCTAssertEqual(event.displayColor, calendar.color)
+        }
+    }
 }
 
 @MainActor
@@ -374,4 +434,5 @@ final class GoogleAuthStateTests: XCTestCase {
         }
         return OIDTokenResponse(request: request, parameters: parameters)
     }
+
 }

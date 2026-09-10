@@ -12,6 +12,7 @@
 //  duplicate events can be collapsed by a stable shared key.
 //
 
+import AppKit
 import Foundation
 
 public enum MBEventStatus: Int, Sendable {
@@ -61,6 +62,12 @@ public struct MBEventAttendee: Hashable, Sendable {
 public struct MBEvent: Identifiable, Hashable, Sendable {
     public var id: String
 
+    /// The colour to draw this event in: its own when it has one, otherwise its
+    /// calendar's. Every event-drawing surface should use this rather than
+    /// reaching for `calendar.color`, or a Google event coloured "Tomato" would
+    /// render in its calendar's blue everywhere but Google's own UI.
+    public var displayColor: NSColor { color ?? calendar.color }
+
     /// Identifier handed to `meetingStart` AppleScripts. Defaults to `id`, but
     /// EventKit overrides it with the raw `calendarItemIdentifier` (shared
     /// across a recurring series) so existing user scripts keep seeing the
@@ -90,6 +97,13 @@ public struct MBEvent: Identifiable, Hashable, Sendable {
     public let calendarOpenURL: URL?
     public let notes: String?
     public let location: String?
+    /// A colour set on the EVENT itself, overriding its calendar's.
+    ///
+    /// Google-only: an event can carry a `colorId` naming one of the eleven
+    /// colours its web UI offers per event. EventKit has no equivalent —
+    /// `EKEvent` inherits its calendar's colour — so this is nil for every
+    /// EventKit event, and `displayColor` falls back accordingly.
+    public let color: NSColor?
     public let startDate: Date
     public let endDate: Date
     public var isAllDay: Bool
@@ -120,8 +134,10 @@ public struct MBEvent: Identifiable, Hashable, Sendable {
          recurrent: Bool,
          calendar: MBCalendar,
          customRegexes: [String] = [],
-         externalIdentifier: String? = nil) {
+         externalIdentifier: String? = nil,
+         color: NSColor? = nil) {
         self.calendar = calendar
+        self.color = color
         self.externalIdentifier = externalIdentifier
         self.id = id
         self.scriptIdentifier = scriptIdentifier ?? id
