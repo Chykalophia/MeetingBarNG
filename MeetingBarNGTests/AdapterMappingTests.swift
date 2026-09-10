@@ -363,4 +363,22 @@ final class GoogleOAuthConfigTests: XCTestCase {
             clientNumber: "1234567890-abc123", clientSecret: "", keychainName: "MeetingBarNG.GoogleAuth"
         ))
     }
+
+    // MARK: - Empty secret must reach AppAuth as nil
+    //
+    // AppAuth branches on `if (_clientSecret)` in Objective-C, where an empty
+    // NSString is a non-nil object and therefore TRUE. Passing "" makes it
+    // authenticate the token request with `Authorization: Basic
+    // base64("<id>:")` instead of putting `client_id` in the body, and Google
+    // answers `invalid_client` for an "iOS"-type client — the type this app's
+    // reversed-domain redirect requires and the setup docs recommend. Which
+    // meant the RECOMMENDED configuration was the one that could not sign in.
+
+    func test_emptySecretIsNilSoAppAuthOmitsBasicAuth() {
+        XCTAssertNil(GoogleOAuthConfig.normalizedSecret(""))
+    }
+
+    func test_realSecretIsPassedThroughUnchanged() {
+        XCTAssertEqual(GoogleOAuthConfig.normalizedSecret("GOCSPX-example"), "GOCSPX-example")
+    }
 }

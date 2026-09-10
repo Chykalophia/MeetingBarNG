@@ -21,6 +21,24 @@ enum GoogleOAuthConfig {
     static let clientSecret = infoString("GOOGLE_CLIENT_SECRET")
     static let keychainName = infoString("GOOGLE_AUTH_KEYCHAIN_NAME")
 
+    /// The client secret as AppAuth must receive it: `nil` when there isn't one.
+    ///
+    /// This is NOT cosmetic. AppAuth branches on `if (_clientSecret)` in
+    /// Objective-C, where an empty `NSString` is a non-nil object and therefore
+    /// TRUE. Handing it `""` makes it authenticate the token request with
+    /// `Authorization: Basic base64("<id>:")` instead of putting `client_id` in
+    /// the body — and Google rejects that with `invalid_client` for an
+    /// "iOS"-type client, which is the type this app's reversed-domain redirect
+    /// wants and the one the setup docs recommend. So the recommended,
+    /// no-secret configuration was the one that could not sign in.
+    static var oauthClientSecret: String? { normalizedSecret(clientSecret) }
+
+    /// Pure so the empty-vs-nil distinction above is testable without the
+    /// ambient build's Info.plist.
+    static func normalizedSecret(_ secret: String) -> String? {
+        secret.isEmpty ? nil : secret
+    }
+
     /// True when the current build carries real OAuth credentials.
     static var isConfigured: Bool {
         isConfigured(clientNumber: clientNumber, clientSecret: clientSecret, keychainName: keychainName)
@@ -43,8 +61,11 @@ enum GoogleOAuthConfig {
 }
 
 let googleClientNumber = GoogleOAuthConfig.clientNumber
-let googleClientSecret = GoogleOAuthConfig.clientSecret
 let googleAuthKeychainName = GoogleOAuthConfig.keychainName
+// No `googleClientSecret` alias on purpose: the only correct way to hand the
+// secret to AppAuth is `GoogleOAuthConfig.oauthClientSecret`, which maps "no
+// secret" to nil rather than "". A convenience alias for the raw string is what
+// made passing `""` straight through look reasonable.
 
 extension OIDServiceConfiguration: @unchecked @retroactive Sendable {}
 
@@ -78,7 +99,7 @@ final class GCEventStore: NSObject,
     // MARK: Static constants
     private static let kIssuer       = "https://accounts.google.com"
     private static let kClientID     = "\(googleClientNumber).apps.googleusercontent.com"
-    private static let kClientSecret = googleClientSecret
+    private static let kClientSecret = GoogleOAuthConfig.oauthClientSecret
     private static let kRedirectURI  = "com.googleusercontent.apps.\(googleClientNumber):/oauthredirect"
     private static let kKeychainName = googleAuthKeychainName
 
