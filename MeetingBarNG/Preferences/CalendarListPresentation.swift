@@ -37,12 +37,27 @@ public struct CalendarPickerItem: Hashable, Sendable {
     public let source: String
     /// The account address, when macOS exposes one.
     public let email: String?
+    /// Which connected SOURCE this calendar came from.
+    ///
+    /// Account name alone stopped being enough once both sources could be
+    /// connected: macOS Calendar reports a Google account as a source literally
+    /// named "Google", and the direct provider reports the same account by its
+    /// address, so the list showed two groups with no way to tell which was
+    /// which — or that they were the same calendars twice.
+    public let provider: CalendarSourceKind
 
-    public init(id: String, title: String, source: String, email: String?) {
+    public init(
+        id: String,
+        title: String,
+        source: String,
+        email: String?,
+        provider: CalendarSourceKind = .macOSEventKit
+    ) {
         self.id = id
         self.title = title
         self.source = source
         self.email = email
+        self.provider = provider
     }
 }
 
@@ -58,13 +73,25 @@ public struct CalendarPickerRow: Hashable, Sendable, Identifiable {
 
 /// One account's worth of rows.
 public struct CalendarAccountGroup: Hashable, Sendable, Identifiable {
-    /// The raw source string, which is also the group's stable identity.
+    /// Provider and source together — the account name alone is not unique
+    /// across sources.
     public let id: String
+    /// The raw account/source string this group was keyed on, without the
+    /// provider prefix that makes `id` unique. Exposed so callers (and tests)
+    /// never have to parse `id` apart.
+    public let account: String
     /// The account name to display. Empty when `titleKey` supplies it instead.
     public let title: String
     /// A localization key to use in place of `title`. Non-nil only for the
     /// unnamed source, which renders as "Other" rather than the raw "unknown".
     public let titleKey: String?
+    /// Which source these calendars came from. Rendered beside the account name
+    /// so "iCloud" and "peter@example.com" are visibly answers to the same
+    /// question, and so an EventKit source named "Google" cannot be mistaken for
+    /// the direct Google connection.
+    public let provider: CalendarSourceKind
+    /// Localization key naming `provider` on screen.
+    public let providerTitleKey: String
     public let rows: [CalendarPickerRow]
 }
 
@@ -95,12 +122,18 @@ public enum CalendarListPresentation {
             ? items
             : items.filter { matches($0, foldedQuery: TextNormalization.fold(trimmedQuery)) }
 
-        let bySource = Dictionary(grouping: matching, by: \.source)
+        // Grouped by SOURCE and account, not account alone: with both sources
+        // connected the same account name can arrive from each, and collapsing
+        // them into one group would list a calendar under an account it does not
+        // belong to.
+        let byAccount = Dictionary(grouping: matching) {
+            AccountKey(provider: $0.provider, source: $0.source)
+        }
 
-        return bySource.keys
-            .sorted(by: sourcesInDisplayOrder)
-            .map { source in
-                let rows = (bySource[source] ?? [])
+        return byAccount.keys
+            .sorted(by: accountsInDisplayOrder)
+            .map { key in
+                let rows = (byAccount[key] ?? [])
                     .sorted(by: itemsInDisplayOrder)
                     .map { item in
                         CalendarPickerRow(
@@ -111,14 +144,25 @@ public enum CalendarListPresentation {
                                 : nil
                         )
                     }
-                let isUnnamed = source == unknownSource
+                let isUnnamed = key.source == unknownSource
                 return CalendarAccountGroup(
-                    id: source,
-                    title: isUnnamed ? "" : source,
+                    id: "\(key.provider.rawValue)|\(key.source)",
+                    account: key.source,
+                    title: isUnnamed ? "" : key.source,
                     titleKey: isUnnamed ? otherSourceTitleKey : nil,
+                    provider: key.provider,
+                    providerTitleKey: key.provider.titleKey,
                     rows: rows
                 )
             }
+    }
+
+    /// One account within one source. The pair is the real identity: "Google"
+    /// as an EventKit source and a Google address from the direct provider are
+    /// different accounts that can hold calendars of the same name.
+    private struct AccountKey: Hashable {
+        let provider: CalendarSourceKind
+        let source: String
     }
 
     /// Every calendar id currently on screen, in reading order. This is what
@@ -128,6 +172,18 @@ public enum CalendarListPresentation {
     }
 
     // MARK: - Ordering and matching
+
+    /// Sources in their canonical order first, then accounts within each.
+    /// Keeping each source's accounts contiguous is what makes the list
+    /// scannable: "everything my Mac syncs" then "everything Google sends".
+    private static func accountsInDisplayOrder(_ lhs: AccountKey, _ rhs: AccountKey) -> Bool {
+        guard lhs.provider == rhs.provider else {
+            let order = CalendarSourceKind.displayOrder
+            return (order.firstIndex(of: lhs.provider) ?? 0)
+                < (order.firstIndex(of: rhs.provider) ?? 0)
+        }
+        return sourcesInDisplayOrder(lhs.source, rhs.source)
+    }
 
     /// Named accounts alphabetically, the unnamed source always last: "Other" is
     /// a leftovers bucket, and a leftovers bucket that sorts into the middle

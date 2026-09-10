@@ -32,7 +32,7 @@ final class CalendarListPresentationTests: XCTestCase {
             item("3", "Personal", source: "iCloud", email: "me@icloud.com")
         ])
 
-        XCTAssertEqual(groups.map(\.id), ["Google", "iCloud"])
+        XCTAssertEqual(groups.map(\.account), ["Google", "iCloud"])
         XCTAssertEqual(groups[0].rows.map(\.id), ["2"])
         XCTAssertEqual(groups[1].rows.map(\.id), ["3", "1"])
     }
@@ -43,7 +43,7 @@ final class CalendarListPresentationTests: XCTestCase {
             item("2", "Work", source: "iCloud")
         ])
 
-        XCTAssertEqual(groups.map(\.id), ["iCloud", CalendarListPresentation.unknownSource])
+        XCTAssertEqual(groups.map(\.account), ["iCloud", CalendarListPresentation.unknownSource])
         XCTAssertNil(groups[0].titleKey)
         XCTAssertEqual(groups[0].title, "iCloud")
         XCTAssertEqual(groups[1].titleKey, "preferences_calendars_source_other")
@@ -122,7 +122,7 @@ final class CalendarListPresentationTests: XCTestCase {
         )
 
         XCTAssertEqual(groups.count, 1)
-        XCTAssertEqual(groups[0].id, "iCloud")
+        XCTAssertEqual(groups[0].account, "iCloud")
     }
 
     func testSearchKeepsTheDisambiguatorItWouldOtherwiseHide() {
@@ -155,5 +155,85 @@ final class CalendarListPresentationTests: XCTestCase {
 
         // "All" and "None" act on exactly what is on screen, in reading order.
         XCTAssertEqual(CalendarListPresentation.visibleIDs(in: groups), ["2", "3", "1"])
+    }
+
+    // MARK: - Telling the two sources apart
+    //
+    // THE REGRESSION THIS BLOCK EXISTS FOR. With both sources connected the
+    // settings list showed the usual calendars with no way to tell which came
+    // from the Mac and which from the direct Google connection — and macOS
+    // reports a Google account as a source literally NAMED "Google", so the
+    // account name alone could not answer it.
+
+    func test_sameAccountNameFromBothSourcesStaysTwoGroups() {
+        let groups = CalendarListPresentation.groups(for: [
+            CalendarPickerItem(
+                id: "ek", title: "Work", source: "Google", email: "p@example.com",
+                provider: .macOSEventKit),
+            CalendarPickerItem(
+                id: "g", title: "Work", source: "Google", email: "p@example.com",
+                provider: .googleCalendar)
+        ])
+
+        XCTAssertEqual(groups.count, 2, "one group per source, not one merged group")
+        XCTAssertEqual(groups.map(\.provider), [.macOSEventKit, .googleCalendar])
+        XCTAssertEqual(
+            Set(groups.map(\.id).map { $0 }).count, 2,
+            "group identity must stay unique or SwiftUI would collapse the sections")
+    }
+
+    func test_eachGroupNamesItsSource() {
+        let groups = CalendarListPresentation.groups(for: [
+            CalendarPickerItem(
+                id: "ek", title: "Home", source: "iCloud", email: nil,
+                provider: .macOSEventKit),
+            CalendarPickerItem(
+                id: "g", title: "Team", source: "p@example.com", email: "p@example.com",
+                provider: .googleCalendar)
+        ])
+
+        XCTAssertEqual(
+            groups.map(\.providerTitleKey),
+            ["onboarding_apple_calendar_title", "onboarding_google_calendar_title"]
+        )
+    }
+
+    /// Each source's accounts stay contiguous, in the canonical source order —
+    /// "everything my Mac syncs", then "everything Google sends". Interleaving
+    /// them alphabetically would put the answer to "where is this from" in a
+    /// different place for every row.
+    func test_accountsAreGroupedBySourceInDisplayOrder() {
+        let groups = CalendarListPresentation.groups(for: [
+            CalendarPickerItem(
+                id: "g", title: "Team", source: "aaa@example.com", email: nil,
+                provider: .googleCalendar),
+            CalendarPickerItem(
+                id: "ek2", title: "Home", source: "zzz-iCloud", email: nil,
+                provider: .macOSEventKit),
+            CalendarPickerItem(
+                id: "ek1", title: "Work", source: "mmm-Exchange", email: nil,
+                provider: .macOSEventKit)
+        ])
+
+        XCTAssertEqual(
+            groups.map(\.provider),
+            [.macOSEventKit, .macOSEventKit, .googleCalendar],
+            "sorting by account name alone would have put the Google group first")
+        XCTAssertEqual(groups.map(\.account), ["mmm-Exchange", "zzz-iCloud", "aaa@example.com"])
+    }
+
+    /// A calendar named the same on both sources still gets its address shown,
+    /// because ambiguity is counted across the whole list.
+    func test_duplicateNameAcrossSourcesKeepsTheDisambiguator() {
+        let groups = CalendarListPresentation.groups(for: [
+            CalendarPickerItem(
+                id: "ek", title: "Work", source: "iCloud", email: "me@icloud.com",
+                provider: .macOSEventKit),
+            CalendarPickerItem(
+                id: "g", title: "Work", source: "p@example.com", email: "p@example.com",
+                provider: .googleCalendar)
+        ])
+
+        XCTAssertEqual(groups.flatMap { $0.rows }.compactMap(\.subtitle).count, 2)
     }
 }

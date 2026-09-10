@@ -189,6 +189,35 @@ private struct CalendarSourceToggle: View {
     }
 }
 
+/// An account header that also names the SOURCE its calendars came from.
+///
+/// The account name alone was ambiguous the moment both sources could be
+/// connected: macOS Calendar reports a Google account as a source literally
+/// named "Google", while the direct provider reports the same account by its
+/// address. Two groups, no way to tell which was which — or that they were the
+/// same calendars arriving twice.
+private struct CalendarAccountHeader: View {
+    let group: CalendarAccountGroup
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text(group.titleKey?.loco() ?? group.title)
+
+            Text(group.providerTitleKey.loco())
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 1)
+                .background(
+                    Capsule().fill(Color.secondary.opacity(0.15))
+                )
+                .accessibilityLabel(
+                    "preferences_calendars_account_source".loco(group.providerTitleKey.loco())
+                )
+        }
+    }
+}
+
 /// Bring-your-own Google OAuth client.
 ///
 /// A shipped client id is extractable from any native binary — that is inherent
@@ -349,7 +378,13 @@ private struct CalendarSelectionSection: View {
 
     private var items: [CalendarPickerItem] {
         appModel.state.calendars.map {
-            CalendarPickerItem(id: $0.id, title: $0.title, source: $0.source, email: $0.email)
+            CalendarPickerItem(
+                id: $0.id,
+                title: $0.title,
+                source: $0.source,
+                email: $0.email,
+                provider: $0.provider.sourceKind
+            )
         }
     }
 
@@ -400,7 +435,7 @@ private struct CalendarSelectionSection: View {
         }
 
         ForEach(groups) { group in
-            Section(header: Text(group.titleKey?.loco() ?? group.title)) {
+            Section(header: CalendarAccountHeader(group: group)) {
                 ForEach(group.rows) { row in
                     if let calendar = calendar(for: row.id) {
                         CalendarRow(calendar: calendar, subtitle: row.subtitle)

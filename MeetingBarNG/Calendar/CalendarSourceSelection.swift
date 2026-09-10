@@ -45,6 +45,16 @@ public enum CalendarSourceKind: String, Codable, Hashable, Sendable, CaseIterabl
         }
     }
 
+    /// Localization key naming this source on screen. Lives here so the source
+    /// picker, the calendar list's account headers and anywhere else naming a
+    /// source cannot drift apart.
+    public var titleKey: String {
+        switch self {
+        case .macOSEventKit: return "onboarding_apple_calendar_title"
+        case .googleCalendar: return "onboarding_google_calendar_title"
+        }
+    }
+
     /// Only EventKit can create, edit or delete events and reminders; the Google
     /// provider is read-only in this app. Anything offering a write action has to
     /// gate on an ENABLED EventKit rather than on "the active provider", which is
