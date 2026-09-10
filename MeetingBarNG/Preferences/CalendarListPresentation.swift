@@ -151,7 +151,7 @@ public enum CalendarListPresentation {
                     title: isUnnamed ? "" : key.source,
                     titleKey: isUnnamed ? otherSourceTitleKey : nil,
                     provider: key.provider,
-                    providerTitleKey: key.provider.titleKey,
+                    providerTitleKey: key.provider.shortTitleKey,
                     rows: rows
                 )
             }

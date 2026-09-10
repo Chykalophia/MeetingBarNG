@@ -192,9 +192,12 @@ final class CalendarListPresentationTests: XCTestCase {
                 provider: .googleCalendar)
         ])
 
+        // The SHORT names: an account heading already has a subject, so the
+        // precise "Google Calendar API" from the source toggles would be
+        // labelling an account with the name of a protocol.
         XCTAssertEqual(
             groups.map(\.providerTitleKey),
-            ["onboarding_apple_calendar_title", "onboarding_google_calendar_title"]
+            ["calendar_source_short_macos", "calendar_source_short_google"]
         )
     }
 

@@ -45,13 +45,28 @@ public enum CalendarSourceKind: String, Codable, Hashable, Sendable, CaseIterabl
         }
     }
 
-    /// Localization key naming this source on screen. Lives here so the source
-    /// picker, the calendar list's account headers and anywhere else naming a
-    /// source cannot drift apart.
+    /// Localization key naming this source where there is room to be precise —
+    /// the source toggles, onboarding. "Google Calendar API" earns its keep
+    /// there: the whole point of that screen is distinguishing a direct API
+    /// connection from the same account arriving via macOS Calendar.
     public var titleKey: String {
         switch self {
         case .macOSEventKit: return "onboarding_apple_calendar_title"
         case .googleCalendar: return "onboarding_google_calendar_title"
+        }
+    }
+
+    /// Short name for labelling something that already has a subject — an
+    /// account heading, principally.
+    ///
+    /// Separate from `titleKey` because the same words do not work in both
+    /// places: "peter@example.com · Google Calendar API" labels an account with
+    /// the name of a protocol, which is developer language in the one spot the
+    /// user is trying to answer "whose calendars are these".
+    public var shortTitleKey: String {
+        switch self {
+        case .macOSEventKit: return "calendar_source_short_macos"
+        case .googleCalendar: return "calendar_source_short_google"
         }
     }
 

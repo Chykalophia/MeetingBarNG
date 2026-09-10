@@ -92,15 +92,14 @@ extension OIDAuthState {
         return exp > Date().addingTimeInterval(300)
     }
 
-    /// convenience email extraction from ID token
+    /// The signed-in account address, from the ID token's `email` claim.
+    ///
+    /// Decoding lives in `GoogleIDToken` because the payload is base64URL and
+    /// `Data(base64Encoded:)` rejects it — see that file. The version here
+    /// decoded it as standard base64, so this was very nearly always nil and
+    /// every Google calendar ended up filed under "Other".
     var userEmail: String? {
-        guard let idToken = lastTokenResponse?.idToken else { return nil }
-        let parts = idToken.split(separator: ".")
-        guard parts.count > 1,
-              let payloadData = Data(base64Encoded: String(parts[1])),
-              let json = try? JSONSerialization.jsonObject(with: payloadData) as? [String: Any]
-        else { return nil }
-        return json["email"] as? String
+        GoogleIDToken.email(fromIDToken: lastTokenResponse?.idToken)
     }
 }
 
@@ -150,6 +149,9 @@ final class GCEventStore: NSObject,
             // ensure delegates always set
             authState?.stateChangeDelegate = self
             authState?.errorDelegate       = self
+            // Keep the account address in step with the session that carries it,
+            // including when a token refresh replaces the state.
+            userEmail = authState?.userEmail
             persistAuthState()
         }
     }
@@ -174,6 +176,11 @@ final class GCEventStore: NSObject,
         // delegates were set in didSet, but set them again just in case restore returned nil
         self.authState?.stateChangeDelegate = self
         self.authState?.errorDelegate       = self
+        // `didSet` does not run for assignments inside `init`, so the restored
+        // session's address has to be picked up explicitly. Without this the
+        // account was known only for the launch you signed in on, and every
+        // relaunch filed Google's calendars under "Other" again.
+        self.userEmail = self.authState?.userEmail
     }
 
     // MARK: Public API

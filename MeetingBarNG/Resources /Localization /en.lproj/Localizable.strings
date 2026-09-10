@@ -372,6 +372,8 @@
 "oauth_page_title" = "Connected — MeetingBarNG";
 "oauth_page_heading" = "Google Calendar connected";
 "oauth_page_next_steps" = "You can close this tab. Your meetings are in the menu bar, and you can pick which calendars to show in Preferences.";
+"calendar_source_short_macos" = "macOS Calendar";
+"calendar_source_short_google" = "Google Calendar";
 "preferences_calendars_account_source" = "Calendars from %@";
 "preferences_calendars_google_own_client" = "Use my own Google credentials";
 "preferences_calendars_google_client_id" = "Client ID";

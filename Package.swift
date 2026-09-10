@@ -41,6 +41,7 @@ let package = Package(
                 "Calendar/ReminderSelection.swift",
                 "Calendar/EventDraftValidation.swift",
                 "Calendar/Providers/Google/GoogleCalendarPolicy.swift",
+                "Calendar/Providers/Google/GoogleIDToken.swift",
                 "Calendar/Providers/Google/GoogleOAuthClient.swift",
                 // Meetings
                 "Meetings/LocationAutocompletePolicy.swift",
