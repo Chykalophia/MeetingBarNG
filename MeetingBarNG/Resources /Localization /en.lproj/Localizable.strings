@@ -369,6 +369,9 @@
 "dropdown_calendar_show_month" = "Show the whole month";
 "preferences_calendars_source_title" = "Meetings come from";
 "preferences_calendars_source_help" = "Turn on either or both. Apple Calendar reads whatever your Mac already syncs. Google Calendar connects directly and carries more per-meeting detail — conference links, attendee replies, and the full description. A meeting that arrives from both is shown once, using the Google copy. Your calendar choices are kept separately for each, so turning one off does not lose them.";
+"oauth_page_title" = "Connected — MeetingBarNG";
+"oauth_page_heading" = "Google Calendar connected";
+"oauth_page_next_steps" = "You can close this tab. Your meetings are in the menu bar, and you can pick which calendars to show in Preferences.";
 "preferences_calendars_account_source" = "Calendars from %@";
 "preferences_calendars_google_own_client" = "Use my own Google credentials";
 "preferences_calendars_google_client_id" = "Client ID";

@@ -136,6 +136,11 @@ final class GCEventStore: NSObject,
     /// 127.0.0.1 on an ephemeral port for the duration of the flow.
     private var redirectHandler: OIDRedirectHTTPHandler?
 
+    /// Serves the branded "connected" page the browser is sent to afterwards.
+    /// Separate from `redirectHandler` on purpose: AppAuth keeps the whole
+    /// OAuth-critical path, and this only serves HTML.
+    private let completionPage = OAuthCompletionPageServer()
+
     // MARK: Stored properties
     @MainActor var currentAuthorizationFlow: OIDExternalUserAgentSession?
     private(set) var userEmail: String?
@@ -201,9 +206,15 @@ final class GCEventStore: NSObject,
             return
         }
 
+        // Start the page server first so its URL exists to hand to AppAuth. If
+        // it cannot bind, `successURL` stays nil and AppAuth serves its own
+        // plain page — worth losing the branding over, never worth failing the
+        // sign-in over.
+        let successURL = await completionPage.start()
+
         // Start the loopback listener BEFORE building the request: the redirect
         // URI has to carry the port it actually bound to.
-        let handler = OIDRedirectHTTPHandler(successURL: nil)
+        let handler = OIDRedirectHTTPHandler(successURL: successURL)
         redirectHandler = handler
         var listenerError: NSError?
         let redirectURL = handler.startHTTPListener(&listenerError)
@@ -249,6 +260,10 @@ final class GCEventStore: NSObject,
             // once a valid response has been received.
             redirectHandler?.cancelHTTPListener()
             redirectHandler = nil
+            // The page server outlives this function by design — the browser is
+            // redirected to it AFTER the code is exchanged, so tearing it down
+            // here would race the request it exists to answer. It is stopped on
+            // the next sign-in or sign-out instead.
         }
 
         try await withCheckedThrowingContinuation { cont in
@@ -259,6 +274,9 @@ final class GCEventStore: NSObject,
                     self.authState = state    // didSet handles persistence & delegates
                     self.userEmail = state.userEmail
                     Defaults[.googleTokenClientIdentity] = client.tokenIdentity
+                    // Set before the browser is redirected, so the page can name
+                    // the account that was just connected.
+                    self.completionPage.setAccountEmail(state.userEmail)
                     AppMessageCenter.shared.post(
                         .googleAccountConnected(email: self.userEmail ?? "")
                     )
@@ -322,6 +340,12 @@ final class GCEventStore: NSObject,
         let flow = currentAuthorizationFlow
         currentAuthorizationFlow = nil
         flow?.cancel()
+
+        // Abandoning the flow means nobody is coming to read the completion
+        // page, so stop holding a socket open for it.
+        redirectHandler?.cancelHTTPListener()
+        redirectHandler = nil
+        completionPage.stop()
     }
 
     func refreshSources() async {}
