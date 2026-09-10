@@ -1,0 +1,32 @@
+MeetingBarLogicTests/CalendarListPresentationTests.swift
+  s_992ab8de51fa9d::t_58dda1111a69ea 35,46,125
+  s_992ab8de51fa9d::t_6ee183f59a3b8a 159-238
+MeetingBarNG/Preferences/CalendarListPresentation.swift
+  s_992ab8de51fa9d::t_58dda1111a69ea 79-82,150
+  s_992ab8de51fa9d::t_07a66cb21c8286 40-47,49-55,60,76-77,88-94
+  s_992ab8de51fa9d::t_bbe2b07090f0f8 125-131,133-136,147,149,151,153-154,160-167,176-186
+  s_992ab8de51fa9d::t_7beffba267b712 187
+MeetingBarNG/Calendar/CalendarSourceSelection.swift
+  s_992ab8de51fa9d::t_add9f962d14ff9 48-57
+MeetingBarNG/Preferences/CalendarsTab.swift
+  s_992ab8de51fa9d::t_a7f0ab15264ad9 192-220,438
+  s_992ab8de51fa9d::t_76a8c6e0d6f5d7 381-387
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_992ab8de51fa9d::t_a7f0ab15264ad9 372
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "9b8d9a70f871c321a9038fe4e9e965a3d25c02cc",
+  "prompts": {},
+  "sessions": {
+    "s_992ab8de51fa9d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bcab50db-9fd6-4682-8bc3-324438f80284",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
