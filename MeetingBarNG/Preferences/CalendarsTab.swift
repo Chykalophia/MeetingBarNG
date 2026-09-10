@@ -505,13 +505,31 @@ private struct CalendarSelectionEmptyState: View {
 private struct RemindersPermissionSection: View {
     @State private var isGranted = false
     @State private var isDenied = false
+    /// True from the moment the switch is flipped until macOS answers.
+    ///
+    /// Without it the switch could not move. The binding's `get` returned
+    /// `isGranted`, which cannot change until the async request completes, so
+    /// SwiftUI redrew the switch in its old position on the very next frame —
+    /// the click read as nothing happening at all, with no animation and no
+    /// hint that a request was in flight.
+    @State private var isRequesting = false
 
     var body: some View {
         Section {
             Toggle("preferences_calendars_reminders_toggle".loco(), isOn: accessBinding)
-                .disabled(isGranted || isDenied)
+                // Off once macOS owns the answer, and while it is being asked —
+                // a second flip during the prompt cannot do anything useful.
+                .disabled(isGranted || isDenied || isRequesting)
 
-            if isGranted {
+            if isRequesting {
+                Label(
+                    "preferences_calendars_reminders_requesting".loco(),
+                    systemImage: "hourglass"
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .preferenceIndent()
+            } else if isGranted {
                 Label(
                     "preferences_calendars_reminders_granted".loco(),
                     systemImage: "checkmark.circle.fill"
@@ -520,11 +538,21 @@ private struct RemindersPermissionSection: View {
                 .foregroundStyle(.secondary)
                 .preferenceIndent()
             } else if isDenied {
-                Text("preferences_calendars_reminders_denied".loco())
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .preferenceIndent()
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("preferences_calendars_reminders_denied".loco())
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    // macOS will not prompt twice, so a denial with no route
+                    // back is a dead end: a permanently off switch that cannot
+                    // be moved and says nothing about where it can be.
+                    Button("preferences_calendars_reminders_open_settings".loco()) {
+                        NSWorkspace.shared.open(Links.remindersPreferences)
+                    }
+                    .controlSize(.small)
+                }
+                .preferenceIndent()
             } else {
                 // Stated BEFORE the flip, rather than discovered by flipping it.
                 Text("preferences_calendars_reminders_help".loco())
@@ -534,17 +562,36 @@ private struct RemindersPermissionSection: View {
                     .preferenceIndent()
             }
         }
+        .animation(.default, value: isGranted)
+        .animation(.default, value: isDenied)
+        .animation(.default, value: isRequesting)
         .onAppear(perform: refresh)
+        // The answer lives in System Settings, so it can change while this pane
+        // is open — via the button above, or from anywhere else. Re-reading on
+        // activation keeps the switch from contradicting the system.
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: NSApplication.didBecomeActiveNotification
+            )
+        ) { _ in
+            refresh()
+        }
     }
 
     private var accessBinding: Binding<Bool> {
         Binding(
-            get: { isGranted },
+            // `isRequesting` is what lets the switch move immediately and STAY
+            // moved while macOS's prompt is up.
+            get: { isGranted || isRequesting },
             set: { isOn in
-                guard isOn else { return }
+                guard isOn, !isRequesting, !isGranted, !isDenied else { return }
+                isRequesting = true
                 Task {
                     _ = await RemindersStore.shared.requestAccess()
-                    await MainActor.run { refresh() }
+                    await MainActor.run {
+                        isRequesting = false
+                        refresh()
+                    }
                 }
             }
         )

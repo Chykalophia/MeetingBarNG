@@ -34,6 +34,11 @@ enum Links {
     static let calendarPreferences = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars")!
     static let cameraPreferences = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera")!
     static let microphonePreferences = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!
+    /// System Settings ▸ Privacy & Security ▸ Reminders. Once reminders access
+    /// has been DENIED, `requestAccess` no longer prompts — macOS will not ask
+    /// twice — so this is the only way back, and a disabled switch with no route
+    /// to it is a dead end.
+    static let remindersPreferences = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Reminders")!
     /// System Settings ▸ Internet Accounts — where expired CalDAV/Google/Exchange
     /// credentials are re-authenticated. When an account's sync stalls, macOS
     /// Calendar serves stale data silently; re-signing in here is the real fix.
