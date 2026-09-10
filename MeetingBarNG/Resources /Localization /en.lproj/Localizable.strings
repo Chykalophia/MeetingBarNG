@@ -160,12 +160,14 @@
 "preferences_calendars_empty_no_accounts" = "No calendars found. Add a calendar account in the macOS Calendar app, or check MeetingBarNG's calendar access in System Settings, then refresh.";
 "preferences_calendars_open_privacy" = "Open Calendar privacy settings";
 "preferences_calendars_open_internet_accounts" = "Open Internet Accounts";
-"preferences_calendars_reminders_toggle" = "Allow MeetingBarNG to read Apple Reminders";
 "preferences_calendars_reminders_help" = "macOS asks you the first time. Today's reminders can then appear in the dropdown.";
 "preferences_calendars_reminders_denied" = "macOS is blocking this. Turn MeetingBarNG on under Privacy & Security ▸ Reminders.";
 "preferences_calendars_reminders_requesting" = "Waiting for macOS to ask you…";
 "preferences_calendars_reminders_open_settings" = "Open Privacy Settings…";
-"preferences_calendars_reminders_granted" = "Allowed";
+"preferences_calendars_reminders_label" = "Apple Reminders";
+"preferences_calendars_reminders_allow" = "Allow Access…";
+"preferences_calendars_reminders_allowed" = "Allowed";
+"preferences_calendars_reminders_granted" = "Today's reminders can appear in the dropdown. Access is managed by macOS under Privacy & Security ▸ Reminders.";
 "preferences_calendars_troubleshoot_title" = "Calendar isn't updating?";
 "preferences_calendars_troubleshoot_notice" = "MeetingBarNG shows whatever the macOS Calendar app has already synced. Account access, sync frequency and data freshness are macOS's to control, not MeetingBarNG's — so when meetings look outdated or missing, the fix is upstream: refresh here, or re-sign-in to the account in Internet Accounts.";
 "preferences_calendars_last_change" = "Newest change the app can see — %@";

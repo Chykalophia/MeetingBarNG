@@ -499,76 +499,47 @@ private struct CalendarSelectionEmptyState: View {
 /// Moved here from the Display tab so permissions are discoverable in one place.
 /// It is not the only route: enabling reminders in the Dropdown pane requests the
 /// same access as a side effect. This is the pane that asks for it *as* a
-/// permission. macOS owns the answer, so once it has been given the switch
-/// stops pretending the app can take it back — and a denied prompt leaves a
-/// stated denial instead of a switch that silently springs back.
+/// permission.
+///
+/// NOT A TOGGLE, deliberately. It was one, and it could not work: a macOS
+/// permission is request-once and revocable only in System Settings, so the
+/// switch was `.disabled` in both settled states — already granted, or denied
+/// and unaskable. A disabled switch on macOS is only slightly dimmed, so it
+/// read as an ordinary control that had stopped responding. Clicking it did
+/// nothing because `set` is never called on a disabled control; there was no
+/// bug to see and nothing to animate.
+///
+/// A switch also promised something false. It implies two states this app can
+/// move between, when the app can only ever ASK, once, and macOS owns the
+/// answer from then on. So: a button while asking is still possible, and a
+/// plain status row afterwards, with the route to the only place the answer can
+/// actually be changed.
 private struct RemindersPermissionSection: View {
     @State private var isGranted = false
     @State private var isDenied = false
-    /// True from the moment the switch is flipped until macOS answers.
-    ///
-    /// Without it the switch could not move. The binding's `get` returned
-    /// `isGranted`, which cannot change until the async request completes, so
-    /// SwiftUI redrew the switch in its old position on the very next frame —
-    /// the click read as nothing happening at all, with no animation and no
-    /// hint that a request was in flight.
+    /// True from the click until macOS answers, which is the only moment this
+    /// section has a state of its own.
     @State private var isRequesting = false
 
     var body: some View {
         Section {
-            Toggle("preferences_calendars_reminders_toggle".loco(), isOn: accessBinding)
-                // Off once macOS owns the answer, and while it is being asked —
-                // a second flip during the prompt cannot do anything useful.
-                .disabled(isGranted || isDenied || isRequesting)
-
-            if isRequesting {
-                Label(
-                    "preferences_calendars_reminders_requesting".loco(),
-                    systemImage: "hourglass"
-                )
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .preferenceIndent()
-            } else if isGranted {
-                Label(
-                    "preferences_calendars_reminders_granted".loco(),
-                    systemImage: "checkmark.circle.fill"
-                )
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .preferenceIndent()
-            } else if isDenied {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("preferences_calendars_reminders_denied".loco())
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    // macOS will not prompt twice, so a denial with no route
-                    // back is a dead end: a permanently off switch that cannot
-                    // be moved and says nothing about where it can be.
-                    Button("preferences_calendars_reminders_open_settings".loco()) {
-                        NSWorkspace.shared.open(Links.remindersPreferences)
-                    }
-                    .controlSize(.small)
-                }
-                .preferenceIndent()
-            } else {
-                // Stated BEFORE the flip, rather than discovered by flipping it.
-                Text("preferences_calendars_reminders_help".loco())
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .preferenceIndent()
+            LabeledContent("preferences_calendars_reminders_label".loco()) {
+                statusControl
             }
+
+            explanation
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .preferenceIndent()
         }
         .animation(.default, value: isGranted)
         .animation(.default, value: isDenied)
         .animation(.default, value: isRequesting)
         .onAppear(perform: refresh)
-        // The answer lives in System Settings, so it can change while this pane
-        // is open — via the button above, or from anywhere else. Re-reading on
-        // activation keeps the switch from contradicting the system.
+        // The answer lives in System Settings and can change while this pane is
+        // open — via the button below, or from anywhere else. Re-reading on
+        // activation keeps this from contradicting the system.
         .onReceive(
             NotificationCenter.default.publisher(
                 for: NSApplication.didBecomeActiveNotification
@@ -578,29 +549,63 @@ private struct RemindersPermissionSection: View {
         }
     }
 
-    private var accessBinding: Binding<Bool> {
-        Binding(
-            // `isRequesting` is what lets the switch move immediately and STAY
-            // moved while macOS's prompt is up.
-            get: { isGranted || isRequesting },
-            set: { isOn in
-                guard isOn, !isRequesting, !isGranted, !isDenied else { return }
-                isRequesting = true
-                Task {
-                    _ = await RemindersStore.shared.requestAccess()
-                    await MainActor.run {
-                        isRequesting = false
-                        refresh()
-                    }
-                }
+    @ViewBuilder
+    private var statusControl: some View {
+        if isRequesting {
+            ProgressView().controlSize(.small)
+        } else if isGranted {
+            // A settled answer is a fact, not a control.
+            Label(
+                "preferences_calendars_reminders_allowed".loco(),
+                systemImage: "checkmark.circle.fill"
+            )
+            .foregroundStyle(.green)
+            .labelStyle(.titleAndIcon)
+        } else if isDenied {
+            // macOS will not prompt twice, so asking again is impossible and
+            // System Settings is the only way back.
+            Button("preferences_calendars_reminders_open_settings".loco()) {
+                NSWorkspace.shared.open(Links.remindersPreferences)
             }
-        )
+        } else {
+            // The one state where this app can actually do something.
+            Button("preferences_calendars_reminders_allow".loco(), action: requestAccess)
+        }
+    }
+
+    @ViewBuilder
+    private var explanation: some View {
+        if isRequesting {
+            Text("preferences_calendars_reminders_requesting".loco())
+        } else if isGranted {
+            Text("preferences_calendars_reminders_granted".loco())
+        } else if isDenied {
+            Text("preferences_calendars_reminders_denied".loco())
+        } else {
+            // Stated BEFORE the request, rather than discovered by making it.
+            Text("preferences_calendars_reminders_help".loco())
+        }
+    }
+
+    private func requestAccess() {
+        guard !isRequesting, !isGranted, !isDenied else { return }
+        isRequesting = true
+        Task {
+            _ = await RemindersStore.shared.requestAccess()
+            await MainActor.run {
+                isRequesting = false
+                refresh()
+            }
+        }
     }
 
     private func refresh() {
         let status = RemindersStore.shared.authorizationStatus
         isGranted = RemindersStore.isGranted(status)
         isDenied = RemindersStore.isDenied(status)
+        MeetingBarLogger.calendar.debug(
+            "Reminders authorization: raw=\(status.rawValue, privacy: .public) granted=\(isGranted, privacy: .public) denied=\(isDenied, privacy: .public)"
+        )
     }
 }
 

@@ -147,7 +147,7 @@ enum SettingsIndex {
         SettingsIndexEntry(
             id: "calendars.reminders_access",
             tab: .calendars,
-            labelKey: "preferences_calendars_reminders_toggle",
+            labelKey: "preferences_calendars_reminders_label",
             helpKey: "preferences_calendars_reminders_help",
             synonyms: ["reminders", "permission", "access", "todo", "tasks", "privacy"]
         ),
