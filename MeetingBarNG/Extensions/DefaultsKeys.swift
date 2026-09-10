@@ -44,6 +44,18 @@ extension Defaults.Keys {
     static let eventStoreProvider = Key<EventStoreProvider>(
         "eventStoreProvider", default: .macOSEventKit)
 
+    /// Sources connected at the same time. Supersedes the single
+    /// `eventStoreProvider` above, which is now kept in step only so that the
+    /// write-capable provider and anything still reading it stay coherent.
+    ///
+    /// Empty is not a valid state and never persists: `CalendarSourceSelection`
+    /// refuses it, and the migration below seeds this from whichever single
+    /// provider the install was already using.
+    static let enabledCalendarSources = Key<[EventStoreProvider]>(
+        "enabledCalendarSources", default: [])
+    static let enabledCalendarSourcesMigrated = Key<Bool>(
+        "enabledCalendarSourcesMigrated", default: false)
+
     static let onboardingCompleted = Key<Bool>("onboardingCompleted", default: false)
 
     static let showEventsForPeriod = Key<ShowEventsForPeriod>(

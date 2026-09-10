@@ -31,6 +31,7 @@ let package = Package(
                 "Notifications/NotificationPlanner.swift",
                 // Calendar
                 "Calendar/CalendarGridNavigation.swift",
+                "Calendar/CalendarSourceSelection.swift",
                 "Calendar/DateMarkers.swift",
                 "Calendar/EventDeduplication.swift",
                 "Calendar/EventFiltering.swift",

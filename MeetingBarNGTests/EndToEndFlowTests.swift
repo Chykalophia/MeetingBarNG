@@ -65,14 +65,23 @@ private final class EndToEndHarness {
         let environment = AppEnvironment(
             eventsPublisher: sync.$events.eraseToAnyPublisher(),
             calendarsPublisher: sync.$calendars
-                .map { ($0, sync.repository.activeProviderName) }
+                .map {
+                    CalendarSnapshot(
+                        calendars: $0,
+                        primary: sync.repository.activeProviderName,
+                        connected: sync.repository.selection.providers
+                    )
+                }
                 .eraseToAnyPublisher(),
             providerHealthPublisher: sync.$providerHealth.eraseToAnyPublisher(),
             selectedCalendarIDsPublisher: Defaults.publisher(
-                .selectedCalendarIDs,
+                keys: .selectedCalendarIDsByProvider, .enabledCalendarSources,
                 options: [.initial]
             )
-            .map(\.newValue)
+            .map { _ in
+                let byProvider = Defaults[.selectedCalendarIDsByProvider]
+                return Defaults[.enabledCalendarSources].flatMap { byProvider[$0.rawValue] ?? [] }
+            }
             .eraseToAnyPublisher(),
             triggerRefresh: {
                 sync.refreshSubject.send()
@@ -85,11 +94,22 @@ private final class EndToEndHarness {
                 self.providerChanges.append((provider, signOut))
                 return await self.sync.changeEventStoreProvider(provider, withSignOut: signOut)
             },
-            currentCalendarSnapshot: {
-                (sync.calendars, sync.repository.activeProviderName)
+            disconnectProvider: { provider in
+                await sync.disconnectEventStoreProvider(provider)
             },
-            toggleCalendarSelection: { id, selected in
-                AppSettings.setCalendarSelection(id: id, selected: selected)
+            currentCalendarSnapshot: {
+                CalendarSnapshot(
+                    calendars: sync.calendars,
+                    primary: sync.repository.activeProviderName,
+                    connected: sync.repository.selection.providers
+                )
+            },
+            toggleCalendarSelection: { id, selected, provider in
+                AppSettings.setCalendarSelection(
+                    provider: provider ?? Defaults[.eventStoreProvider],
+                    id: id,
+                    selected: selected
+                )
             },
             openMeeting: { [weak self] event in
                 self?.openedMeetingIDs.append(event.id)
@@ -776,13 +796,14 @@ final class NotificationEndToEndFlowTests: EndToEndFlowTestCase {
 @MainActor
 final class CalendarSettingsEndToEndFlowTests: EndToEndFlowTestCase {
 
-    func testProviderSwitchShowsNewProviderEventsAndRestoresSelections() async throws {
+    func testConnectingASecondSourceMergesBothSourcesEvents() async throws {
         configureDisplayDefaults()
         let eventKitCalendar = MBCalendar(
             title: "EventKit Cal", id: "ek-cal", source: nil, email: nil, color: .black
         )
         let googleCalendar = MBCalendar(
-            title: "Google Cal", id: "g-cal", source: nil, email: nil, color: .black
+            title: "Google Cal", id: "g-cal", source: nil, email: nil, color: .black,
+            provider: .googleCalendar
         )
         Defaults[.eventStoreProvider] = .macOSEventKit
         Defaults[.selectedCalendarIDs] = [eventKitCalendar.id]
@@ -814,20 +835,44 @@ final class CalendarSettingsEndToEndFlowTests: EndToEndFlowTestCase {
         }
         XCTAssertTrue(dropdownEventTitles(harness).contains { $0.contains("Event EK") })
 
-        // Escape the trigger-throttle window before the switch-driven refresh.
+        // Escape the trigger-throttle window before the connect-driven refresh.
         try await settleRefreshWindow(harness)
         harness.model.send(.changeProvider(.googleCalendar, signOut: false))
 
-        await waitForState(of: harness, description: "Google events reach AppModel") {
-            $0.activeProvider == .googleCalendar && $0.events.map(\.id) == ["G"]
+        // BOTH sources' meetings now appear. Under the old either/or provider
+        // this same action replaced the EventKit events with Google's.
+        await waitForState(of: harness, description: "both sources reach AppModel") {
+            $0.events.map(\.id).sorted() == ["EK", "G"]
         }
+        XCTAssertEqual(
+            harness.model.state.connectedProviders, [.macOSEventKit, .googleCalendar])
+        // EventKit stays the write-capable source; connecting Google does not
+        // hand that role over.
+        XCTAssertEqual(harness.model.state.activeProvider, .macOSEventKit)
 
         let titles = dropdownEventTitles(harness)
+        XCTAssertTrue(titles.contains { $0.contains("Event EK") })
         XCTAssertTrue(titles.contains { $0.contains("Event G") })
-        XCTAssertFalse(titles.contains { $0.contains("Event EK") })
-        XCTAssertTrue(try renderTitle(harness).attributedTitle.string.hasPrefix("Event G"))
-        XCTAssertEqual(Defaults[.selectedCalendarIDs], [googleCalendar.id])
+        // Each source keeps its own calendar selection, and both are live.
+        XCTAssertEqual(
+            Set(harness.model.state.selectedCalendarIDs),
+            [eventKitCalendar.id, googleCalendar.id]
+        )
         XCTAssertEqual(harness.providerChanges.map(\.provider), [.googleCalendar])
+
+        // Disconnecting drops that source's meetings and keeps the other's.
+        try await settleRefreshWindow(harness)
+        harness.model.send(.disconnectProvider(.googleCalendar))
+
+        await waitForState(of: harness, description: "only EventKit events remain") {
+            $0.events.map(\.id) == ["EK"]
+        }
+        XCTAssertEqual(harness.model.state.connectedProviders, [.macOSEventKit])
+        // The Google selection is kept, not erased, so reconnecting restores it.
+        XCTAssertEqual(
+            AppSettings.selectedCalendarIDs(for: .googleCalendar),
+            [googleCalendar.id]
+        )
     }
 
     func testShowEventsPeriodSettingControlsTomorrowSection() async {

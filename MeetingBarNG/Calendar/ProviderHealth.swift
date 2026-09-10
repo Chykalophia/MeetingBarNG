@@ -13,6 +13,26 @@
 //
 import Foundation
 
+/// One source failing while another succeeded.
+///
+/// With a single provider a failed fetch was the whole story, so it could go
+/// straight into `lastErrorDescription`. With two sources connected, Google's
+/// token expiring must not blank out the macOS Calendar events that fetched
+/// perfectly well — but it must not pass silently either, which is exactly how a
+/// calendar app loses the user's trust. Partial failures are therefore reported
+/// alongside a successful refresh rather than instead of one.
+public struct CalendarSourceFailure: Equatable, Sendable {
+    public let provider: EventStoreProvider
+    public let errorDescription: String
+    public let authRequired: Bool
+
+    public init(provider: EventStoreProvider, errorDescription: String, authRequired: Bool) {
+        self.provider = provider
+        self.errorDescription = errorDescription
+        self.authRequired = authRequired
+    }
+}
+
 public struct ProviderHealth: Equatable {
     public var lastSuccessfulRefresh: Date?
     public var lastAttemptedRefresh: Date?
@@ -20,6 +40,11 @@ public struct ProviderHealth: Equatable {
     /// True when the displayed data comes from a preserved snapshot, not the latest fetch attempt.
     public var isStale: Bool
     public var authRequired: Bool
+    /// Sources that failed while at least one other succeeded. Empty in the
+    /// common case, and always empty when only one source is connected — a lone
+    /// source's failure is a plain failure, reported through
+    /// `lastErrorDescription` as before.
+    public var degradedSources: [CalendarSourceFailure] = []
     /// Newest `MBEvent.lastModifiedDate` across the last fetched event set.
     /// A signal the user can eyeball for staleness: if it reads "4 days ago"
     /// when they edited an event today, macOS Calendar's own sync has stalled.
@@ -33,7 +58,8 @@ public struct ProviderHealth: Equatable {
         lastErrorDescription: String? = nil,
         isStale: Bool = false,
         authRequired: Bool = false,
-        lastSyncedChange: Date? = nil
+        lastSyncedChange: Date? = nil,
+        degradedSources: [CalendarSourceFailure] = []
     ) {
         self.lastSuccessfulRefresh = lastSuccessfulRefresh
         self.lastAttemptedRefresh = lastAttemptedRefresh
@@ -41,18 +67,34 @@ public struct ProviderHealth: Equatable {
         self.isStale = isStale
         self.authRequired = authRequired
         self.lastSyncedChange = lastSyncedChange
+        self.degradedSources = degradedSources
     }
 }
 
 extension ProviderHealth {
-    static func success(attempted: Date, lastSyncedChange: Date? = nil) -> ProviderHealth {
+    static func success(
+        attempted: Date,
+        lastSyncedChange: Date? = nil,
+        degradedSources: [CalendarSourceFailure] = []
+    ) -> ProviderHealth {
         ProviderHealth(
             lastSuccessfulRefresh: attempted,
             lastAttemptedRefresh: attempted,
             lastErrorDescription: nil,
             isStale: false,
             authRequired: false,
-            lastSyncedChange: lastSyncedChange
+            lastSyncedChange: lastSyncedChange,
+            degradedSources: degradedSources
+        )
+    }
+
+    /// Builds a partial failure from a source's underlying error, reusing the
+    /// same description and auth-detection rules a total failure gets.
+    static func sourceFailure(provider: EventStoreProvider, error: Error) -> CalendarSourceFailure {
+        CalendarSourceFailure(
+            provider: provider,
+            errorDescription: errorDescription(error),
+            authRequired: isAuthRequired(error)
         )
     }
 

@@ -129,6 +129,14 @@ struct PreferencesCalendarPresentation: Equatable {
     /// CalDAV/Google/Exchange accounts whose expired credentials cause silent
     /// stale data are re-signed-in.
     let canReauthenticateAccount: Bool
+    /// Every source connected right now, in display order. Drives the source
+    /// toggles; `activeProvider` alone cannot, now that it names only the
+    /// write-capable source.
+    let connectedProviders: [EventStoreProvider]
+    /// Sources failing while another still works. Each one gets its reason and
+    /// (when it is an auth lapse) a reconnect button next to its toggle,
+    /// because otherwise a half-broken setup just shows fewer meetings.
+    let degradedSources: [CalendarSourceFailure]
 
     /// - Parameter authorizationStatus: the live EventKit calendar
     ///   authorization (from `PermissionReporter.calendarAuthorizationStatus()`).
@@ -237,7 +245,9 @@ struct PreferencesCalendarPresentation: Equatable {
             statusTextKey: statusTextKey,
             emptyStateTextKey: emptyStateTextKey,
             lastSyncedChange: state.providerHealth.lastSyncedChange,
-            canReauthenticateAccount: state.activeProvider == .macOSEventKit
+            canReauthenticateAccount: state.activeProvider == .macOSEventKit,
+            connectedProviders: state.connectedProviders,
+            degradedSources: state.providerHealth.degradedSources
         )
     }
 }

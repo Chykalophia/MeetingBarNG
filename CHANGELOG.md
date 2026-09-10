@@ -12,6 +12,23 @@ For upstream releases, see <https://github.com/leits/MeetingBar/releases>.
 
 ## Unreleased
 
+* **Connect Apple and Google Calendar at the same time.** The two sources used to be
+  either/or, so anyone with an iCloud or Exchange calendar in Calendar.app plus a Google
+  work account could only ever see half their day. Preferences ▸ Calendars now shows a
+  toggle per source instead of a picker, and meetings from every connected source are
+  merged into one list. Calendar selection is kept per source, so turning one off and back
+  on does not lose its choices, and the last connected source cannot be switched off.
+  Requires a build carrying Google OAuth credentials — see README. One Google account at a
+  time.
+* **A meeting on both sources is shown once.** Cross-calendar deduplication now knows which
+  source a meeting came from and keeps the Google copy, which carries real attendee
+  response status and Google's own conferencing data where EventKit's mirror routinely has
+  neither. Duplicate grouping is also transitive now: three copies linked in a chain (A and
+  B by title/time, B and C by shared identifier) collapse to one row instead of leaving a
+  third. The existing "Hide duplicate events" opt-out still shows every copy.
+* **One broken source no longer hides the other's meetings.** An expired Google token used
+  to fail the whole refresh; a failing source is now reported next to its own toggle, with
+  a Reconnect button when it is an auth lapse, while the working source keeps syncing.
 * Menu-bar **Join chip** — a one-click Join button on the status item for upcoming or active
   meetings that have a link. A left-click on the chip joins directly instead of opening the
   dropdown; everywhere else on the item still opens it.

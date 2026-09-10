@@ -243,7 +243,8 @@ final class GCEventStore: NSObject,
                               id: calendarID,
                               source: userEmail,
                               email: userEmail,
-                              color: hexStringToUIColor(hex: backgroundColor))
+                              color: hexStringToUIColor(hex: backgroundColor),
+                              provider: .googleCalendar)
         }
     }
 

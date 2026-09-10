@@ -113,7 +113,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 guard let appModel else {
                     return .failed("Application state is unavailable")
                 }
-                return await appModel.changeProvider(to: provider)
+                // Onboarding's pick is exclusive: it answers "where do my
+                // meetings come from", and a fresh install already has macOS
+                // Calendar connected.
+                return await appModel.selectSoleProvider(provider)
             },
             onComplete: { [weak appModel] provider in
                 guard let appModel else {
@@ -376,13 +379,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return { [weak sync] from, to in
             guard let repository = sync?.repository else { return [] }
             let allCalendars = try await repository.fetchAllCalendars()
-            let selectedIDs = AppSettings.selectedCalendarIDs(
-                for: repository.activeProviderName
-            )
-            let selected = allCalendars.filter { selectedIDs.contains($0.id) }
+            let selected = repository.selectedCalendars(from: allCalendars.elements)
             return try await repository.fetchEventsForDateRange(
                 for: selected, from: from, to: to
-            )
+            ).elements
         }
     }
 

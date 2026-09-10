@@ -60,10 +60,14 @@ class CalendarSyncTests: BaseTestCase {
     }
 
     func testRefreshPreservesSelectedSharedGoogleCalendars() async throws {
+        // Calendars declare the source they came from; a Google-backed calendar
+        // that claims to be EventKit's is routed to the wrong store.
         let primary = MBCalendar(
-            title: "Primary", id: "primary", source: nil, email: nil, color: .black)
+            title: "Primary", id: "primary", source: nil, email: nil, color: .black,
+            provider: .googleCalendar)
         let shared = MBCalendar(
-            title: "Shared", id: "shared-public", source: nil, email: nil, color: .black)
+            title: "Shared", id: "shared-public", source: nil, email: nil, color: .black,
+            provider: .googleCalendar)
         Defaults[.eventStoreProvider] = .googleCalendar
         Defaults[.selectedCalendarIDs] = [primary.id, shared.id]
         Defaults[.selectedCalendarIDsByProvider] = [
@@ -173,8 +177,19 @@ class CalendarSyncTests: BaseTestCase {
 
     func testStoreChangeSubscriptionDoesNotStackAfterProviderSwitches() async throws {
         let calendar = MBCalendar(title: "C", id: "c1", source: nil, email: nil, color: .black)
-        let store = FakeEventStore(calendars: [calendar])
-        let repository = CalendarRepository(providerName: .macOSEventKit) { _ in store }
+        let eventKitStore = FakeEventStore(calendars: [calendar])
+        // A store PER provider, so the count below is unambiguous: with one
+        // shared fake, connecting both sources would legitimately refresh it
+        // twice per notification and the assertion could not tell that apart
+        // from a stacked subscription, which is what this test is about.
+        let googleStore = FakeEventStore(calendars: [
+            MBCalendar(
+                title: "G", id: "g1", source: nil, email: nil, color: .black,
+                provider: .googleCalendar)
+        ])
+        let repository = CalendarRepository(providerName: .macOSEventKit) { provider in
+            provider == .macOSEventKit ? eventKitStore : googleStore
+        }
         let manager = CalendarSync(repository: repository, refreshInterval: 0)
 
         let initialExp = expectation(description: "initial refresh completed")
@@ -185,42 +200,124 @@ class CalendarSyncTests: BaseTestCase {
             .store(in: &cancellables)
         await fulfillment(of: [initialExp], timeout: 1.0)
 
+        // Connecting and disconnecting re-subscribes each time; the sinks must
+        // not accumulate.
         _ = await manager.changeEventStoreProvider(.googleCalendar)
-        _ = await manager.changeEventStoreProvider(.macOSEventKit)
+        await manager.disconnectEventStoreProvider(.googleCalendar)
 
-        let countBeforeStoreChange = store.refreshSourcesCallCount
+        let countBeforeStoreChange = eventKitStore.refreshSourcesCallCount
         manager.repository.storeChanged.send()
         try await Task.sleep(nanoseconds: 300_000_000)
 
         XCTAssertEqual(
-            store.refreshSourcesCallCount - countBeforeStoreChange,
+            eventKitStore.refreshSourcesCallCount - countBeforeStoreChange,
             1,
             "one store-change notification should trigger one refreshSources call")
     }
 
-    func testRepositoryCancelsProviderOperationsWhenSwitchingAndStopping() async throws {
-        let storeA = FakeEventStore()
+    /// Connecting a second source must NOT tear the first one down — that is the
+    /// whole point of multi-source. Disconnecting cancels only the source being
+    /// disconnected, and `stop()` cancels everything still connected.
+    func testConnectingASecondSourceLeavesTheFirstRunning() async throws {
+        let storeA = FakeEventStore(calendars: [
+            MBCalendar(title: "EventKit", id: "eventkit", source: nil, email: nil, color: .black)
+        ])
         let storeB = FakeEventStore(calendars: [
             MBCalendar(
                 title: "Google",
                 id: "google",
                 source: nil,
                 email: nil,
-                color: .black
+                color: .black,
+                provider: .googleCalendar
             )
         ])
         let repository = CalendarRepository(providerName: .macOSEventKit) { provider in
             provider == .macOSEventKit ? storeA : storeB
         }
 
-        _ = try await repository.switchProvider(to: .googleCalendar)
+        _ = try await repository.connect(.googleCalendar)
 
-        XCTAssertEqual(storeA.cancelPendingOperationsCallCount, 1)
+        XCTAssertEqual(
+            repository.selection.providers,
+            [.macOSEventKit, .googleCalendar],
+            "connecting adds a source rather than replacing the existing one")
+        XCTAssertEqual(
+            storeA.cancelPendingOperationsCallCount, 0,
+            "the already-connected source must keep running")
         XCTAssertEqual(storeB.cancelPendingOperationsCallCount, 0)
 
         repository.stop()
 
+        XCTAssertEqual(storeA.cancelPendingOperationsCallCount, 1)
         XCTAssertEqual(storeB.cancelPendingOperationsCallCount, 1)
+    }
+
+    func testDisconnectingCancelsOnlyThatSource() async throws {
+        let storeA = FakeEventStore(calendars: [
+            MBCalendar(title: "EventKit", id: "eventkit", source: nil, email: nil, color: .black)
+        ])
+        let storeB = FakeEventStore(calendars: [
+            MBCalendar(
+                title: "Google",
+                id: "google",
+                source: nil,
+                email: nil,
+                color: .black,
+                provider: .googleCalendar
+            )
+        ])
+        let repository = CalendarRepository(providerName: .macOSEventKit) { provider in
+            provider == .macOSEventKit ? storeA : storeB
+        }
+        _ = try await repository.connect(.googleCalendar)
+
+        await repository.disconnect(.googleCalendar)
+
+        XCTAssertEqual(repository.selection.providers, [.macOSEventKit])
+        XCTAssertEqual(storeB.cancelPendingOperationsCallCount, 1)
+        XCTAssertEqual(storeA.cancelPendingOperationsCallCount, 0)
+    }
+
+    /// The last connected source cannot be disconnected — an install that
+    /// reaches no source at all renders an empty dropdown that reads as broken.
+    func testDisconnectingTheLastSourceIsRefused() async throws {
+        let storeA = FakeEventStore(calendars: [
+            MBCalendar(title: "EventKit", id: "eventkit", source: nil, email: nil, color: .black)
+        ])
+        let repository = CalendarRepository(providerName: .macOSEventKit) { _ in storeA }
+
+        await repository.disconnect(.macOSEventKit)
+
+        XCTAssertEqual(repository.selection.providers, [.macOSEventKit])
+        XCTAssertEqual(storeA.cancelPendingOperationsCallCount, 0)
+    }
+
+    /// One source failing must not blank out the source that worked.
+    func testAFailingSourceDoesNotHideTheWorkingOne() async throws {
+        let eventKitCalendar = MBCalendar(
+            title: "EventKit", id: "eventkit", source: nil, email: nil, color: .black
+        )
+        let storeA = FakeEventStore(calendars: [eventKitCalendar])
+        let storeB = FakeEventStore(calendars: [
+            MBCalendar(
+                title: "Google", id: "google", source: nil, email: nil, color: .black,
+                provider: .googleCalendar
+            )
+        ])
+        let repository = CalendarRepository(providerName: .macOSEventKit) { provider in
+            provider == .macOSEventKit ? storeA : storeB
+        }
+        _ = try await repository.connect(.googleCalendar)
+
+        // Google's token lapses after connecting.
+        storeB.stubbedCalendarError = GoogleCalendarError.unauthorized(URL(string: "https://www.googleapis.com/calendar/v3/users/me/calendarList")!)
+
+        let outcome = try await repository.fetchAllCalendars()
+
+        XCTAssertEqual(outcome.elements, [eventKitCalendar])
+        XCTAssertEqual(outcome.failures.map(\.provider), [.googleCalendar])
+        XCTAssertTrue(outcome.failures.allSatisfy(\.authRequired))
     }
 
     func testCancelledSwitchPreservesProviderAndSelectedCalendars() async {
@@ -306,7 +403,9 @@ class CalendarSyncTests: BaseTestCase {
         XCTAssertTrue(manager.providerHealth.isStale)
     }
 
-    func testSuccessfulSwitchRestoresProviderScopedCalendarSelections() async {
+    /// Each source keeps its own calendar selection, and connecting a second
+    /// source neither disturbs the first's selection nor disconnects it.
+    func testConnectingASecondSourceKeepsBothProviderScopedSelections() async {
         let eventKitCalendar = MBCalendar(
             title: "EventKit",
             id: "eventkit",
@@ -319,10 +418,15 @@ class CalendarSyncTests: BaseTestCase {
             id: "google",
             source: nil,
             email: nil,
-            color: .black
+            color: .black,
+            provider: .googleCalendar
         )
         Defaults[.eventStoreProvider] = .macOSEventKit
         Defaults[.selectedCalendarIDs] = [eventKitCalendar.id]
+        Defaults[.selectedCalendarIDsByProvider] = [
+            EventStoreProvider.macOSEventKit.rawValue: [eventKitCalendar.id]
+        ]
+        Defaults[.selectedCalendarIDsByProviderMigrated] = true
 
         let eventKitStore = FakeEventStore(calendars: [eventKitCalendar])
         let googleStore = FakeEventStore(calendars: [googleCalendar])
@@ -333,16 +437,26 @@ class CalendarSyncTests: BaseTestCase {
 
         let googleResult = await manager.changeEventStoreProvider(.googleCalendar)
         XCTAssertEqual(googleResult, .success)
-        XCTAssertTrue(Defaults[.selectedCalendarIDs].isEmpty)
-        AppSettings.setCalendarSelection(id: googleCalendar.id, selected: true)
-
-        let eventKitResult = await manager.changeEventStoreProvider(.macOSEventKit)
-        XCTAssertEqual(eventKitResult, .success)
+        XCTAssertEqual(
+            repository.selection.providers,
+            [.macOSEventKit, .googleCalendar],
+            "connecting Google must not disconnect macOS Calendar")
+        // EventKit stays the write-capable provider, so the legacy mirror key
+        // keeps pointing at its selection.
+        XCTAssertEqual(Defaults[.eventStoreProvider], .macOSEventKit)
         XCTAssertEqual(Defaults[.selectedCalendarIDs], [eventKitCalendar.id])
+
+        AppSettings.setCalendarSelection(
+            provider: .googleCalendar, id: googleCalendar.id, selected: true)
+
         XCTAssertEqual(
             AppSettings.selectedCalendarIDs(for: .googleCalendar),
             [googleCalendar.id]
         )
+        XCTAssertEqual(
+            AppSettings.selectedCalendarIDs(for: .macOSEventKit),
+            [eventKitCalendar.id],
+            "the other source's selection is untouched")
     }
 
     func testGoogleSwitchWithNoCalendarsPreservesCurrentProvider() async {

@@ -11,7 +11,7 @@ import Foundation
 @MainActor
 final class AppModelTestHarness {
     let eventsSubject = PassthroughSubject<[MBEvent], Never>()
-    let calendarsSubject = PassthroughSubject<([MBCalendar], EventStoreProvider), Never>()
+    let calendarsSubject = PassthroughSubject<CalendarSnapshot, Never>()
     let providerHealthSubject = PassthroughSubject<ProviderHealth, Never>()
     let selectedCalendarIDsSubject = CurrentValueSubject<[String], Never>([])
 
@@ -26,6 +26,7 @@ final class AppModelTestHarness {
     private(set) var toggleMeetingTitleVisibilityCallCount = 0
     private(set) var snoozedEvents: [(id: String, action: NotificationEventTimeAction)] = []
     private(set) var completedOnboardingProviders: [EventStoreProvider] = []
+    private(set) var disconnectedProviders: [EventStoreProvider] = []
     private(set) var openPreferencesCallCount = 0
     private(set) var openDropdownCallCount = 0
     private(set) var resumedOAuthURLs: [URL] = []
@@ -33,7 +34,8 @@ final class AppModelTestHarness {
     private(set) var cancelledAsyncOperationCount = 0
     var providerSelectionResult: ProviderSelectionResult = .success
     var providerCalendarsAfterChange: [MBCalendar] = []
-    private var calendarSnapshot: ([MBCalendar], EventStoreProvider) = ([], .macOSEventKit)
+    private var calendarSnapshot = CalendarSnapshot(
+        calendars: [], primary: .macOSEventKit, connected: [.macOSEventKit])
 
     let fixedNow: Date
     private let asyncOperationDelayNanoseconds: UInt64
@@ -56,14 +58,34 @@ final class AppModelTestHarness {
             guard await self.waitForAsyncOperationDelay() else { return .cancelled }
             self.providerChanges.append((provider, signOut))
             if self.providerSelectionResult == .success {
-                self.calendarSnapshot = (self.providerCalendarsAfterChange, provider)
+                // Connecting ADDS a source; the harness mirrors that so tests
+                // see the same connected set the real repository would report.
+                var connected = self.calendarSnapshot.connected
+                if !connected.contains(provider) { connected.append(provider) }
+                self.calendarSnapshot = CalendarSnapshot(
+                    calendars: self.providerCalendarsAfterChange,
+                    primary: connected.contains(.macOSEventKit) ? .macOSEventKit : provider,
+                    connected: connected
+                )
             }
             return self.providerSelectionResult
         },
-        currentCalendarSnapshot: { [weak self] in
-            self?.calendarSnapshot ?? ([], .macOSEventKit)
+        disconnectProvider: { [weak self] provider in
+            guard let self else { return }
+            self.disconnectedProviders.append(provider)
+            let connected = self.calendarSnapshot.connected.filter { $0 != provider }
+            guard !connected.isEmpty else { return }
+            self.calendarSnapshot = CalendarSnapshot(
+                calendars: self.calendarSnapshot.calendars.filter { $0.provider != provider },
+                primary: connected.contains(.macOSEventKit) ? .macOSEventKit : connected[0],
+                connected: connected
+            )
         },
-        toggleCalendarSelection: { [weak self] id, selected in
+        currentCalendarSnapshot: { [weak self] in
+            self?.calendarSnapshot ?? CalendarSnapshot(
+                calendars: [], primary: .macOSEventKit, connected: [.macOSEventKit])
+        },
+        toggleCalendarSelection: { [weak self] id, selected, _ in
             self?.calendarSelections.append((id, selected))
         },
         openMeeting: { [weak self] event in
@@ -115,8 +137,15 @@ final class AppModelTestHarness {
     }
 
     func publishCalendars(_ calendars: [MBCalendar],
-                          provider: EventStoreProvider = .macOSEventKit) {
-        calendarsSubject.send((calendars, provider))
+                          provider: EventStoreProvider = .macOSEventKit,
+                          connected: [EventStoreProvider]? = nil) {
+        calendarsSubject.send(
+            CalendarSnapshot(
+                calendars: calendars,
+                primary: provider,
+                connected: connected ?? [provider]
+            )
+        )
     }
 
     func publishEvents(_ events: [MBEvent]) {

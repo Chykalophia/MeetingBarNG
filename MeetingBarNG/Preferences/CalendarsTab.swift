@@ -15,10 +15,10 @@
 //  meetings come from, and is macOS actually syncing them?" — and deletes what
 //  could not answer it:
 //
-//    • the calendar-SOURCE picker. `CalendarSourcePresentation.all` holds exactly
+//    • the calendar-SOURCE picker. `CalendarSourcePresentation.all` held exactly
 //      one entry, so the pane's most prominent control was a dropdown that could
-//      never change anything. It returns automatically when a second provider
-//      ships; the stored key is untouched.
+//      never change anything. It is now back as a TOGGLE PER SOURCE (multi-source,
+//      2026), rendered only when a second source is genuinely available.
 //    • the two static onboarding lines ("Uses the macOS Calendar app as the data
 //      source", "All configured accounts: …") — boilerplate styled to look like
 //      live status, directly under a line that WAS live status.
@@ -72,14 +72,16 @@ struct CalendarsTab: View {
 
 // MARK: - Calendar source
 
-/// Where meetings come from, when there is more than one answer.
+/// Where meetings come from — now a set, not a choice.
 ///
-/// The picker was deleted in the Phase 2 overhaul because
+/// The Phase 2 overhaul deleted the picker because
 /// `CalendarSourcePresentation.all` held exactly one entry, making it a dropdown
-/// that could never change anything. That file said it would "return
-/// automatically when a second provider ships" — this is that. It renders only
-/// when a second source is genuinely available, so a build without Google
-/// credentials looks exactly as it did.
+/// that could never change anything. It came back as a picker when the Google
+/// provider was restored, and is now a toggle per source: the two are not
+/// mutually exclusive, and forcing a choice between them meant anyone with both
+/// an Exchange calendar in Calendar.app and a Google work account could only
+/// ever see half their day. Renders only when a second source is genuinely
+/// available, so a build without Google credentials looks exactly as it did.
 private struct CalendarSourceSection: View {
     @EnvironmentObject var appModel: AppModel
     let presentation: PreferencesCalendarPresentation
@@ -88,18 +90,19 @@ private struct CalendarSourceSection: View {
         let sources = CalendarSourcePresentation.all
         if sources.count > 1 {
             Section {
-                Picker(
-                    "preferences_calendars_source_title".loco(),
-                    selection: sourceBinding
-                ) {
-                    ForEach(sources) { source in
-                        Text(source.titleKey.loco()).tag(source.provider)
-                    }
+                // A toggle per source rather than a picker. Sources are no
+                // longer mutually exclusive: someone with an Exchange calendar
+                // in Calendar.app and a Google work account needs both, and the
+                // picker made that a choice between halves of their day.
+                ForEach(sources) { source in
+                    CalendarSourceToggle(
+                        source: source,
+                        isConnected: presentation.connectedProviders.contains(source.provider),
+                        canDisconnect: presentation.connectedProviders.count > 1,
+                        failure: presentation.degradedSources
+                            .first { $0.provider == source.provider }
+                    )
                 }
-                // Switching re-runs sign-in for the chosen provider. Selected
-                // calendars are stored PER provider, so switching back does not
-                // lose the other side's choices.
-                .disabled(appModel.state.providerChangeInProgress)
 
                 Text("preferences_calendars_source_help".loco())
                     .font(.caption)
@@ -108,16 +111,65 @@ private struct CalendarSourceSection: View {
             }
         }
     }
+}
 
-    /// `signOut: false` — switching away should not discard the other provider's
-    /// tokens, so switching back is not a fresh sign-in every time. Signing out
-    /// is a separate, deliberate action.
-    private var sourceBinding: Binding<EventStoreProvider> {
+/// One connected source: a toggle, its description, and — when it is failing
+/// while another source still works — the reason and a way to reconnect.
+private struct CalendarSourceToggle: View {
+    @EnvironmentObject var appModel: AppModel
+    let source: CalendarSourcePresentation
+    let isConnected: Bool
+    let canDisconnect: Bool
+    let failure: CalendarSourceFailure?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Toggle(source.titleKey.loco(), isOn: connectionBinding)
+                .disabled(appModel.state.providerChangeInProgress || !canToggle)
+
+            Text(source.descriptionKey.loco())
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            // A source that failed while the other kept working would otherwise
+            // just show fewer meetings, with nothing on screen saying why.
+            if let failure {
+                HStack(spacing: 6) {
+                    Label(failure.errorDescription, systemImage: "exclamationmark.triangle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    if failure.authRequired {
+                        Button("preferences_status_reconnect".loco()) {
+                            appModel.send(.changeProvider(source.provider, signOut: true))
+                        }
+                        .controlSize(.small)
+                        .disabled(appModel.state.providerChangeInProgress)
+                    }
+                }
+            }
+        }
+    }
+
+    /// The last connected source cannot be switched off — with none connected
+    /// the app fetches nothing and looks broken rather than configured.
+    private var canToggle: Bool { !isConnected || canDisconnect }
+
+    /// Connecting runs sign-in for that source and ADDS it. Disconnecting keeps
+    /// its credentials (`signOut: false`) so re-enabling is not a fresh OAuth
+    /// round trip; signing out stays a separate, deliberate action.
+    private var connectionBinding: Binding<Bool> {
         Binding(
-            get: { presentation.activeProvider },
-            set: { provider in
-                guard provider != presentation.activeProvider else { return }
-                appModel.send(.changeProvider(provider, signOut: false))
+            get: { isConnected },
+            set: { shouldConnect in
+                guard shouldConnect != isConnected else { return }
+                if shouldConnect {
+                    appModel.send(.changeProvider(source.provider, signOut: false))
+                } else {
+                    appModel.send(.disconnectProvider(source.provider))
+                }
             }
         )
     }
@@ -263,7 +315,8 @@ private struct CalendarSelectionSection: View {
     /// while a search narrows the list.
     private func setSelection(_ selected: Bool) {
         for id in CalendarListPresentation.visibleIDs(in: groups) {
-            appModel.toggleCalendarSelection(id: id, selected: selected)
+            appModel.toggleCalendarSelection(
+                id: id, selected: selected, provider: calendar(for: id)?.provider)
         }
     }
 }
@@ -511,7 +564,10 @@ struct CalendarRow: View {
         Toggle(
             isOn: Binding(
                 get: { appModel.state.selectedCalendarIDs.contains(calendar.id) },
-                set: { appModel.toggleCalendarSelection(id: calendar.id, selected: $0) }
+                set: {
+                    appModel.toggleCalendarSelection(
+                        id: calendar.id, selected: $0, provider: calendar.provider)
+                }
             )
         ) {
             HStack(spacing: 8) {

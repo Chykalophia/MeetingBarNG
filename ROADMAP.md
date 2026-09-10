@@ -73,10 +73,8 @@ single release.
 
 ### Calendar & event handling
 - [x] Multi-calendar via macOS Calendar (iCloud/Google/Exchange/Office 365) — already in
-      MeetingBar. NOTE: the *direct* Google provider is currently absent from onboarding —
-      `CalendarSourcePresentation.all` ships macOS Calendar only, because the native Google
-      path needs OAuth credentials this build does not carry. The code is retained for
-      installs already on it; re-introduction is tracked as its own item below.
+      MeetingBar. The *direct* Google provider is offered alongside it in any build carrying
+      OAuth credentials, and the two can be connected simultaneously; see the two items below.
 - [x] Direct Google Calendar provider back in onboarding — **available in any build that
       carries OAuth credentials** (2026-08-24). `CalendarSourcePresentation.all` is gated on
       `GoogleOAuthConfig.isConfigured` rather than hardcoded to macOS Calendar, and the source
@@ -87,6 +85,19 @@ single release.
       shipping them extractably, so a distributed binary either bundles a client anyone can
       lift or leaves the provider unavailable. That decision is tied to the release pipeline,
       not to this code.
+- [x] **Multiple calendar sources connected at once** (2026-09-10). macOS Calendar and the
+      direct Google provider are no longer either/or: `CalendarRepository` holds a SET of
+      connected sources (`CalendarSourceSelection`, hostless), fetches from each, and merges.
+      Preferences ▸ Calendars shows a toggle per source instead of a picker. Selection is
+      per source; the last connected source cannot be switched off. A source that fails no
+      longer blanks out the one that worked — partial failures surface as
+      `ProviderHealth.degradedSources` with a reconnect affordance next to that source.
+      Cross-source duplicates collapse to one row, preferring the Google copy
+      (`DeduplicationEvent.sourcePriority`) because EventKit's mirror flattens attendee
+      status and drops conferencing data.
+      **Single Google account only.** Multiple Google accounts at once would need
+      `GCEventStore` de-singletoned with per-account Keychain items and an account registry;
+      not started.
 - [x] Full event search (title, notes, location, attendees) — `Calendar/EventSearch`.
 - [x] Inline event edit (title, time, duration) — `UI/EventEditor`, `EventDraftValidation`.
 - [x] Location autocomplete when creating/editing — MapKit suggestions in the event editor's

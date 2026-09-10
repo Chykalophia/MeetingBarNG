@@ -42,7 +42,12 @@ struct AppState: Equatable {
     var calendars: [MBCalendar] = []
     var events: [MBEvent] = []
     var selectedCalendarIDs: [String] = []
+    /// The source that handles writes and stands in wherever one provider
+    /// identity is still needed. See `connectedProviders` for what is actually
+    /// being fetched.
     var activeProvider: EventStoreProvider = .macOSEventKit
+    /// Every source connected right now, in display order.
+    var connectedProviders: [EventStoreProvider] = [.macOSEventKit]
     var providerChangeInProgress = false
     var providerHealth = ProviderHealth()
 
@@ -66,6 +71,29 @@ struct AppState: Equatable {
     /// Next upcoming event that has not been dismissed and is not all-day.
     func nextEvent(now: Date, linkRequired: Bool = false) -> MBEvent? {
         events.nextEvent(linkRequired: linkRequired, now: now)
+    }
+}
+
+/// Calendars plus the source context they were fetched under.
+///
+/// Replaces the `([MBCalendar], EventStoreProvider)` tuple that carried this
+/// before multi-source. With two sources connected the calendar list is a merge
+/// of both, so "which provider are these from" stopped having a single answer:
+/// `primary` is the write-capable source and `connected` is the real set.
+struct CalendarSnapshot: Equatable {
+    var calendars: [MBCalendar]
+    var primary: EventStoreProvider
+    var connected: [EventStoreProvider]
+
+    /// `connected` defaults to just `primary` — the single-source shape.
+    init(
+        calendars: [MBCalendar],
+        primary: EventStoreProvider,
+        connected: [EventStoreProvider]? = nil
+    ) {
+        self.calendars = calendars
+        self.primary = primary
+        self.connected = connected ?? [primary]
     }
 }
 
@@ -109,13 +137,17 @@ enum AppAction {
     /// open / wake / unlock so stalled macOS syncs surface (and self-correct)
     /// sooner than the periodic 180s timer would allow.
     case forceCalendarSync
-    case calendarsLoaded([MBCalendar], provider: EventStoreProvider)
+    case calendarsLoaded(CalendarSnapshot)
     case eventsLoaded([MBEvent])
     case selectedCalendarsChanged([String])
     case providerHealthChanged(ProviderHealth)
     case calendarRefreshFailed(Error)
     case providerChanged(EventStoreProvider)
-    case selectCalendar(id: String, selected: Bool)
+    /// `provider` names the SOURCE the calendar belongs to. With more than
+    /// one source connected, the calendar's own provider decides which
+    /// per-source selection list the tick is written to; defaulting it to the
+    /// primary provider keeps every single-source call site unchanged.
+    case selectCalendar(id: String, selected: Bool, provider: EventStoreProvider?)
 
     // Reminders (Dot parity)
     case remindersLoaded([MBReminder])
@@ -130,6 +162,9 @@ enum AppAction {
     // Provider
     /// Switch the active calendar provider.  `signOut = true` drops the current OAuth session first.
     case changeProvider(EventStoreProvider, signOut: Bool)
+    /// Disconnects a source without touching the others. Refused when it is
+    /// the last one connected.
+    case disconnectProvider(EventStoreProvider)
 
     // Notification responses
     case notificationResponse(NotificationResponseAction)
@@ -160,8 +195,8 @@ struct AppEnvironment {
     /// Live stream of the current event list from the active provider.
     var eventsPublisher: AnyPublisher<[MBEvent], Never>
 
-    /// Live stream of calendars paired with the active provider name.
-    var calendarsPublisher: AnyPublisher<([MBCalendar], EventStoreProvider), Never>
+    /// Live stream of calendars paired with the source context they came from.
+    var calendarsPublisher: AnyPublisher<CalendarSnapshot, Never>
 
     /// Live connection and refresh health for the active provider.
     var providerHealthPublisher: AnyPublisher<ProviderHealth, Never>
@@ -184,15 +219,19 @@ struct AppEnvironment {
 
     /// Switch the active calendar provider. `signOut = true` drops the current session first.
     var changeProvider: @MainActor (EventStoreProvider, Bool) async -> ProviderSelectionResult
+    /// Disconnect a source, leaving the others connected. Defaulted to a
+    /// no-op so existing test call sites using the memberwise initializer keep
+    /// compiling.
+    var disconnectProvider: @MainActor (EventStoreProvider) async -> Void = { _ in }
 
     /// Synchronous snapshot after provider changes. CalendarSync updates its
     /// calendars before returning success, while its publisher is delivered to
     /// AppModel on the next main-queue cycle.
-    var currentCalendarSnapshot: @MainActor () -> ([MBCalendar], EventStoreProvider)
+    var currentCalendarSnapshot: @MainActor () -> CalendarSnapshot
 
     /// Add or remove a calendar from the user's selection. CalendarSync
     /// observes the underlying setting and re-fetches automatically.
-    var toggleCalendarSelection: @MainActor (String, Bool) -> Void
+    var toggleCalendarSelection: @MainActor (String, Bool, EventStoreProvider?) -> Void
 
     /// Open the meeting for an event. Later PRs move every entry point onto
     /// this route; for now it lets AppModel own the action vocabulary.
@@ -260,15 +299,29 @@ struct AppEnvironment {
             eventsPublisher: calendarSync.$events.eraseToAnyPublisher(),
             calendarsPublisher: calendarSync.$calendars
                 .map { calendars in
-                    (calendars, calendarSync.repository.activeProviderName)
+                    CalendarSnapshot(
+                        calendars: calendars,
+                        primary: calendarSync.repository.activeProviderName,
+                        connected: calendarSync.repository.selection.providers
+                    )
                 }
                 .eraseToAnyPublisher(),
             providerHealthPublisher: calendarSync.$providerHealth.eraseToAnyPublisher(),
+            // The union of every CONNECTED source's selection, not the flat
+            // legacy key — that one mirrors the primary source only, so with
+            // Google also connected its calendars would render unticked no
+            // matter how many times the user ticked them.
+            //
+            // Disconnected sources are excluded so counts and the "nothing
+            // selected" empty state describe what is actually being fetched.
             selectedCalendarIDsPublisher: Defaults.publisher(
-                .selectedCalendarIDs,
+                keys: .selectedCalendarIDsByProvider, .enabledCalendarSources,
                 options: [.initial]
             )
-            .map(\.newValue)
+            .map { _ in
+                let byProvider = Defaults[.selectedCalendarIDsByProvider]
+                return Defaults[.enabledCalendarSources].flatMap { byProvider[$0.rawValue] ?? [] }
+            }
             .eraseToAnyPublisher(),
             triggerRefresh: {
                 calendarSync.refreshSubject.send()
@@ -285,11 +338,22 @@ struct AppEnvironment {
             changeProvider: { newProvider, signOut in
                 await calendarSync.changeEventStoreProvider(newProvider, withSignOut: signOut)
             },
-            currentCalendarSnapshot: {
-                (calendarSync.calendars, calendarSync.repository.activeProviderName)
+            disconnectProvider: { provider in
+                await calendarSync.disconnectEventStoreProvider(provider)
             },
-            toggleCalendarSelection: { id, selected in
-                AppSettings.setCalendarSelection(id: id, selected: selected)
+            currentCalendarSnapshot: {
+                CalendarSnapshot(
+                    calendars: calendarSync.calendars,
+                    primary: calendarSync.repository.activeProviderName,
+                    connected: calendarSync.repository.selection.providers
+                )
+            },
+            toggleCalendarSelection: { id, selected, provider in
+                AppSettings.setCalendarSelection(
+                    provider: provider ?? Defaults[.eventStoreProvider],
+                    id: id,
+                    selected: selected
+                )
             },
             openMeeting: { event in
                 MeetingOpener.open(event: event)
@@ -373,8 +437,8 @@ final class AppModel: ObservableObject {
 
         environment.calendarsPublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] (calendars, provider) in
-                self?.send(.calendarsLoaded(calendars, provider: provider))
+            .sink { [weak self] snapshot in
+                self?.send(.calendarsLoaded(snapshot))
             }
             .store(in: &cancellables)
 
@@ -410,7 +474,7 @@ final class AppModel: ObservableObject {
         case .calendarStoreChanged, .refreshCalendars, .forceCalendarSync,
              .calendarsLoaded, .eventsLoaded, .selectedCalendarsChanged,
              .providerHealthChanged, .calendarRefreshFailed, .providerChanged,
-             .selectCalendar, .changeProvider, .settingsChanged,
+             .selectCalendar, .changeProvider, .disconnectProvider, .settingsChanged,
              .toggleMeetingTitleVisibility:
             handleCalendarAction(action)
         case .notificationResponse, .joinMeeting, .joinNearestMeeting, .dismissMeeting,
@@ -445,8 +509,12 @@ final class AppModel: ObservableObject {
 
     /// Add or remove a calendar from the user's selection. Routes through
     /// `AppEnvironment` so the model stays free of `Defaults` writes.
-    func toggleCalendarSelection(id: String, selected: Bool) {
-        send(.selectCalendar(id: id, selected: selected))
+    func toggleCalendarSelection(
+        id: String,
+        selected: Bool,
+        provider: EventStoreProvider? = nil
+    ) {
+        send(.selectCalendar(id: id, selected: selected, provider: provider))
     }
 
     func nextEvent(linkRequired: Bool = false) -> MBEvent? {
@@ -457,7 +525,10 @@ final class AppModel: ObservableObject {
     /// prompt the user. Provider setup happens before this method; completion
     /// only succeeds for the active provider with at least one selected calendar.
     func completeOnboarding(with provider: EventStoreProvider) async -> ProviderSelectionResult {
-        guard state.activeProvider == provider else {
+        // Connected, not "the active one": `activeProvider` names the
+        // write-capable source, which is not necessarily the source onboarding
+        // just set up.
+        guard state.connectedProviders.contains(provider) else {
             return .failed("The selected calendar provider is not active")
         }
         guard !state.selectedCalendarIDs.isEmpty else {
@@ -478,6 +549,30 @@ final class AppModel: ObservableObject {
             signOut: signOut,
             generation: generation
         )
+    }
+
+    /// Connects `provider` and disconnects every other source, making it the
+    /// only one.
+    ///
+    /// Onboarding's source choice means "this is where my meetings come from",
+    /// not "add this to what is already on". Because a fresh install starts with
+    /// macOS Calendar connected, the plain additive `changeProvider` would leave
+    /// someone who deliberately picked Google seeing their Mac's calendars too.
+    /// Preferences ▸ Calendars is where a second source gets added later.
+    func selectSoleProvider(_ provider: EventStoreProvider) async -> ProviderSelectionResult {
+        let result = await changeProvider(to: provider)
+        guard result == .success else { return result }
+
+        // Safe to walk: `provider` was just connected, so disconnecting the
+        // others can never empty the set.
+        for other in state.connectedProviders where other != provider {
+            await environment.disconnectProvider(other)
+        }
+        let snapshot = environment.currentCalendarSnapshot()
+        state.activeProvider = snapshot.primary
+        state.connectedProviders = snapshot.connected
+        state.calendars = snapshot.calendars
+        return .success
     }
 
     // MARK: Private
@@ -523,9 +618,10 @@ final class AppModel: ObservableObject {
             environment.forceSync()
         case .toggleMeetingTitleVisibility:
             environment.toggleMeetingTitleVisibility()
-        case .calendarsLoaded(let calendars, let provider):
-            state.calendars = calendars
-            state.activeProvider = provider
+        case .calendarsLoaded(let snapshot):
+            state.calendars = snapshot.calendars
+            state.activeProvider = snapshot.primary
+            state.connectedProviders = snapshot.connected
         case .eventsLoaded(let events):
             state.events = events
             send(.reconcileNotifications)
@@ -538,8 +634,8 @@ final class AppModel: ObservableObject {
         case .providerChanged(let provider):
             resetProviderState(to: provider)
             scheduleRefresh()
-        case .selectCalendar(let id, let selected):
-            environment.toggleCalendarSelection(id, selected)
+        case .selectCalendar(let id, let selected, let provider):
+            environment.toggleCalendarSelection(id, selected, provider)
         case .changeProvider(let provider, let signOut):
             providerChangeTask?.cancel()
             let generation = beginProviderChange()
@@ -551,6 +647,8 @@ final class AppModel: ObservableObject {
                     generation: generation
                 )
             }
+        case .disconnectProvider(let provider):
+            startProviderDisconnect(provider)
         default:
             break
         }
@@ -678,6 +776,26 @@ final class AppModel: ObservableObject {
         state.events = []
     }
 
+    /// Disconnects a source and adopts the resulting snapshot. Shares the
+    /// generation counter with `performProviderChange` so a disconnect and a
+    /// connect racing each other cannot both write state.
+    private func startProviderDisconnect(_ provider: EventStoreProvider) {
+        providerChangeTask?.cancel()
+        let generation = beginProviderChange()
+        providerChangeTask = Task { [weak self] in
+            guard let self else { return }
+            await self.environment.disconnectProvider(provider)
+            guard generation == self.providerChangeGeneration else { return }
+            let snapshot = self.environment.currentCalendarSnapshot()
+            self.state.activeProvider = snapshot.primary
+            self.state.connectedProviders = snapshot.connected
+            self.state.calendars = snapshot.calendars
+            self.state.events = []
+            self.state.providerChangeInProgress = false
+            self.scheduleRefresh()
+        }
+    }
+
     private func beginProviderChange() -> Int {
         providerChangeGeneration += 1
         state.providerChangeInProgress = true
@@ -693,9 +811,15 @@ final class AppModel: ObservableObject {
         guard generation == providerChangeGeneration else { return .cancelled }
 
         if result == .success {
-            let (calendars, snapshotProvider) = environment.currentCalendarSnapshot()
-            state.activeProvider = provider
-            state.calendars = snapshotProvider == provider ? calendars : []
+            // The merged list already contains every connected source, so it is
+            // adopted wholesale. The single-provider code discarded it whenever
+            // the snapshot's provider differed from the one just connected —
+            // which is now the normal case, since connecting Google leaves
+            // EventKit as the primary.
+            let snapshot = environment.currentCalendarSnapshot()
+            state.activeProvider = snapshot.primary
+            state.connectedProviders = snapshot.connected
+            state.calendars = snapshot.calendars
             state.events = []
         }
         state.providerChangeInProgress = false

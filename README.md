@@ -153,13 +153,25 @@ Copy `XCConfig/GoogleSecrets.xcconfig.example` to `XCConfig/GoogleSecrets.xcconf
 [Google Cloud Console](https://console.cloud.google.com/apis/credentials) and fill in
 `GOOGLE_CLIENT_NUMBER`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_AUTH_KEYCHAIN_NAME`.
 
-Once credentials are in place, rebuild and **Google Calendar** appears as a choice in
-onboarding and in **Preferences ▸ Calendars ▸ Meetings come from**. Without them the app
+Once credentials are in place, rebuild and **Google Calendar** appears in onboarding and
+as a toggle under **Preferences ▸ Calendars ▸ Meetings come from**. Without them the app
 looks exactly as it does today — the provider is gated on the credentials actually being
 present, not hidden behind a flag.
 
-Selected calendars are stored per provider, so switching between Apple and Google and
-back does not lose either side's choices.
+**The two sources are not exclusive.** macOS Calendar and Google can be connected at the
+same time, and their meetings are merged into one list. That matters if some of your
+calendars only exist in Calendar.app (iCloud, Exchange) while your work calendar is
+Google — the direct Google provider carries per-meeting detail the EventKit mirror drops,
+notably conference entry points and per-attendee response status.
+
+A meeting that arrives from both sources is shown **once**, using the Google copy for the
+reason above. That collapsing is the existing cross-calendar deduplication (Preferences ▸
+Filters ▸ "Hide duplicate events"), extended to know which source a meeting came from;
+turning it off shows both copies.
+
+Selected calendars are stored per source, so turning one off and back on does not lose
+either side's choices. At least one source is always connected — the last one cannot be
+switched off.
 
 Common commands:
 

@@ -68,24 +68,28 @@ public class CalendarSync: ObservableObject {
     public init(refreshInterval: TimeInterval = 180) async {
         self.refreshInterval = refreshInterval
         AppSettings.migrateSelectedCalendarsByProviderIfNeeded()
-        repository = CalendarRepository(providerName: Defaults[.eventStoreProvider])
+        repository = CalendarRepository(selection: AppSettings.enabledCalendarSources())
         await configureProvider(Defaults[.eventStoreProvider])
         setupPublishers()
         refreshSubject.send() // initial load
     }
 
+    /// Connects a source, ADDING it to the connected set. Re-connecting one
+    /// that is already there is how re-authorization works, so the existing
+    /// "grant access" and "reconnect" buttons keep working unchanged.
+    ///
+    /// The name and signature are unchanged from the single-provider era
+    /// because every call site still means the same thing by them; only the
+    /// "and disconnect whatever was there before" half is gone.
     public func changeEventStoreProvider(
         _ newProvider: EventStoreProvider,
         withSignOut: Bool = false
     ) async -> ProviderSelectionResult {
         do {
-            let newCalendars = try await repository.switchProvider(
-                to: newProvider,
-                signOutCurrent: withSignOut
-            )
+            let newCalendars = try await repository.connect(newProvider, signOut: withSignOut)
             refreshCycleTask?.cancel()
             refreshCycleTask = nil
-            AppSettings.setEventStoreProvider(newProvider)
+            AppSettings.setEnabledCalendarSources(repository.selection)
             providerGeneration += 1
             calendars = newCalendars
             events = []
@@ -106,6 +110,29 @@ public class CalendarSync: ObservableObject {
             )
             return providerSelectionResult(for: error)
         }
+    }
+
+    /// Disconnects a source without touching the others. Refused when it is the
+    /// last one connected. Credentials are kept unless `withSignOut` is set, so
+    /// reconnecting is not a fresh OAuth round trip.
+    public func disconnectEventStoreProvider(
+        _ provider: EventStoreProvider,
+        withSignOut: Bool = false
+    ) async {
+        guard repository.selection.canDisable(provider.sourceKind) else { return }
+        await repository.disconnect(provider, signOut: withSignOut)
+        refreshCycleTask?.cancel()
+        refreshCycleTask = nil
+        AppSettings.setEnabledCalendarSources(repository.selection)
+        providerGeneration += 1
+        // Drop this source's rows immediately rather than waiting for the next
+        // refresh: a disconnected source's meetings lingering in the dropdown
+        // reads as the toggle having failed.
+        calendars = calendars.filter { $0.provider != provider }
+        events = events.filter { $0.calendar.provider != provider }
+        providerHealth = ProviderHealth()
+        subscribeToRepositoryStoreChanges()
+        refreshSubject.send()
     }
 
     private func providerSelectionResult(for error: Error) -> ProviderSelectionResult {
@@ -216,14 +243,30 @@ public class CalendarSync: ObservableObject {
         events.compactMap(\.lastModifiedDate).max()
     }
 
-    /// Fetches events for the selected calendars within the specified date range
-    private func fetchEvents(fromCalendars: [MBCalendar]) async throws -> [MBEvent] {
-        let rawEvents: [MBEvent]
+    /// One entry per failing source across both the calendar-list and event
+    /// fetches. A source whose calendar listing failed also fails its event
+    /// fetch, so without this the same outage would be reported twice.
+    static func mergeFailures(
+        _ first: [CalendarSourceFailure],
+        _ second: [CalendarSourceFailure]
+    ) -> [CalendarSourceFailure] {
+        var seen = Set<EventStoreProvider>()
+        return (first + second).filter { seen.insert($0.provider).inserted }
+    }
+
+    /// Fetches events for the selected calendars within the specified date
+    /// range, across every connected source. Returns the merged events together
+    /// with any source that failed while another succeeded.
+    private func fetchEvents(
+        fromCalendars: [MBCalendar]
+    ) async throws -> (events: [MBEvent], failures: [CalendarSourceFailure]) {
+        let outcome: CalendarFetchOutcome<MBEvent>
         do {
-            rawEvents = try await repository.fetchCurrentPeriodEvents(fromAllCalendars: fromCalendars)
+            outcome = try await repository.fetchCurrentPeriodEvents(fromAllCalendars: fromCalendars)
         } catch {
             throw CalendarSyncError.eventFetchFailed(error)
         }
+        let rawEvents = outcome.elements
 
         // First collapse exact per-occurrence duplicates (same internal id).
         let deduplicatedEvents = Array(Dictionary(
@@ -234,6 +277,12 @@ public class CalendarSync: ObservableObject {
         // arriving on two selected calendars/accounts survives the id-keyed pass
         // (each copy has its own per-occurrence id) but shares an external
         // identifier, so the pure deduplicator catches it. Opt-out preserved.
+        //
+        // With BOTH sources connected the same invite also arrives once from
+        // each. `sourcePriority` decides which copy survives — Google's, because
+        // it carries real attendee response status and Google's own conferencing
+        // data where EventKit's mirror routinely has neither. With one source
+        // connected every priority is equal and this is first-wins, as before.
         let events: [MBEvent]
         if Defaults[.deduplicateEvents] {
             let candidates = deduplicatedEvents.enumerated().map { index, event in
@@ -243,7 +292,8 @@ public class CalendarSync: ObservableObject {
                     title: event.title,
                     startDate: event.startDate,
                     endDate: event.endDate,
-                    isAllDay: event.isAllDay
+                    isAllDay: event.isAllDay,
+                    sourcePriority: event.calendar.provider.sourceKind.deduplicationPriority
                 )
             }
             events = EventDeduplication.keptIndices(candidates).map { deduplicatedEvents[$0] }
@@ -257,13 +307,19 @@ public class CalendarSync: ObservableObject {
         // Same cadence as the dismissal housekeeping above rather than a timer of
         // its own: both exist only to stop a per-event list growing forever.
         EventReminderOverrideStore.pruneExpired()
-        return events.filtered().sorted { $0.startDate < $1.startDate }
+        return (events.filtered().sorted { $0.startDate < $1.startDate }, outcome.failures)
     }
 
     private func setupPublishers() {
         // A) Defaults changes as an “empty” trigger
         let defaultsPub = Defaults.publisher(keys:
             .selectedCalendarIDs,
+            // The per-source selection is the one that actually drives fetching
+            // now. `selectedCalendarIDs` mirrors only the primary source, so
+            // without this key ticking a calendar on the OTHER source changed
+            // nothing until the next scheduled refresh — it read as broken.
+            .selectedCalendarIDsByProvider,
+            .enabledCalendarSources,
             .showEventsForPeriod,
             .customRegexes,
             .declinedEventsAppereance,
@@ -327,15 +383,24 @@ public class CalendarSync: ObservableObject {
                             guard let self else { return }
                             let attempted = Date()
                             do {
-                                let cals = try await self.repository.fetchAllCalendars()
+                                let calendarOutcome = try await self.repository.fetchAllCalendars()
                                 try Task.checkCancellation()
-                                let evts = try await self.fetchEvents(fromCalendars: cals)
+                                let (evts, eventFailures) = try await self.fetchEvents(
+                                    fromCalendars: calendarOutcome.elements
+                                )
+                                // A source that failed while another succeeded is
+                                // reported alongside the refresh, not instead of
+                                // it: Google's token expiring must not blank out
+                                // the macOS Calendar events that fetched fine.
                                 let health = ProviderHealth.success(
                                     attempted: attempted,
-                                    lastSyncedChange: Self.newestEventChange(in: evts)
+                                    lastSyncedChange: Self.newestEventChange(in: evts),
+                                    degradedSources: Self.mergeFailures(
+                                        calendarOutcome.failures, eventFailures
+                                    )
                                 )
                                 promise(.success(RefreshResult(
-                                    calendars: cals,
+                                    calendars: calendarOutcome.elements,
                                     events: evts,
                                     health: health,
                                     providerGeneration: providerGeneration
@@ -391,6 +456,7 @@ public class CalendarSync: ObservableObject {
                     refreshInterval: TimeInterval = 0) {
             self.refreshInterval = refreshInterval
             self.repository = CalendarRepository(store: provider)
+            AppSettings.recordEnabledCalendarSources(repository.selection)
             setupPublishers()
             refreshSubject.send()
         }
@@ -401,6 +467,13 @@ public class CalendarSync: ObservableObject {
                     refreshInterval: TimeInterval = 0) {
             self.refreshInterval = refreshInterval
             self.repository = repository
+            // Keep the persisted connected-set in step with the injected
+            // repository; anything reading `enabledCalendarSources` (notably
+            // the selected-calendar publisher) would otherwise see an empty set.
+            // Records only that key — re-deriving the primary provider and the
+            // legacy selection mirror here would clobber selections the test
+            // just set up.
+            AppSettings.recordEnabledCalendarSources(repository.selection)
             subscribeToRepositoryStoreChanges()
             setupPublishers()
             refreshSubject.send()

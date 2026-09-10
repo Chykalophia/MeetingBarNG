@@ -12,7 +12,9 @@ func makeFakeCalendar(
     title: String = "Test Calendar",
     source: String? = nil,
     email: String? = nil,
-    color: NSColor = .black
+    color: NSColor = .black,
+    provider: EventStoreProvider = .macOSEventKit
 ) -> MBCalendar {
-    MBCalendar(title: title, id: id, source: source, email: email, color: color)
+    MBCalendar(
+        title: title, id: id, source: source, email: email, color: color, provider: provider)
 }

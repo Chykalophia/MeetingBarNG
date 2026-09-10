@@ -22,7 +22,8 @@ final class EventDeduplicationTests: XCTestCase {
         title: String = "Lunch",
         start: Date,
         end: Date,
-        isAllDay: Bool = false
+        isAllDay: Bool = false,
+        sourcePriority: Int = 0
     ) -> DeduplicationEvent {
         DeduplicationEvent(
             sourceIndex: sourceIndex,
@@ -30,7 +31,8 @@ final class EventDeduplicationTests: XCTestCase {
             title: title,
             startDate: start,
             endDate: end,
-            isAllDay: isAllDay
+            isAllDay: isAllDay,
+            sourcePriority: sourcePriority
         )
     }
 
@@ -210,6 +212,91 @@ final class EventDeduplicationTests: XCTestCase {
             event(1, title: "Peter: Lunch", start: date(12), end: date(13))
         ]
         XCTAssertEqual(EventDeduplication.keptIndices(events), [0, 1])
+    }
+
+    // MARK: - Source priority (multi-source: Apple + Google connected at once)
+    //
+    // With both sources connected the same invite arrives twice. Which copy
+    // survives is not cosmetic: the direct Google copy carries real attendee
+    // response status and Google's own conferencing data, where EventKit's
+    // mirrored copy routinely flattens attendee status and leaves the conference
+    // link recoverable only by scraping the notes. Lower `sourcePriority` wins.
+
+    func test_lowerSourcePriorityWinsEvenWhenItArrivesSecond() {
+        let events = [
+            // EventKit copy, first in the array.
+            event(0, title: "Standup", start: date(10), end: date(10, 15), sourcePriority: 1),
+            // Google copy, second — but preferred.
+            event(1, title: "Standup", start: date(10), end: date(10, 15), sourcePriority: 0)
+        ]
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [1])
+    }
+
+    func test_equalSourcePriorityStillKeepsTheFirst() {
+        // Two calendars within ONE source: no preference exists, so the
+        // historical first-wins behaviour must be exactly preserved.
+        let events = [
+            event(0, title: "Standup", start: date(10), end: date(10, 15), sourcePriority: 1),
+            event(1, title: "Standup", start: date(10), end: date(10, 15), sourcePriority: 1)
+        ]
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [0])
+    }
+
+    func test_sourcePriorityAppliesAcrossTheIdentifierSignalToo() {
+        let events = [
+            event(0, externalIdentifier: "shared", title: "Standup", start: date(10), end: date(11), sourcePriority: 1),
+            // Same shared id, visibly different row, but the preferred source.
+            event(1, externalIdentifier: "shared", title: "Team standup", start: date(9), end: date(10), sourcePriority: 0)
+        ]
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [1])
+    }
+
+    func test_priorityDoesNotMergeGenuinelyDifferentMeetings() {
+        // Preference must never be a reason to collapse two distinct meetings.
+        let events = [
+            event(0, title: "Design review", start: date(12), end: date(13), sourcePriority: 1),
+            event(1, title: "1:1 with Sam", start: date(12), end: date(13), sourcePriority: 0)
+        ]
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [0, 1])
+    }
+
+    func test_survivorsStayInInputOrder() {
+        let events = [
+            event(0, title: "Standup", start: date(10), end: date(11), sourcePriority: 1),
+            event(1, title: "Retro", start: date(14), end: date(15), sourcePriority: 1),
+            // Google copy of Standup, preferred — wins over index 0.
+            event(2, title: "Standup", start: date(10), end: date(11), sourcePriority: 0)
+        ]
+        // Retro (position 1) precedes the winning Standup copy (position 2).
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [1, 2])
+    }
+
+    // MARK: - Transitive grouping
+    //
+    // A~B by composite and B~C by identifier makes all three one meeting. The
+    // previous single-pass walk dropped B for matching A, which meant B's
+    // identifier was never recorded and C survived as a third row of the same
+    // meeting.
+
+    func test_chainedMatchesCollapseToASingleEvent() {
+        let events = [
+            event(0, externalIdentifier: "id-a", title: "Standup", start: date(10), end: date(11)),
+            // Shares the visible composite with 0, and its identifier with 2.
+            event(1, externalIdentifier: "id-b", title: "Standup", start: date(10), end: date(11)),
+            event(2, externalIdentifier: "id-b", title: "Sprint standup", start: date(16), end: date(17))
+        ]
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [0])
+    }
+
+    func test_chainedMatchesRespectSourcePriority() {
+        let events = [
+            event(0, externalIdentifier: "id-a", title: "Standup", start: date(10), end: date(11), sourcePriority: 1),
+            event(1, externalIdentifier: "id-b", title: "Standup", start: date(10), end: date(11), sourcePriority: 1),
+            event(2, externalIdentifier: "id-b", title: "Sprint standup", start: date(16), end: date(17), sourcePriority: 0)
+        ]
+        // All one group; the preferred copy survives even though it is last and
+        // is only linked to the first via the middle event.
+        XCTAssertEqual(EventDeduplication.keptIndices(events), [2])
     }
 
     func test_googleShapedEventsAlwaysUseTheCompositePath() {

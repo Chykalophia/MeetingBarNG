@@ -460,8 +460,20 @@ extension AppSettings {
 
     @MainActor
     static func setCalendarSelection(id: String, selected: Bool) {
+        setCalendarSelection(provider: Defaults[.eventStoreProvider], id: id, selected: selected)
+    }
+
+    /// Ticks or unticks a calendar within a SPECIFIC source's selection.
+    ///
+    /// With more than one source connected, the calendar's own provider — not
+    /// `Defaults[.eventStoreProvider]`, which now names the write-capable source
+    /// — decides which list to write. Keying on the ambient provider would file
+    /// a ticked Google calendar under macOS Calendar's selection, where nothing
+    /// would ever read it and the tick would appear to do nothing.
+    @MainActor
+    static func setCalendarSelection(provider: EventStoreProvider, id: String, selected: Bool) {
         migrateSelectedCalendarsByProviderIfNeeded()
-        let providerKey = Defaults[.eventStoreProvider].rawValue
+        let providerKey = provider.rawValue
         var selections = Defaults[.selectedCalendarIDsByProvider]
         var selectedIDs = selections[providerKey] ?? []
 
@@ -475,13 +487,71 @@ extension AppSettings {
 
         selections[providerKey] = selectedIDs
         Defaults[.selectedCalendarIDsByProvider] = selections
-        Defaults[.selectedCalendarIDs] = selectedIDs
+        // The legacy flat key mirrors only the primary provider's selection.
+        if provider == Defaults[.eventStoreProvider] {
+            Defaults[.selectedCalendarIDs] = selectedIDs
+        }
     }
 
     @MainActor
     static func selectedCalendarIDs(for provider: EventStoreProvider) -> [String] {
         migrateSelectedCalendarsByProviderIfNeeded()
         return Defaults[.selectedCalendarIDsByProvider][provider.rawValue] ?? []
+    }
+
+    // MARK: - Connected sources
+
+    /// The sources connected right now, filtered to what this build can reach.
+    /// Read this rather than `Defaults[.eventStoreProvider]` anywhere the answer
+    /// is "where do events come from" — that key now only tracks which provider
+    /// handles writes.
+    @MainActor
+    static func enabledCalendarSources() -> CalendarSourceSelection {
+        migrateEnabledCalendarSourcesIfNeeded()
+        return CalendarSourceSelection(providers: Defaults[.enabledCalendarSources]).usable
+    }
+
+    /// Persists a new selection. `eventStoreProvider` is kept pointing at the
+    /// write-capable source (EventKit when connected) so event creation and
+    /// reminders keep working; when only Google is connected there is nothing
+    /// writable, and it holds Google so per-provider calendar selection and the
+    /// diagnostics report still name the source actually in use.
+    @MainActor
+    static func setEnabledCalendarSources(_ selection: CalendarSourceSelection) {
+        migrateEnabledCalendarSourcesIfNeeded()
+        let stored = selection.providers
+        Defaults[.enabledCalendarSources] = stored
+        let primary = selection.writeSource?.provider ?? stored.first ?? .macOSEventKit
+        Defaults[.eventStoreProvider] = primary
+        Defaults[.selectedCalendarIDs] = selectedCalendarIDs(for: primary)
+    }
+
+    /// Records the connected set WITHOUT touching the primary provider or the
+    /// legacy flat selection mirror.
+    ///
+    /// `setEnabledCalendarSources` re-derives both of those, which is right when
+    /// the user changes sources but wrong when merely announcing an already-built
+    /// repository — it would overwrite `selectedCalendarIDs` from a per-provider
+    /// map that may not have been populated yet.
+    @MainActor
+    static func recordEnabledCalendarSources(_ selection: CalendarSourceSelection) {
+        Defaults[.enabledCalendarSources] = selection.providers
+        Defaults[.enabledCalendarSourcesMigrated] = true
+    }
+
+    /// Seeds the multi-source key from the single provider an existing install
+    /// was already using, so updating changes nothing until the user opts into a
+    /// second source.
+    @MainActor
+    static func migrateEnabledCalendarSourcesIfNeeded() {
+        guard !Defaults[.enabledCalendarSourcesMigrated] else { return }
+
+        if Defaults[.enabledCalendarSources].isEmpty {
+            Defaults[.enabledCalendarSources] = CalendarSourceSelection
+                .migrating(fromSingleProvider: Defaults[.eventStoreProvider].sourceKind)
+                .providers
+        }
+        Defaults[.enabledCalendarSourcesMigrated] = true
     }
 
     @MainActor
