@@ -6,6 +6,14 @@ How a tag becomes a signed, notarized `.dmg` that a stranger can download and ru
 tagged before it existed and carry release notes with no artifact. Once the secrets below
 are in place, either re-run the workflow against an existing tag or cut `v0.4.0`.
 
+Two things are outstanding, and they run in parallel — start the second one first, since
+its clock is not yours:
+
+1. **Apple** (§1–2): a Developer ID Application certificate and an app-specific password.
+   Same-day work.
+2. **Google** (§2a): sensitive-scope verification, so Google Calendar works for someone
+   who is not on your test-user list. Days to weeks, in Google's queue.
+
 ---
 
 ## 1. What you need from Apple, once
@@ -67,9 +75,58 @@ Settings ▸ Secrets and variables ▸ Actions ▸ **New repository secret**.
 | `AC_PASSWORD` | **yes** | the app-specific password from above |
 | `AC_TEAM_ID` | no | defaults to `KGH289N6T8` |
 | `MACOS_PROVISIONING_PROFILE` | no | `base64 -i MeetingBarNG.provisionprofile \| pbcopy` |
+| `GOOGLE_CLIENT_ID` | no | the Desktop-app client id from Google Cloud Console — see §2a |
+| `GOOGLE_CLIENT_SECRET` | no | that client's secret |
 
 There is deliberately **no** `KEYCHAIN_PASSWORD` secret — the workflow makes a throwaway
 keychain with a random password and deletes it afterwards. One less credential to rotate.
+
+---
+
+## 2a. Google Calendar — and why it gates the release
+
+`XCConfig/GoogleSecrets.xcconfig` is git-ignored, so a release carries Google
+credentials only if CI writes them in. The workflow does that from the two optional
+secrets above, and **skips it with a warning when they are absent** — a build without
+them still ships, with Google Calendar available only to users who supply their own
+OAuth client under Preferences ▸ Calendars ▸ "Use my own Google credentials".
+
+That fallback is real and works. It is not, however, a public release: expecting a
+stranger to create a Google Cloud project is not shipping a feature.
+
+### Testing mode is not a soft limit
+
+The consent screen starts in **Testing**, and this is the part that surprises people:
+it does not mean "the first 100 users". It means only Google accounts you have
+manually added to the **Test users** list can sign in **at all**. Everyone else is
+refused. Shipping credentials while in Testing therefore looks *broken* to every
+stranger — strictly worse than shipping without them, where at least the UI explains
+itself.
+
+So a release where Google works out of the box requires the consent screen to be
+**published**, which for Calendar scopes requires verification.
+
+### Sensitive-scope verification
+
+Calendar scopes are **sensitive**, not **restricted**. The practical difference is
+large: no third-party CASA security assessment, which is what makes Gmail- and
+Drive-level scopes a months-long project. What Google does ask for:
+
+- a **verified domain** you own (`chykalophia.com`), matching the app's homepage
+- a **privacy policy URL** on that domain
+- a **homepage** describing the app
+- a **demo video** showing the OAuth consent flow and what the app does with the data
+- a justification for each scope
+
+The app requests `calendar.calendarlist.readonly`, `calendar.events.readonly` and
+`email` — all read-only, which is a materially easier review than any write scope.
+Keep it that way: adding a write scope for event editing turns this into a different
+conversation with Google, so decide that deliberately rather than as a side effect.
+
+Turnaround is days to weeks and is entirely Google's queue. Start it before you need it.
+
+**Once verified:** add the two secrets, cut a release, and Google works for everyone
+with no code change — the workflow step is already conditional.
 
 ---
 

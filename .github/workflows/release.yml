@@ -74,6 +74,31 @@ jobs:
           done
           [ "$missing" -eq 0 ] || exit 1
 
+      # Google Calendar credentials are git-ignored, so a release only carries
+      # them if CI writes them in. Deliberately OPTIONAL: without the secrets
+      # the build still succeeds and ships with Google available only to users
+      # who supply their own OAuth client in Preferences. That keeps the
+      # pipeline runnable before Google's verification review clears, rather
+      # than blocking every release on it.
+      - name: Write Google OAuth credentials (optional)
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+        run: |
+          if [ -z "$GOOGLE_CLIENT_ID" ]; then
+            echo "::warning::No GOOGLE_CLIENT_ID secret. Google Calendar will require users to supply their own OAuth client. See docs/RELEASING.md."
+            exit 0
+          fi
+          # Written, never echoed: `set -x` here would put the client secret in
+          # a public build log.
+          umask 077
+          {
+            printf 'GOOGLE_CLIENT_ID = %s\n' "$GOOGLE_CLIENT_ID"
+            printf 'GOOGLE_CLIENT_SECRET = %s\n' "$GOOGLE_CLIENT_SECRET"
+            printf 'GOOGLE_AUTH_KEYCHAIN_NAME = MeetingBarNG.GoogleAuth\n'
+          } > XCConfig/GoogleSecrets.xcconfig
+          echo "Google Calendar credentials written for this build."
+
       - name: Select Xcode
         run: |
           if [ ! -d "$DEVELOPER_DIR" ]; then
