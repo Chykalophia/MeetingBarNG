@@ -1,0 +1,37 @@
+MeetingBarNG/Calendar/Providers/Google/GoogleEventColors.swift
+  s_992ab8de51fa9d::t_525a9b3fcf3e71 1-85
+Package.swift
+  s_992ab8de51fa9d::t_627a6a6212fba8 44
+MeetingBarNG/Calendar/MBEvent.swift
+  s_992ab8de51fa9d::t_627a6a6212fba8 65-70,100-106,137-138,140
+  s_992ab8de51fa9d::t_f418dfdb2439f5 15
+MeetingBarNG/Calendar/Providers/Google/GoogleCalendarEventStore.swift
+  s_992ab8de51fa9d::t_2b8ba64e787aeb 397-400,682-683
+  s_992ab8de51fa9d::t_a55413ef06b79c 159-162,564,571-588,607,616-638
+  s_992ab8de51fa9d::t_1760f5822d9984 822-828
+MeetingBarLogicTests/GoogleEventColorsTests.swift
+  s_992ab8de51fa9d::t_eaa9406e189949 1-102
+MeetingBarNGTests/GoogleCalendarParserTests.swift
+  s_992ab8de51fa9d::t_d56dd5f9f30a27 290-349
+  s_992ab8de51fa9d::t_6bdf353b71a04c 437
+MeetingBarNG/UI/Calendar/CalendarGridView.swift
+  s_992ab8de51fa9d::t_f418dfdb2439f5 466,490
+MeetingBarNG/UI/StatusBar/DropdownPanelView.swift
+  s_992ab8de51fa9d::t_f418dfdb2439f5 864,909,1317
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "297a5265bb6193ef942e95375e23beee69089d38",
+  "prompts": {},
+  "sessions": {
+    "s_992ab8de51fa9d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bcab50db-9fd6-4682-8bc3-324438f80284",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
