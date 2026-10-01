@@ -1,0 +1,37 @@
+PunctualTests/ChangelogTests.swift
+  s_fc9b467d8ed9c2::t_d10f1d75f2ebb5 15,19,23,26
+CHANGELOG.md
+  s_fc9b467d8ed9c2::t_19b4c230d2647a 7-16
+docs/RELEASING.md
+  s_fc9b467d8ed9c2::t_06e86ce0b2409b 275-276,278,280,282
+  s_fc9b467d8ed9c2::t_1ee360579d3f73 149-152
+Punctual/UI/Views/Changelog/ReleaseNotes.swift
+  s_fc9b467d8ed9c2::t_92724a2be6085f 80-89
+  s_7263f6a624c0ff::t_d0a6a79e6fc11b 79
+Punctual.xcodeproj/project.pbxproj
+  s_fc9b467d8ed9c2::t_dd83e34ae5d2fa 457,471,487,501
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "150fb0267783f2df418cf04e8d40268d063ce913",
+  "prompts": {},
+  "sessions": {
+    "s_7263f6a624c0ff": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "be53d504-f229-4cc7-a75b-7254aa7048f0",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    },
+    "s_fc9b467d8ed9c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f023a6f-dead-4095-bc42-087df0c7c6ba",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
