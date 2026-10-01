@@ -4,9 +4,20 @@
 it in one click. No AI, no account, no analytics. Free and open source.
 
 Made by [Chykalophia](https://chykalophia.com) and maintained by
-[Peter Krzyzek](https://peterkrzyzek.com). Homepage: <https://chykalophia.com/punctual>.
+[Peter Krzyzek](https://peterkrzyzek.com).
 
-<img src="screenshot.png" width="700" alt="Punctual in the macOS menu bar">
+**[Homepage](https://www.chykalophia.com/punctual)** ·
+**[Download](https://github.com/Chykalophia/Punctual/releases/latest)** ·
+[Privacy policy](https://www.chykalophia.com/punctual/policy) ·
+[Terms of service](https://www.chykalophia.com/punctual/tos)
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/dropdown-dark.png">
+  <img src="docs/screenshots/dropdown-light.png" width="360"
+       alt="Punctual's menu-bar dropdown: a day timeline, the next meeting with a Join button, today's agenda and reminders">
+</picture>
+
+<sub>Sample data, rendered from the app's real UI with `make screenshots`.</sub>
 
 ---
 
@@ -136,9 +147,15 @@ Punctual has no account, no analytics and no server of its own. Calendar data go
 your calendar provider to your Mac and is used only there: to show meetings, find meeting
 links, and open the right one.
 
-The one exception is opt-in. Location autocomplete in the event editor sends the location
-text you type to Apple (MapKit) for suggestions. It is off by default, and Preferences says
-exactly what it sends.
+If you connect Google Calendar directly, Punctual asks for read-only access, and the data
+goes straight between your Mac and Google, never through us. Disconnecting revokes it.
+
+The one other exception is opt-in. Location autocomplete in the event editor sends the
+location text you type to Apple (MapKit) for suggestions. It is off by default, and
+Preferences says exactly what it sends.
+
+The full [privacy policy](https://www.chykalophia.com/punctual/policy) covers every detail.
+Privacy questions: <privacy@chykalophia.com>.
 
 ---
 

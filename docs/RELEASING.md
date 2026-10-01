@@ -146,8 +146,10 @@ with no code change — the workflow step is already conditional.
 git-ignored `XCConfig/GoogleSecrets.xcconfig` holds real ones (those are for your own dev
 builds). Opt in only after verification: `make release-local SHIP_GOOGLE_CREDENTIALS=1`.
 The export step reads the finished app's Info.plist and fails if what shipped does not
-match the flag. 1.0.0 shipped without them; Google there is bring-your-own until a
-verified release.
+match the flag. 1.0.0 shipped without them. 1.0.1 shipped WITH them before the data-access review
+finished (a deliberate call, 2026-10-01): users see Google's "unverified app" screen and
+must choose Advanced, and sign-ins are capped at 100 users until verification completes.
+The warning disappears on Google's side once verified; no app update is needed.
 
 ---
 
@@ -270,14 +272,14 @@ it also fails if the attribution in `NOTICE`, the README or the About box goes m
 The rest lives outside the repo and has to be checked by hand, once, before the first
 Punctual release:
 
-- [ ] GitHub repo renamed `MeetingBarNG` → `Punctual` (old URLs redirect).
-- [ ] Fork relationship detached via GitHub Support, so the page no longer says
+- [x] GitHub repo renamed `MeetingBarNG` → `Punctual` (old URLs redirect).
+- [x] Fork relationship detached via GitHub Support, so the page no longer says
       "forked from leits/MeetingBar". The README credit stays.
-- [ ] Repo homepage set to `https://chykalophia.com/punctual` (was `meetingbar.app`), and
+- [x] Repo homepage set to `https://chykalophia.com/punctual` (was `meetingbar.app`), and
       the description rewritten.
-- [ ] `chykalophia.com/punctual` page live, with a privacy policy (Google verification
+- [x] `chykalophia.com/punctual` page live, with a privacy policy (Google verification
       needs both on the verified domain).
-- [ ] Google OAuth consent screen: app name Punctual, Punctual icon, that homepage.
+- [x] Google OAuth consent screen: app name Punctual, Punctual icon, that homepage.
 - [x] Developer portal: App ID `com.chykalophia.Punctual` with Time Sensitive
       Notifications, and a Developer ID provisioning profile for it.
 - [x] New app icon in `Assets.xcassets/AppIcon.appiconset` and the menu-bar glyph

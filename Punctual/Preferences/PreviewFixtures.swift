@@ -21,10 +21,16 @@ import Foundation
 
 @MainActor
 enum PreviewFixtures {
-    /// A fixed reference date so the preview is deterministic — identical at
-    /// 3am with an empty calendar and snapshot-testable. Called fresh each time
-    /// so the relative offsets ("25m from now") stay meaningful.
-    static var now: Date { Date() }
+    /// The reference date the sample events are laid out around. Live by
+    /// default, so the Preferences preview's relative offsets ("25m from now")
+    /// stay meaningful whenever it is opened; the sample data itself is
+    /// deterministic, never the user's calendar.
+    static var now: Date { pinnedNow ?? Date() }
+
+    /// Pins `now` to a fixed instant, for renders that must not depend on the
+    /// wall clock (the website screenshots, MarketingScreenshotTests). Reset
+    /// to nil afterwards.
+    static var pinnedNow: Date?
 
     // MARK: - Sample calendars
 

@@ -4,6 +4,16 @@ Punctual (formerly MeetingBarNG) is built on [MeetingBar](https://github.com/lei
 by Andrii Leitsius and the MeetingBar contributors. This file lists Punctual's own releases.
 Versions 0.2.0 and 0.3.0 shipped under the name MeetingBarNG.
 
+## 1.0.1 (2026-10-01)
+
+* **Built-in Google Calendar sign-in.** Connect Google directly from Preferences ▸ Calendars
+  with no setup. 1.0.0 needed your own Google OAuth client for this; that option is still
+  there for anyone whose workplace requires it.
+* **Until Google finishes reviewing the app,** its sign-in page shows "Google hasn't verified
+  this app". Choose **Advanced ▸ Go to Punctual** to continue. Access is read-only either
+  way, and the warning goes away once the review completes, with no app update needed.
+* Screenshots in the README and on the website are now the real Punctual UI.
+
 ## 1.0.0 (2026-10-01)
 
 ### Now called Punctual
