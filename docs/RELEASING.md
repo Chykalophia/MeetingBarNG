@@ -176,8 +176,9 @@ password never sits in an env var or shell history:
 
 ```bash
 xcrun notarytool store-credentials punctual-notary \
-  --apple-id peter@chykalophia.com --team-id 66CMG54L8U
-# prompts for the app-specific password
+  --apple-id <Apple ID on team 66CMG54L8U> --team-id 66CMG54L8U
+# prompts for the app-specific password. Run it in Terminal.app: the password prompt
+# needs a real TTY, and without one it sends an empty password and Apple answers 401.
 
 make release-local NOTARY_PROFILE=punctual-notary   # archive -> export -> dmg -> notarize
 ```
