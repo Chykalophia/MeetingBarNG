@@ -1,0 +1,133 @@
+"MeetingBarNG/Resources /Localization /pt.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_040048a13860ed 179
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 16-18,30,37,134-135,138,143,148,153-154,175,259,291,335
+"MeetingBarNG/Resources /Localization /tr.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 25,45,59,107,139,166,178,186,188,264,310-311,314,319,324,329-330
+MeetingBarNGTests/HelpersTests.swift
+  s_fc9b467d8ed9c2::t_9f1c5f21198d32 868
+"MeetingBarNG/Resources /Localization /nb-NO.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 7-8,32,68,92,95,100,126,220,242,265,300-301,304,309,314,319-320
+MeetingBarNG/Info.plist
+  s_fc9b467d8ed9c2::t_11cc34985c8d52 20,65,67,69,71
+  s_fc9b467d8ed9c2::t_876fceb3a447bc 42
+"MeetingBarNG/Resources /Localization /nl.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 11-13,70,72,100,145,256,267,281,339-340,342,346,349-350,352
+MeetingBarNG/App/URLHandler.swift
+  s_fc9b467d8ed9c2::t_11cc34985c8d52 8
+  s_fc9b467d8ed9c2::t_9f1c5f21198d32 14
+XCConfig/GoogleSecrets.xcconfig.example
+  s_fc9b467d8ed9c2::t_9f1c5f21198d32 72
+"MeetingBarNG/Resources /Localization /uk.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 23-25,44,51,158,209,241,254,358-359,361,365,368-369,371,378
+"MeetingBarNG/Resources /Localization /fr.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 42,49,79,123,204,227,234,252-253,257,302-303,306,311,316,321-322
+"MeetingBarNG/Resources /Localization /cs.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_040048a13860ed 36,257,261-262
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 44-45,78,125,212,231,238,299-300,303,308,313,318-319
+"MeetingBarNG/Resources /Localization /ko.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 30,50-51,57,129,216-217,220,225,230,235-236,307,313-314
+MeetingBarNG/App/DropdownInspectorWindow.swift
+  s_fc9b467d8ed9c2::t_11cc34985c8d52 61
+  s_fc9b467d8ed9c2::t_9f1c5f21198d32 68
+"MeetingBarNG/Resources /Localization /it.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 22-24,43,50,73,155,214,246,259,309-310,313,318,323,328-329
+MeetingBarNGTests/AppModelTests.swift
+  s_fc9b467d8ed9c2::t_9f1c5f21198d32 377
+"MeetingBarNG/Resources /Localization /ja.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 24-26,47,54,78,165,215,248-249,263,318-319,322,327,332,337-338
+"MeetingBarNG/Resources /Localization /he.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 10,22,30,50,166,174-175,194,237,253,302-303,306,311,316,321-322
+"MeetingBarNG/Resources /Localization /bg.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 27-28,47,54,164,223,251,264,309-310,313,318,323,328-329
+  s_fc9b467d8ed9c2::t_040048a13860ed 77
+MeetingBarNGTests/URLHandlerTests.swift
+  s_fc9b467d8ed9c2::t_9f1c5f21198d32 16,30
+MeetingBarNG/App/WindowCoordinator.swift
+  s_fc9b467d8ed9c2::t_11cc34985c8d52 379
+MeetingBarNG/Utilities/Constants.swift
+  s_fc9b467d8ed9c2::t_35d9ac66a3f200 32-33
+"MeetingBarNG/Resources /Localization /zh-Hans.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_040048a13860ed 161
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 17-19,31,37,91-92,95,100,105,110-111,133,262,294,338
+"MeetingBarNG/Resources /Localization /pt-BR.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 27-29,48,55,160,219,245-246,259,314-315,318,323,328,333-334
+MeetingBarNG/App/DebugHarness.swift
+  s_fc9b467d8ed9c2::t_11cc34985c8d52 31,306
+  s_fc9b467d8ed9c2::t_9f1c5f21198d32 309
+Scripts/package-dmg.sh
+  s_fc9b467d8ed9c2::t_80846202d1dee1 3,30
+MeetingBarNG/App/AppDelegate.swift
+  s_fc9b467d8ed9c2::t_11cc34985c8d52 535,546
+"MeetingBarNG/Resources /Localization /de.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 4,67,89,110-111,115,128,177,233,267,338-339,341,345,348-349,351
+MeetingBarNG.xcodeproj/project.pbxproj
+  s_fc9b467d8ed9c2::t_001e17679664c0 173,464,472-474,495,503-505,526,529,548,551
+"MeetingBarNG/Resources /Localization /ta.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 43,255-256,259,264,269,274-275
+MeetingBarNG/Base.lproj/Main.storyboard
+  s_fc9b467d8ed9c2::t_040048a13860ed 17,19,21,35,53,666
+MeetingBarNG/Meetings/CameraPreviewController.swift
+  s_fc9b467d8ed9c2::t_9f1c5f21198d32 84,87
+MeetingBarNG/Calendar/Providers/Google/GoogleOAuthClient+MeetingBar.swift
+  s_fc9b467d8ed9c2::t_35d9ac66a3f200 21
+MeetingBarNG/UI/Views/Changelog/Changelog.swift
+  s_fc9b467d8ed9c2::t_35d9ac66a3f200 135
+MeetingBarNG/Preferences/PreferencesPanes.swift
+  s_fc9b467d8ed9c2::t_35d9ac66a3f200 179
+Scripts/notarize.sh
+  s_fc9b467d8ed9c2::t_4424ae97cb29c3 7-14
+  s_fc9b467d8ed9c2::t_c2cd88fe619e27 37-44,48,56-57
+"MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 47-49,70-71,73,139,154,160,164,173,250,367,377,444,470,501,515,520,532,548,751,755,763,774,779-780,784,787-788,790,797,875
+  s_fc9b467d8ed9c2::t_040048a13860ed 246
+"MeetingBarNG/Resources /Localization /es.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 26-28,47,54,159,218,245-246,260,344-345,347,351,354-355,357
+MeetingBarNG/Notifications/NotificationScheduler.swift
+  s_fc9b467d8ed9c2::t_9f1c5f21198d32 222
+Makefile
+  s_fc9b467d8ed9c2::t_80846202d1dee1 26-27,50,52-53,191
+  s_fc9b467d8ed9c2::t_8d5aefe21377ab 35,99-102
+MeetingBarNG/Notifications/SnoozeService.swift
+  s_fc9b467d8ed9c2::t_9f1c5f21198d32 47
+MeetingBarNG/Utilities/MeetingBarLogger.swift
+  s_fc9b467d8ed9c2::t_9f1c5f21198d32 11
+"MeetingBarNG/Resources /Localization /hr.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 22-24,43,50,73,155,204,236,249,309-310,313,318,323,328-329
+docs/RELEASING.md
+  s_fc9b467d8ed9c2::t_3cd5dd2e8eb810 179
+  s_fc9b467d8ed9c2::t_b84f374b83d76c 219-249
+  s_fc9b467d8ed9c2::t_d439d15acf763e 5-9
+  s_fc9b467d8ed9c2::t_9f3555989e8a46 1,42,57,79,147,181,215
+  s_fc9b467d8ed9c2::t_2ffc0ee0d887e9 161-164,166-168,170,173-174
+  s_fc9b467d8ed9c2::t_88b65cf8456f30 175
+MeetingBarNGTests/AdapterMappingTests.swift
+  s_fc9b467d8ed9c2::t_9f1c5f21198d32 350,356,363
+"MeetingBarNG/Resources /Localization /pl.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 23-25,44,51,74,155,203,234,247,310-311,314,319,324,329-330
+Scripts/brand-check.sh
+  s_fc9b467d8ed9c2::t_0b1c07878a6fe0 1-76
+"MeetingBarNG/Resources /Localization /hu.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_040048a13860ed 217
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 15,87,105-106,110,179-180,183,188,193,198-199,268,298,339,341
+"MeetingBarNG/Resources /Localization /sk.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_bed17bd9f30098 14,26,84-85,102,120,187,189,202,257,305-306,309,314,319,324-325
+.github/workflows/release.yml
+  s_fc9b467d8ed9c2::t_80846202d1dee1 196,209,217,237,239,265
+  s_fc9b467d8ed9c2::t_9f1c5f21198d32 98
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "a0e50f1c367f88847d71acf25f48601026213753",
+  "prompts": {},
+  "sessions": {
+    "s_fc9b467d8ed9c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f023a6f-dead-4095-bc42-087df0c7c6ba",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
