@@ -32,7 +32,7 @@ XCFILTER := $(shell command -v xcbeautify >/dev/null 2>&1 && echo 'xcbeautify --
 # Append a JUnit report to app-hosted test runs when xcbeautify is available.
 JUNIT_REPORT := $(shell command -v xcbeautify >/dev/null 2>&1 && echo '--report junit --report-path $(BUILD_DIR)/test-results')
 
-.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings lint-strings sign-local run-local archive export-app dmg notarize release-local brand-check
+.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings lint-strings sign-local run-local archive export-app dmg notarize release-local brand-check screenshots
 
 # ---------------------------------------------------------------------------
 # Distribution (Developer ID / direct download)
@@ -178,6 +178,17 @@ test-app:
 	@rm -rf $(XCODE_RESULT_BUNDLE)
 	$(XCODEBUILD) $(XCODEBUILD_FLAGS) -configuration Debug -enableCodeCoverage YES -resultBundlePath $(XCODE_RESULT_BUNDLE) build test $(LOCAL_CODESIGN_FLAGS)
 	@$(MAKE) --no-print-directory coverage-app-report
+
+# README / website screenshots of the real dropdown, rendered from sample data
+# (PreviewFixtures, never your calendar) with the clock pinned to 9:35 AM.
+# Writes dropdown-light.png and dropdown-dark.png (720x1368, 2x).
+SCREENSHOT_DIR ?= docs/screenshots
+screenshots:
+	@mkdir -p "$(SCREENSHOT_DIR)"
+	TEST_RUNNER_PUNCTUAL_SCREENSHOT_DIR="$(abspath $(SCREENSHOT_DIR))" \
+		$(XCODEBUILD) $(XCODEBUILD_FLAGS) -configuration Debug \
+		-only-testing:PunctualTests/MarketingScreenshotTests test $(LOCAL_CODESIGN_FLAGS)
+	@ls -l "$(SCREENSHOT_DIR)"/dropdown-*.png
 
 test-app-quiet:
 	@mkdir -p $(COVERAGE_DIR) $(BUILD_DIR)/test-results

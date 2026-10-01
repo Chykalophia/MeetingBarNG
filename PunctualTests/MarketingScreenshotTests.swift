@@ -6,9 +6,7 @@
 //  never the user's calendar) to PNG for the website. Skipped unless
 //  PUNCTUAL_SCREENSHOT_DIR is set, so it never runs in the normal suite.
 //
-//  TEST_RUNNER_PUNCTUAL_SCREENSHOT_DIR=/tmp/shots xcodebuild -project Punctual.xcodeproj \
-//    -scheme Punctual -destination 'platform=macOS' -derivedDataPath build/DerivedData \
-//    -only-testing:PunctualTests/MarketingScreenshotTests test CODE_SIGNING_ALLOWED=NO
+//  Run with `make screenshots` (writes docs/screenshots/dropdown-{light,dark}.png).
 //
 
 import AppKit
@@ -22,6 +20,12 @@ final class MarketingScreenshotTests: BaseTestCase {
         guard let dir = ProcessInfo.processInfo.environment["PUNCTUAL_SCREENSHOT_DIR"] else {
             throw XCTSkip("PUNCTUAL_SCREENSHOT_DIR not set")
         }
+        // Pin the clock so the sample meetings land on round times (next one at
+        // 10:00) and the greeting says "Good morning", whenever this is run.
+        PreviewFixtures.pinnedNow = Calendar.current.date(
+            bySettingHour: 9, minute: 35, second: 0, of: Date()
+        )
+        defer { PreviewFixtures.pinnedNow = nil }
         for (name, appearance) in [("light", NSAppearance.Name.aqua), ("dark", .darkAqua)] {
             let state = PreviewFixtures.makeState(includeFinished: false, includeReminders: true)
             let view = DropdownPanelView(
