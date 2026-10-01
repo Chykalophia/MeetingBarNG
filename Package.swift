@@ -3,20 +3,20 @@
 import PackageDescription
 
 let package = Package(
-    name: "MeetingBarLogic",
+    name: "PunctualLogic",
     platforms: [
         .macOS(.v15)
     ],
     products: [
-        .library(name: "MeetingBarLogic", targets: ["MeetingBarLogic"])
+        .library(name: "PunctualLogic", targets: ["PunctualLogic"])
     ],
     targets: [
         .target(
-            name: "MeetingBarLogic",
-            path: "MeetingBarNG",
+            name: "PunctualLogic",
+            path: "Punctual",
             exclude: [
                 // Exclude app-layer files that depend on AppKit/Defaults/EventKit.
-                // SPM scans the whole MeetingBarNG/ tree for resources; these paths
+                // SPM scans the whole Punctual/ tree for resources; these paths
                 // prevent it from picking up .lproj bundles and asset catalogues.
                 "Resources ",
                 "Assets.xcassets",
@@ -30,6 +30,9 @@ let package = Package(
                 "Notifications/EventActionPolicy.swift",
                 "Notifications/NotificationPlanner.swift",
                 // Calendar
+                "Calendar/CalendarGridNavigation.swift",
+                "Calendar/CalendarSourceSelection.swift",
+                "Calendar/DateMarkers.swift",
                 "Calendar/EventDeduplication.swift",
                 "Calendar/EventFiltering.swift",
                 "Calendar/MonthGridLayout.swift",
@@ -38,12 +41,19 @@ let package = Package(
                 "Calendar/ReminderSelection.swift",
                 "Calendar/EventDraftValidation.swift",
                 "Calendar/Providers/Google/GoogleCalendarPolicy.swift",
+                "Calendar/Providers/Google/GoogleEventColors.swift",
+                "Calendar/Providers/Google/GoogleIDToken.swift",
+                "Calendar/Providers/Google/GoogleOAuthClient.swift",
                 // Meetings
+                "Meetings/LocationAutocompletePolicy.swift",
+                "Meetings/MeetingIdentifier.swift",
                 "Meetings/MeetingLinkDetector.swift",
                 "Meetings/MeetingPrepLinks.swift",
                 "Meetings/MeetingProvider.swift",
                 "Meetings/MicLevel.swift",
                 // UI/StatusBar
+                "UI/StatusBar/AgendaSectionVisibility.swift",
+                "UI/StatusBar/PanelTheme.swift",
                 "UI/StatusBar/StatusBarPresentation.swift",
                 "UI/StatusBar/WorldClockPanel.swift",
                 "UI/StatusBar/DaySummaryGreeting.swift",
@@ -71,9 +81,9 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "MeetingBarLogicTests",
-            dependencies: ["MeetingBarLogic"],
-            path: "MeetingBarLogicTests",
+            name: "PunctualLogicTests",
+            dependencies: ["PunctualLogic"],
+            path: "PunctualLogicTests",
             swiftSettings: [
                 .unsafeFlags(["-strict-concurrency=complete"])
             ]

@@ -1,7 +1,8 @@
-# MeetingBarNG — Dropdown & Menu Bar Modernization
+# Punctual: Dropdown & Menu Bar Modernization
 
-**Status:** in progress. Started 2026-07-27. This is the progress note of record for the
-visual overhaul of the dropdown panel and the menu-bar item.
+**Status:** COMPLETE — all 10 items done as of 2026-08-24. Started 2026-07-27. This is the
+progress note of record for the visual overhaul of the dropdown panel and the menu-bar item.
+It stays as the design reference: §1's locked rules still bind anything new touching the panel.
 
 **Reference:** [Dot](https://www.trydot.app)'s dropdown, supplied by the owner as a demo
 screenshot. Copied selectively — see §2 for what was deliberately not copied.
@@ -77,7 +78,7 @@ window never resizes underneath the user. Type scales with padding; padding alon
 | 4 | Day header quick actions | **Done** `d60c6c4c` | Create / command bar / preferences. Three, not four. |
 | 5 | Calendar — window reachable from panel | **Done** `d60c6c4c` | Closed a parity gap: it was right-click-only. |
 | 6 | Calendar — inline month module | **Done** `8611e7b2` | `CompactMonthGridView`, OFF by default. Limitations in §4. |
-| 7 | Meeting-relative progress — dropdown card | **Not started** | Bar filling toward start; full exactly when Join un-mutes. |
+| 7 | Meeting-relative progress — dropdown card | **Done** `9231bc8f` | `meetingProgressBar`, a display option on the card (`meetingCardShowsProgress`). Shares `MeetingProgressPolicy` with the menu bar. Was recorded as "Not started" until 2026-08-24 — it shipped the same day this table was last written and was missed. |
 | 8 | Menu-bar progress — 4 styles + none | **Done** `2007165e`+ | `MeetingProgressStyle`. All four verified in the menu bar. See §5. |
 | 9 | Meeting card — card treatment | **Done** `2007165e` | Adopts `PanelCard`; `MeetingSummaryView` takes its inset as a parameter. |
 | 10 | Density applied to cards | **Done** `9c178efd`+ | `cardHorizontalPadding`/`cardVerticalPadding`/`cardCornerRadius` per density. |
@@ -161,8 +162,8 @@ makes it impossible to screenshot — `screencapture` takes focus by existing. T
 DEBUG-only:
 
 ```sh
-open "meetingbar://dropdown-debug"     # panel in a window that STAYS OPEN; run again to close
-defaults write com.chykalophia.MeetingBarNG debugPinDropdownPanel -bool true   # real panel, pinned
+open "punctual://dropdown-debug"       # panel in a window that STAYS OPEN; run again to close
+defaults write com.chykalophia.Punctual debugPinDropdownPanel -bool true   # real panel, pinned
 ```
 
 `DropdownInspectorWindow` is the same borderless surface the real panel uses — `WindowCoordinator`
@@ -170,13 +171,15 @@ builds both through one `installDropdownPanelSurface`, so what gets inspected ca
 what ships. It simply omits the `resignKey` override. Prefer it over the pin: it needs no relaunch
 and leaves the shipping panel's behaviour untouched.
 
-> **If a `meetingbar://` link seems to do nothing, check which bundle answered it.**
+> **If a `punctual://` link seems to do nothing, check which bundle answered it.**
 > LaunchServices resolves the scheme across *every* registered copy, and a stale build wins on
 > recency, not on being the one you launched. This masqueraded as a broken deep link for a whole
 > session: `build/Build/Products/Debug/` (an old layout), `build/MeetingBarNG.app`, and a
 > scratchpad copy were all still registered, and the old bundle predated the deep link, so it
-> answered and did nothing. Diagnose with `ps -Ao pid,comm | grep MeetingBar` — more than one PID,
-> or a path you did not expect, is the bug. Clear with `lsregister -u <path>` plus `rm -rf`.
+> answered and did nothing. (That was under the old `meetingbar://` scheme, which upstream
+> MeetingBar also registers, one reason the scheme became `punctual://`.) Diagnose with
+> `ps -Ao pid,comm | grep -E 'Punctual|MeetingBar'`: more than one PID, or a path you did not
+> expect, is the bug. Clear with `lsregister -u <path>` plus `rm -rf`.
 
 ---
 

@@ -1,11 +1,11 @@
-PROJECT := MeetingBarNG.xcodeproj
-SCHEME := MeetingBarNG
+PROJECT := Punctual.xcodeproj
+SCHEME := Punctual
 XCODEBUILD ?= xcodebuild
 SWIFT ?= swift
 SWIFTLINT ?= swiftlint
 BUILD_DIR ?= build
 COVERAGE_DIR := $(BUILD_DIR)/coverage
-XCODE_RESULT_BUNDLE := $(COVERAGE_DIR)/MeetingBarNG.xcresult
+XCODE_RESULT_BUNDLE := $(COVERAGE_DIR)/Punctual.xcresult
 DERIVED_DATA_DIR := $(BUILD_DIR)/DerivedData
 XCODE_SOURCE_PACKAGES_DIR := $(BUILD_DIR)/SourcePackages
 HOST_ARCH := $(shell uname -m)
@@ -23,16 +23,124 @@ LOCAL_CODESIGN_FLAGS := CODE_SIGN_IDENTITY="" CODE_SIGNING_ALLOWED=NO CODE_SIGNI
 # prior grant, so the app reads as "granted" while EventKit returns nothing.
 #   make run-local                 # build + sign + launch
 #   make sign-local                # re-sign the already-built app
-LOCAL_SIGN_IDENTITY ?= MeetingBarNG-Local
-LOCAL_APP := $(DERIVED_DATA_DIR)/Build/Products/Debug/MeetingBarNG.app
-LOGIC_COVERAGE_SOURCES := MeetingBarNG/Calendar MeetingBarNG/Meetings MeetingBarNG/Notifications MeetingBarNG/UI/StatusBar MeetingBarNG/Utilities/Diagnostics
+LOCAL_SIGN_IDENTITY ?= Punctual-Local
+LOCAL_APP := $(DERIVED_DATA_DIR)/Build/Products/Debug/Punctual.app
+LOGIC_COVERAGE_SOURCES := Punctual/Calendar Punctual/Meetings Punctual/Notifications Punctual/UI/StatusBar Punctual/Utilities/Diagnostics
 
 # Pipe xcodebuild through xcbeautify when available; otherwise grep for the lines that matter.
 XCFILTER := $(shell command -v xcbeautify >/dev/null 2>&1 && echo 'xcbeautify --quiet --renderer terminal' || echo "grep -E '(error:|warning:|FAIL|PASS|\\*\\* )'")
 # Append a JUnit report to app-hosted test runs when xcbeautify is available.
 JUNIT_REPORT := $(shell command -v xcbeautify >/dev/null 2>&1 && echo '--report junit --report-path $(BUILD_DIR)/test-results')
 
-.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings lint-strings sign-local run-local
+.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings lint-strings sign-local run-local archive export-app dmg notarize release-local brand-check
+
+# ---------------------------------------------------------------------------
+# Distribution (Developer ID / direct download)
+#
+# CI does this on a tag push — see .github/workflows/release.yml. These targets
+# exist so the same pipeline can be driven locally when CI is not an option, or
+# to debug a signing failure without burning a 20-minute Actions run each time.
+#
+#   make release-local            # archive -> export -> dmg -> notarize
+#
+# Needs a "Developer ID Application" certificate in the login keychain, and for
+# notarization: AC_APPLE_ID, AC_PASSWORD (app-specific), AC_TEAM_ID.
+# ---------------------------------------------------------------------------
+VERSION := $(shell grep -m1 'MARKETING_VERSION' $(PROJECT)/project.pbxproj | sed 's/.*= *//;s/;//')
+ARCHIVE_PATH := $(BUILD_DIR)/Punctual.xcarchive
+EXPORT_PATH := $(BUILD_DIR)/export
+EXPORTED_APP := $(EXPORT_PATH)/Punctual.app
+DMG_PATH := $(BUILD_DIR)/Punctual-$(VERSION).dmg
+
+# Default: the FULL entitlements, signed against the "Punctual Developer ID"
+# provisioning profile, which is what lets meeting alerts break through Focus
+# (com.apple.developer.usernotifications.time-sensitive). The profile must be
+# installed in ~/Library/Developer/Xcode/UserData/Provisioning Profiles.
+# Fallback without a profile (alerts will NOT break through Focus):
+#   make release-local RELEASE_ENTITLEMENTS=XCConfig/DeveloperID.entitlements PROFILE_SPECIFIER=
+TEAM_ID ?= 66CMG54L8U
+RELEASE_ENTITLEMENTS ?= Punctual/Punctual.entitlements
+PROFILE_SPECIFIER ?= Punctual Developer ID
+EXPORT_OPTIONS := $(BUILD_DIR)/ExportOptions.plist
+
+# A local XCConfig/GoogleSecrets.xcconfig would otherwise be baked into the
+# release. While the OAuth consent screen is in Testing, Google refuses every
+# account not on the test-user list, so shipping credentials then makes Google
+# look broken to strangers (see docs/RELEASING.md §2a). Default: ship none, and
+# users get the bring-your-own-credentials path. Opt in once Google has verified:
+#   make release-local SHIP_GOOGLE_CREDENTIALS=1
+SHIP_GOOGLE_CREDENTIALS ?= 0
+ifeq ($(SHIP_GOOGLE_CREDENTIALS),1)
+GOOGLE_OVERRIDES :=
+else
+GOOGLE_OVERRIDES := GOOGLE_CLIENT_ID=REPLACE_BY_YOUR_GOOGLE_CLIENT_ID \
+	GOOGLE_CLIENT_NUMBER=REPLACE_BY_YOUR_GOOGLE_CLIENT_NUMBER \
+	GOOGLE_CLIENT_SECRET=REPLACE_BY_YOUR_GOOGLE_CLIENT_SECRET
+endif
+
+archive:
+	@mkdir -p $(BUILD_DIR)
+	@echo "==> Archiving $(SCHEME) $(VERSION) for Developer ID"
+	$(XCODEBUILD) archive \
+		-project $(PROJECT) \
+		-scheme $(SCHEME) \
+		-configuration Release \
+		-destination 'generic/platform=macOS' \
+		-archivePath $(ARCHIVE_PATH) \
+		-derivedDataPath $(DERIVED_DATA_DIR) \
+		CODE_SIGN_STYLE=Manual \
+		CODE_SIGN_IDENTITY="Developer ID Application" \
+		DEVELOPMENT_TEAM=$(TEAM_ID) \
+		PUNCTUAL_ENTITLEMENTS="$(RELEASE_ENTITLEMENTS)" \
+		PUNCTUAL_PROFILE_SPECIFIER="$(PROFILE_SPECIFIER)" \
+		$(GOOGLE_OVERRIDES) \
+		ENABLE_HARDENED_RUNTIME=YES \
+		OTHER_CODE_SIGN_FLAGS="--timestamp"
+
+export-app: archive
+	@rm -rf $(EXPORT_PATH)
+	@# Manual-signing export must name the profile per bundle id, or it fails
+	@# with "requires a provisioning profile with the Time Sensitive
+	@# Notifications feature". Added only when a profile is in use.
+	@cp XCConfig/ExportOptions-DeveloperID.plist "$(EXPORT_OPTIONS)"
+	@if [ -n "$(PROFILE_SPECIFIER)" ]; then \
+		/usr/libexec/PlistBuddy \
+			-c "Add :provisioningProfiles dict" \
+			-c "Add :provisioningProfiles:com.chykalophia.Punctual string $(PROFILE_SPECIFIER)" \
+			"$(EXPORT_OPTIONS)"; \
+	fi
+	$(XCODEBUILD) -exportArchive \
+		-archivePath $(ARCHIVE_PATH) \
+		-exportOptionsPlist "$(EXPORT_OPTIONS)" \
+		-exportPath $(EXPORT_PATH)
+	@echo "==> Verifying signature"
+	codesign --verify --deep --strict --verbose=2 "$(EXPORTED_APP)"
+	@codesign -d --verbose=2 "$(EXPORTED_APP)" 2>&1 | grep -q "flags=.*runtime" \
+		|| { echo "ERROR: hardened runtime missing — notarization would reject this."; exit 1; }
+	@# Assert what actually shipped, not what the flag asked for.
+	@ID="$$(plutil -extract GOOGLE_CLIENT_ID raw "$(EXPORTED_APP)/Contents/Info.plist" 2>/dev/null)"; \
+	case "$$ID" in ""|REPLACE_BY_YOUR*) SHIPPED=0 ;; *) SHIPPED=1 ;; esac; \
+	if [ "$$SHIPPED" != "$(SHIP_GOOGLE_CREDENTIALS)" ]; then \
+		echo "ERROR: Google credentials shipped=$$SHIPPED but SHIP_GOOGLE_CREDENTIALS=$(SHIP_GOOGLE_CREDENTIALS)"; exit 1; \
+	fi; \
+	echo "==> Google credentials in this build: $$( [ $$SHIPPED = 1 ] && echo built in || echo none, bring-your-own only )"
+
+dmg: export-app
+	@chmod +x Scripts/package-dmg.sh
+	Scripts/package-dmg.sh "$(EXPORTED_APP)" "$(VERSION)" "$(DMG_PATH)"
+	codesign --force --sign "Developer ID Application" --timestamp "$(DMG_PATH)"
+	codesign --verify --verbose=2 "$(DMG_PATH)"
+
+notarize:
+	@chmod +x Scripts/notarize.sh
+	Scripts/notarize.sh "$(DMG_PATH)"
+
+brand-check:
+	@Scripts/brand-check.sh
+
+release-local: brand-check dmg notarize
+	@shasum -a 256 "$(DMG_PATH)"
+	@echo "==> Ready: $(DMG_PATH)"
 
 sign-local:
 	@if ! security find-identity -p codesigning 2>/dev/null | grep -q "$(LOCAL_SIGN_IDENTITY)"; then \
@@ -91,7 +199,7 @@ coverage-report: coverage-logic-report coverage-app-report
 
 coverage-logic-report:
 	@PROFILE="$$(ls -d .build/*/debug/codecov/default.profdata .build/debug/codecov/default.profdata 2>/dev/null | head -n 1)" ; \
-	TEST_BINARY="$$(ls -d .build/*/debug/MeetingBarLogicPackageTests.xctest/Contents/MacOS/MeetingBarLogicPackageTests .build/debug/MeetingBarLogicPackageTests.xctest/Contents/MacOS/MeetingBarLogicPackageTests 2>/dev/null | head -n 1)" ; \
+	TEST_BINARY="$$(ls -d .build/*/debug/PunctualLogicPackageTests.xctest/Contents/MacOS/PunctualLogicPackageTests .build/debug/PunctualLogicPackageTests.xctest/Contents/MacOS/PunctualLogicPackageTests 2>/dev/null | head -n 1)" ; \
 	if [ ! -f "$$PROFILE" ] || [ ! -x "$$TEST_BINARY" ]; then \
 		echo "SwiftPM coverage is unavailable. Run 'make test-logic' first."; \
 		exit 1; \
@@ -102,7 +210,7 @@ coverage-logic-report:
 
 coverage-gate:
 	@PROFILE="$$(ls -d .build/*/debug/codecov/default.profdata .build/debug/codecov/default.profdata 2>/dev/null | head -n 1)" ; \
-	TEST_BINARY="$$(ls -d .build/*/debug/MeetingBarLogicPackageTests.xctest/Contents/MacOS/MeetingBarLogicPackageTests .build/debug/MeetingBarLogicPackageTests.xctest/Contents/MacOS/MeetingBarLogicPackageTests 2>/dev/null | head -n 1)" ; \
+	TEST_BINARY="$$(ls -d .build/*/debug/PunctualLogicPackageTests.xctest/Contents/MacOS/PunctualLogicPackageTests .build/debug/PunctualLogicPackageTests.xctest/Contents/MacOS/PunctualLogicPackageTests 2>/dev/null | head -n 1)" ; \
 	if [ ! -f "$$PROFILE" ] || [ ! -x "$$TEST_BINARY" ]; then \
 		echo "SwiftPM coverage data not found. Run 'make test-logic' first."; \
 		exit 1; \
@@ -119,7 +227,7 @@ coverage-app-report:
 	fi
 	@echo ""
 	@echo "Xcode app-hosted coverage (target summary):"
-	@set -o pipefail; xcrun xccov view --report --only-targets $(XCODE_RESULT_BUNDLE) 2>/dev/null | awk 'NR <= 2 || /MeetingBarNG\.app/'
+	@set -o pipefail; xcrun xccov view --report --only-targets $(XCODE_RESULT_BUNDLE) 2>/dev/null | awk 'NR <= 2 || /Punctual\.app/'
 
 lint:
 	@if command -v $(SWIFTLINT) >/dev/null 2>&1; then \

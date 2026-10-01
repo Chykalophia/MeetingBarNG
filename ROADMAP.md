@@ -1,9 +1,10 @@
-# MeetingBarNG Roadmap
+# Punctual Roadmap
 
-MeetingBarNG is a fork of [MeetingBar](https://github.com/leits/MeetingBar) that is being
-overhauled and modernized in code, UI, UX, and features. The launch goal is close
-**productivity feature parity** with [Dot](https://www.trydot.app), paired with a modern,
-deeply customizable look and feel — while staying local-first, private, and open source.
+Punctual (formerly MeetingBarNG) is built on [MeetingBar](https://github.com/leits/MeetingBar)
+by Andrii Leitsius, and is being overhauled and modernized in code, UI, UX, and features. The
+launch goal is close **productivity feature parity** with [Dot](https://www.trydot.app), paired
+with a modern, deeply customizable look and feel, while staying local-first, private, and open
+source.
 
 This document is the source of truth for what we are building and what we are deliberately
 deferring. It is intentionally opinionated about scope.
@@ -17,6 +18,10 @@ deferring. It is intentionally opinionated about scope.
 - **Customizability over configuration sprawl:** make the defaults excellent, then let
   users compose the experience (menu-bar tokens, themes) rather than bury them in toggles.
 - **Local-first & private:** no account, no servers, calendar data stays on the Mac.
+  One deliberate, opt-in exception: location autocomplete (2026-08-24) sends the typed
+  Location text to Apple via MapKit. It ships OFF, says so plainly in Preferences, and is
+  the only thing in the app that talks to a network. Any future feature that would leave the
+  machine belongs in this list too — the principle is worth more than any single feature.
 - **Modern, native feel:** SwiftUI-forward UI, keyboard-first navigation.
 
 ---
@@ -33,50 +38,144 @@ single release.
       preview. Now the default path, not opt-in. Progress-bar and day-summary tokens
       shipped as tokens of their own (below).
 - [x] Menu-bar calendar — browse, navigate, and pick dates (`UI/Calendar/CalendarGridView`).
-- [ ] Month ⇄ week view toggle — the calendar window has one; the menu bar does not.
+- [x] Month ⇄ week view toggle — the dropdown's calendar now folds to a single week and back
+      from a button in its own header, matching the calendar window. The step buttons follow
+      the fold, so a folded week pages by weeks rather than skipping a month at a time.
+      `MonthGridLayout.anchor` / `.rows` / `.visibleRange`, hostless, 12 tests. Stored
+      separately from the window's mode (`dropdownCalendarWeekFold`): the panel is a glance
+      surface where one row often beats six, the window is where you browse (2026-08-24).
 - [x] Day summary — event count and focus-time at a glance (`DaySummaryGreeting`,
       `DaySummaryHeaderView`).
 - [x] Progress bars — day and year progress as a menu-bar token.
 - [x] Countdown styles — `2h`, `2h 30m`, `2:30`.
 - [x] Imminent-meeting emphasis — the menu bar boldens the next meeting once it is close
       enough to act on (`menuBarHighlightImminentEvent`, 2026-07-27).
+- [x] Meeting progress in the menu bar — four styles (underline / ring / capsule / leading
+      mini-bar) plus none, drawn in the menu bar's own text colour. `MeetingProgressPolicy`
+      decides fill and phase; the renderer only draws (0.2.0, 2026-07-28). Not a Dot item —
+      Dot's day/year bars were rejected and the concept re-aimed at time-to-meeting.
+- [x] Menu-bar **Join chip** — one-click join on the status item for a meeting that has a
+      link; a click on the chip joins, anywhere else opens the dropdown
+      (`MenuBarJoinActionPolicy`, 2026-08-05). Fork addition, not a Dot item.
+- [x] Countdown lead time — `menuBarCountdownLeadMinutes` controls how early the countdown
+      appears; `0` keeps the previous always-on behaviour (2026-08-05). Fork addition.
 
 ### Meetings
 - [x] One-click join (Zoom, Google Meet, Microsoft Teams, Webex, + 50 more) — already in MeetingBar.
 - [x] Meeting prep — invite links surfaced automatically (`Meetings/MeetingPrepLinks`).
 - [x] Camera / mic / lighting preview before joining (`UI/CameraPreview`, `Meetings/MicLevel`).
-- [ ] Copy meeting ID.
+- [x] Copy meeting ID — the number for a phone bridge, or the room code to paste into a
+      client already signed in, rather than the whole URL. `MeetingIdentifierPolicy`
+      (hostless, 18 tests) extracts it from the meeting URL; the per-event context menu
+      offers it only when one exists. Zoom (incl. ZoomGov/Zhumu/RingCentral), Google Meet,
+      Webex personal rooms, Chime, GoToMeeting/Webinar, BlueJeans, Jitsi, Whereby, 8x8.
+      **Teams deliberately returns nothing** — its URL carries a routing thread id, not the
+      conference ID a dial-in prompt asks for (2026-08-24).
 
 ### Calendar & event handling
 - [x] Multi-calendar via macOS Calendar (iCloud/Google/Exchange/Office 365) — already in
-      MeetingBar. NOTE: the *direct* Google provider is currently absent from onboarding —
-      `CalendarSourcePresentation.all` ships macOS Calendar only, because the native Google
-      path needs OAuth credentials this build does not carry. The code is retained for
-      installs already on it; re-introduction is tracked as its own item below.
-- [ ] Direct Google Calendar provider back in onboarding (needs shipped OAuth credentials).
+      MeetingBar. The *direct* Google provider is offered alongside it in any build carrying
+      OAuth credentials, and the two can be connected simultaneously; see the two items below.
+- [x] Direct Google Calendar provider back in onboarding — **available in any build that
+      carries OAuth credentials** (2026-08-24). `CalendarSourcePresentation.all` is gated on
+      `GoogleOAuthConfig.isConfigured` rather than hardcoded to macOS Calendar, and the source
+      picker is restored in onboarding and in Preferences ▸ Calendars, both rendering only
+      when a second source genuinely exists. Supply your own credentials via
+      `XCConfig/GoogleSecrets.xcconfig` — see README.
+      **Still open for a PUBLIC release:** shipping credentials in a downloadable build means
+      shipping them extractably, so a distributed binary either bundles a client anyone can
+      lift or leaves the provider unavailable. That decision is tied to the release pipeline,
+      not to this code.
+- [x] **Multiple calendar sources connected at once** (2026-09-10). macOS Calendar and the
+      direct Google provider are no longer either/or: `CalendarRepository` holds a SET of
+      connected sources (`CalendarSourceSelection`, hostless), fetches from each, and merges.
+      Preferences ▸ Calendars shows a toggle per source instead of a picker. Selection is
+      per source; the last connected source cannot be switched off. A source that fails no
+      longer blanks out the one that worked — partial failures surface as
+      `ProviderHealth.degradedSources` with a reconnect affordance next to that source.
+      Cross-source duplicates collapse to one row, preferring the Google copy
+      (`DeduplicationEvent.sourcePriority`) because EventKit's mirror flattens attendee
+      status and drops conferencing data.
+      **Single Google account only.** Multiple Google accounts at once would need
+      `GCEventStore` de-singletoned with per-account Keychain items and an account registry;
+      not started.
+- [x] **Bring-your-own Google OAuth client** (2026-09-10). Preferences ▸ Calendars accepts a
+      user's own client id (+ optional secret, held in the Keychain), resolved against the
+      build's shipped client by `GoogleOAuthClientResolver` — a hostless type that also
+      parses both id forms the Cloud Console shows and binds stored tokens to the client
+      that issued them. Google is therefore usable in a build carrying no credentials, so
+      the source row is always listed and expresses availability on the row instead.
+      The OAuth redirect moved to a loopback listener, which is both Google's recommended
+      redirect for macOS desktop apps and the only kind a runtime-supplied client can
+      receive; clients must now be type "Desktop app".
+      **Still open for a PUBLIC release:** a shipped client id is extractable (inherent to
+      native OAuth; PKCE is the mitigation and is in place). The remaining work is
+      operational — per-user quotas, a verified consent screen, and monitoring — not code.
 - [x] Full event search (title, notes, location, attendees) — `Calendar/EventSearch`.
 - [x] Inline event edit (title, time, duration) — `UI/EventEditor`, `EventDraftValidation`.
-- [ ] Location autocomplete when creating/editing.
+- [x] Location autocomplete when creating/editing — MapKit suggestions in the event editor's
+      Location field. **OFF by default, and it must stay that way:** this is the ONLY feature
+      that sends anything off the machine, so it is opt-in, the Preferences copy names what
+      leaves the Mac rather than selling the benefit, and the gate is the hostless,
+      unit-tested `LocationAutocompletePolicy` — "nothing is sent unless the user turned this
+      on" is a provable property, not an `if` buried in a view. Nothing is sent below three
+      typed characters, whitespace excluded (2026-08-24).
 - [ ] Calendar picker via command/slash.
-- [ ] Quick date jump.
+- [x] Quick date jump — the calendar window's header gains a jump button opening a graphical
+      date picker; picking a date moves the grid and selects that day. Both the month and
+      week anchors move, so switching mode after a jump lands where the user jumped to rather
+      than where the other mode was left. The dropdown's compact grid gains a **Today** chip
+      that appears only once stepped away — until now the only way back was stepping the same
+      number of times in the other direction (2026-08-24).
 - [x] Right-click event menu (join, copy, edit, delete) — full parity in both dropdowns.
 
 ### Reminders & focus
 - [x] Apple Reminders integration alongside events (`Calendar/ReminderSelection`,
       `RemindersStore`; opt-in, requests its own TCC permission).
-- [ ] Per-event custom reminder times.
+- [x] Per-event custom reminder times — right-click a meeting ▸ **Remind me**: use the
+      default, not for this meeting, at start, or 1/5/10/15/30/60 minutes before. Three-state
+      by design (inherit / suppressed / custom offset) so turning the global reminder on later
+      does not un-silence a meeting deliberately quieted, and a custom time fires even when
+      the global reminder is off. Only the START reminder is overridable — end, fullscreen,
+      auto-join and the on-start script stay global, because a meeting that auto-joined when
+      the others didn't is a worse surprise than a missing reminder. Keyed on the
+      per-occurrence event id, so one instance of a recurring standup can differ from the
+      rest; entries are pruned once the event has passed (2026-08-24).
 - [ ] Snooze by time or location trigger.
 
 ### Customization & personalization
-- [ ] Fully customizable interface (appearance + layout).
-- [ ] System / custom themes.
-- [ ] Date markers for important days.
-- [ ] Hide empty days.
+- [x] Fully customizable interface (appearance + layout) — layout via the composable menu bar,
+      the dropdown module composer, row density and the meeting-card field switches;
+      appearance via the theme below.
+- [x] System / custom themes — **two axes, deliberately, and no more.** Appearance
+      (System / Light / Dark, pinned on the panel window so the AppKit vibrancy material
+      follows too) and accent (System plus the eight macOS system accents, applied as one
+      root `.tint`). A theme system owning every colour would have to re-answer, per theme,
+      every contrast decision already settled in `docs/DROPDOWN-MODERNIZATION.md` §1 — the
+      glass layer, the card fills, the muted/bright Join threshold. Both default to System,
+      so the shipping panel is unchanged. `PanelTheme`, hostless, 10 tests (2026-08-24).
+- [x] Date markers for important days — birthdays, anniversaries, deadlines, marked in both
+      month grids. Managed in Preferences ▸ Display ▸ Important days. Markers store month /
+      day / optional year COMPONENTS rather than a `Date`: a birthday is a calendar day, not
+      an instant, and a stored `Date` lands on the wrong day the moment the machine changes
+      time zone. An absent year means "every year", so the birthday case is the natural one
+      rather than a recurrence rule bolted on. `DateMarker` / `DateMarkerCodec` /
+      `DateMarkerPolicy`, hostless, 15 tests (2026-08-24).
+- [x] Hide empty days — `dropdownHidesEmptyDays` drops the Tomorrow heading entirely when
+      tomorrow is free, rather than drawing it over a "nothing tomorrow" line. OFF by
+      default so an upgrade never silently loses a section. **Today is never hidden**: an
+      agenda with no headings reads as a broken panel rather than a free day, and "nothing
+      today" is the most useful thing it can say. The rule and its reasoning live in the
+      hostless `AgendaSectionVisibilityPolicy` (8 tests) (2026-08-24).
 
 ### Productivity tools
 - [x] Command bar — create / search / settings from a single shortcut (`UI/CommandBar`).
-- [ ] Keyboard-first navigation throughout — the dropdown panel has full arrow/Return
-      travel (`DropdownPanelNavigation`); other surfaces are not there yet.
+- [x] Keyboard-first navigation throughout — the dropdown panel has full arrow/Return travel
+      (`DropdownPanelNavigation`), the command bar has its own, and the **calendar window**
+      now walks its grid with the arrow keys: left/right a day, up/down a week, paging
+      automatically when the selection leaves the drawn range. Padding cells from the adjacent
+      months count as visible, so selecting one does not scroll the grid out from under you.
+      `CalendarGridNavigation`, hostless, 13 tests (2026-08-24).
 - [x] World clock — as a menu-bar token and its own panel (`UI/WorldClock`).
 
 ### System & privacy (mostly already true)
@@ -85,7 +184,7 @@ single release.
 - [ ] Native SwiftUI performance pass (Apple Silicon + Intel).
 
 ### Explicitly out of scope
-- **Natural-language event creation** — MeetingBarNG will NOT parse free text into events.
+- **Natural-language event creation**: Punctual will NOT parse free text into events.
   This is a deliberate non-goal.
 
 ---
@@ -98,6 +197,13 @@ each with its own migration care.
 
 ### App identity (breaks OAuth / Keychain / StoreKit / defaults — needs a migration plan)
 - [x] Bundle identifier `leits.MeetingBar` → `com.chykalophia.MeetingBarNG` (2026-07-23).
+- [ ] **Rename to Punctual** (started 2026-10-01, in progress): bundle id
+      `com.chykalophia.MeetingBarNG` → `com.chykalophia.Punctual`, URL scheme `meetingbar://` →
+      `punctual://` (the old one collided with upstream MeetingBar), app `Punctual.app`, Keychain
+      name `Punctual.GoogleAuth`, dmg `Punctual-<version>.dmg`, repo
+      `github.com/Chykalophia/Punctual`. Code identifiers (the `Punctual/` folder, targets,
+      the `PunctualLogic` module) are renamed in a separate pass, so paths in these docs stay
+      as they are until then. The Keychain/Defaults migration item below now spans two id changes.
 - [x] StoreKit product ids `leits.MeetingBar.patronage.*` — moot: the StoreKit patronage
       service was removed outright rather than renamed, so there are no product ids left
       to migrate (2026-07-23).
@@ -105,17 +211,18 @@ each with its own migration care.
       Still open, and now the load-bearing one: the id changed, so anything that derived a
       suite or Keychain name from the OLD id needs a migration path for existing installs.
 - [x] Xcode `PRODUCT_NAME` / scheme / `.app` name and `CFBundleName` → `MeetingBarNG`
-      (2026-07-18, finished 2026-07-23).
+      (2026-07-18, finished 2026-07-23). Superseded by the Punctual rename above.
 - [ ] Mac App Store app id `1532419400` (belongs to the original app).
 - [x] `Application Scripts/leits.MeetingBar` folder path referenced in localized strings —
-      now `Application Scripts → com.chykalophia.MeetingBarNG` (2026-07-23).
+      now `Application Scripts → com.chykalophia.MeetingBarNG` (2026-07-23). It follows the
+      bundle id, so it becomes `com.chykalophia.Punctual` with the rename.
 
 ### In-app strings & links
-- [ ] Product-name strings across `MeetingBarNG/Resources /Localization /*.lproj` (20 languages;
+- [ ] Product-name strings across `Punctual/Resources /Localization /*.lproj` (20 languages;
       coordinate with Weblate rather than hand-editing translations). See the low-priority
       note below — fork-era keys are English-only by decision, so this is broader than a
       product-name sweep.
-- [x] In-app support/funding URLs in `MeetingBarNG/Utilities/Constants.swift` — `telegram`,
+- [x] In-app support/funding URLs in `Punctual/Utilities/Constants.swift` — `telegram`,
       `twitter`, `patreon`, `buymeacoffee` and `rateAppInAppStore` were **deleted** rather
       than repointed; `github` and `emailMe` now point at Chykalophia (2026-07-23).
 - [x] In-app "about"/attribution text — the old `preferences_general_meeting_bar_description`
@@ -124,11 +231,11 @@ each with its own migration care.
 
 ### Housekeeping
 - [ ] Per-file source headers still read `Copyright © <year> Andrii Leitsius`. These are
-      **retained** by Apache-2.0 §4(c). As files are modified for MeetingBarNG, add a change
+      **retained** by Apache-2.0 §4(c). As files are modified for Punctual, add a change
       notice (§4(b)) rather than removing the original.
 - [x] `docs/ARCHITECTURE.md` referenced `CLAUDE.md` / `AGENTS.md` that are not present in the
       fork — reference dropped (2026-07-17).
-- [ ] Upstream folder names with trailing spaces (`MeetingBarNG/Resources `,
+- [ ] Upstream folder names with trailing spaces (`Punctual/Resources `,
       `.../Localization `) are an upstream quirk wired into the Xcode project and
       `Package.swift`; rename only as a deliberate, tested change.
 
@@ -141,7 +248,7 @@ Reviewed and consciously parked. Recorded so they are not rediscovered as if new
       asserts the rendered menu for both modes, including the singular/plural summary
       wording), but `DropdownPanelView.tomorrowRenderedEvents` and `isPreview` have no
       direct tests. Both are app-target symbols, so any coverage has to live in
-      `MeetingBarNGTests` — `MeetingBarLogicTests` is a hostless SPM module whose
+      `PunctualTests` — `PunctualLogicTests` is a hostless SPM module whose
       `sources:` whitelist cannot see them. Low priority: the behaviour that matters is
       already pinned at the boundary.
 - [ ] **Non-English localizations.** All 22 non-English `.lproj` files carry ~341 keys each,

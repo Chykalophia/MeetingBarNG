@@ -13,27 +13,27 @@ body:
     required: true
 - type: input
   attributes:
-    label: MeetingBarNG version
-    placeholder: "e.g., 4.2.1"
+    label: Punctual version
+    placeholder: "e.g., 0.4.0"
   validations:
     required: true
 - type: dropdown
   attributes:
     label: Installation source
-    description: How did you install MeetingBarNG?
+    description: How did you install Punctual?
     options:
-    - AppStore
-    - Homebrew
-    - manually
+    - Downloaded the dmg from GitHub Releases
+    - Built from source
   validations:
     required: true
 - type: dropdown
   attributes:
     label: Calendars provider
-    description: "Selected in \"Calendars\" pane of the MeetingBarNG Preferences window"
+    description: "Selected in \"Calendars\" pane of the Punctual Preferences window"
     options:
     - macOS Calendar app
     - Google Calendar
+    - Both
   validations:
     required: true
 - type: textarea

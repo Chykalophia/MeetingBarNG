@@ -1,0 +1,866 @@
+//
+//  AppModel.swift
+//  MeetingBar
+//
+//  Owns `AppState`, dispatches `AppAction`s, and routes side effects through
+//  `AppEnvironment`. `AppState`, `AppAction`, and `AppEnvironment` live here
+//  too because they exist solely to serve this type.
+//
+
+import Combine
+import Defaults
+import Foundation
+
+// MARK: - Clock
+
+/// One place for workflow code to ask "what time is it?"
+///
+/// The app still formats dates directly in views where that is presentation
+/// work. AppModel decisions use this clock so tests can make time-sensitive
+/// behavior deterministic.
+struct AppClock {
+    var now: @Sendable () -> Date
+
+    static let live = AppClock(now: { Date() })
+
+    static func fixed(_ date: Date) -> AppClock {
+        AppClock(now: { date })
+    }
+}
+
+// MARK: - State
+
+/// Complete observable state of the application at a point in time.
+///
+/// `AppState` is value-typed and derived from lower-level sources of truth
+/// (`CalendarSync`, `AppSettings`, system state). Renderers (status bar,
+/// menus, notifications) read from `AppState` rather than reaching through
+/// managers directly.
+struct AppState: Equatable {
+    // MARK: Calendar
+
+    var calendars: [MBCalendar] = []
+    var events: [MBEvent] = []
+    var selectedCalendarIDs: [String] = []
+    /// The source that handles writes and stands in wherever one provider
+    /// identity is still needed. See `connectedProviders` for what is actually
+    /// being fetched.
+    var activeProvider: EventStoreProvider = .macOSEventKit
+    /// Every source connected right now, in display order.
+    var connectedProviders: [EventStoreProvider] = [.macOSEventKit]
+    var providerChangeInProgress = false
+    var providerHealth = ProviderHealth()
+
+    // MARK: Reminders (Dot parity)
+
+    /// Latest incomplete Apple Reminders published by `RemindersSync`. Empty
+    /// unless the feature is enabled and access has been granted.
+    var reminders: [MBReminder] = []
+
+    // MARK: System
+
+    /// `true` while the screen is locked or the display is off.
+    var screenIsLocked: Bool = false
+
+    /// Incremented when wall-clock interpretation changes so time-derived UI
+    /// re-renders even when the calendar data itself has not changed.
+    var timeContextRevision = 0
+
+    // MARK: Derived
+
+    /// Next upcoming event that has not been dismissed and is not all-day.
+    func nextEvent(now: Date, linkRequired: Bool = false) -> MBEvent? {
+        events.nextEvent(linkRequired: linkRequired, now: now)
+    }
+}
+
+/// Calendars plus the source context they were fetched under.
+///
+/// Replaces the `([MBCalendar], EventStoreProvider)` tuple that carried this
+/// before multi-source. With two sources connected the calendar list is a merge
+/// of both, so "which provider are these from" stopped having a single answer:
+/// `primary` is the write-capable source and `connected` is the real set.
+struct CalendarSnapshot: Equatable {
+    var calendars: [MBCalendar]
+    var primary: EventStoreProvider
+    var connected: [EventStoreProvider]
+
+    /// `connected` defaults to just `primary` — the single-source shape.
+    init(
+        calendars: [MBCalendar],
+        primary: EventStoreProvider,
+        connected: [EventStoreProvider]? = nil
+    ) {
+        self.calendars = calendars
+        self.primary = primary
+        self.connected = connected ?? [primary]
+    }
+}
+
+// MARK: - Routing
+
+enum AppRoute: Equatable {
+    case preferences
+    /// Opens the dropdown panel. Deep link so the panel can be opened
+    /// without clicking the status item — used by automation and by
+    /// anything that wants to surface today's agenda directly.
+    case dropdown
+    case oauthCallback(URL)
+    case unknown(URL)
+}
+
+// MARK: - Action
+
+/// All events that change application state.
+///
+/// Dispatched to `AppModel.send(_:)`; never carries
+/// AppKit/UserNotifications/EventKit types so the model stays testable
+/// without a running host app.
+enum AppAction {
+    // Lifecycle
+    case launched
+    case willTerminate
+
+    // System events
+    case screenLocked
+    case screenUnlocked
+    case didWake
+    case systemClockChanged
+    case timezoneChanged
+    case dayChanged
+
+    // Calendar
+    case calendarStoreChanged
+    case refreshCalendars
+    /// Aggressively nudge macOS to sync (EventKit `refreshSourcesIfNecessary()`)
+    /// then re-fetch. Debounced inside `CalendarSync`. Raised on status-menu
+    /// open / wake / unlock so stalled macOS syncs surface (and self-correct)
+    /// sooner than the periodic 180s timer would allow.
+    case forceCalendarSync
+    case calendarsLoaded(CalendarSnapshot)
+    case eventsLoaded([MBEvent])
+    case selectedCalendarsChanged([String])
+    case providerHealthChanged(ProviderHealth)
+    case calendarRefreshFailed(Error)
+    case providerChanged(EventStoreProvider)
+    /// `provider` names the SOURCE the calendar belongs to. With more than
+    /// one source connected, the calendar's own provider decides which
+    /// per-source selection list the tick is written to; defaulting it to the
+    /// primary provider keeps every single-source call site unchanged.
+    case selectCalendar(id: String, selected: Bool, provider: EventStoreProvider?)
+
+    // Reminders (Dot parity)
+    case remindersLoaded([MBReminder])
+    case completeReminder(id: String)
+    case snoozeReminder(id: String, option: ReminderSnoozeOption)
+    case refreshReminders
+
+    // Settings
+    case settingsChanged
+    case toggleMeetingTitleVisibility
+
+    // Provider
+    /// Switch the active calendar provider.  `signOut = true` drops the current OAuth session first.
+    case changeProvider(EventStoreProvider, signOut: Bool)
+    /// Disconnects a source without touching the others. Refused when it is
+    /// the last one connected.
+    case disconnectProvider(EventStoreProvider)
+
+    // Notification responses
+    case notificationResponse(NotificationResponseAction)
+    case joinMeeting(eventID: String)
+    case joinNearestMeeting
+    case dismissMeeting(eventID: String)
+    case dismissNearestMeeting
+    case undismissMeeting(eventID: String)
+    case clearDismissedMeetings
+    case snoozeMeeting(eventID: String, action: NotificationEventTimeAction)
+
+    // Onboarding / external routes
+    case onboardingCompleted(EventStoreProvider)
+    case openRoute(AppRoute)
+
+    // Notification reconcile
+    case reconcileNotifications
+}
+
+// MARK: - Environment
+
+/// Injectable side-effect wiring used by `AppModel`.
+///
+/// Production code injects the real app components; tests inject fakes.
+/// `AppEnvironment` must not import AppKit, EventKit, UserNotifications, or
+/// AppAuth so that `AppModel` remains hostless-testable.
+struct AppEnvironment {
+    /// Live stream of the current event list from the active provider.
+    var eventsPublisher: AnyPublisher<[MBEvent], Never>
+
+    /// Live stream of calendars paired with the source context they came from.
+    var calendarsPublisher: AnyPublisher<CalendarSnapshot, Never>
+
+    /// Live connection and refresh health for the active provider.
+    var providerHealthPublisher: AnyPublisher<ProviderHealth, Never>
+
+    /// Live selected-calendar IDs for the active provider.
+    var selectedCalendarIDsPublisher: AnyPublisher<[String], Never>
+
+    /// Trigger a fresh calendar + event fetch from the active provider.
+    /// Results flow back through `eventsPublisher` / `calendarsPublisher`.
+    var triggerRefresh: @MainActor () -> Void
+
+    /// Aggressively nudge the active provider to sync now (EventKit:
+    /// `refreshSourcesIfNecessary()`) then re-fetch. Debounced inside
+    /// `CalendarSync`. Defaulted to a no-op so existing test call sites that
+    /// build `AppEnvironment` via the memberwise initializer keep compiling.
+    var forceSync: @MainActor () -> Void = {}
+
+    /// Reconcile system notification requests with the current event plan.
+    var reconcileNotifications: @MainActor ([MBEvent]) async -> Void
+
+    /// Switch the active calendar provider. `signOut = true` drops the current session first.
+    var changeProvider: @MainActor (EventStoreProvider, Bool) async -> ProviderSelectionResult
+    /// Disconnect a source, leaving the others connected. Defaulted to a
+    /// no-op so existing test call sites using the memberwise initializer keep
+    /// compiling.
+    var disconnectProvider: @MainActor (EventStoreProvider) async -> Void = { _ in }
+
+    /// Synchronous snapshot after provider changes. CalendarSync updates its
+    /// calendars before returning success, while its publisher is delivered to
+    /// AppModel on the next main-queue cycle.
+    var currentCalendarSnapshot: @MainActor () -> CalendarSnapshot
+
+    /// Add or remove a calendar from the user's selection. CalendarSync
+    /// observes the underlying setting and re-fetches automatically.
+    var toggleCalendarSelection: @MainActor (String, Bool, EventStoreProvider?) -> Void
+
+    /// Open the meeting for an event. Later PRs move every entry point onto
+    /// this route; for now it lets AppModel own the action vocabulary.
+    var openMeeting: @MainActor (MBEvent) -> Void
+
+    /// Dismiss an event from next-meeting workflows.
+    var dismissEvent: @MainActor (MBEvent) -> Void
+
+    /// Remove one event dismissal.
+    var undismissEvent: @MainActor (String) -> Void
+
+    /// Remove all event dismissals.
+    var clearDismissedEvents: @MainActor () -> Void
+
+    /// Toggle whether meeting names are hidden in status bar/menu surfaces.
+    var toggleMeetingTitleVisibility: @MainActor () -> Void
+
+    /// Snooze an event notification.
+    var snoozeEvent: @MainActor (MBEvent, NotificationEventTimeAction) async -> Void
+
+    /// Finish onboarding by persisting completion and selecting the provider.
+    var completeOnboarding: @MainActor (EventStoreProvider) async -> ProviderSelectionResult
+
+    /// Open Preferences from an app URL route.
+    var openPreferences: @MainActor () -> Void
+    /// Opens the dropdown panel.
+    var openDropdown: @MainActor () -> Void
+
+    /// Resume an OAuth callback from an app URL route.
+    var resumeOAuthFlow: @MainActor (URL) -> Void
+
+    /// Current wall-clock time for workflow decisions.
+    var clock: AppClock
+
+    // MARK: Reminders (Dot parity)
+    //
+    // Defaulted so existing (test) call sites that build `AppEnvironment` via the
+    // memberwise initializer keep compiling without the reminders wiring.
+
+    /// Live stream of the current reminders list from `RemindersSync`.
+    var remindersPublisher: AnyPublisher<[MBReminder], Never> =
+        Empty<[MBReminder], Never>().eraseToAnyPublisher()
+
+    /// Mark a reminder complete in Apple Reminders (by identifier).
+    var completeReminder: @MainActor (String) async -> Void = { _ in }
+
+    /// Reschedule a reminder's due date in Apple Reminders (snooze).
+    var rescheduleReminder: @MainActor (String, Date) async -> Void = { _, _ in }
+
+    /// Trigger a fresh reminders fetch. Results flow back through `remindersPublisher`.
+    var triggerRemindersRefresh: @MainActor () -> Void = {}
+
+    @MainActor
+    static func live(
+        calendarSync: CalendarSync,
+        remindersSync: RemindersSync,
+        remindersStore: RemindersStore,
+        notificationScheduler: NotificationScheduler,
+        snoozeService: SnoozeService,
+        openPreferences: @escaping @MainActor () -> Void = {},
+        openDropdown: @escaping @MainActor () -> Void = {},
+        resumeOAuthFlow: @escaping @MainActor (URL) -> Void = { _ in }
+    ) -> AppEnvironment {
+        AppEnvironment(
+            eventsPublisher: calendarSync.$events.eraseToAnyPublisher(),
+            calendarsPublisher: calendarSync.$calendars
+                .map { calendars in
+                    CalendarSnapshot(
+                        calendars: calendars,
+                        primary: calendarSync.repository.activeProviderName,
+                        connected: calendarSync.repository.selection.providers
+                    )
+                }
+                .eraseToAnyPublisher(),
+            providerHealthPublisher: calendarSync.$providerHealth.eraseToAnyPublisher(),
+            // The union of every CONNECTED source's selection, not the flat
+            // legacy key — that one mirrors the primary source only, so with
+            // Google also connected its calendars would render unticked no
+            // matter how many times the user ticked them.
+            //
+            // Disconnected sources are excluded so counts and the "nothing
+            // selected" empty state describe what is actually being fetched.
+            selectedCalendarIDsPublisher: Defaults.publisher(
+                keys: .selectedCalendarIDsByProvider, .enabledCalendarSources,
+                options: [.initial]
+            )
+            .map { _ in
+                let byProvider = Defaults[.selectedCalendarIDsByProvider]
+                return Defaults[.enabledCalendarSources].flatMap { byProvider[$0.rawValue] ?? [] }
+            }
+            .eraseToAnyPublisher(),
+            triggerRefresh: {
+                calendarSync.refreshSubject.send()
+            },
+            forceSync: {
+                calendarSync.forceSyncIfDebounceElapsed()
+            },
+            reconcileNotifications: { events in
+                await notificationScheduler.reconcile(
+                    events: events,
+                    settings: .currentForScheduler
+                )
+            },
+            changeProvider: { newProvider, signOut in
+                await calendarSync.changeEventStoreProvider(newProvider, withSignOut: signOut)
+            },
+            disconnectProvider: { provider in
+                await calendarSync.disconnectEventStoreProvider(provider)
+            },
+            currentCalendarSnapshot: {
+                CalendarSnapshot(
+                    calendars: calendarSync.calendars,
+                    primary: calendarSync.repository.activeProviderName,
+                    connected: calendarSync.repository.selection.providers
+                )
+            },
+            toggleCalendarSelection: { id, selected, provider in
+                AppSettings.setCalendarSelection(
+                    provider: provider ?? Defaults[.eventStoreProvider],
+                    id: id,
+                    selected: selected
+                )
+            },
+            openMeeting: { event in
+                MeetingOpener.open(event: event)
+            },
+            dismissEvent: { event in
+                AppSettings.dismissEvent(event)
+            },
+            undismissEvent: { eventID in
+                AppSettings.undismissEvent(id: eventID)
+            },
+            clearDismissedEvents: {
+                AppSettings.clearDismissedEvents()
+            },
+            toggleMeetingTitleVisibility: {
+                AppSettings.toggleMeetingTitleVisibility()
+            },
+            snoozeEvent: { event, action in
+                await snoozeService.snooze(event: event, action: action)
+            },
+            completeOnboarding: { provider in
+                guard calendarSync.repository.activeProviderName == provider else {
+                    return .failed("The selected calendar provider is not active")
+                }
+                guard !AppSettings.selectedCalendarIDs(for: provider).isEmpty else {
+                    return .failed("Select at least one calendar")
+                }
+                AppSettings.completeOnboarding()
+                return .success
+            },
+            openPreferences: openPreferences,
+            openDropdown: openDropdown,
+            resumeOAuthFlow: resumeOAuthFlow,
+            clock: .live,
+            remindersPublisher: remindersSync.$reminders.eraseToAnyPublisher(),
+            completeReminder: { id in
+                await remindersStore.complete(id: id)
+                remindersSync.refreshSubject.send()
+            },
+            rescheduleReminder: { id, date in
+                await remindersStore.reschedule(id: id, to: date)
+                remindersSync.refreshSubject.send()
+            },
+            triggerRemindersRefresh: {
+                remindersSync.refreshSubject.send()
+            }
+        )
+    }
+}
+
+// MARK: - Model
+
+/// Central application model.
+///
+/// `AppModel` must not import AppKit, EventKit, UserNotifications, or AppAuth.
+/// All side effects are performed through `AppEnvironment`.
+@MainActor
+final class AppModel: ObservableObject {
+    @Published private(set) var state: AppState = AppState()
+
+    private let environment: AppEnvironment
+    private var refreshTask: Task<Void, Never>?
+    private var providerChangeTask: Task<Void, Never>?
+    private var providerChangeGeneration = 0
+    private var onboardingTask: Task<Void, Never>?
+    private var notificationReconcileTask: Task<Void, Never>?
+    private var snoozeTasks: [String: Task<Void, Never>] = [:]
+    private var reminderTasks: [String: Task<Void, Never>] = [:]
+    private var cancellables = Set<AnyCancellable>()
+
+    init(environment: AppEnvironment) {
+        self.environment = environment
+
+        // `@Published` delivers the current value immediately on subscription,
+        // so AppModel is up-to-date even if CalendarSync already fetched.
+        environment.eventsPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] events in
+                self?.send(.eventsLoaded(events))
+            }
+            .store(in: &cancellables)
+
+        environment.calendarsPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] snapshot in
+                self?.send(.calendarsLoaded(snapshot))
+            }
+            .store(in: &cancellables)
+
+        environment.providerHealthPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] health in
+                self?.send(.providerHealthChanged(health))
+            }
+            .store(in: &cancellables)
+
+        environment.selectedCalendarIDsPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] selectedCalendarIDs in
+                self?.send(.selectedCalendarsChanged(selectedCalendarIDs))
+            }
+            .store(in: &cancellables)
+
+        environment.remindersPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] reminders in
+                self?.send(.remindersLoaded(reminders))
+            }
+            .store(in: &cancellables)
+    }
+
+    // MARK: Action dispatch
+
+    func send(_ action: AppAction) {
+        switch action {
+        case .launched, .willTerminate, .screenLocked, .screenUnlocked,
+             .didWake, .systemClockChanged, .timezoneChanged, .dayChanged:
+            handleLifecycleAction(action)
+        case .calendarStoreChanged, .refreshCalendars, .forceCalendarSync,
+             .calendarsLoaded, .eventsLoaded, .selectedCalendarsChanged,
+             .providerHealthChanged, .calendarRefreshFailed, .providerChanged,
+             .selectCalendar, .changeProvider, .disconnectProvider, .settingsChanged,
+             .toggleMeetingTitleVisibility:
+            handleCalendarAction(action)
+        case .notificationResponse, .joinMeeting, .joinNearestMeeting, .dismissMeeting,
+             .dismissNearestMeeting, .undismissMeeting, .clearDismissedMeetings,
+             .snoozeMeeting:
+            handleMeetingAction(action)
+        case .remindersLoaded, .completeReminder, .snoozeReminder, .refreshReminders:
+            handleReminderAction(action)
+        case .onboardingCompleted, .openRoute:
+            handleExternalAction(action)
+        case .reconcileNotifications:
+            reconcileNotificationsFromState()
+        }
+    }
+
+    // MARK: Convenience methods for system triggers
+
+    /// Self-documenting wrappers around `send(_:)` for the most common
+    /// system-event paths. Callers don't need to import `AppAction` to
+    /// route a wake/lock/timezone change through the model.
+    func handleLaunch() { send(.launched) }
+    func handleWillTerminate() { send(.willTerminate) }
+    func handleScreenLock() { send(.screenLocked) }
+    func handleScreenUnlock() { send(.screenUnlocked) }
+    func handleWake() { send(.didWake) }
+    func handleSystemClockChange() { send(.systemClockChanged) }
+    func handleTimezoneChange() { send(.timezoneChanged) }
+    func handleDayChange() { send(.dayChanged) }
+    func handleCalendarStoreChange() { send(.calendarStoreChanged) }
+    func requestRefresh() { send(.refreshCalendars) }
+    func reconcileNotifications() { send(.reconcileNotifications) }
+
+    /// Add or remove a calendar from the user's selection. Routes through
+    /// `AppEnvironment` so the model stays free of `Defaults` writes.
+    func toggleCalendarSelection(
+        id: String,
+        selected: Bool,
+        provider: EventStoreProvider? = nil
+    ) {
+        send(.selectCalendar(id: id, selected: selected, provider: provider))
+    }
+
+    func nextEvent(linkRequired: Bool = false) -> MBEvent? {
+        state.nextEvent(now: environment.clock.now(), linkRequired: linkRequired)
+    }
+
+    /// Onboarding is an async workflow because provider authorization can
+    /// prompt the user. Provider setup happens before this method; completion
+    /// only succeeds for the active provider with at least one selected calendar.
+    func completeOnboarding(with provider: EventStoreProvider) async -> ProviderSelectionResult {
+        // Connected, not "the active one": `activeProvider` names the
+        // write-capable source, which is not necessarily the source onboarding
+        // just set up.
+        guard state.connectedProviders.contains(provider) else {
+            return .failed("The selected calendar provider is not active")
+        }
+        guard !state.selectedCalendarIDs.isEmpty else {
+            return .failed("Select at least one calendar")
+        }
+        return await environment.completeOnboarding(provider)
+    }
+
+    /// Performs the transactional provider flow and returns its explicit result
+    /// so onboarding can decide whether it is safe to advance.
+    func changeProvider(
+        to provider: EventStoreProvider,
+        signOut: Bool = false
+    ) async -> ProviderSelectionResult {
+        let generation = beginProviderChange()
+        return await performProviderChange(
+            to: provider,
+            signOut: signOut,
+            generation: generation
+        )
+    }
+
+    /// Connects `provider` and disconnects every other source, making it the
+    /// only one.
+    ///
+    /// Onboarding's source choice means "this is where my meetings come from",
+    /// not "add this to what is already on". Because a fresh install starts with
+    /// macOS Calendar connected, the plain additive `changeProvider` would leave
+    /// someone who deliberately picked Google seeing their Mac's calendars too.
+    /// Preferences ▸ Calendars is where a second source gets added later.
+    func selectSoleProvider(_ provider: EventStoreProvider) async -> ProviderSelectionResult {
+        let result = await changeProvider(to: provider)
+        guard result == .success else { return result }
+
+        // Safe to walk: `provider` was just connected, so disconnecting the
+        // others can never empty the set.
+        for other in state.connectedProviders where other != provider {
+            await environment.disconnectProvider(other)
+        }
+        let snapshot = environment.currentCalendarSnapshot()
+        state.activeProvider = snapshot.primary
+        state.connectedProviders = snapshot.connected
+        state.calendars = snapshot.calendars
+        return .success
+    }
+
+    // MARK: Private
+
+    private func event(withID id: String) -> MBEvent? {
+        state.events.first { $0.id == id }
+    }
+
+    private func handleLifecycleAction(_ action: AppAction) {
+        switch action {
+        case .launched:
+            scheduleRefresh()
+        case .willTerminate:
+            cancelPendingOperations()
+        case .screenLocked:
+            state.screenIsLocked = true
+        case .screenUnlocked:
+            state.screenIsLocked = false
+            scheduleRefresh()
+            // Credentials/sync may have lapsed while locked: nudge macOS to
+            // sync (debounced) so stalled data surfaces and self-corrects.
+            environment.forceSync()
+        case .systemClockChanged, .timezoneChanged:
+            state.timeContextRevision += 1
+            reconcileNotificationsFromState()
+            scheduleRefresh()
+        case .didWake, .dayChanged:
+            scheduleRefresh()
+            // After sleep the account may be behind: force an aggressive sync.
+            if case .didWake = action {
+                environment.forceSync()
+            }
+        default:
+            break
+        }
+    }
+
+    private func handleCalendarAction(_ action: AppAction) {
+        switch action {
+        case .calendarStoreChanged, .refreshCalendars, .settingsChanged:
+            scheduleRefresh()
+        case .forceCalendarSync:
+            environment.forceSync()
+        case .toggleMeetingTitleVisibility:
+            environment.toggleMeetingTitleVisibility()
+        case .calendarsLoaded(let snapshot):
+            state.calendars = snapshot.calendars
+            state.activeProvider = snapshot.primary
+            state.connectedProviders = snapshot.connected
+        case .eventsLoaded(let events):
+            state.events = events
+            send(.reconcileNotifications)
+        case .selectedCalendarsChanged(let selectedCalendarIDs):
+            state.selectedCalendarIDs = selectedCalendarIDs
+        case .providerHealthChanged(let health):
+            state.providerHealth = health
+        case .calendarRefreshFailed:
+            break
+        case .providerChanged(let provider):
+            resetProviderState(to: provider)
+            scheduleRefresh()
+        case .selectCalendar(let id, let selected, let provider):
+            environment.toggleCalendarSelection(id, selected, provider)
+        case .changeProvider(let provider, let signOut):
+            providerChangeTask?.cancel()
+            let generation = beginProviderChange()
+            providerChangeTask = Task { [weak self] in
+                guard let self else { return }
+                _ = await self.performProviderChange(
+                    to: provider,
+                    signOut: signOut,
+                    generation: generation
+                )
+            }
+        case .disconnectProvider(let provider):
+            startProviderDisconnect(provider)
+        default:
+            break
+        }
+    }
+
+    private func handleMeetingAction(_ action: AppAction) {
+        switch action {
+        case .notificationResponse(let response):
+            switch response {
+            case .join(let eventID):
+                send(.joinMeeting(eventID: eventID))
+            case .dismiss(let eventID):
+                send(.dismissMeeting(eventID: eventID))
+            case .snooze(let eventID, let action):
+                send(.snoozeMeeting(eventID: eventID, action: action))
+            }
+        case .joinMeeting(let eventID):
+            performWithEvent(id: eventID) { event in
+                environment.openMeeting(event)
+            }
+        case .joinNearestMeeting:
+            if let event = state.nextEvent(now: environment.clock.now()) {
+                environment.openMeeting(event)
+            }
+        case .dismissMeeting(let eventID):
+            performWithEvent(id: eventID) { event in
+                environment.dismissEvent(event)
+            }
+        case .dismissNearestMeeting:
+            if let event = state.nextEvent(now: environment.clock.now()) {
+                environment.dismissEvent(event)
+            }
+        case .undismissMeeting(let eventID):
+            environment.undismissEvent(eventID)
+        case .clearDismissedMeetings:
+            environment.clearDismissedEvents()
+        case .snoozeMeeting(let eventID, let action):
+            scheduleSnooze(eventID: eventID, action: action)
+        default:
+            break
+        }
+    }
+
+    private func handleReminderAction(_ action: AppAction) {
+        switch action {
+        case .remindersLoaded(let reminders):
+            state.reminders = reminders
+        case .completeReminder(let id):
+            let environment = environment
+            scheduleReminderWrite(key: "complete-\(id)") {
+                await environment.completeReminder(id)
+            }
+        case .snoozeReminder(let id, let option):
+            // The new due date is pure math (ReminderSnoozePolicy); the host only
+            // performs the resulting reschedule.
+            let newDueDate = ReminderSnoozePolicy.newDueDate(
+                from: environment.clock.now(),
+                option: option,
+                calendar: .current
+            )
+            let environment = environment
+            scheduleReminderWrite(key: "snooze-\(id)") {
+                await environment.rescheduleReminder(id, newDueDate)
+            }
+        case .refreshReminders:
+            environment.triggerRemindersRefresh()
+        default:
+            break
+        }
+    }
+
+    private func scheduleReminderWrite(
+        key: String,
+        _ perform: @escaping @MainActor () async -> Void
+    ) {
+        reminderTasks[key]?.cancel()
+        reminderTasks[key] = Task { await perform() }
+    }
+
+    private func handleExternalAction(_ action: AppAction) {
+        switch action {
+        case .onboardingCompleted(let provider):
+            onboardingTask?.cancel()
+            onboardingTask = Task { [weak self] in
+                guard let self else { return }
+                _ = await completeOnboarding(with: provider)
+            }
+        case .openRoute(let route):
+            handleRoute(route)
+        default:
+            break
+        }
+    }
+
+    private func handleRoute(_ route: AppRoute) {
+        switch route {
+        case .preferences:
+            environment.openPreferences()
+        case .dropdown:
+            environment.openDropdown()
+        case .oauthCallback(let url):
+            environment.resumeOAuthFlow(url)
+        case .unknown:
+            break
+        }
+    }
+
+    private func performWithEvent(id: String, perform: (MBEvent) -> Void) {
+        guard let event = event(withID: id) else { return }
+        perform(event)
+    }
+
+    private func reconcileNotificationsFromState() {
+        let events = state.events
+        notificationReconcileTask?.cancel()
+        notificationReconcileTask = Task { [weak self] in
+            guard let self else { return }
+            await environment.reconcileNotifications(events)
+        }
+    }
+
+    private func resetProviderState(to provider: EventStoreProvider) {
+        state.activeProvider = provider
+        state.calendars = []
+        state.events = []
+    }
+
+    /// Disconnects a source and adopts the resulting snapshot. Shares the
+    /// generation counter with `performProviderChange` so a disconnect and a
+    /// connect racing each other cannot both write state.
+    private func startProviderDisconnect(_ provider: EventStoreProvider) {
+        providerChangeTask?.cancel()
+        let generation = beginProviderChange()
+        providerChangeTask = Task { [weak self] in
+            guard let self else { return }
+            await self.environment.disconnectProvider(provider)
+            guard generation == self.providerChangeGeneration else { return }
+            let snapshot = self.environment.currentCalendarSnapshot()
+            self.state.activeProvider = snapshot.primary
+            self.state.connectedProviders = snapshot.connected
+            self.state.calendars = snapshot.calendars
+            self.state.events = []
+            self.state.providerChangeInProgress = false
+            self.scheduleRefresh()
+        }
+    }
+
+    private func beginProviderChange() -> Int {
+        providerChangeGeneration += 1
+        state.providerChangeInProgress = true
+        return providerChangeGeneration
+    }
+
+    private func performProviderChange(
+        to provider: EventStoreProvider,
+        signOut: Bool,
+        generation: Int
+    ) async -> ProviderSelectionResult {
+        let result = await environment.changeProvider(provider, signOut)
+        guard generation == providerChangeGeneration else { return .cancelled }
+
+        if result == .success {
+            // The merged list already contains every connected source, so it is
+            // adopted wholesale. The single-provider code discarded it whenever
+            // the snapshot's provider differed from the one just connected —
+            // which is now the normal case, since connecting Google leaves
+            // EventKit as the primary.
+            let snapshot = environment.currentCalendarSnapshot()
+            state.activeProvider = snapshot.primary
+            state.connectedProviders = snapshot.connected
+            state.calendars = snapshot.calendars
+            state.events = []
+        }
+        state.providerChangeInProgress = false
+        return result
+    }
+
+    private func scheduleRefresh() {
+        refreshTask?.cancel()
+        refreshTask = Task { [weak self] in
+            guard let self, !Task.isCancelled else { return }
+            environment.triggerRefresh()
+        }
+    }
+
+    private func scheduleSnooze(
+        eventID: String,
+        action: NotificationEventTimeAction
+    ) {
+        guard let event = event(withID: eventID) else { return }
+        snoozeTasks[eventID]?.cancel()
+        snoozeTasks[eventID] = Task { [weak self] in
+            guard let self else { return }
+            await environment.snoozeEvent(event, action)
+        }
+    }
+
+    private func cancelPendingOperations() {
+        refreshTask?.cancel()
+        refreshTask = nil
+        providerChangeTask?.cancel()
+        providerChangeTask = nil
+        providerChangeGeneration += 1
+        state.providerChangeInProgress = false
+        onboardingTask?.cancel()
+        onboardingTask = nil
+        notificationReconcileTask?.cancel()
+        notificationReconcileTask = nil
+        snoozeTasks.values.forEach { $0.cancel() }
+        snoozeTasks.removeAll()
+        reminderTasks.values.forEach { $0.cancel() }
+        reminderTasks.removeAll()
+        cancellables.removeAll()
+    }
+}

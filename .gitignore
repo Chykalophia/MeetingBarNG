@@ -9,10 +9,10 @@ XCConfig/DevTeamOverride.xcconfig
 XCConfig/GoogleSecrets.xcconfig
 
 # XCode generated files
-MeetingBarNG.xcodeproj/project.xcworkspace/xcuserdata/*
-MeetingBarNG.xcodeproj/xcuserdata/*
-MeetingBarNG.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/*
-!MeetingBarNG.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+Punctual.xcodeproj/project.xcworkspace/xcuserdata/*
+Punctual.xcodeproj/xcuserdata/*
+Punctual.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/*
+!Punctual.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 
 Archive/*
 build

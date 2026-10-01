@@ -1,4 +1,4 @@
-# MeetingBarNG — Preferences UX Overhaul
+# Punctual: Preferences UX Overhaul
 
 **Status:** plan of record. Supersedes the Phase 1–3 Preferences work described in `ROADMAP.md`.
 **Scope constraint (absolute, inherited):** no AI, no LLM features, no natural-language event creation, no voice-to-text. Nothing in this document proposes any. Every commit produced from this plan ends with `No AI/voice.`
@@ -67,12 +67,12 @@ user's arrangement with no undo.
 
 | Fact | Evidence |
 |---|---|
-| 92 `Defaults` keys | `MeetingBarNG/Extensions/DefaultsKeys.swift` — 92 `Key<…>` declarations |
+| 92 `Defaults` keys | `Punctual/Extensions/DefaultsKeys.swift` — 92 `Key<…>` declarations |
 | No reset anywhere | `Defaults.reset` returns **zero** hits repo-wide. Every one of the 92 keys is a one-way door. |
 | No search anywhere | `.searchable` returns **zero** hits repo-wide. |
 | Seven settings are inert for nearly every user | `useSwiftUIDropdown` defaults `true` (`DefaultsKeys.swift:130`), and `DropdownPanelView` never reads `showEventCalendarColor`, `showMeetingServiceIcon`, `showEventEndTime`, `shortenEventTitle`, `menuEventTitleLength`, `pastEventsAppereance`, `showEventDetails`. All seven are honoured by `MenuBuilder.swift`, the *non-default* renderer. |
 | The Display/Events boundary is cosmetic | Every control on **both** tabs still draws from the `preferences_appearance_*` prefix, because both came from one former Appearance tab. `preferences_tab_menu_bar` is still literally defined as `"Display & Events"`. |
-| The code disagrees with the UI in both directions | `showEventEndTime` is typed under `StatusBarSettings` (`MeetingBarNG/Settings/AppSettings.swift:42`) but rendered on Events under a header saying "in the dropdown". `showEventMaxTimeUntilEvent*` and `ongoingEventVisibility` are typed under `EventDisplaySettings` (`AppSettings.swift:32-33`) but rendered on Display. |
+| The code disagrees with the UI in both directions | `showEventEndTime` is typed under `StatusBarSettings` (`Punctual/Settings/AppSettings.swift:42`) but rendered on Events under a header saying "in the dropdown". `showEventMaxTimeUntilEvent*` and `ongoingEventVisibility` are typed under `EventDisplaySettings` (`AppSettings.swift:32-33`) but rendered on Display. |
 | A "reorder" affordance that does nothing | `MeetingsTab.swift:146` calls `.onMove` inside `PreferencesGroupedForm`, which is `Form { }.formStyle(.grouped)` (`Preferences.swift:172-186`). `onMove` requires a real `List`. Bookmark reordering is a dead no-op today. |
 | ~50 lines of unreachable code in the two files anyone reads first | Deployment floor is macOS 15 (`Package.swift:8`), yet `Preferences.swift:23-31` branches on `#available(macOS 13.0, *)`, `:35-72` maintains a full macOS 12 `legacyLayout`, `:172-186` keeps a macOS 12 `ScrollView` fallback. |
 | One tab taxes all seven | `minWidth: 1100` at `Preferences.swift:71` and `:97`, with the comment stating it exists "for the Display tab's two-pane (settings + ~340pt preview)". |
@@ -110,11 +110,11 @@ The routing rule, stated in one sentence and applied with **zero exceptions**:
 | 1 | **Calendars** | Where your meetings come from, and whether macOS is actually syncing them. | Sync status headline + last-success time · Grant Calendar Access (only pre-prompt) · **Refresh now** (rewired to the real `.forceCalendarSync`) · always-visible "Calendars to show" header · per-calendar checkboxes grouped by account, with account email under duplicate names, search field, All/None, live "6 of 14 selected" count · action-bearing empty state · **Allow access to Reminders** (moved here — all permissions in one place) · `Calendar isn't updating?` disclosure holding ONE merged sync explanation, "Newest change the app can see", raw EventKit error, Open Privacy Settings, Open Internet Accounts (error states only) · Reset this section |
 | 2 | **Filters** | The one place that decides which meetings exist — in the menu bar, the dropdown and the calendar window alike. | Permanent scope banner: "These choices apply everywhere." · Look ahead (Today / Today and tomorrow) with help stating it is the fetch window · Merge duplicates across calendars · Preset chips **Everything / Meetings only / Only what I accepted / Custom** · under Custom: seven 3-way rows (Show / Dim / Hide) for all-day, no-link, solo blocks, unanswered, maybe, declined, ended · "Meetings already in progress — Still count as next / Treat as past" · "Hide meetings whose title matches a pattern" (+ live tester) · Reset this section |
 | 3 | **Menu Bar** | What you see in the macOS menu bar all day. | Live **wide strip** preview pinned at the top + time scrubber (2h before / 25m before / in a meeting / nothing today) · Preset cards (Classic / Minimal / Agenda / Info / Custom) · **Block builder** (Icon · Title · Countdown · Clock · Date · Progress bar · Week number · World clock) with drag, switch, gear · Keep the menu bar quiet until a meeting is close + minutes chips · Space between blocks · One line / Two lines · Reset this section |
-| 4 | **Dropdown** | What you see when you click MeetingBarNG. | Live **real-panel** preview on the right + the same time scrubber · Preset cards (Simple / Standard / Everything / Custom) · **Block builder** (Greeting · Timeline · Meeting card · Agenda · Reminders · Join & actions · Bookmarks, plus a pinned locked "Settings & Quit" row) with drag, switch, gear, and a Hidden tray · Row spacing (Comfortable / Compact) · Reset this section |
-| 5 | **Calendar Window** | The month/week window MeetingBarNG opens — not Apple's Calendar app. | Dim weekends · Open in — Month / Week *(the stored default; the window's own header still switches the view you're looking at right now)* · Reset this section · **Phase 6 fills this out**: first day of the week, show week numbers, how many events a day cell lists before "+2 more" |
+| 4 | **Dropdown** | What you see when you click Punctual. | Live **real-panel** preview on the right + the same time scrubber · Preset cards (Simple / Standard / Everything / Custom) · **Block builder** (Greeting · Timeline · Meeting card · Agenda · Reminders · Join & actions · Bookmarks, plus a pinned locked "Settings & Quit" row) with drag, switch, gear, and a Hidden tray · Row spacing (Comfortable / Compact) · Reset this section |
+| 5 | **Calendar Window** | The month/week window Punctual opens — not Apple's Calendar app. | Dim weekends · Open in — Month / Week *(the stored default; the window's own header still switches the view you're looking at right now)* · Reset this section · **Phase 6 fills this out**: first day of the week, show week numbers, how many events a day cell lists before "+2 more" |
 | 6 | **Joining** | What happens when you click Join, and where new meetings get created. | Open meeting links in · `Send some services somewhere else` disclosure (picker split into **Apps** and **Browsers** groups, explanation above the control) · Set up browsers and apps… · New meetings use + custom web address · Open new meetings in · My saved links (bookmarks, three columns, real drag handle) · `Find meeting links in unusual formats` disclosure (text patterns + a tester that works before you save and scans notes + location + URL) · Reset this section |
-| 7 | **Alerts** | When MeetingBarNG interrupts you. | Preset chips (Off / Gentle / Standard / Insistent / Custom) · Notify me before a meeting starts + **labelled** "How early" · Take over the screen + How early + include link-less blocks · Notify me before a meeting ends + How early · Open the meeting for me + How early + jump button to Joining · macOS permission rows with real **buttons** · Snooze duration · `Run a script around meetings` disclosure (both AppleScript hooks, distinct button labels, unsaved-script warning) · Reset this section |
-| 8 | **General** | The app itself: how it starts, how it reads time, and the way back to calm. | Whole-app preset chips (Calm / Standard / Everything / Custom) · Open MeetingBarNG when I log in · Time format (12/24-hour) with "Used everywhere in the app" · **Keyboard shortcuts** in four labelled groups, every row with a one-line description · `Troubleshooting` disclosure (Use the classic macOS menu instead; Reset all settings…) |
+| 7 | **Alerts** | When Punctual interrupts you. | Preset chips (Off / Gentle / Standard / Insistent / Custom) · Notify me before a meeting starts + **labelled** "How early" · Take over the screen + How early + include link-less blocks · Notify me before a meeting ends + How early · Open the meeting for me + How early + jump button to Joining · macOS permission rows with real **buttons** · Snooze duration · `Run a script around meetings` disclosure (both AppleScript hooks, distinct button labels, unsaved-script warning) · Reset this section |
+| 8 | **General** | The app itself: how it starts, how it reads time, and the way back to calm. | Whole-app preset chips (Calm / Standard / Everything / Custom) · Open Punctual when I log in · Time format (12/24-hour) with "Used everywhere in the app" · **Keyboard shortcuts** in four labelled groups, every row with a one-line description · `Troubleshooting` disclosure (Use the classic macOS menu instead; Reset all settings…) |
 | — | **About & Support** *(sidebar footer, not a tab)* | Who made this, what changed, how to get unstuck. | App icon, name, version, credit line · GitHub · Contact · What's New · Copy diagnostics (with visible "Copied" confirmation) |
 
 **Deleted as tabs:** `Display` (every setting in a calendar app is display — the word carries zero disambiguating information, which is precisely why it cannot be told from Events), `Events` (events are content, not a place), `Advanced` (a category defined by developer anxiety; it accretes forever, and "Advanced" must never be the answer to "where does this go?").
@@ -138,11 +138,11 @@ Every row in the inventory appears below. `→` reads "moves to". **Verdict** is
 | Contact | — | About & Support | Contact | MOVED |
 | What's New | — | About & Support | What's New | MOVED |
 | Copy diagnostics | — | About & Support | Copy a report for support | MOVED + gains visible confirmation (`DiagnosticsClipboard.copy()` writes in a detached Task with no acknowledgement today) |
-| Open MeetingBarNG automatically when you log in | LaunchAtLogin / SMAppService | General | Open MeetingBarNG when I log in | MOVED — and `LaunchAtLoginANDPreferredLanguagePicker` (`UI/Views/Shared.swift:173`, name literally contains "AND") is dissolved |
+| Open Punctual automatically when you log in | LaunchAtLogin / SMAppService | General | Open Punctual when I log in | MOVED — and `LaunchAtLoginANDPreferredLanguagePicker` (`UI/Views/Shared.swift:173`, name literally contains "AND") is dissolved |
 | Language: | `preferredLanguage` | — | — | **DELETED.** 16 entries against one maintained catalog (en 659 lines vs de 391, ja 410); `ukrainian` is `"ua"` while the bundle is `uk.lproj` so it silently no-ops; seven shipped bundles (bg, hu, ko, ta, pt, zh-Hans, enm) have no entry. The app follows macOS. Key retained; restore the picker when catalogs are maintained. |
 | Time format: | `timeFormat` | General | Time format — 12-hour (3:30 PM) / 24-hour (15:30) | KEPT, MOVED. Genuinely app-wide (menu bar, dropdown, timeline, calendar window, world clock, alerts). Its key is namespaced `preferences_appearance_menu_time_format_*` — renamed. The Clock block gear links here rather than duplicating it. |
 | Open menu: | `openMenuShortcut` | General ▸ Shortcuts ▸ *Open something* | Open the dropdown | RENAMED (+ description) |
-| Open calendar: | `calendarShortcut` | General ▸ Shortcuts ▸ *Open something* | Open the calendar window — *"MeetingBarNG's own month view, not Apple's Calendar app"* | RENAMED |
+| Open calendar: | `calendarShortcut` | General ▸ Shortcuts ▸ *Open something* | Open the calendar window — *"Punctual's own month view, not Apple's Calendar app"* | RENAMED |
 | Open command bar: | `commandBarShortcut` | General ▸ Shortcuts ▸ *Open something* | Open the search bar — *"A Spotlight-style box for finding meetings and running actions"* | RENAMED. Nothing in Preferences defines "command bar" today. |
 | Open world clock: | `worldClockShortcut` | General ▸ Shortcuts ▸ *Open something* | Open the world clock | RENAMED |
 | Join next meeting: | `joinEventShortcut` | General ▸ Shortcuts ▸ *Get into a meeting* | Join my next meeting | RENAMED |
@@ -176,13 +176,13 @@ All ten shortcut rows lose their trailing colons (they route through raw `.loco(
 | Per-calendar checkboxes | `selectedCalendarIDsByProvider` | Calendars | *(unchanged)* + account email under duplicate names, search field, All/None, "6 of 14 selected" | KEPT + augmented. `selectedCalendarCount` / `availableCalendarCount` are already computed at `PreferencesPresentation.swift:291-292` and never displayed. Raw source `"unknown"` renders as **Other**. |
 | Empty-state text | read-only | Calendars | *(unchanged wording)* + an action button | KEPT + fixed |
 | `AccessDeniedBanner` | — | — | — | **DELETED (dead code).** Declared at `CalendarsTab.swift:282-293`, referenced nowhere; a third unused variant of messaging that already exists twice in the same file. |
-| *(new)* | Reminders permission | Calendars | Allow MeetingBarNG to read Apple Reminders | MOVED from a Display-tab toggle. All permission UI now lives in one place, with "macOS will ask you" stated **before** the flip and a real denied state instead of the switch silently springing back. |
+| *(new)* | Reminders permission | Calendars | Allow Punctual to read Apple Reminders | MOVED from a Display-tab toggle. All permission UI now lives in one place, with "macOS will ask you" stated **before** the flip and a real denied state instead of the switch silently springing back. |
 
 ### 3.3 From Display — menu bar
 
 | Current label | Key | New home | New label | Verdict |
 |---|---|---|---|---|
-| Menu bar icon | `eventTitleIconFormat` | Menu Bar ▸ **Icon** block gear | Which icon — Calendar / MeetingBarNG / The meeting's app | GEAR. The `None` value is **deleted**: the block's switch is the off state. A block can no longer be present and render nothing. |
+| Menu bar icon | `eventTitleIconFormat` | Menu Bar ▸ **Icon** block gear | Which icon — Calendar / Punctual / The meeting's app | GEAR. The `None` value is **deleted**: the block's switch is the off state. A block can no longer be present and render nothing. |
 | Menu bar text | `eventTitleFormat` | Menu Bar ▸ **Title** block gear | Show — The meeting's title / The word "Meeting" / A dot | GEAR. The `Nothing` value is **deleted** for the same reason. |
 | shorten to %d characters | `statusbarEventTitleLength` | Menu Bar ▸ **Title** block gear | Shorten long titles to N characters (20 / 30 / 50 / Custom) | GEAR + **default changed 55 → 30**. 55 is the range max and not a preset, so `PresetNumberPicker` seeds `isCustom = true` (`PresetNumberPicker.swift:68`) and every new user meets an expanded "Custom" stepper for a setting that effectively never fires. |
 | Time next to the title | `eventTimeFormat` | — | — | **DELETED as a control.** Read only by the classic status-bar path (`StatusBarPresentation.swift:196, 220-235`); the composed path hardcodes `time: ""` / `.inline(showTime: false)` (`:764, :768`), so it is already dead once the builder is on while staying fully enabled directly above it, under a caption that is wrong. `.show` / `.hide` are now expressed by the presence of the **Countdown** block. `.showUnderTitle` is **preserved as a capability**: a Menu Bar tab control "One line / Two lines", implemented in the composed renderer. Migration appends a Countdown block for anyone on `.show`, and sets two-line for anyone on `.showUnderTitle`. |
@@ -228,7 +228,7 @@ All ten shortcut rows lose their trailing colons (they route through raw `.loco(
 | Declined events | `declinedEventsAppereance` | Filters ▸ Custom | Meetings you declined — Show / Dim / Hide | RENAMED + gains the plain **Show** option it is the only picker in the group to lack |
 | Past events | `pastEventsAppereance` | Filters ▸ Custom | Meetings that have ended — Show / Dim / Hide | RENAMED + MERGED with `hideFinishedEventsInMenu` |
 | *(the option vocabulary)* | — | — | — | **"show as underlined" and "show with strikethrough" are DELETED.** Every filter becomes the same three words — **Show / Dim / Hide** — used identically in all seven rows. "Dim" is honest because Phase 1 implements dimming in the shipping panel. This collapses three vocabularies into one and removes the asymmetry where Declined had no "Show". |
-| *(hidden coupling)* | — | Filters | *"The menu bar picks its next meeting from this same list."* | **DISCLOSED.** Today, choosing "show as inactive" for pending/tentative *also* silently removes them from menu-bar selection (`EventSelection+MeetingBar.swift:87-96`) — a second, undocumented effect of an option whose wording only describes styling. Behaviour preserved, now stated. |
+| *(hidden coupling)* | — | Filters | *"The menu bar picks its next meeting from this same list."* | **DISCLOSED.** Today, choosing "show as inactive" for pending/tentative *also* silently removes them from menu-bar selection (`EventSelection+Punctual.swift:87-96`) — a second, undocumented effect of an option whose wording only describes styling. Behaviour preserved, now stated. |
 | Show each meeting's end time | `showEventEndTime` | Dropdown ▸ **Agenda** gear | Time column — Start only / Start and end / Hidden | GEAR + **made to work** (Phase 1) |
 | Show the meeting app's icon | `showMeetingServiceIcon` | Dropdown ▸ **Agenda** gear (+ **Meeting card** gear) | Show the Zoom / Teams / Meet logo | GEAR + **made to work** |
 | Show the calendar's color dot | `showEventCalendarColor` | Dropdown ▸ **Agenda** gear | *(becomes the `None` case of "Calendar colour marker")* | MERGED into the marker picker + **made to work**. The panel draws the dot unconditionally at `DropdownPanelView.swift:568-570`, so this switch does nothing today. |
@@ -285,7 +285,7 @@ All ten shortcut rows lose their trailing colons (they route through raw `.loco(
 | *(new)* | — | Alerts ▸ same | ⚠️ warning when a script toggle is on but no file has been saved | **PROMOTED.** The scheduler requires `runEventStartScript && eventStartScriptLocation != nil`; the UI lets you flip the toggle without ever saving a file, so it reads ON and does nothing with zero feedback. |
 | *(sandbox path recited as instructions)* | — | Alerts ▸ same | **[Choose folder]** button | FIXED |
 | *(new)* | — | Alerts ▸ same | *(the 14 positional script parameters documented in the editor)* | PROMOTED — currently documented only in a source comment (`Scripts.swift:18-35`) |
-| Custom regexes to filter out meetings | `filterEventRegexes` | **Filters** | Hide meetings whose title matches a pattern — *"Matches the title only, not notes or location."* | MOVED + RENAMED. The only event filter in the app that is not with the other event filters; the code shows the seam — it is the only advanced setting not in `AdvancedSettings`, read straight from Defaults at `EventFiltering+MeetingBar.swift:12`. |
+| Custom regexes to filter out meetings | `filterEventRegexes` | **Filters** | Hide meetings whose title matches a pattern — *"Matches the title only, not notes or location."* | MOVED + RENAMED. The only event filter in the app that is not with the other event filters; the code shows the seam — it is the only advanced setting not in `AdvancedSettings`, read straight from Defaults at `EventFiltering+Punctual.swift:12`. |
 | Custom regexes for meeting link | `customRegexes` | **Joining** ▸ *Find meeting links in unusual formats* | Find meeting links in unusual formats | MOVED + RENAMED + DISCLOSED |
 | Test meeting link regex + button | — | Joining ▸ same | Test a pattern | KEPT + **three fixes**: works *before* a pattern is saved (disabled while the list is empty today, so you must ship to production to try one); feeds notes **and location and event URL** like the real detector (`MeetingLinkDetector.swift:410+`), not just notes; and states the rule documented nowhere — the whole match must itself parse as a valid URL (`MeetingLinkDetector.swift:205-207`). |
 | Enter regex modal | — | Joining / Filters | Add a text pattern — with an example placeholder and a plain-language error | KEPT + improved. The word **"regex" is banned** from user-facing copy; it becomes **"text pattern"**. |
@@ -297,7 +297,7 @@ All were frozen in code, several with comments admitting they should be settings
 
 | Value | Where it is hardcoded | New home | New label |
 |---|---|---|---|
-| Menu-bar block spacing (two literal spaces) | `StatusBarPresentation+MeetingBar.swift:205` | Menu Bar | Space between blocks — Tight / Normal / Wide |
+| Menu-bar block spacing (two literal spaces) | `StatusBarPresentation+Punctual.swift:205` | Menu Bar | Space between blocks — Tight / Normal / Wide |
 | Progress bar width (8 cells) | `StatusBarPresentation.swift:555` (comment: "not a user setting yet") | Menu Bar ▸ Progress bar gear | Bar width — Short / Medium / Long |
 | Week-number prefix ("W") | a **localization string**, `en.lproj/Localizable.strings:302` | Menu Bar ▸ Week number gear | Prefix *(a German user wanting "KW" had to edit a translation)* |
 | Timeline window (−3h / +6h) | `UI/Views/DayTimelineView.swift:38-39` | Dropdown ▸ Timeline gear | Hours shown — Next 2h / Next 6h / Whole day |
@@ -338,10 +338,10 @@ Not "token" (menu bar UI), not "section" (dropdown UI), not "module" (code), not
 
 The blocker is not the drag gesture. `MenuBarTokenKind` (`StatusBarPresentation.swift:433`) and `DropdownModule` (`DropdownComposition.swift:18`) are bare `String` enums with no associated value, so **a gear icon has literally nowhere to open.**
 
-Two concrete, non-generic types (a generic `LayoutBlock<Kind>` with a single non-generic `config` does not typecheck; a sum-type config for eight kinds forces an exhaustive switch at every gear, preview and migration site). Both live in **MeetingBarLogic**, in a new file `MeetingBarNG/UI/StatusBar/LayoutBlocks.swift`, which **must be added to the `sources:` array in `Package.swift:26-57`** — that array is an explicit allowlist, not a glob, so a new file silently stays app-target-only and untestable.
+Two concrete, non-generic types (a generic `LayoutBlock<Kind>` with a single non-generic `config` does not typecheck; a sum-type config for eight kinds forces an exhaustive switch at every gear, preview and migration site). Both live in **PunctualLogic**, in a new file `Punctual/UI/StatusBar/LayoutBlocks.swift`, which **must be added to the `sources:` array in `Package.swift:26-57`** — that array is an explicit allowlist, not a glob, so a new file silently stays app-target-only and untestable.
 
 ```swift
-// MeetingBarNG/UI/StatusBar/LayoutBlocks.swift  (MeetingBarLogic)
+// Punctual/UI/StatusBar/LayoutBlocks.swift  (PunctualLogic)
 
 public struct DropdownBlock: Codable, Identifiable, Hashable, Sendable {
     public let id: UUID                 // stable identity: required for drag, and for future duplicates
@@ -386,7 +386,7 @@ public struct DropdownBlockConfig: Codable, Hashable, Sendable {
 - `menuBarBlocks: [MenuBarBlock]` replaces `menuBarTokens` + `menuBarCountdownStyle` + `menuBarDateStyle` + `menuBarProgressStyle` + `menuBarWorldClockTimeZone` + `menuBarWorldClockLabel`
 - `dropdownBlocks: [DropdownBlock]` replaces `dropdownModuleOrder` + `showGreetingInMenu` + `showTimelineInMenu` + `showMeetingControlInMenu` + `showAgendaInMenu` + `showJoinSectionInMenu` + `showBookmarksInMenu`
 
-`MeetingBarLogic` declares **zero dependencies** (`Package.swift`), so `Defaults.Serializable` cannot be declared there. Conformance is declared in the app target, in `MeetingBarNG/Extensions/DefaultsKeys.swift`, and under Swift 6 both the protocol and the type are from other modules, so it must be retroactive:
+`PunctualLogic` declares **zero dependencies** (`Package.swift`), so `Defaults.Serializable` cannot be declared there. Conformance is declared in the app target, in `Punctual/Extensions/DefaultsKeys.swift`, and under Swift 6 both the protocol and the type are from other modules, so it must be retroactive:
 
 ```swift
 extension DropdownBlock: @retroactive Defaults.Serializable {}
@@ -472,7 +472,7 @@ Explicitly rejected: inline `DisclosureGroup` row expansion (expanded rows chang
 
 | Block | Gear options |
 |---|---|
-| **Icon** | Which icon — Calendar / MeetingBarNG / The meeting's app · *(footnote: macOS puts the icon at the far left or far right only; it follows whichever end this block sits at)* |
+| **Icon** | Which icon — Calendar / Punctual / The meeting's app · *(footnote: macOS puts the icon at the far left or far right only; it follows whichever end this block sits at)* |
 | **Title** | Show — The meeting's title / The word "Meeting" / A dot · Shorten long titles to — 20 / 30 / 50 / Custom characters |
 | **Countdown** | Write it as — 2h / 2h 30m / 2:30 · *(summary: counts down to the start before a meeting, to the end during one)* |
 | **Clock** | *(no options)* — summary line reads "Uses your time format from General" with a jump button |
@@ -532,7 +532,7 @@ var now: Date = Date()
 
 So the Dropdown preview mounts **`DropdownPanelView` itself** against a fixture `StatusBarMenuState` and a no-op handler set. The menu-bar strip calls `StatusBarPresenter.composedPresentation`, which it already does. `DisplayPreviewPane`'s hand-copied `agendaRow`, `moduleBlock`, sample data and duplicated composition math are **deleted**. Any per-block style option then costs one implementation, and the preview cannot drift.
 
-**Where fixtures live — and where they cannot.** `StatusBarMenuState` imports `Defaults`; `MBCalendar` imports `AppKit` and holds an `NSColor`. Neither is in `Package.swift`'s `sources:` allowlist. Therefore `PreviewFixtures` lives in the **app target**, at `MeetingBarNG/Preferences/PreviewFixtures.swift`. What *does* go in MeetingBarLogic is the deterministic offset math (`PreviewSampleDay`: a fixed reference date plus the meeting offsets), which is unit-testable; the app target turns that into `MBEvent`/`MBCalendar` values.
+**Where fixtures live — and where they cannot.** `StatusBarMenuState` imports `Defaults`; `MBCalendar` imports `AppKit` and holds an `NSColor`. Neither is in `Package.swift`'s `sources:` allowlist. Therefore `PreviewFixtures` lives in the **app target**, at `Punctual/Preferences/PreviewFixtures.swift`. What *does* go in PunctualLogic is the deterministic offset math (`PreviewSampleDay`: a fixed reference date plus the meeting offsets), which is unit-testable; the app target turns that into `MBEvent`/`MBCalendar` values.
 
 **Builder rows are not real block views.** Each dropdown block is a `private` computed property or func inside the ~1200-line `DropdownPanelView`, closing over shared `@State selectionIndex`, `@State expandedEventIDs` and `@FocusState`. Rendering each as an independently draggable row would require decomposing the app's largest and most recently-churned UI file into eight standalone `View`s **and** rewriting `DropdownPanelNavigation` to carry block ids. That is not worth it and is not needed: a builder row is a **control**, not a rendering. Rows get a lightweight schematic thumbnail plus the one-line config summary; the authoritative rendering is the single real-panel preview two inches to the right. This is the deliberate scope cut that makes §4 shippable.
 
@@ -601,7 +601,7 @@ So the Dropdown preview mounts **`DropdownPanelView` itself** against a fixture 
 7. **One word per surface, everywhere.** **menu bar** and **dropdown** — the owner's own words. "Status bar" and "menu" are retired from all user-visible strings.
 8. **Keep and extend the parenthetical glosses.** "Pending (not yet accepted)" is already the right accommodation. Extend: "Blocks you booked for yourself (focus time, lunch)."
 9. **One colon policy: none.** Colons are removed **at source** in `en.lproj/Localizable.strings`, option values are rewritten as standalone sentence-case phrases rather than sentence continuations, and the runtime `preferenceLabel()` colon-stripper (`Preferences.swift:161-167`) is **deleted**. A runtime string patch is a smell that the content layer is inconsistent — and it silently defeats the design intent of the lowercase option values it strips the cue from.
-10. **Key namespaces match the new panes.** `preferences_appearance_status_bar_*` → `preferences_menubar_*`; `preferences_appearance_menu_*` / `preferences_appearance_events_*` → `preferences_dropdown_*` / `preferences_whichmeetings_*`; plus `preferences_calendars_*`, `preferences_joining_*`, `preferences_alerts_*`, `preferences_general_*`. Done in the **same pass** as the IA change: the shared `appearance` prefix is precisely why the boundary keeps blurring for anyone reading the code. **Only `en.lproj` is edited** — the other 22 bundles already fall back to English for every MeetingBarNG-era key, so renaming there costs nothing and gains nothing. Directory names contain **real trailing spaces**: `MeetingBarNG/Resources /Localization /en.lproj/`.
+10. **Key namespaces match the new panes.** `preferences_appearance_status_bar_*` → `preferences_menubar_*`; `preferences_appearance_menu_*` / `preferences_appearance_events_*` → `preferences_dropdown_*` / `preferences_whichmeetings_*`; plus `preferences_calendars_*`, `preferences_joining_*`, `preferences_alerts_*`, `preferences_general_*`. Done in the **same pass** as the IA change: the shared `appearance` prefix is precisely why the boundary keeps blurring for anyone reading the code. **Only `en.lproj` is edited** — the other 22 bundles already fall back to English for every MeetingBarNG-era key, so renaming there costs nothing and gains nothing. Directory names contain **real trailing spaces**: `Punctual/Resources /Localization /en.lproj/`.
 
 ### 6.2 The 15 worst labels
 
@@ -632,9 +632,9 @@ Seven phases. **Each leaves the app fully working and is independently shippable
 Verification line for every phase (the project's existing convention):
 
 ```
-xcodebuild -scheme MeetingBarNG build
-swift test                                   # MeetingBarLogic
-xcodebuild -scheme MeetingBarNG test         # app target
+xcodebuild -scheme Punctual build
+swift test                                   # PunctualLogic
+xcodebuild -scheme Punctual test         # app target
 swiftlint
 scripts/strings-lint                         # new in Phase 0
 ```
@@ -659,7 +659,7 @@ Every commit body ends with `No AI/voice.`
 - **Add `scripts/strings-lint`**: fails if any key referenced in code is missing from `en.lproj/Localizable.strings`, or if any `en.lproj` key is referenced nowhere. Delete the orphans it finds: `preferences_tab_meeting_opening`, `preferences_tab_menu_bar` (value `"Display & Events"`), `preferences_tab_menu_builder`, `preferences_appearance_menu_show_timeline_toggle`, `preferences_appearance_menu_show_greeting_toggle`. Move the three About-card strings out of the "Status bar quick actions" MARK block.
 - **Verify by hand** whether `MeetingsTab.swift:146`'s `.onMove` drags today. Expected: no. Record the result in the commit body — it settles the container question for Phase 5 and is a live bug fixed in Phase 2.
 
-**Files:** `Preferences/Preferences.swift`, `Preferences/DisplayTab.swift` *(comments)*, `Calendar/CalendarSync.swift`, `UI/StatusBar/StatusBarItemController.swift`, `UI/Views/Shared.swift`, `UI/StatusBar/MeetingSummaryView.swift`, `UI/StatusBar/DropdownPanelView.swift` *(comments)*, `Extensions/DefaultsKeys.swift`, `Utilities/Diagnostics/DiagnosticsReport+MeetingBar.swift`, `scripts/strings-lint` *(new)*, `Resources /Localization /en.lproj/Localizable.strings`.
+**Files:** `Preferences/Preferences.swift`, `Preferences/DisplayTab.swift` *(comments)*, `Calendar/CalendarSync.swift`, `UI/StatusBar/StatusBarItemController.swift`, `UI/Views/Shared.swift`, `UI/StatusBar/MeetingSummaryView.swift`, `UI/StatusBar/DropdownPanelView.swift` *(comments)*, `Extensions/DefaultsKeys.swift`, `Utilities/Diagnostics/DiagnosticsReport+Punctual.swift`, `scripts/strings-lint` *(new)*, `Resources /Localization /en.lproj/Localizable.strings`.
 
 **Hostless logic:** none.
 
@@ -685,7 +685,7 @@ Every commit body ends with `No AI/voice.`
 
 **Files:** `UI/StatusBar/DropdownPanelView.swift`, `UI/StatusBar/MeetingSummaryView.swift`, new `UI/StatusBar/DropdownMetrics.swift`.
 
-**Hostless logic + tests:** put `DropdownMetrics` and a new `AgendaRowLayout` (given metrics + marker + position + time-column mode, return the leading inset, marker frame and title origin) in **MeetingBarLogic** — new file `UI/StatusBar/DropdownMetrics.swift`, **added to `Package.swift` `sources:`**. New `MeetingBarLogicTests/AgendaRowLayoutTests.swift`: every marker × position × time-column combination produces a valid, non-overlapping layout; `.leftBorderBar` always resolves to `.farLeft`; the far-left inset is negative relative to `PanelRow` padding (i.e. it genuinely escapes it).
+**Hostless logic + tests:** put `DropdownMetrics` and a new `AgendaRowLayout` (given metrics + marker + position + time-column mode, return the leading inset, marker frame and title origin) in **PunctualLogic** — new file `UI/StatusBar/DropdownMetrics.swift`, **added to `Package.swift` `sources:`**. New `PunctualLogicTests/AgendaRowLayoutTests.swift`: every marker × position × time-column combination produces a valid, non-overlapping layout; `.leftBorderBar` always resolves to `.farLeft`; the far-left inset is negative relative to `PanelRow` padding (i.e. it genuinely escapes it).
 
 **Verify:** flip each of the seven settings on the default renderer and observe a change. Automated: extend `StatusBarPresentationPolicyTests` / add `AgendaRowLayoutTests`. Manual checklist in the commit body, one line per setting.
 
@@ -706,7 +706,7 @@ Every commit body ends with `No AI/voice.`
 
 **Files:** `Preferences/Preferences.swift`, `PreferencesPresentation.swift`, new `MenuBarTab.swift` / `DropdownTab.swift` / `WhichMeetingsTab.swift` / `JoiningTab.swift` / `AlertsTab.swift` / `GeneralTab.swift` *(rewritten)* / `AboutSupportView.swift`, deleted `DisplayTab.swift` / `EventsTab.swift` / `AdvancedTab.swift`, `CalendarsTab.swift`, `MeetingsTab.swift` → `JoiningTab.swift`, `NotificationsTab.swift` → `AlertsTab.swift`, `UI/Views/Shared.swift`, `Resources /Localization /en.lproj/Localizable.strings`.
 
-**Hostless logic + tests:** new `MeetingBarNG/Preferences/SettingsIndex.swift` in **MeetingBarLogic** (added to `Package.swift` `sources:`) — `SettingsIndexEntry { id, labelKey, helpKey, tab, sectionID, blockKind: String?, synonyms: [String] }` plus a `search(_:)` reusing `CommandBarSearch`'s existing `matchTier` (exact 4 / prefix 3 / word-boundary 2 / substring 1) over `TextNormalization.fold`. Author synonyms aggressively — *dot, bullet, colour, dark, 24 hour, am/pm, zoom, teams, declined, strikethrough*. New `MeetingBarLogicTests/SettingsIndexTests.swift`: every entry's `labelKey` resolves to a real key in `en.lproj`; no duplicate ids; **every one of the 92 Defaults keys is indexed at least once** (this test is the guard against a setting becoming unfindable); representative queries return the expected top hit.
+**Hostless logic + tests:** new `Punctual/Preferences/SettingsIndex.swift` in **PunctualLogic** (added to `Package.swift` `sources:`) — `SettingsIndexEntry { id, labelKey, helpKey, tab, sectionID, blockKind: String?, synonyms: [String] }` plus a `search(_:)` reusing `CommandBarSearch`'s existing `matchTier` (exact 4 / prefix 3 / word-boundary 2 / substring 1) over `TextNormalization.fold`. Author synonyms aggressively — *dot, bullet, colour, dark, 24 hour, am/pm, zoom, teams, declined, strikethrough*. New `PunctualLogicTests/SettingsIndexTests.swift`: every entry's `labelKey` resolves to a real key in `en.lproj`; no duplicate ids; **every one of the 92 Defaults keys is indexed at least once** (this test is the guard against a setting becoming unfindable); representative queries return the expected top hit.
 
 **Verify:** every setting in §3 is reachable in at most three clicks from a cold open. Search for "dot", "strikethrough", "24 hour", "zoom" and land on the right control. `Defaults.reset` restores a section. Strings-lint passes with zero orphans.
 
@@ -725,7 +725,7 @@ Every commit body ends with `No AI/voice.`
 
 **Files:** `Preferences/DisplayPreviewPane.swift` → `Preferences/SurfacePreview.swift`, new `Preferences/PreviewFixtures.swift` *(app target — see §4.6)*, `Preferences/MenuBarTab.swift`, `Preferences/DropdownTab.swift`, `Preferences/Preferences.swift`.
 
-**Hostless logic + tests:** `PreviewSampleDay` in **MeetingBarLogic** (`UI/StatusBar/PreviewSampleDay.swift`, added to `sources:`) — a fixed reference date plus meeting/reminder offsets and a `scrub(to:)` returning the effective `now` for each scrubber position. `MeetingBarLogicTests/PreviewSampleDayTests.swift`: each scrubber position yields the intended state (one running meeting / next at 25m / next at 2h / nothing today), and the fixture is stable across time zones and DST.
+**Hostless logic + tests:** `PreviewSampleDay` in **PunctualLogic** (`UI/StatusBar/PreviewSampleDay.swift`, added to `sources:`) — a fixed reference date plus meeting/reminder offsets and a `scrub(to:)` returning the effective `now` for each scrubber position. `PunctualLogicTests/PreviewSampleDayTests.swift`: each scrubber position yields the intended state (one running meeting / next at 25m / next at 2h / nothing today), and the fixture is stable across time zones and DST.
 
 **Verify:** change any setting in Phase 1's list and see the preview change. Set the scrubber to "2 hours before" with the quiet threshold at 30m and see the strip go quiet. No pane shows two previews. Window opens at 860pt without clipping.
 
@@ -734,15 +734,15 @@ Every commit body ends with `No AI/voice.`
 ### Phase 4 — The block model *(invisible to users)*
 
 **Changes**
-- Add `LayoutBlocks.swift` to MeetingBarLogic and to `Package.swift` `sources:`.
+- Add `LayoutBlocks.swift` to PunctualLogic and to `Package.swift` `sources:`.
 - Add `dropdownBlocks` / `menuBarBlocks` Defaults keys + the `@retroactive Defaults.Serializable` conformances in `DefaultsKeys.swift`.
 - Write the one-shot, versioned, idempotent migration behind a `layoutBlocksMigrated` guard. **Do not delete the legacy keys** — keep reading them as a fallback for one release so a downgrade is survivable.
-- Update `MeetingBarNG/Settings/AppSettings.swift` (493 lines, referenced by 13 files): `MenuSettings` and `StatusBarSettings` read the new keys; the sub-structs stay `Equatable`, and the single construction site is updated. **This is the real cost centre of the phase — budget for it explicitly.**
+- Update `Punctual/Settings/AppSettings.swift` (493 lines, referenced by 13 files): `MenuSettings` and `StatusBarSettings` read the new keys; the sub-structs stay `Equatable`, and the single construction site is updated. **This is the real cost centre of the phase — budget for it explicitly.**
 - Update `StatusBarItemController` and `DropdownPanelView` to resolve blocks via the policy. UI unchanged: chevrons still, no gears, no drag.
 
 **Files:** new `UI/StatusBar/LayoutBlocks.swift`, `Package.swift`, `Extensions/DefaultsKeys.swift`, `Settings/AppSettings.swift`, `UI/StatusBar/DropdownComposition.swift`, `UI/StatusBar/StatusBarPresentation.swift`, `UI/StatusBar/StatusBarItemController.swift`, `UI/StatusBar/DropdownPanelView.swift`, `Preferences/MenuBarTab.swift`, `Preferences/DropdownTab.swift`.
 
-**Hostless logic + tests:** the model, the migration, and `DropdownCompositionPolicy.resolve` extended to blocks — all in MeetingBarLogic. New `MeetingBarLogicTests/LayoutBlocksTests.swift` covering, at minimum: empty legacy order; `menuBarTokens == []` (the "composer off" state, which `MenuBarPreset.detect` maps to `.classic`); unknown raw values dropped; a partial order missing a module gets it re-appended in `standard` order; hidden modules keep their slot through a move; config round-trips; **a config with unknown extra fields decodes without throwing**; **a config missing fields decodes to defaults**; migration is idempotent (running it twice equals running it once); decode failure falls back to `.standard`. Extend `MenuBarPresetTests.swift` for block-shaped presets.
+**Hostless logic + tests:** the model, the migration, and `DropdownCompositionPolicy.resolve` extended to blocks — all in PunctualLogic. New `PunctualLogicTests/LayoutBlocksTests.swift` covering, at minimum: empty legacy order; `menuBarTokens == []` (the "composer off" state, which `MenuBarPreset.detect` maps to `.classic`); unknown raw values dropped; a partial order missing a module gets it re-appended in `standard` order; hidden modules keep their slot through a move; config round-trips; **a config with unknown extra fields decodes without throwing**; **a config missing fields decodes to defaults**; migration is idempotent (running it twice equals running it once); decode failure falls back to `.standard`. Extend `MenuBarPresetTests.swift` for block-shaped presets.
 
 **Verify:** launch on a machine with pre-existing legacy Defaults and confirm the menu bar and dropdown render **identically** to Phase 3. Then delete the new keys and relaunch to confirm the migration re-runs cleanly.
 
@@ -761,7 +761,7 @@ Every commit body ends with `No AI/voice.`
 
 **Files:** `Preferences/MenuBarTab.swift`, `Preferences/DropdownTab.swift`, new `Preferences/BlockRow.swift`, `Preferences/BlockGearPopover.swift`, `Preferences/SurfacePreview.swift`.
 
-**Hostless logic + tests:** move/hide/show/reset-block mutations live on the model in MeetingBarLogic, not in the view — which also makes the eventual macOS 27 `reorderContainer(for:)` adoption a container-modifier swap rather than a rewrite. Extend `LayoutBlocksTests` for move-with-hidden-blocks, tray round-trip, and preset apply/undo. Extend `DropdownPanelNavigationTests` — `interactiveRows` identifies rows by content (`.bookmark(Int)` by index, `.event(String)` by id), and promoting Reminders out of the agenda's hardcoded Today→Reminders→Tomorrow position **changes arrow-key order**. Update those tests deliberately; do not patch until green.
+**Hostless logic + tests:** move/hide/show/reset-block mutations live on the model in PunctualLogic, not in the view — which also makes the eventual macOS 27 `reorderContainer(for:)` adoption a container-modifier swap rather than a rewrite. Extend `LayoutBlocksTests` for move-with-hidden-blocks, tray round-trip, and preset apply/undo. Extend `DropdownPanelNavigationTests` — `interactiveRows` identifies rows by content (`.bookmark(Int)` by index, `.event(String)` by id), and promoting Reminders out of the agenda's hardcoded Today→Reminders→Tomorrow position **changes arrow-key order**. Update those tests deliberately; do not patch until green.
 
 **Verify:** drag a block and see the preview reorder. Click a gear and see only that block's options with the block spotlighted. Reorder by keyboard alone with VoiceOver announcing "block 4 of 8". Hide a block, quit, relaunch, drag it back — its config survives.
 
@@ -777,9 +777,9 @@ Every commit body ends with `No AI/voice.`
 
 **Changes:** every gear option in §4.5 not already present — the agenda marker enum and position, row density, timeline window/hour-lines/bar-shape/titles/scope, greeting summary content, join-block row set, reminder overdue style and tick box, guest cap/sort, notes length, detail field order, block spacing, progress-bar width, week-number prefix, one/two-line menu bar.
 
-**Files:** `UI/StatusBar/DropdownPanelView.swift`, `UI/Views/DayTimelineView.swift`, `UI/StatusBar/DaySummaryHeaderView.swift`, `UI/StatusBar/MeetingSummaryView.swift`, `UI/StatusBar/StatusBarPresentation.swift`, `UI/StatusBar/StatusBarPresentation+MeetingBar.swift`, `Preferences/BlockGearPopover.swift`.
+**Files:** `UI/StatusBar/DropdownPanelView.swift`, `UI/Views/DayTimelineView.swift`, `UI/StatusBar/DaySummaryHeaderView.swift`, `UI/StatusBar/MeetingSummaryView.swift`, `UI/StatusBar/StatusBarPresentation.swift`, `UI/StatusBar/StatusBarPresentation+Punctual.swift`, `Preferences/BlockGearPopover.swift`.
 
-**Hostless logic + tests:** every new option is an enum on a `Config` struct in MeetingBarLogic. `DayTimelineLayout`'s `static let`s (`DayTimelineView.swift:38-45`) must become instance properties on a `DayTimelineLayoutCalculator` before any of it can vary — a prerequisite, not a detail. Extend `AgendaRowLayoutTests` for the full option matrix; add `DayTimelineLayoutTests`.
+**Hostless logic + tests:** every new option is an enum on a `Config` struct in PunctualLogic. `DayTimelineLayout`'s `static let`s (`DayTimelineView.swift:38-45`) must become instance properties on a `DayTimelineLayoutCalculator` before any of it can vary — a prerequisite, not a detail. Extend `AgendaRowLayoutTests` for the full option matrix; add `DayTimelineLayoutTests`.
 
 **Verify:** the owner's literal ask — set the agenda marker to a left border bar at the far-left edge, confirm it reaches the true row edge (outside `PanelRow`'s padding), and confirm it is legible in greyscale.
 
@@ -809,7 +809,7 @@ Every commit body ends with `No AI/voice.`
 - ~~**Duplicate blocks are modelled but not exposed.**~~ **Overturned by owner decision 6 — they ship.** `id: UUID` already makes two world clocks (different cities) or a date on each side of the title possible. Exposing it requires `DropdownPanelContent` and every navigation row case to carry a block id, plus a real delete with confirmation so the Hidden tray does not accumulate junk. That work lands in **Phase 6**, not Phase 5, so the builder ships first on the simpler one-instance-per-kind model and duplication is added deliberately rather than as a Phase 5 side effect. Blocks for which a duplicate is meaningless (a second Countdown of the same meeting) declare themselves single-instance on the block kind; the builder does not ban duplication globally.
 - **The classic NSMenu renderer is not deleted.** It is feature-frozen for styling and kept as an escape hatch. Deleting it in the same release as this overhaul would remove the safety net and make previously-invisible losses newly attributable to this work.
 - **Dropdown width, panel translucency, dividers, and global font size are not exposed.** All four are read as statics by three to nine files each (`MeetingSummaryView.swift:38`, `DropdownPanelView.swift:156-163`, `:228-230`, `StatusBarItemController.swift:44`) and would need to become injected environment values — plus the AppKit window sizing in `DropdownPanelPlacement.swift` also keys off the width. High cost, low ask. Deferred.
-- **The other 22 `.lproj` bundles are not touched.** They already fall back to English for every MeetingBarNG-era key; renaming keys in `en.lproj` alone is correct and free.
+- **The other 22 `.lproj` bundles are not touched.** They already fall back to English for every fork-era key; renaming keys in `en.lproj` alone is correct and free.
 - **Onboarding is not redesigned.** Out of scope, though two of its strings stop being reused as fake status text on the Calendars tab.
 - **No macOS 26-only APIs are used for core behaviour.** `dragConfiguration(_:)` and `dragPreviewsFormation(.stack)` are cheap additive polish behind `#available` later. macOS 27's `reorderable()` / `reorderContainer(for:)` are confirmed absent from this machine's SDK; keeping reorder mutations in the model makes that adoption mechanical.
 - **`.inspector` is not used anywhere.** One config mechanism only.

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+	<dict>
+		<key>ITSAppUsesNonExemptEncryption</key>
+		<false />
+		<key>NSCalendarsFullAccessUsageDescription</key>
+		<string>To get events to show on status bar</string>
+		<key>CFBundleDevelopmentRegion</key>
+		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		<key>CFBundleExecutable</key>
+		<string>$(EXECUTABLE_NAME)</string>
+		<key>CFBundleIdentifier</key>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		<key>CFBundleInfoDictionaryVersion</key>
+		<string>6.0</string>
+		<key>CFBundleName</key>
+		<string>$(PRODUCT_NAME)</string>
+		<key>CFBundleDisplayName</key>
+		<string>Punctual</string>
+		<key>CFBundlePackageType</key>
+		<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+		<key>CFBundleShortVersionString</key>
+		<string>$(MARKETING_VERSION)</string>
+		<key>CFBundleTypeRole</key>
+		<string>Editor</string>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<!-- The reversed-domain Google scheme
+					     (com.googleusercontent.apps.<client>) was removed when the
+					     OAuth redirect moved to a loopback listener on 127.0.0.1.
+					     A scheme has to be declared here at BUILD time, so it
+					     could never receive the redirect for a client id the user
+					     supplies at RUNTIME - and any other app on the Mac could
+					     register the same scheme, which is why Google is retiring
+					     it. See GCEventStore.redirectHandler. -->
+					<string>punctual</string>
+				</array>
+			</dict>
+		</array>
+		<key>CFBundleVersion</key>
+		<string>$(CURRENT_PROJECT_VERSION)</string>
+		<key>GOOGLE_AUTH_KEYCHAIN_NAME</key>
+		<string>$(GOOGLE_AUTH_KEYCHAIN_NAME)</string>
+		<key>GOOGLE_CLIENT_ID</key>
+		<string>$(GOOGLE_CLIENT_ID)</string>
+		<key>GOOGLE_CLIENT_NUMBER</key>
+		<string>$(GOOGLE_CLIENT_NUMBER)</string>
+		<key>GOOGLE_CLIENT_SECRET</key>
+		<string>$(GOOGLE_CLIENT_SECRET)</string>
+		<key>LSApplicationCategoryType</key>
+		<string>public.app-category.productivity</string>
+		<key>LSMinimumSystemVersion</key>
+		<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+		<key>LSUIElement</key>
+		<true />
+		<key>NSCalendarsUsageDescription</key>
+		<string>To get events to show on status bar</string>
+		<key>NSCameraUsageDescription</key>
+		<string>Punctual shows a live preview of your camera so you can check your appearance before joining a meeting.</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>Punctual shows your microphone input level so you can check your audio before joining a meeting.</string>
+		<key>NSRemindersFullAccessUsageDescription</key>
+		<string>Punctual shows your reminders that are due today alongside your meetings, and lets you check them off or snooze them.</string>
+		<key>NSHumanReadableCopyright</key>
+		<string>© 2026 Chykalophia (Peter Krzyzek). Punctual is built on MeetingBar, © 2020 Andrii Leitsius and contributors, used under the Apache License 2.0.</string>
+		<key>NSMainStoryboardFile</key>
+		<string>Main</string>
+		<key>NSPrincipalClass</key>
+		<string>NSApplication</string>
+		<key>NSSupportsAutomaticTermination</key>
+		<true />
+		<key>NSSupportsSuddenTermination</key>
+		<true />
+	</dict>
+</plist>
