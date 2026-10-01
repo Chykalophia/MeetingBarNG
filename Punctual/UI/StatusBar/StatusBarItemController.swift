@@ -39,6 +39,7 @@
 //  chip: draw its capsule as an overlay on the status-item button, and route a
 //  left-click inside that capsule to joinNextMeeting() instead of to the
 //  dropdown.
+//  Punctual, 2026-10-01: add checkForUpdatesAction (Sparkle).
 //
 
 import Cocoa
