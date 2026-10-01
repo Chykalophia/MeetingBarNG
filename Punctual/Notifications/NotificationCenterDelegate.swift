@@ -37,6 +37,12 @@ final class NotificationCenterDelegate: NSObject, @preconcurrency UNUserNotifica
     ) {
         defer { completionHandler() }
 
+        // Sparkle "update available" reminder: not a meeting notification.
+        if response.notification.request.identifier == SoftwareUpdater.updateNotificationIdentifier {
+            SoftwareUpdater.shared.handleUpdateNotificationTapped()
+            return
+        }
+
         let content = response.notification.request.content
         guard let action = NotificationResponseAction(
             categoryIdentifier: content.categoryIdentifier,

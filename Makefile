@@ -32,7 +32,11 @@ XCFILTER := $(shell command -v xcbeautify >/dev/null 2>&1 && echo 'xcbeautify --
 # Append a JUnit report to app-hosted test runs when xcbeautify is available.
 JUNIT_REPORT := $(shell command -v xcbeautify >/dev/null 2>&1 && echo '--report junit --report-path $(BUILD_DIR)/test-results')
 
-.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings lint-strings sign-local run-local archive export-app dmg notarize release-local brand-check screenshots
+# Serial only: release-local's steps (dmg -> notarize -> appcast) must not
+# overlap, or a stale dmg could be notarized or signed for Sparkle.
+.NOTPARALLEL:
+
+.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings lint-strings sign-local run-local archive export-app dmg notarize release-local brand-check appcast release-preflight screenshots
 
 # ---------------------------------------------------------------------------
 # Distribution (Developer ID / direct download)
@@ -62,6 +66,11 @@ TEAM_ID ?= 66CMG54L8U
 RELEASE_ENTITLEMENTS ?= Punctual/Punctual.entitlements
 PROFILE_SPECIFIER ?= Punctual Developer ID
 EXPORT_OPTIONS := $(BUILD_DIR)/ExportOptions.plist
+
+# Extra xcodebuild build settings for the archive, e.g. for a local Sparkle
+# update test: XCODEBUILD_EXTRA="MARKETING_VERSION=9.9.9 PUNCTUAL_UPDATE_FEED_URL=http://127.0.0.1:8765/appcast.xml".
+# Never set this for a real release.
+XCODEBUILD_EXTRA ?=
 
 # A local XCConfig/GoogleSecrets.xcconfig would otherwise be baked into the
 # release. While the OAuth consent screen is in Testing, Google refuses every
@@ -95,7 +104,8 @@ archive:
 		PUNCTUAL_PROFILE_SPECIFIER="$(PROFILE_SPECIFIER)" \
 		$(GOOGLE_OVERRIDES) \
 		ENABLE_HARDENED_RUNTIME=YES \
-		OTHER_CODE_SIGN_FLAGS="--timestamp"
+		OTHER_CODE_SIGN_FLAGS="--timestamp" \
+		$(XCODEBUILD_EXTRA)
 
 export-app: archive
 	@rm -rf $(EXPORT_PATH)
@@ -138,9 +148,30 @@ notarize:
 brand-check:
 	@Scripts/brand-check.sh
 
-release-local: brand-check dmg notarize
-	@shasum -a 256 "$(DMG_PATH)"
-	@echo "==> Ready: $(DMG_PATH)"
+# Sparkle feed for this release, uploaded next to the dmg. Written only after
+# notarization, so only a dmg Apple accepted is ever signed for Sparkle. Release
+# notes (markdown) are embedded when build/release-notes-<version>.md exists.
+APPCAST_PATH := $(BUILD_DIR)/appcast.xml
+RELEASE_NOTES ?= $(BUILD_DIR)/release-notes-$(VERSION).md
+appcast:
+	Scripts/make-appcast.sh "$(DMG_PATH)" "$(APPCAST_PATH)" \
+		$$( [ -f "$(RELEASE_NOTES)" ] && echo "$(RELEASE_NOTES)" )
+
+release-local: release-preflight brand-check dmg notarize appcast
+	@cd "$(BUILD_DIR)" && shasum -a 256 "$(notdir $(DMG_PATH))" > "$(notdir $(DMG_PATH)).sha256"
+	@cat "$(DMG_PATH).sha256"
+	@echo "==> Ready: $(DMG_PATH), $(DMG_PATH).sha256, $(APPCAST_PATH)"
+
+# Refuse to cut a release with test-only overrides in play: a leftover
+# XCODEBUILD_EXTRA (e.g. a CURRENT_PROJECT_VERSION override) would ship a build
+# number that blocks every later update.
+release-preflight:
+	@if [ -n "$(strip $(XCODEBUILD_EXTRA))" ]; then \
+		echo "error: XCODEBUILD_EXTRA is set ($(XCODEBUILD_EXTRA)); never for a release."; exit 1; \
+	fi
+	@if [ -n "$$APPCAST_ALLOW_TEST_FEED$$APPCAST_URL_BASE" ]; then \
+		echo "error: APPCAST_ALLOW_TEST_FEED/APPCAST_URL_BASE set in the environment; never for a release."; exit 1; \
+	fi
 
 sign-local:
 	@if ! security find-identity -p codesigning 2>/dev/null | grep -q "$(LOCAL_SIGN_IDENTITY)"; then \
@@ -150,7 +181,13 @@ sign-local:
 		echo "LOCAL_SIGN_IDENTITY=<name>."; \
 		exit 1; \
 	fi
-	codesign --force --deep --sign "$(LOCAL_SIGN_IDENTITY)" \
+	@# 1. Every nested bundle (Sparkle's helpers, the login-item helper, debug
+	@#    dylibs, a test bundle left by make test-app), each keeping its OWN
+	@#    entitlements. `--deep --entitlements` would stamp the app's sandbox onto
+	@#    Sparkle's installer helpers.
+	@# 2. Then the app itself, alone, with the local entitlements.
+	codesign --force --deep --preserve-metadata=entitlements --sign "$(LOCAL_SIGN_IDENTITY)" "$(LOCAL_APP)"
+	codesign --force --sign "$(LOCAL_SIGN_IDENTITY)" \
 		--entitlements XCConfig/LocalSigning.entitlements "$(LOCAL_APP)"
 	codesign --verify --deep --strict --verbose=2 "$(LOCAL_APP)"
 

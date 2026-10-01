@@ -57,7 +57,11 @@ spctl --assess --type open --context context:primary-signature -vv Punctual-<ver
 shasum -a 256 Punctual-<version>.dmg
 ```
 
-There is no auto-updater yet. Watch the repo for releases, or check the releases page.
+**Updates:** from 1.1.0, Punctual updates itself. Once first-run setup is finished, it asks
+whether to check for updates automatically; you can change that, or check by hand, under
+Preferences ▸ About ▸ Updates, or from the right-click menu. Every update is signed by
+Chykalophia and verified before it installs. Versions
+before 1.1.0 have no updater, so moving to 1.1.0 is a one-time manual download.
 
 ---
 
@@ -150,9 +154,14 @@ links, and open the right one.
 If you connect Google Calendar directly, Punctual asks for read-only access, and the data
 goes straight between your Mac and Google, never through us. Disconnecting revokes it.
 
-The one other exception is opt-in. Location autocomplete in the event editor sends the
-location text you type to Apple (MapKit) for suggestions. It is off by default, and
-Preferences says exactly what it sends.
+Location autocomplete in the event editor is opt-in. It sends the location text you type
+to Apple (MapKit) for suggestions. It is off by default, and Preferences says exactly what
+it sends.
+
+Update checks, if you allow them, ask GitHub (where Punctual's releases live) whether a
+newer version exists, at most once a day. Like any web request, that shows GitHub your IP
+address and which Punctual version you have. No calendar data is involved, and Sparkle's
+optional anonymous system-profile reporting is not used.
 
 The full [privacy policy](https://www.chykalophia.com/punctual/policy) covers every detail.
 Privacy questions: <privacy@chykalophia.com>.

@@ -2,18 +2,17 @@ name: Release
 
 # Builds, signs, notarizes and publishes a downloadable .dmg.
 #
-# Triggered by pushing a `v*` tag. `workflow_dispatch` takes an existing tag so a
-# failed notarization can be retried without cutting a new version — notarization
-# is the step most likely to fail for reasons that have nothing to do with the code
-# (expired credentials, an Apple outage, a rejected entitlement).
+# MANUAL ONLY (workflow_dispatch). It used to run on every `v*` tag push, but
+# releases are cut locally with `make release-local`, which signs the dmg for
+# Sparkle and writes appcast.xml. A tag-triggered run would rebuild the dmg and
+# overwrite it (--clobber), so the published appcast's signature and length would
+# no longer match and every user's update would be rejected. This workflow does not
+# produce an appcast and refuses to touch a release that already has one.
 #
 # Required secrets are documented in docs/RELEASING.md. If they are missing the job
 # fails early with a named error rather than half-way through a 20-minute build.
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
     inputs:
       tag:
@@ -47,11 +46,36 @@ jobs:
     steps:
       - name: Resolve tag
         id: tag
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
         run: |
-          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          TAG="$INPUT_TAG"
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::tag must look like v1.2.3, got '$TAG'"; exit 1
+          fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
           echo "Releasing $TAG"
+
+      # A release published by `make release-local` carries appcast.xml, whose
+      # EdDSA signature covers that exact dmg. Rebuilding and uploading over it
+      # would break every installed copy's update. Refuse before building.
+      - name: Refuse to overwrite a Sparkle release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          # Fails CLOSED: only "release not found" counts as "no appcast".
+          # Any other gh error (outage, rate limit, token scope) stops the job.
+          if out="$(gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' 2>&1)"; then
+            if printf '%s\n' "$out" | grep -qx 'appcast.xml'; then
+              echo "::error::$TAG already has appcast.xml (published by make release-local). Not overwriting its dmg."
+              exit 1
+            fi
+          elif ! printf '%s' "$out" | grep -qi 'release not found'; then
+            echo "::error::could not inspect release $TAG: $out"
+            exit 1
+          fi
 
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -285,20 +309,30 @@ jobs:
       - name: Publish to the release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+          DMG: ${{ steps.package.outputs.dmg }}
+          SHA: ${{ steps.checksum.outputs.sha }}
         run: |
-          TAG="${{ steps.tag.outputs.tag }}"
-          DMG="${{ steps.package.outputs.dmg }}"
-
-          # The tag may already have a release with hand-written notes (0.2.0 and
-          # 0.3.0 do). Only create one if it is genuinely missing, so publishing an
-          # artifact never overwrites release notes.
-          if ! gh release view "$TAG" >/dev/null 2>&1; then
-            echo "No release for $TAG yet — creating one from the tag."
-            gh release create "$TAG" --title "$TAG" --generate-notes
+          # Re-check right before writing: a release may have gained appcast.xml
+          # (make release-local) while this job was building. Fails closed.
+          if out="$(gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' 2>&1)"; then
+            if printf '%s\n' "$out" | grep -qx 'appcast.xml'; then
+              echo "::error::$TAG now has appcast.xml. Not overwriting its dmg."
+              exit 1
+            fi
+          elif printf '%s' "$out" | grep -qi 'release not found'; then
+            # A new release is created as a DRAFT: without an appcast it must
+            # never become "latest", or every installed copy's update check
+            # (releases/latest/download/appcast.xml) would fail.
+            echo "No release for $TAG yet; creating a draft."
+            gh release create "$TAG" -R "$GITHUB_REPOSITORY" --draft --title "$TAG" --generate-notes
+          else
+            echo "::error::could not inspect release $TAG: $out"
+            exit 1
           fi
 
-          gh release upload "$TAG" "$DMG" "${{ steps.checksum.outputs.sha }}" --clobber
-          echo "Published $(basename "$DMG") to $TAG"
+          gh release upload "$TAG" -R "$GITHUB_REPOSITORY" "$DMG" "$SHA" --clobber
+          echo "Uploaded $(basename "$DMG") to $TAG"
 
       - name: Clean up keychain
         if: always()

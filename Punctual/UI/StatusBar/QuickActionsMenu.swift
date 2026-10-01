@@ -79,6 +79,11 @@ enum QuickActionsMenu {
             #selector(StatusBarItemController.openPreferencesAction),
             target: target
         ))
+        menu.addItem(item(
+            "status_bar_quick_action_check_updates",
+            #selector(StatusBarItemController.checkForUpdatesAction),
+            target: target
+        ))
 
         menu.addItem(.separator())
 

@@ -77,5 +77,15 @@
 		<false />
 		<key>NSSupportsSuddenTermination</key>
 		<true />
+		<key>SUFeedURL</key>
+		<string>$(PUNCTUAL_UPDATE_FEED_URL)</string>
+		<key>SUPublicEDKey</key>
+		<string>DMrlkesx8ymV+9ycWs3wdbOswoEoY6fE/VJsgPD8DtU=</string>
+		<key>SUEnableInstallerLauncherService</key>
+		<true />
+		<key>SURequireSignedFeed</key>
+		<true />
+		<key>SUVerifyUpdateBeforeExtraction</key>
+		<true />
 	</dict>
 </plist>

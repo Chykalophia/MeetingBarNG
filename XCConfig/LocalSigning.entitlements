@@ -32,5 +32,13 @@
 	<true/>
 	<key>com.apple.security.personal-information.reminders</key>
 	<true/>
+	<!-- Sparkle (sandboxed): lets the app reach its update installer helpers.
+	     Literal ids: this file is applied by `codesign` (make sign-local), which
+	     does not expand Xcode build settings like $(PRODUCT_BUNDLE_IDENTIFIER). -->
+	<key>com.apple.security.temporary-exception.mach-lookup.global-name</key>
+	<array>
+		<string>com.chykalophia.Punctual-spks</string>
+		<string>com.chykalophia.Punctual-spki</string>
+	</array>
 </dict>
 </plist>

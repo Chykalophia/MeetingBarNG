@@ -155,27 +155,93 @@ The warning disappears on Google's side once verified; no app update is needed.
 
 ## 3. Cutting a release
 
+**The release path in use is local** (`make release-local`, below). Every Punctual release
+so far was cut that way.
+
 ```bash
 # 1. Bump MARKETING_VERSION and CURRENT_PROJECT_VERSION in the Xcode project.
-# 2. Move CHANGELOG.md's "Unreleased" section under the new version heading.
-# 3. Land that on master through a PR (master is protected; see STATE.md).
-# 4. Tag it.
-git tag v0.4.0
-git push origin v0.4.0
+#    CURRENT_PROJECT_VERSION must go UP every release: Sparkle compares it.
+# 2. Add the version to CHANGELOG.md and the in-app What's New (ReleaseNotes.swift;
+#    a test fails if its newest entry doesn't match the app version).
+# 3. Write build/release-notes-<version>.md (no em dashes): it becomes both the
+#    GitHub release notes and the notes shown in the update window.
+# 4. make release-local NOTARY_PROFILE=punctual-notary SHIP_GOOGLE_CREDENTIALS=1
+#    -> build/Punctual-<version>.dmg, .dmg.sha256, build/appcast.xml
+# 5. PR dev -> master, merge, tag the merge commit, then publish with the script:
+gh pr merge <n> -R Chykalophia/Punctual --merge --admin
+git fetch origin && git tag -s v<version> origin/master -m "Punctual <version>" && git push origin v<version>
+Scripts/publish-release.sh <version>
 ```
 
-The tag push runs `.github/workflows/release.yml`, which archives, signs, exports,
-packages, notarizes, staples, and uploads `Punctual-0.4.0.dmg` plus a `.sha256`
-to the release.
+Run these from the repo root. `publish-release.sh` creates the release as a **draft** with
+the dmg, `.sha256` and `appcast.xml`, checks every upload's size, and only then makes it
+public and latest. It then re-downloads the appcast and dmg through the public "latest"
+URLs a user's Mac uses and checks they match the local files and pass Gatekeeper. So there
+is never a public latest release without its appcast.
+
+`make release-local` refuses to start if `XCODEBUILD_EXTRA`, `APPCAST_ALLOW_TEST_FEED` or
+`APPCAST_URL_BASE` is set: those exist only for local update tests.
+
+### Sparkle: never publish a release without `appcast.xml`
+
+Installed copies (1.1.0 and later) check
+`https://github.com/Chykalophia/Punctual/releases/latest/download/appcast.xml`. That
+address follows whichever release is **latest**, so a latest release missing its
+`appcast.xml` makes every installed copy's update check fail. If one slips out, upload the
+appcast to it (`gh release upload v<version> build/appcast.xml`), or mark the previous
+release latest again.
+
+`Scripts/make-appcast.sh` (run by `make release-local`) reads everything from the app
+**inside** the dmg it signs, and refuses unless: the dmg is notarized, stapled and accepted
+by Gatekeeper; the app uses the official feed; the keychain key matches that app's
+`SUPublicEDKey`; its version and build equal the project's; and the build is newer than the
+published latest (a too-high build number would block every later update). It signs the
+dmg, verifies the signature, writes the feed, and **signs the feed** too: the app sets
+`SURequireSignedFeed` and `SUVerifyUpdateBeforeExtraction`.
+
+### The Sparkle key
+
+The EdDSA private key lives in the login keychain under the account **`punctual`** (not
+Sparkle's default account, which every Sparkle app on a Mac shares). Its public half,
+`generate_keys --account punctual -p`, must equal `SUPublicEDKey` in Info.plist.
+
+- **Back it up** to 1Password: `generate_keys --account punctual -x <file>`, store the
+  file's contents, delete the file.
+- **Restore** on a new Mac: `generate_keys --account punctual -f <file>`, then delete it.
+- **If it is lost:** new feeds can't be signed with it, so installed copies reject them.
+  Sparkle has one way back, read in its source (`SUAppcastDriver.m`): after a feed has failed
+  signature validation continuously for 20 days (`SUSignedFeedFailureExpirationInterval`),
+  it accepts the feed again, provided the update itself still passes the EdDSA **or**
+  same-team Developer ID check. So a Developer ID signed release carrying a new key would
+  reach users, but only after up to 20 days of failed checks. Don't lose it.
+
+What Sparkle accepts, read in its source (`SUUpdateValidator.m`): an update installs if its
+EdDSA signature verifies against the installed app's key, **or** its Developer ID signature
+matches the installed app's team. The "or" is Sparkle's design, for key rotation, and no
+setting removes it. So the Developer ID certificate is as sensitive as the EdDSA key: whoever
+holds it and can publish to this repo can ship an update. Every release is signed both ways.
+The signed feed means an altered feed is refused (tested: a one-word change to a signed
+feed was rejected and nothing was downloaded), with the 20-day recovery rule above as the
+one exception: an attacker able to replace the feed would also have to keep it failing for
+20 days, unnoticed.
+
+### CI (manual only, not Sparkle-ready)
+
+`.github/workflows/release.yml` runs **only** when started by hand (workflow_dispatch). It
+no longer runs on tag pushes: it would rebuild and overwrite the locally signed dmg, and the
+published appcast would stop matching it. It does not produce an appcast or hold the Sparkle
+key, and it refuses to touch a release that already has `appcast.xml`. Do not use it to
+publish a release until Sparkle signing is added to it.
 
 If the tag already has a release with hand-written notes, the workflow **uploads into it
 without touching the notes**. It only creates a release when none exists.
 
 ### Re-running without a new version
 
-Notarization fails for reasons unrelated to your code — expired credentials, an Apple
-outage, a rejected entitlement. Actions ▸ **Release** ▸ **Run workflow** ▸ enter the
-existing tag. It rebuilds and re-publishes with `--clobber`.
+Notarization fails for reasons unrelated to your code: expired credentials, an Apple
+outage, a rejected entitlement. Locally, resume the same submission without rebuilding
+(see "notarize.sh exits 75" below), then run `make appcast` and publish. Never rebuild a
+dmg that is already published with an appcast: its EdDSA signature would no longer match.
 
 ### Locally, without CI
 

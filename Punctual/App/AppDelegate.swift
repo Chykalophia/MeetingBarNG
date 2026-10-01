@@ -22,6 +22,7 @@
 //  holding no access.
 //  Punctual, 2026-10-01: log each launch that presents setup, so a mid-setup
 //  relaunch is visible in the system log.
+//  Punctual, 2026-10-01: start the Sparkle updater at launch (SoftwareUpdater).
 //
 
 import AppKit
@@ -66,6 +67,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         ChangelogResetMigration.migrateDefaultsIfNeeded()
         MenuBarTimeFormatDefaultsMigration.migrateDefaultsIfNeeded()
         DropdownModuleMergeMigration.migrateDefaultsIfNeeded()
+
+        // Sparkle: scheduled update checks and "Check for Updates…".
+        SoftwareUpdater.shared.start()
 
         // Handle windows closing closing
         NotificationCenter.default.addObserver(
