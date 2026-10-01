@@ -212,7 +212,22 @@ The keychain partition list was not set, so codesign is waiting on a GUI prompt 
 answer. The workflow handles this; if you hit it locally, run
 `security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k <pw> login.keychain-db`.
 
+**`notarize.sh` exits 75: "Apple has not finished yet"**
+Not a rejection. The wait (default 30 min, `NOTARY_TIMEOUT` to change) ran out while
+Apple was still processing; the submission keeps going on Apple's side. A team's first
+submission can take hours (2026-10-01: over an hour). Resume without re-uploading, using
+the id the script printed:
+
+```bash
+NOTARY_SUBMISSION_ID=<id> NOTARY_PROFILE=punctual-notary NOTARY_TIMEOUT=3h \
+  Scripts/notarize.sh build/Punctual-<version>.dmg
+```
+
+Do not rebuild the dmg in between: the ticket is keyed to the file's hash, so a rebuilt
+image would no longer match the submission.
+
 **Notarization returns `Invalid` with no reason**
+`notarize.sh` now prints the notary log itself on any non-`Accepted` result.
 The submit output never carries the reason — only the log does:
 
 ```bash

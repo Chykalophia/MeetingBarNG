@@ -43,20 +43,55 @@ else
     AUTH=(--apple-id "$AC_APPLE_ID" --password "$AC_PASSWORD" --team-id "$AC_TEAM_ID")
 fi
 
-echo "==> Submitting $DMG to the notary service (this waits; typically 1-5 min)"
-set +e
-xcrun notarytool submit "$DMG" "${AUTH[@]}" --wait --timeout 30m
-SUBMIT_STATUS=$?
-set -e
+RESULT="$(mktemp)"
+trap 'rm -f "$RESULT"' EXIT
 
-if [ $SUBMIT_STATUS -ne 0 ]; then
-    echo "error: notarization failed. Fetching the log for the most recent submission." >&2
-    # The rejection reason is ONLY in this log — the submit output just says
-    # "Invalid", which tells you nothing actionable.
-    xcrun notarytool history "${AUTH[@]}" --limit 1 >&2 || true
-    echo "Run: xcrun notarytool log <submission-id> <same credentials>" >&2
-    exit $SUBMIT_STATUS
+# Structured output, so the verdict is read from Apple's answer rather than
+# inferred from an exit code: a wait that times out exits non-zero exactly
+# like a rejection does, but means something entirely different.
+if [ -n "${NOTARY_SUBMISSION_ID:-}" ]; then
+    # Resume an earlier submission instead of uploading the same bytes again.
+    # Stapling works because the ticket is keyed to the file's hash.
+    echo "==> Waiting on existing submission $NOTARY_SUBMISSION_ID"
+    xcrun notarytool wait "$NOTARY_SUBMISSION_ID" "${AUTH[@]}" \
+        --timeout "${NOTARY_TIMEOUT:-30m}" --output-format json > "$RESULT" 2>&1 || true
+else
+    echo "==> Submitting $DMG to the notary service (usually 1-5 min; a team's first can take hours)"
+    xcrun notarytool submit "$DMG" "${AUTH[@]}" \
+        --wait --timeout "${NOTARY_TIMEOUT:-30m}" --output-format json > "$RESULT" 2>&1 || true
 fi
+
+# Take only the submission id from that output: on a timeout notarytool emits
+# {"id":..,"message":"Timeout ..."} on stderr with NO status field. The verdict
+# comes from `notarytool info`, which always reports one.
+ID="${NOTARY_SUBMISSION_ID:-$(plutil -extract id raw -o - "$RESULT" 2>/dev/null || true)}"
+STATUS=""
+if [ -n "$ID" ]; then
+    STATUS="$(xcrun notarytool info "$ID" "${AUTH[@]}" --output-format json 2>/dev/null \
+        | plutil -extract status raw -o - - 2>/dev/null || true)"
+fi
+echo "    submission: ${ID:-?}  status: ${STATUS:-?}"
+
+case "$STATUS" in
+    Accepted)
+        ;;
+    "In Progress")
+        echo "Apple has not finished yet. This is NOT a rejection; processing continues." >&2
+        echo "Resume (no re-upload): NOTARY_SUBMISSION_ID=$ID Scripts/notarize.sh \"$DMG\"" >&2
+        exit 75   # EX_TEMPFAIL
+        ;;
+    *)
+        echo "error: notarization did not succeed (status: ${STATUS:-unknown})." >&2
+        cat "$RESULT" >&2
+        if [ -n "$ID" ]; then
+            # The rejection reason is ONLY in this log; the status just says
+            # "Invalid", which tells you nothing actionable.
+            echo "==> Notary log for $ID" >&2
+            xcrun notarytool log "$ID" "${AUTH[@]}" >&2 || true
+        fi
+        exit 1
+        ;;
+esac
 
 echo "==> Stapling the ticket"
 xcrun stapler staple "$DMG"
