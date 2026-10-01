@@ -204,10 +204,23 @@ jobs:
             OTHER_CODE_SIGN_FLAGS="--timestamp"
 
       - name: Export app
+        env:
+          SPECIFIER: ${{ steps.profile.outputs.specifier }}
         run: |
+          # Manual-signing export must name the profile per bundle id when one
+          # is in use, or it fails with "requires a provisioning profile with
+          # the Time Sensitive Notifications feature".
+          cp XCConfig/ExportOptions-DeveloperID.plist build/ExportOptions.plist
+          if [ -n "$SPECIFIER" ]; then
+            /usr/libexec/PlistBuddy \
+              -c "Add :provisioningProfiles dict" \
+              -c "Add :provisioningProfiles:com.chykalophia.Punctual string $SPECIFIER" \
+              build/ExportOptions.plist
+          fi
+
           xcodebuild -exportArchive \
             -archivePath build/Punctual.xcarchive \
-            -exportOptionsPlist XCConfig/ExportOptions-DeveloperID.plist \
+            -exportOptionsPlist build/ExportOptions.plist \
             -exportPath build/export
 
           ls -la build/export

@@ -52,12 +52,16 @@ EXPORT_PATH := $(BUILD_DIR)/export
 EXPORTED_APP := $(EXPORT_PATH)/Punctual.app
 DMG_PATH := $(BUILD_DIR)/Punctual-$(VERSION).dmg
 
-# Signed with the FULL entitlements only when a provisioning profile is available;
-# otherwise the time-sensitive-notifications key has to go, or signing fails.
-# Override with: make archive RELEASE_ENTITLEMENTS=Punctual/Punctual.entitlements PROFILE_SPECIFIER="<profile name>"
+# Default: the FULL entitlements, signed against the "Punctual Developer ID"
+# provisioning profile, which is what lets meeting alerts break through Focus
+# (com.apple.developer.usernotifications.time-sensitive). The profile must be
+# installed in ~/Library/Developer/Xcode/UserData/Provisioning Profiles.
+# Fallback without a profile (alerts will NOT break through Focus):
+#   make release-local RELEASE_ENTITLEMENTS=XCConfig/DeveloperID.entitlements PROFILE_SPECIFIER=
 TEAM_ID ?= 66CMG54L8U
-RELEASE_ENTITLEMENTS ?= XCConfig/DeveloperID.entitlements
-PROFILE_SPECIFIER ?=
+RELEASE_ENTITLEMENTS ?= Punctual/Punctual.entitlements
+PROFILE_SPECIFIER ?= Punctual Developer ID
+EXPORT_OPTIONS := $(BUILD_DIR)/ExportOptions.plist
 
 archive:
 	@mkdir -p $(BUILD_DIR)
@@ -79,9 +83,19 @@ archive:
 
 export-app: archive
 	@rm -rf $(EXPORT_PATH)
+	@# Manual-signing export must name the profile per bundle id, or it fails
+	@# with "requires a provisioning profile with the Time Sensitive
+	@# Notifications feature". Added only when a profile is in use.
+	@cp XCConfig/ExportOptions-DeveloperID.plist "$(EXPORT_OPTIONS)"
+	@if [ -n "$(PROFILE_SPECIFIER)" ]; then \
+		/usr/libexec/PlistBuddy \
+			-c "Add :provisioningProfiles dict" \
+			-c "Add :provisioningProfiles:com.chykalophia.Punctual string $(PROFILE_SPECIFIER)" \
+			"$(EXPORT_OPTIONS)"; \
+	fi
 	$(XCODEBUILD) -exportArchive \
 		-archivePath $(ARCHIVE_PATH) \
-		-exportOptionsPlist XCConfig/ExportOptions-DeveloperID.plist \
+		-exportOptionsPlist "$(EXPORT_OPTIONS)" \
 		-exportPath $(EXPORT_PATH)
 	@echo "==> Verifying signature"
 	codesign --verify --deep --strict --verbose=2 "$(EXPORTED_APP)"

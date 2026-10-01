@@ -186,12 +186,17 @@ make release-local NOTARY_PROFILE=punctual-notary   # archive -> export -> dmg -
 `AC_APPLE_ID` / `AC_PASSWORD` / `AC_TEAM_ID` in the environment still work, and are what
 CI uses.
 
-With a provisioning profile installed, keep the time-sensitive entitlement:
+By default this signs with the full entitlements against the **"Punctual Developer ID"**
+provisioning profile, so meeting alerts can break through Focus. Install the profile by
+copying it to `~/Library/Developer/Xcode/UserData/Provisioning Profiles/<UUID>.provisionprofile`
+(the UUID is in `security cms -D -i <file>`). Double-clicking it may open System Settings'
+device-profile pane instead, which xcodebuild never reads.
+
+Only as a deliberate fallback, without the profile (alerts will NOT break through Focus):
 
 ```bash
 make release-local NOTARY_PROFILE=punctual-notary \
-  RELEASE_ENTITLEMENTS=Punctual/Punctual.entitlements \
-  PROFILE_SPECIFIER="Punctual Developer ID"
+  RELEASE_ENTITLEMENTS=XCConfig/DeveloperID.entitlements PROFILE_SPECIFIER=
 ```
 
 ---
@@ -251,7 +256,7 @@ Punctual release:
 - [ ] `chykalophia.com/punctual` page live, with a privacy policy (Google verification
       needs both on the verified domain).
 - [ ] Google OAuth consent screen: app name Punctual, Punctual icon, that homepage.
-- [ ] Developer portal: App ID `com.chykalophia.Punctual` with Time Sensitive
+- [x] Developer portal: App ID `com.chykalophia.Punctual` with Time Sensitive
       Notifications, and a Developer ID provisioning profile for it.
 - [x] New app icon in `Assets.xcassets/AppIcon.appiconset` and the menu-bar glyph
       (`menuBarGlyph`, a template image). Sources in `docs/brand`.
