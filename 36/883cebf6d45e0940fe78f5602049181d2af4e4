@@ -1,0 +1,63 @@
+.github/workflows/release.yml
+  s_fc9b467d8ed9c2::t_e30723aa1a9d00 49-50,52-53,58-70
+  s_fc9b467d8ed9c2::t_66302cd32e55b6 5-10
+  s_fc9b467d8ed9c2::t_96dd02d81e6fe3 71
+XCConfig/LocalSigning.entitlements
+  s_fc9b467d8ed9c2::t_ea4839335f8cfa 35-37,40-41
+Punctual/Preferences/SoftwareUpdateCard.swift
+  s_fc9b467d8ed9c2::t_3566d06e5ed232 24,31
+Punctual/Notifications/NotificationCenterDelegate.swift
+  s_fc9b467d8ed9c2::t_3566d06e5ed232 40-45
+README.md
+  s_fc9b467d8ed9c2::t_4fc5918eefb37c 62-63
+Scripts/publish-release.sh
+  s_fc9b467d8ed9c2::t_959e7beb32a626 1-81
+Scripts/make-appcast.sh
+  s_fc9b467d8ed9c2::t_53817b134bf2fb 96-97
+  s_fc9b467d8ed9c2::t_49d814e6d25f98 3,5,11-21,23-27,31-33,37-49,51-57,61-65,67-79,81-85,87-95,98-100,102-103,107-108,136-141
+Makefile
+  s_fc9b467d8ed9c2::t_623c728aa31509 35,153,156,161-171,180-183
+  s_fc9b467d8ed9c2::t_0a443cb7781a85 66-70,103-104
+CHANGELOG.md
+  s_fc9b467d8ed9c2::t_4fc5918eefb37c 14-16
+Punctual/Info.plist
+  s_fc9b467d8ed9c2::t_b5ca67c98b2cbc 86-89
+PunctualTests/SoftwareUpdateConfigurationTests.swift
+  s_fc9b467d8ed9c2::t_8b96fe20743287 49-53,58-63,66-72,75-80
+  s_fe4fc634e25abf::t_1ea3f2790bc3b6 81
+Punctual/App/SoftwareUpdater.swift
+  s_fc9b467d8ed9c2::t_70db78e13d2b7e 6-9,11-15,22,24,30-33,38-39,44-53,55-56,58-60,68-70,77-90,97-98,101-102,105-106,108-130,133-140,143-157,163-166,169-178
+"Punctual/Resources /Localization /en.lproj/Localizable.strings"
+  s_fc9b467d8ed9c2::t_4fc5918eefb37c 559
+  s_fc9b467d8ed9c2::t_3566d06e5ed232 555,560-561
+Punctual/UI/Views/Changelog/ReleaseNotes.swift
+  s_fc9b467d8ed9c2::t_4fc5918eefb37c 90
+docs/RELEASING.md
+  s_fc9b467d8ed9c2::t_c2702afc42d8e0 235-238
+  s_fc9b467d8ed9c2::t_867a446c149f46 170,173,176-183
+  s_fc9b467d8ed9c2::t_0daa78f7e60961 194-228
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "36883cebf6d45e0940fe78f5602049181d2af4e4",
+  "prompts": {},
+  "sessions": {
+    "s_fc9b467d8ed9c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f023a6f-dead-4095-bc42-087df0c7c6ba",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    },
+    "s_fe4fc634e25abf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "657b2525-a593-4e71-a70d-8e88d09b70b5",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
