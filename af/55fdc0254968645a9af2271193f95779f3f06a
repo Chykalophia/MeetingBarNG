@@ -1,0 +1,586 @@
+PunctualTests/WindowCoordinatorTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-164
+PunctualTests/Helpers/FakeNotificationSinks.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-62
+Punctual/Calendar/EventFiltering.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-106
+PunctualTests/OnboardingFlowTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-95
+PunctualLogicTests/GoogleOAuthClientTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-172
+XCConfig/DeveloperID.entitlements
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 7
+Punctual/Preferences/DisplayTab.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-652
+Punctual/Meetings/MeetingOpenPreferencesMigration.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-52
+Punctual/App/DebugHarness.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-312
+Package.swift
+  s_fc9b467d8ed9c2::t_1cf659d4e44c08 19
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 6,11,15-16,84-86
+Punctual/UI/StatusBar/DropdownPanelNavigation.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-148
+PunctualLogicTests/AgendaSectionVisibilityTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-77
+PunctualTests/StringExtensionsTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-221
+PunctualLogicTests/AlertsPresentationTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-23,25-101
+  s_fc9b467d8ed9c2::t_52c265b89bf18f 24
+PunctualLogicTests/TimelineStyleTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-199
+Punctual/Extensions/String.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-128
+PunctualTests/AppMessageCenterTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-116
+Punctual/Calendar/ReminderSelection.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-103
+Punctual/Preferences/PreferencesDesign.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-222
+Punctual/Onboarding/Onboarding.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-341
+PunctualLogicTests/MeetingOpeningPolicyTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-67
+Punctual/Preferences/FilterPresets.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-162
+PunctualTests/AdapterMappingTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-384
+Punctual/Notifications/NotificationCenterDelegate.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-52
+Punctual/Calendar/MBEvent+Punctual.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-72
+PunctualLogicTests/SettingsIndexTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-24,26-204
+  s_fc9b467d8ed9c2::t_52c265b89bf18f 25
+Punctual/App/AppMessageCenter.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-201
+Punctual/Calendar/EventSearch.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-159
+PunctualTests/Helpers/FakeEventStore.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-78
+Punctual/Notifications/NotificationScheduler.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-312
+Punctual/App/LifecycleObserver.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-104
+Punctual/UI/Views/FullscreenNotification.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-109
+PunctualLogicTests/WorldClockPanelTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-167
+Punctual/Calendar/Providers/Google/OAuthCompletionPage.swift
+  s_fc9b467d8ed9c2::t_52c265b89bf18f 264
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-263,265-281
+Punctual/Preferences/PreferencesReset.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-108
+Punctual/UI/StatusBar/StatusBarPresentation+Punctual.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-239
+Punctual/UI/StatusBar/StatusBarTickPolicy.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-126
+PunctualLogicTests/GoogleEventColorsTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-102
+Makefile
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-2,8,28,57,165,176
+Punctual/Preferences/PresetNumberPicker.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-121
+Punctual/Notifications/NotificationPlanner.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-239
+Punctual/UI/WorldClock/WorldClockPanelView.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-230
+PunctualLogicTests/StartReminderOverrideTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-178
+XCConfig/LocalSigning.entitlements
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 5,9
+PunctualTests/NotificationSchedulerTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-817
+Punctual/UI/EventEditor/EventEditorView.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-222
+PunctualLogicTests/StatusBarCompositionPolicyTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-569
+PunctualTests/OAuthCompletionPageTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-135
+Punctual/Preferences/PreferencesNavigation.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-36
+Punctual/Calendar/Providers/Google/GoogleEventColors.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-85
+PunctualLogicTests/CalendarSourceSelectionTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-134
+Punctual/Preferences/PreferencesPanes.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-247
+Punctual/UI/StatusBar/MeetingProgress.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-123
+Punctual/UI/StatusBar/StatusBarItemController.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-1334
+Punctual.xcodeproj/xcshareddata/xcschemes/Punctual.xcscheme
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-100
+Punctual/Notifications/NotificationActionRunner.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-274
+PunctualLogicTests/EventActionPolicyTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-199
+PunctualLogicTests/StatusBarTitlePolicyTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-110
+docs/ARCHITECTURE.md
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 3,80,97,99,101,157,170,181,213,220,222,227,229,331-332,336,427,446,489,500,512-513,516-517,520,543-545
+Punctual/UI/StatusBar/StatusBarMenuState.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-347
+.vscode/launch.json
+  s_fc9b467d8ed9c2::t_52c265b89bf18f 5,9,13,16
+PunctualLogicTests/FilterPresetsTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-128
+Punctual/Calendar/ProviderHealth.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-153
+Punctual/Calendar/DateMarkers.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-136
+Punctual/UI/EventEditor/EventEditorViewModel.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-243
+Punctual/Calendar/RemindersSync.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-92
+Punctual/Notifications/EventReminderOverrides.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-94
+Punctual/Calendar/CalendarRepository.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-378
+Punctual/App/DropdownInspectorWindow.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-95
+PunctualTests/GetGmailAccountTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-33
+PunctualTests/AppSettingsTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-327
+Punctual/UI/StatusBar/MeetingSummaryPresenter.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-151
+Punctual/Notifications/NotificationSetup.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-92
+Punctual/Calendar/ReminderSelection+Punctual.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-48
+Punctual/UI/CommandBar/CommandBarView.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-142
+PunctualLogicTests/MenuBarBlockListTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-110
+PunctualLogicTests/StatusBarIconPolicyTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-126
+Punctual/Onboarding/WelcomeScreen.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-64
+Punctual/Utilities/Keychain.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-63
+PunctualTests/TimelineLogicTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-168
+PunctualLogicTests/EventDeduplicationTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-311
+Punctual/UI/Views/DayTimelineView.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-451
+XCConfig/GoogleSecrets.xcconfig.example
+  s_fc9b467d8ed9c2::t_1cf659d4e44c08 1
+Punctual/UI/CommandBar/CommandBarSearch.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-162
+Punctual/UI/StatusBar/DaySummaryGreeting.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-124
+Punctual/UI/StatusBar/AgendaSectionVisibility.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-49
+Punctual/Preferences/JoiningTab.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-552
+STATE.md
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 33-35,54,56,87
+Scripts/strings-lint
+  s_fc9b467d8ed9c2::t_52c265b89bf18f 29
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 31
+Punctual/UI/StatusBar/TimelineSpan.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-176
+Punctual/UI/StatusBar/DropdownMetrics.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-400
+Punctual/UI/StatusBar/JoinControlSurface.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-89
+Punctual/UI/StatusBar/PanelTheme.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-77
+Punctual/Utilities/Scripts.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-142
+docs/RELEASING.md
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 60,193
+Punctual/Extensions/DefaultsKeys.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-518
+Punctual/UI/Calendar/CalendarGridView.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-527
+Punctual/App/AppIntent.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-123
+Punctual/Preferences/SettingsIndex.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-778
+Punctual/Preferences/PreferencesPresentation.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-397
+Punctual/Preferences/TextPatternList.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-137
+PunctualLogicTests/DropdownPanelPlacementTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-138
+PunctualTests/Helpers/FakeCalendar.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-20
+Punctual/UI/CommandBar/CommandBarAgenda.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-42
+PunctualLogicTests/CalendarListPresentationTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-242
+PunctualLogicTests/MenuBarJoinActionTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-412
+ROADMAP.md
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 204-205,221,225,238,251
+Punctual/UI/StatusBar/CompactMonthGridView.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-282
+Punctual/UI/Views/Shared.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-79
+Punctual/Preferences/Preferences.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-304
+Punctual/Meetings/MeetingPrepLinks.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-226
+Punctual/UI/StatusBar/MeetingSummaryView.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-154
+PunctualTests/Helpers/AppModelTestHarness.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-179
+PunctualLogicTests/MenuBarPresetTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-51
+Punctual/UI/Calendar/CalendarGridViewModel.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-276
+PunctualLogicTests/MonthWeekFoldTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-150
+PunctualTests/StatusBarItem/DropdownPresentationTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-329
+Punctual/Onboarding/OnboardingHandler.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-34
+Punctual/UI/StatusBar/MenuBarJoinAction.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-196
+PunctualTests/EventKitEventMappingTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-116
+PunctualLogicTests/LocationAutocompletePolicyTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-106
+PunctualLogicTests/NotificationPlanningPolicyTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-282
+PunctualLogicTests/MeetingLinkCandidateTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-126
+Punctual/UI/StatusBar/MenuBarActionChipView.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-66
+Punctual/Base.lproj/Main.storyboard
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-684
+Punctual/Calendar/MonthGridLayout.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-205
+PunctualTests/Helpers/FakeEvent.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-57
+Punctual/Preferences/DisplayPreviewPane.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-264
+PunctualLogicTests/CalendarGridNavigationTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-146
+PunctualLogicTests/MenuBarTimeFormatMigrationTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-81
+Punctual/Notifications/NotificationActionHandler.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-45
+Punctual/Utilities/Diagnostics/AppSourceDetector.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-20
+PunctualLogicTests/ReminderSelectionTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-137
+Punctual/Preferences/PreferencesShellV2.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-268
+.github/workflows/release.yml
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 38-39,182
+Punctual/UI/CommandBar/CommandBarModels.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-68
+PunctualTests/BookmarkMigrationTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-100
+PunctualLogicTests/EventSearchTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-145
+Punctual/Extensions/URL.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-59
+PunctualTests/AppModelTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-417
+Punctual/App/AppDelegate.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-598
+PunctualLogicTests/GoogleIDTokenTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-104
+Punctual/Meetings/MeetingProvider.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-636
+Punctual/Preferences/FiltersTab.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-440
+PunctualTests/BaseTestCase.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-38
+Punctual/Preferences/CalendarListPresentation.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-212
+PunctualTests/GoogleCalendarParserTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-438
+Punctual/Utilities/Helpers.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-233
+Punctual/Calendar/CalendarSync.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-482
+Punctual/Calendar/Providers/Google/GoogleOAuthClient+Punctual.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-86
+Punctual/UI/Views/Changelog/ReleaseNotes.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-84,87-129
+  s_fc9b467d8ed9c2::t_5d099aca2e383e 85-86
+Punctual/UI/StatusBar/WorldClockPanel.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-113
+PunctualLogicTests/MonthGridLayoutTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-304
+.swiftlint.yml
+  s_fc9b467d8ed9c2::t_52c265b89bf18f 5
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 6-7
+Punctual/Preferences/MenuBarTab.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-616
+.github/workflows/ci.yml
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 119-120
+Punctual/Notifications/NotificationResponseAction.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-51
+PunctualTests/URLHandlerTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-34
+PunctualLogicTests/DateMarkersTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-162
+Punctual/Calendar/Providers/Google/GoogleIDToken.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-72
+Punctual/Preferences/SettingsSearchResults.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-81
+PunctualLogicTests/MenuBarCountdownLeadTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-192
+Punctual/App/URLHandler.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-28
+PunctualLogicTests/MeetingLinkDetectionTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-85
+Punctual/Calendar/EventSearch+Punctual.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-28
+Punctual/Extensions/KeyboardShortcutsNames.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-26
+Punctual/Calendar/CalendarSourceSelection.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-159
+Punctual/Utilities/I18N.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-88
+Punctual/UI/StatusBar/StatusBarPresentation.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-1171
+Punctual/Calendar/MBEvent.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-191
+PunctualTests/TimeFormatDefaultMigrationTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-46
+PunctualLogicTests/MeetingPrepLinksTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-184
+.gitignore
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 12-15
+Punctual/Utilities/Diagnostics/PermissionReporter.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-78
+Punctual/Preferences/AlertsPresentation.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-86
+PunctualLogicTests/MenuBarTwoLineTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-149
+PunctualTests/IndirectLocalizationKeyTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-154
+PunctualLogicTests/MeetingProgressTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-157
+Punctual/App/DebugHarnessView.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-241
+Punctual.xcodeproj/project.pbxproj
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-649
+PunctualTests/CalendarSyncTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-964
+PunctualTests/GoogleLoopbackRedirectTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-80
+Punctual/App/AppModel.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-866
+Punctual/App/AppRuntimeBridge.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-32
+PunctualLogicTests/EventFilteringTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-160
+PunctualLogicTests/DaySummaryPolicyTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-151
+Punctual/Calendar/EventSelection+Punctual.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-118
+PunctualTests/HelpersTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-951
+PunctualLogicTests/CommandBarSearchTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-174
+Punctual/Meetings/CameraPreviewController.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-358
+PunctualLogicTests/DropdownPanelNavigationTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-204
+PunctualLogicTests/GoogleCalendarPolicyTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-182
+Punctual/UI/StatusBar/DropdownPanelView.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-2767
+Punctual/UI/StatusBar/DropdownComposition.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-151
+PunctualLogicTests/OngoingEventVisibilityTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-173
+PunctualTests/StatusBarItem/MenuBarActionChipRenderingTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-162
+Scripts/validate_localizations.sh
+  s_fc9b467d8ed9c2::t_52c265b89bf18f 14
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 15
+Punctual/App/Notifications.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-12
+Punctual/Calendar/Providers/EventKit/RemindersStore.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-173
+Punctual/Calendar/MBCalendar.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-45
+Punctual/Onboarding/CalendarsScreen.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-126
+Punctual/Preferences/CalendarsTab.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-807
+Scripts/brand-check.sh
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 16,28,39,43,46,67,76
+  s_fc9b467d8ed9c2::t_125e7692071581 50-58
+Punctual/UI/EventEditor/LocationSuggestions.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-92
+PunctualLogicTests/MeetingProviderTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-219
+Punctual/UI/CommandBar/CommandBarViewModel.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-225
+PunctualLogicTests/StatusBarTickPolicyTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-185
+Punctual/UI/StatusBar/DropdownPanelPlacement.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-61
+Punctual/Calendar/CalendarGridNavigation.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-73
+Punctual/Calendar/Providers/Google/GoogleCalendarPolicy.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-93
+Punctual/Preferences/AlertsTab.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-472
+Punctual/Meetings/MicLevel.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-38
+PunctualLogicTests/DiagnosticsReportTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-31,33-118
+  s_fc9b467d8ed9c2::t_3f6ede528c895a 32
+PunctualLogicTests/EventActionProminenceTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-91
+Punctual/Calendar/EventDraftValidation.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-87
+PunctualLogicTests/DropdownCompositionTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-201
+Punctual/Calendar/MBReminder.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-59
+.vscode/tasks.json
+  s_fc9b467d8ed9c2::t_52c265b89bf18f 7
+docs/PREFERENCES-UX-PLAN.md
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 70,75,231,288,300,341,344,389,535,604,635-637,662,688,709,728,737,740,745,764,780,782
+Punctual/UI/StatusBar/PanelTheme+Punctual.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-74
+Punctual/Calendar/CalendarSourceSelection+Punctual.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-66
+Punctual/Calendar/EventSelection.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-152
+Punctual/Calendar/Providers/EventKit/EventKitEventWriter.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-170
+Punctual/Calendar/Providers/Google/GoogleOAuthClient.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-152
+Punctual/Preferences/BrowserConfigView.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-228
+Punctual/Notifications/EventActionPolicy.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-99
+Punctual/Settings/AppSettings.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-635
+Punctual/Utilities/Diagnostics/DiagnosticsReport.swift
+  s_fc9b467d8ed9c2::t_3f6ede528c895a 95
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-94,96-162
+Punctual/UI/StatusBar/DropdownEventVisibility.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-119
+Punctual/Calendar/EventDeduplication.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-197
+PunctualLogicTests/MeetingLinkDetectorTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-587
+PunctualLogicTests/MeetingIdentifierTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-147
+PunctualTests/EndToEndFlowTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-1150
+Punctual/UI/StatusBar/DaySummaryHeaderView.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-166
+PunctualTests/PreferencesPresentationTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-667
+Punctual/Meetings/MeetingOpener.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-743
+PunctualTests/ScriptsTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-185
+Punctual/Calendar/EventStore.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-37
+PunctualTests/StatusBarItem/MoreActionsMenuTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-227
+Punctual/Calendar/Providers/Google/GoogleCalendarEventStore.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-832
+Punctual/Meetings/MeetingServices.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-152
+Punctual/Preferences/DateMarkerList.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-171
+PunctualLogicTests/AgendaRowLayoutTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-323
+PunctualTests/StatusBarItem/DebugHarnessTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-177
+Punctual/UI/StatusBar/PanelChrome.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-40
+Punctual/Meetings/LocationAutocompletePolicy.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-54
+Punctual/Utilities/Diagnostics/DiagnosticsReport+Punctual.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-108
+CONTRIBUTING.md
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 52,54
+Punctual/UI/StatusBar/MeetingProgressRenderer.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-296
+PunctualLogicTests/DropdownDensityTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-183
+PunctualTests/ChangelogTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-35
+Punctual/Utilities/Constants.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-256
+Punctual/Calendar/EventFiltering+Punctual.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-72
+Punctual/Onboarding/AccessScreen.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-88
+PunctualLogicTests/EventListWindowTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-59
+Scripts/test_summary.sh
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 12
+PunctualTests/MultiSourceDeduplicationTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-169
+Punctual/Meetings/MeetingLinkDetector.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-576
+PunctualLogicTests/MicLevelTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-58
+PunctualLogicTests/StatusBarPresentationPolicyTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-442
+Punctual/Notifications/SnoozeService.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-103
+PunctualLogicTests/PanelThemeTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-79
+Punctual/UI/CameraPreview/CameraPreviewView.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-275
+Punctual/Meetings/MeetingIdentifier.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-198
+Punctual/UI/Views/Changelog/Changelog.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-214
+Punctual/Preferences/PreviewFixtures.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-214
+Punctual/UI/StatusBar/QuickActionsMenu.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-104
+PunctualLogicTests/NextEventTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-274
+Punctual/Preferences/GeneralTab.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-213
+XCConfig/Project.xcconfig
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 9
+PunctualTests/NotificationRoutingTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-231
+PunctualLogicTests/EventDraftValidationTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-84
+docs/FEATURES.md
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-174
+Punctual/Utilities/PunctualLogger.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-21
+Punctual/Calendar/Providers/EventKit/EventKitEventStore.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-203
+.github/pull-request-template.md
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 11
+PunctualTests/ProviderBrowserMigrationTests.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-140
+Punctual/App/WindowCoordinator.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-1193
+Punctual/UI/StatusBar/EventActionProminence.swift
+  s_fc9b467d8ed9c2::t_3dbf97660a6088 1-45
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "af55fdc0254968645a9af2271193f95779f3f06a",
+  "prompts": {},
+  "sessions": {
+    "s_fc9b467d8ed9c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f023a6f-dead-4095-bc42-087df0c7c6ba",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
