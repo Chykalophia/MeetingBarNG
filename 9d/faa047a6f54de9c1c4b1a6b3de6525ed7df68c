@@ -1,0 +1,29 @@
+Punctual/Settings/AppSettings.swift
+  s_fc9b467d8ed9c2::t_f6d1a53d55e69a 200-203
+CHANGELOG.md
+  s_fc9b467d8ed9c2::t_6a75a667fdbc3c 7
+Punctual.xcodeproj/project.pbxproj
+  s_fc9b467d8ed9c2::t_6a75a667fdbc3c 457,471,487,501
+Punctual/UI/Views/Changelog/ReleaseNotes.swift
+  s_fc9b467d8ed9c2::t_4c86cdc4230ae8 80-108
+  s_fc9b467d8ed9c2::t_591ed99c166fd2 79
+PunctualTests/ChangelogTests.swift
+  s_fc9b467d8ed9c2::t_975305b1812631 13,15,18-24,26,30-35
+  s_fc9b467d8ed9c2::t_1f374bb020c376 36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "9dfaa047a6f54de9c1c4b1a6b3de6525ed7df68c",
+  "prompts": {},
+  "sessions": {
+    "s_fc9b467d8ed9c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f023a6f-dead-4095-bc42-087df0c7c6ba",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
