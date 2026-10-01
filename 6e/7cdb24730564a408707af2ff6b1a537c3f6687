@@ -1,0 +1,32 @@
+CONTACT.md
+  s_fc9b467d8ed9c2::t_e74eda2472a590 10-12
+PunctualTests/MarketingScreenshotTests.swift
+  s_fc9b467d8ed9c2::t_0a002af3077397 23-28
+  s_fc9b467d8ed9c2::t_194af2ae784f92 9
+Punctual/Preferences/PreviewFixtures.swift
+  s_fc9b467d8ed9c2::t_c886dcc9a55c91 24-33
+Makefile
+  s_fc9b467d8ed9c2::t_194af2ae784f92 35
+  s_fc9b467d8ed9c2::t_efa5821742c3b0 182-192
+README.md
+  s_fc9b467d8ed9c2::t_f8251ab53ed9bd 150-158
+  s_fc9b467d8ed9c2::t_f4f83b5ed6ea2b 7,9-20
+NOTICE
+  s_fc9b467d8ed9c2::t_e74eda2472a590 18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "6e7cdb24730564a408707af2ff6b1a537c3f6687",
+  "prompts": {},
+  "sessions": {
+    "s_fc9b467d8ed9c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f023a6f-dead-4095-bc42-087df0c7c6ba",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
