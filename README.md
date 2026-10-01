@@ -59,8 +59,8 @@ shasum -a 256 Punctual-<version>.dmg
 
 **Updates:** from 1.1.0, Punctual updates itself. On its second launch it asks whether to
 check for updates automatically; you can change that, or check by hand, under
-Preferences ▸ About ▸ Updates, or from the right-click menu. Every update is verified
-against Punctual's own signing key and Chykalophia's Apple Developer ID before it installs. Versions
+Preferences ▸ About ▸ Updates, or from the right-click menu. Every update is signed by
+Chykalophia and verified before it installs. Versions
 before 1.1.0 have no updater, so moving to 1.1.0 is a one-time manual download.
 
 ---

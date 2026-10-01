@@ -1,63 +1,111 @@
 #!/bin/bash
 #
-# make-appcast.sh — write the Sparkle appcast.xml for one release.
+# make-appcast.sh — write and sign the Sparkle appcast.xml for one release.
 #
-#   Scripts/make-appcast.sh <notarized.dmg> <exported Punctual.app> <out appcast.xml> [release-notes.md]
+#   Scripts/make-appcast.sh <notarized.dmg> <out appcast.xml> [release-notes.md]
 #
 # The appcast is uploaded as an asset of the GitHub release, next to the dmg.
 # Shipped apps read https://github.com/Chykalophia/Punctual/releases/latest/download/appcast.xml,
 # so whichever release is "latest" is the one offered.
 #
-# Versions are read from the BUILT app, never the project file, so the feed
-# always describes exactly what ships. Sparkle compares CFBundleVersion.
+# Everything is read from the app INSIDE the dmg being signed, never from a
+# separate export folder, so the feed can only describe the bytes it signs.
+# Refuses to write a feed unless:
+#   - the dmg is notarized, stapled, and accepted by Gatekeeper;
+#   - the app inside uses the official feed and the keychain key matches the
+#     app's SUPublicEDKey (the key installed copies verify against);
+#   - its version and build equal the project's, and the build is newer than
+#     the published latest (a too-high build number would block every later
+#     update, because Sparkle compares CFBundleVersion).
+# The dmg's EdDSA signature is verified, and the feed itself is signed
+# (the app sets SURequireSignedFeed).
 #
-# The dmg is signed with the EdDSA private key in the login keychain (made once
-# with generate_keys; back it up), and the signature is VERIFIED before the feed
-# is written, so a bad signature cannot be published.
-#
-#   SPARKLE_BIN       directory holding sign_update (default: the SPM artifact)
-#   APPCAST_URL_BASE  where the dmg will be downloadable (default: this
-#                     version's GitHub release). A local update test overrides it.
+#   APPCAST_ALLOW_TEST_FEED=1  local update tests only: allow a non-official
+#                     feed/URL base and skip the project/published checks
+#   APPCAST_URL_BASE  test only: where the dmg will be served from
+#   SPARKLE_BIN       directory holding sign_update/generate_keys
+#   SPARKLE_ACCOUNT   keychain account of the EdDSA key (default: punctual)
 
 set -euo pipefail
 
-DMG="${1:?usage: $0 <dmg> <app> <out.xml> [notes.md]}"
-APP="${2:?missing exported app}"
-OUT="${3:?missing output path}"
-NOTES="${4:-}"
+DMG="${1:?usage: $0 <dmg> <out.xml> [notes.md]}"
+OUT="${2:?missing output path}"
+NOTES="${3:-}"
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SPARKLE_BIN="${SPARKLE_BIN:-$ROOT/build/SourcePackages/artifacts/sparkle/Sparkle/bin}"
-SIGN="$SPARKLE_BIN/sign_update"
-[ -x "$SIGN" ] || { echo "error: no sign_update at $SIGN (resolve packages first)" >&2; exit 1; }
-[ -f "$DMG" ] || { echo "error: no dmg at $DMG" >&2; exit 1; }
+ACCOUNT="${SPARKLE_ACCOUNT:-punctual}"
+TEST="${APPCAST_ALLOW_TEST_FEED:-0}"
+OFFICIAL_FEED="https://github.com/Chykalophia/Punctual/releases/latest/download/appcast.xml"
+OFFICIAL_BASE="https://github.com/Chykalophia/Punctual/releases/download"
 
-PLIST="$APP/Contents/Info.plist"
+fail() { echo "error: $*" >&2; exit 1; }
+[ -x "$SPARKLE_BIN/sign_update" ] || fail "no sign_update in $SPARKLE_BIN (resolve packages first)"
+[ -f "$DMG" ] || fail "no dmg at $DMG"
+
+# --- 1. the dmg must be what users will actually get -------------------------
+xcrun stapler validate "$DMG" >/dev/null 2>&1 || fail "$DMG has no stapled notarization ticket"
+spctl -a -t open --context context:primary-signature "$DMG" 2>/dev/null \
+    || fail "Gatekeeper does not accept $DMG"
+
+# --- 2. read the app inside it ----------------------------------------------
+MOUNT="$(mktemp -d)"
+cleanup() { hdiutil detach -quiet "$MOUNT" 2>/dev/null || true; rmdir "$MOUNT" 2>/dev/null || true; }
+trap cleanup EXIT
+hdiutil attach -nobrowse -readonly -noautoopen -mountpoint "$MOUNT" "$DMG" >/dev/null
+PLIST="$MOUNT/Punctual.app/Contents/Info.plist"
+[ -f "$PLIST" ] || fail "no Punctual.app inside $DMG"
 SHORT="$(plutil -extract CFBundleShortVersionString raw "$PLIST")"
 BUILD="$(plutil -extract CFBundleVersion raw "$PLIST")"
 MIN_OS="$(plutil -extract LSMinimumSystemVersion raw "$PLIST")"
+APP_FEED="$(plutil -extract SUFeedURL raw "$PLIST")"
+APP_KEY="$(plutil -extract SUPublicEDKey raw "$PLIST")"
+cleanup
+trap - EXIT
+
 DMG_NAME="$(basename "$DMG")"
-URL_BASE="${APPCAST_URL_BASE:-https://github.com/Chykalophia/Punctual/releases/download/v$SHORT}"
+[ "$DMG_NAME" = "Punctual-$SHORT.dmg" ] || fail "$DMG_NAME does not match the app inside ($SHORT)"
+case "$BUILD" in ''|*[!0-9]*) fail "CFBundleVersion '$BUILD' is not a plain integer" ;; esac
 
-# The app inside must match the version we are about to advertise.
-case "$DMG_NAME" in
-    *"-$SHORT.dmg") ;;
-    *) echo "error: $DMG_NAME does not match app version $SHORT" >&2; exit 1 ;;
-esac
+# --- 3. the key that signs must be the key installed copies trust ------------
+KEYCHAIN_KEY="$("$SPARKLE_BIN/generate_keys" --account "$ACCOUNT" -p 2>/dev/null | tail -1)"
+[ "$KEYCHAIN_KEY" = "$APP_KEY" ] \
+    || fail "keychain key ($ACCOUNT) '$KEYCHAIN_KEY' != app SUPublicEDKey '$APP_KEY'"
 
-echo "==> Signing $DMG_NAME for Sparkle"
-SIGNATURE="$("$SIGN" -p "$DMG")"
+# --- 4. release-only checks ---------------------------------------------------
+if [ "$TEST" != 1 ]; then
+    [ "$APP_FEED" = "$OFFICIAL_FEED" ] || fail "app SUFeedURL is $APP_FEED, not the official feed"
+    [ -z "${APPCAST_URL_BASE:-}" ] || fail "APPCAST_URL_BASE is set; only allowed for tests"
+    URL_BASE="$OFFICIAL_BASE/v$SHORT"
+
+    PBX="$ROOT/Punctual.xcodeproj/project.pbxproj"
+    P_SHORT="$(grep -m1 'MARKETING_VERSION' "$PBX" | sed 's/.*= *//;s/;//')"
+    P_BUILD="$(grep -m1 'CURRENT_PROJECT_VERSION' "$PBX" | sed 's/.*= *//;s/;//')"
+    [ "$SHORT" = "$P_SHORT" ] || fail "app version $SHORT != project MARKETING_VERSION $P_SHORT"
+    [ "$BUILD" = "$P_BUILD" ] || fail "app build $BUILD != project CURRENT_PROJECT_VERSION $P_BUILD"
+
+    PUBLISHED="$(curl -fsSL "$OFFICIAL_FEED" 2>/dev/null \
+        | sed -n 's:.*<sparkle\:version>\([0-9]*\)</sparkle\:version>.*:\1:p' | head -1 || true)"
+    if [ -n "$PUBLISHED" ] && [ "$BUILD" -le "$PUBLISHED" ]; then
+        fail "build $BUILD is not newer than the published latest ($PUBLISHED)"
+    fi
+    echo "    published latest build: ${PUBLISHED:-none yet}; this build: $BUILD"
+else
+    echo "    TEST MODE: non-official feed/URL allowed, release checks skipped"
+    URL_BASE="${APPCAST_URL_BASE:?test mode needs APPCAST_URL_BASE}"
+fi
+
+# --- 5. sign the dmg, verify against the app's key ---------------------------
+echo "==> Signing $DMG_NAME for Sparkle (account $ACCOUNT)"
+SIGNATURE="$("$SPARKLE_BIN/sign_update" --account "$ACCOUNT" -p "$DMG")"
 LENGTH="$(stat -f %z "$DMG")"
-"$SIGN" --verify "$DMG" "$SIGNATURE" >/dev/null \
-    || { echo "error: Sparkle signature did not verify" >&2; exit 1; }
+"$SPARKLE_BIN/sign_update" --account "$ACCOUNT" --verify "$DMG" "$SIGNATURE" >/dev/null \
+    || fail "Sparkle signature did not verify"
 
 DESCRIPTION=""
 if [ -n "$NOTES" ]; then
-    [ -f "$NOTES" ] || { echo "error: no release notes at $NOTES" >&2; exit 1; }
-    if grep -q ']]>' "$NOTES"; then
-        echo "error: release notes contain ']]>', which would break the CDATA block" >&2
-        exit 1
-    fi
+    [ -f "$NOTES" ] || fail "no release notes at $NOTES"
+    if grep -q ']]>' "$NOTES"; then fail "release notes contain ']]>'"; fi
     DESCRIPTION="      <description sparkle:format=\"markdown\"><![CDATA[
 $(cat "$NOTES")
 ]]></description>"
@@ -84,6 +132,10 @@ $DESCRIPTION
   </channel>
 </rss>
 XML
-
 xmllint --noout "$OUT"
-echo "==> Appcast: $OUT (Punctual $SHORT, build $BUILD)"
+
+# --- 6. sign the feed (SURequireSignedFeed) -----------------------------------
+"$SPARKLE_BIN/sign_update" --account "$ACCOUNT" "$OUT" >/dev/null
+"$SPARKLE_BIN/sign_update" --account "$ACCOUNT" --verify "$OUT" >/dev/null \
+    || fail "appcast signature did not verify"
+echo "==> Appcast: $OUT (Punctual $SHORT, build $BUILD), feed signed"

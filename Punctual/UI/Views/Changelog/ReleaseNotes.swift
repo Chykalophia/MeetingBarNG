@@ -87,7 +87,7 @@ enum ReleaseNotes {
                 ),
                 ChangeEntry(
                     kind: .improvement,
-                    text: "Every update is verified with Punctual's own signing key before it installs."
+                    text: "Updates are signed by Chykalophia and verified before they install."
                 )
             ]
         ),

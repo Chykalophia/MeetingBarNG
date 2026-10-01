@@ -21,14 +21,14 @@ struct SoftwareUpdateCard: View {
                     "preferences_updates_auto_check".loco(),
                     isOn: Binding(
                         get: { updater.automaticallyChecksForUpdates },
-                        set: { updater.automaticallyChecksForUpdates = $0 }
+                        set: { updater.setAutomaticallyChecksForUpdates($0) }
                     )
                 )
                 Toggle(
                     "preferences_updates_auto_install".loco(),
                     isOn: Binding(
                         get: { updater.automaticallyDownloadsUpdates },
-                        set: { updater.automaticallyDownloadsUpdates = $0 }
+                        set: { updater.setAutomaticallyDownloadsUpdates($0) }
                     )
                 )
                 .disabled(!updater.automaticallyChecksForUpdates)

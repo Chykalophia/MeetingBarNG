@@ -83,5 +83,9 @@
 		<string>DMrlkesx8ymV+9ycWs3wdbOswoEoY6fE/VJsgPD8DtU=</string>
 		<key>SUEnableInstallerLauncherService</key>
 		<true />
+		<key>SURequireSignedFeed</key>
+		<true />
+		<key>SUVerifyUpdateBeforeExtraction</key>
+		<true />
 	</dict>
 </plist>

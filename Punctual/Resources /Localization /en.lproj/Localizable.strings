@@ -552,11 +552,13 @@
 "preferences_about_copy_report" = "Copy a report for support";
 "preferences_updates_title" = "Updates";
 "preferences_updates_auto_check" = "Check for updates automatically";
-"preferences_updates_auto_install" = "Download and install updates automatically";
+"preferences_updates_auto_install" = "Download and install updates automatically (installs when Punctual next quits)";
 "preferences_updates_check_now" = "Check for Updates…";
 "preferences_updates_last_checked" = "Last checked %@";
 "preferences_updates_never_checked" = "Not checked yet";
-"preferences_updates_privacy_note" = "A check asks GitHub whether a newer version of Punctual exists. Like any web request, GitHub sees your IP address, plus which version of Punctual you have. Your calendars are never involved. Every update is verified with Punctual's signing key before it installs.";
+"preferences_updates_privacy_note" = "A check asks GitHub whether a newer version of Punctual exists. Like any web request, GitHub sees your IP address, plus which version of Punctual you have. Your calendars are never involved. Updates are signed by Chykalophia and verified before they install.";
+"software_update_available_title" = "Punctual update available";
+"software_update_available_body" = "Version %@ is ready. Click to see what's new and install it.";
 "preferences_about_copied" = "Copied";
 
 // MARK: - Preferences live preview

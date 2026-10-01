@@ -46,24 +46,37 @@ final class SoftwareUpdateConfigurationTests: XCTestCase {
     /// The installer service is reachable only with these mach-lookup
     /// exceptions. Every entitlements file a build can be signed with must have
     /// them, or updates fail only in that kind of build.
+    ///
+    /// Xcode expands `$(PRODUCT_BUNDLE_IDENTIFIER)` in the files it signs with;
+    /// LocalSigning is applied by plain `codesign` (make sign-local), which does
+    /// not, so it must spell the ids out. Each file is checked for what its
+    /// signer will actually produce.
     func testEveryEntitlementsFileAllowsSparklesInstaller() throws {
         let repoRoot = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()  // PunctualTests
             .deletingLastPathComponent()  // repo root
-        let files = [
-            "Punctual/Punctual.entitlements",
-            "XCConfig/DeveloperID.entitlements",
-            "XCConfig/LocalSigning.entitlements"
+        let bundleID = try XCTUnwrap(Bundle.main.bundleIdentifier)
+        let expanded: Set<String> = ["\(bundleID)-spks", "\(bundleID)-spki"]
+        let files: [(path: String, signedByXcode: Bool)] = [
+            ("Punctual/Punctual.entitlements", true),
+            ("XCConfig/DeveloperID.entitlements", true),
+            ("XCConfig/LocalSigning.entitlements", false)
         ]
         for file in files {
-            let url = repoRoot.appendingPathComponent(file)
-            let plist = try XCTUnwrap(NSDictionary(contentsOf: url) as? [String: Any], file)
-            let names = plist["com.apple.security.temporary-exception.mach-lookup.global-name"] as? [String]
-            XCTAssertEqual(
-                Set(names ?? []),
-                ["$(PRODUCT_BUNDLE_IDENTIFIER)-spks", "$(PRODUCT_BUNDLE_IDENTIFIER)-spki"],
-                "\(file) is missing Sparkle's installer exceptions"
-            )
+            let url = repoRoot.appendingPathComponent(file.path)
+            let plist = try XCTUnwrap(NSDictionary(contentsOf: url) as? [String: Any], file.path)
+            let names = plist["com.apple.security.temporary-exception.mach-lookup.global-name"] as? [String] ?? []
+            let resolved = Set(names.map {
+                file.signedByXcode ? $0.replacingOccurrences(of: "$(PRODUCT_BUNDLE_IDENTIFIER)", with: bundleID) : $0
+            })
+            XCTAssertEqual(resolved, expanded, "\(file.path) would not let Sparkle's installer be reached")
         }
+    }
+
+    /// Integrity settings: the feed itself must be EdDSA-signed, and the
+    /// download is verified before Sparkle even mounts it.
+    func testFeedMustBeSignedAndUpdatesVerifiedBeforeExtraction() {
+        XCTAssertEqual(info("SURequireSignedFeed") as? Bool, true)
+        XCTAssertEqual(info("SUVerifyUpdateBeforeExtraction") as? Bool, true)
     }
 }

@@ -2,18 +2,17 @@ name: Release
 
 # Builds, signs, notarizes and publishes a downloadable .dmg.
 #
-# Triggered by pushing a `v*` tag. `workflow_dispatch` takes an existing tag so a
-# failed notarization can be retried without cutting a new version — notarization
-# is the step most likely to fail for reasons that have nothing to do with the code
-# (expired credentials, an Apple outage, a rejected entitlement).
+# MANUAL ONLY (workflow_dispatch). It used to run on every `v*` tag push, but
+# releases are cut locally with `make release-local`, which signs the dmg for
+# Sparkle and writes appcast.xml. A tag-triggered run would rebuild the dmg and
+# overwrite it (--clobber), so the published appcast's signature and length would
+# no longer match and every user's update would be rejected. This workflow does not
+# produce an appcast and refuses to touch a release that already has one.
 #
 # Required secrets are documented in docs/RELEASING.md. If they are missing the job
 # fails early with a named error rather than half-way through a 20-minute build.
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
     inputs:
       tag:
@@ -47,11 +46,28 @@ jobs:
     steps:
       - name: Resolve tag
         id: tag
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
         run: |
-          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          TAG="$INPUT_TAG"
+          case "$TAG" in v[0-9]*) ;; *) echo "::error::tag must look like v1.2.3, got '$TAG'"; exit 1 ;; esac
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
           echo "Releasing $TAG"
+
+      # A release published by `make release-local` carries appcast.xml, whose
+      # EdDSA signature covers that exact dmg. Rebuilding and uploading over it
+      # would break every installed copy's update. Refuse before building.
+      - name: Refuse to overwrite a Sparkle release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          if gh release view "$TAG" -R "$GITHUB_REPOSITORY" --json assets \
+               --jq '.assets[].name' 2>/dev/null | grep -qx 'appcast.xml'; then
+            echo "::error::$TAG already has appcast.xml (published by make release-local). Not overwriting its dmg."
+            exit 1
+          fi
 
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0

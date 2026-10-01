@@ -11,8 +11,9 @@ Versions 0.2.0 and 0.3.0 shipped under the name MeetingBarNG.
   automatically (at most once a day). Preferences ▸ About ▸ Updates has switches for
   automatic checks and automatic installs, a Check for Updates button, and when it last
   checked; Check for Updates is also in the right-click menu.
-* **Verified before install.** Every update must carry a signature from Punctual's own
-  signing key and Chykalophia's Apple Developer ID, or it is refused.
+* **Verified before install.** Updates are signed by Chykalophia, both with Punctual's own
+  update key and its Apple Developer ID, and the update feed itself is signed. Punctual
+  refuses an update that fails Sparkle's checks.
 * **What a check sends:** an HTTPS request to GitHub, where releases are published. GitHub
   sees your IP address and which version you have; no calendar data is involved. The
   [privacy policy](https://www.chykalophia.com/punctual/policy) covers it.
