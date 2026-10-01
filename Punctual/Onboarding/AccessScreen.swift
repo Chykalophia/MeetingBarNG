@@ -8,6 +8,7 @@
 //  Modified for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026:
 //  removed the calendar-source picker (Option A ships the macOS Calendar
 //  provider only); this file now holds just the authorization step.
+//  Punctual, 2026-10-01: log the authorization result for each setup attempt.
 //
 
 import AppKit
@@ -78,6 +79,9 @@ struct AuthorizationScreen: View {
         }
         router.authorizationState = .requesting
         let result = await onboardingHandler.onProviderSelected(provider)
+        PunctualLogger.onboarding.info(
+            "Setup authorization for \(provider.rawValue, privacy: .public): \(String(describing: result), privacy: .public)"
+        )
 
         if result == .success {
             router.currentStep = .calendarSelection
