@@ -2,9 +2,10 @@
 
 ## Reporting a Vulnerability
 
-Please report (suspected) security vulnerabilities in MeetingBarNG to
-<peter@chykalophia.com>. You will receive a response within 48 hours. If the issue is
-confirmed, we will release a patch as soon as possible depending on complexity.
+Please report suspected security vulnerabilities in Punctual to
+<peter@chykalophia.com>. You will hear back within 48 hours. If the issue is confirmed,
+we will ship a fix as soon as its complexity allows.
 
-If the vulnerability originates in upstream [MeetingBar](https://github.com/leits/MeetingBar),
-we will coordinate disclosure with the upstream maintainer where appropriate.
+Punctual is built on [MeetingBar](https://github.com/leits/MeetingBar). If the
+vulnerability is also in upstream MeetingBar code, we will coordinate disclosure with the
+MeetingBar maintainer.

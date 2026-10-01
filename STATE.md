@@ -1,11 +1,11 @@
-# STATE — MeetingBarNG
+# STATE: Punctual (formerly MeetingBarNG)
 
 > Per-repo working state (Chykalophia convention). Durable plan lives in `ROADMAP.md`;
 > attribution in `NOTICE`. This file is the "where are we / what's next" handoff so any
 > fresh session is self-sufficient without chat history.
 
-**Repo:** `/Users/peterkrzyzek/Development/MeetingBarNG` · remote `github.com/Chykalophia/MeetingBarNG` (fork of `github.com/leits/MeetingBar`, Apache-2.0)
-**What it is:** a Swift 6 / AppKit + SwiftUI macOS menu-bar meeting app. Modernization fork by Peter Krzyzek / Chykalophia.
+**Repo:** `/Users/peterkrzyzek/Development/MeetingBarNG` · remote `github.com/Chykalophia/MeetingBarNG`, being renamed to `github.com/Chykalophia/Punctual` (built on `github.com/leits/MeetingBar`, Apache-2.0)
+**What it is:** Punctual, a Swift 6 / AppKit + SwiftUI macOS menu-bar meeting app by Peter Krzyzek / Chykalophia, built on MeetingBar by Andrii Leitsius. Homepage: https://chykalophia.com/punctual.
 
 ---
 
@@ -20,7 +20,24 @@
 
 ---
 
-## Current state — 2026-08-24
+## Current state: 2026-10-01
+**Rename to Punctual in progress. Developer ID signing is being set up.**
+
+- The product is now **Punctual** (was MeetingBarNG). Bundle id `com.chykalophia.Punctual`
+  (history: `leits.MeetingBar` → `com.chykalophia.MeetingBarNG` → `com.chykalophia.Punctual`),
+  URL scheme `punctual://` (was `meetingbar://`, which collided with upstream MeetingBar),
+  built app `Punctual.app`, Keychain name `Punctual.GoogleAuth`, dmg `Punctual-<version>.dmg`.
+  The GitHub repo moves to `github.com/Chykalophia/Punctual`; GitHub redirects the old name.
+- Docs (README, NOTICE, CHANGELOG, CONTRIBUTING, SECURITY, CONTACT, templates) are rebranded,
+  with MeetingBar credited in a "Built on MeetingBar" section near the top of the README.
+- **Code identifiers are renamed in a separate pass**: the `MeetingBarNG/` source folder, the
+  Xcode targets and scheme, `MeetingBarNGTests`, and the `MeetingBarLogic` module. Until that
+  lands, every `MeetingBarNG/...` path in these docs is still correct. Do not "fix" them early.
+- The first signed, notarized dmg is the goal of this push. See `docs/RELEASING.md`.
+
+---
+
+## Current state: 2026-08-24 (historical)
 **Version `0.3.0` (build 21). `master` and `dev` are in sync; working tree clean; no open PRs.**
 
 `make test-logic` passes (90.97% line / 96.74% region coverage on the hostless module). Zero
@@ -60,7 +77,8 @@ below is currently invisible to users. This is the next work.
   floor so the panel holds up over pale wallpapers.
 - **Preferences** — sidebar pinned to 215pt and non-resizable, search field under the title bar,
   live preview updates on any setting change.
-- **`meetingbar://dropdown` deep link** + a debug panel pin (`d5344add`, `c62f3b8c`).
+- **`meetingbar://dropdown` deep link** + a debug panel pin (`d5344add`, `c62f3b8c`). Now
+  `punctual://dropdown` after the 2026-10 rename.
 - **2026-08-05 (`4b48d42b`)** — menu-bar **Join chip** (`MenuBarJoinActionPolicy`,
   `MenuBarActionChipGeometry`, `MenuBarActionChipOverlayView`; left-click hit-tests the chip before
   opening the panel), **countdown lead-time control** (`menuBarCountdownLeadMinutes`), and a
@@ -158,7 +176,8 @@ including two GitHub API gotchas that will otherwise cost an hour, is in the pro
    Do not pick this up ahead of that. Detail retained below.
 
    The bundle id changed
-   `leits.MeetingBar` → `com.chykalophia.MeetingBarNG` (2026-07-23) and `UserDefaults` is
+   `leits.MeetingBar` → `com.chykalophia.MeetingBarNG` (2026-07-23), then again to
+   `com.chykalophia.Punctual` (2026-10-01), and `UserDefaults` is
    bundle-id-scoped. Nothing in the source reads the old domain — the four existing migrations
    (`StatusBarTitleFormatMigration`, `TimeFormatDefaultMigration`, `DropdownModuleMergeMigration`,
    `MenuBarTimeFormatMigration`) all move NG's *own* keys forward. A switcher loses every setting.

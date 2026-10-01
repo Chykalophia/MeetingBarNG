@@ -1,11 +1,11 @@
-Welcome to the MeetingBarNG community
+Welcome to the Punctual community.
 
 Accept and offer criticism constructively. Let anyone have the privacy they desire.
 
 Settle differences within these boundaries.
 
-Finding yourself unable to do so, e-mail <peter@chykalophia.com>, Peter Krzyzek, the
-MeetingBarNG maintainer (Chykalophia).
+If you find yourself unable to do so, email Peter Krzyzek, the Punctual maintainer
+(Chykalophia), at <peter@chykalophia.com>.
 
-MeetingBarNG is a fork of MeetingBar by Andrii Leitsius; for the upstream project, see
+Punctual is built on MeetingBar by Andrii Leitsius. For the upstream project, see
 <https://github.com/leits/MeetingBar>.

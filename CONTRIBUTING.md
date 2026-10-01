@@ -1,6 +1,6 @@
-# Contributing to MeetingBarNG
+# Contributing to Punctual
 
-MeetingBarNG welcomes focused bug fixes, meeting-service integrations, reliability improvements, translations, and documentation updates.
+Punctual welcomes focused bug fixes, meeting-service integrations, reliability improvements, translations, and documentation updates.
 
 ## GitHub Workflow
 
@@ -15,7 +15,7 @@ Use GitHub issues for public bugs and feature requests. Keep pull requests small
 
 Good bug reports include:
 
-* MeetingBarNG version and macOS version
+* Punctual version and macOS version
 * Calendar provider: macOS Calendar or Google Calendar
 * Meeting service when relevant: Zoom, Google Meet, Microsoft Teams, Webex, etc.
 * Steps to reproduce
@@ -25,7 +25,7 @@ Good bug reports include:
 
 ## Building Locally
 
-MeetingBarNG is a macOS app built with Xcode, Swift 6, AppKit, SwiftUI, and Xcode-managed Swift Package dependencies.
+Punctual is a macOS app built with Xcode, Swift 6, AppKit, SwiftUI, and Xcode-managed Swift Package dependencies.
 
 For local signing, create `XCConfig/DevTeamOverride.xcconfig` with your Apple development team. This file is git-ignored, so you do not need to change the Xcode project:
 
@@ -55,6 +55,6 @@ Update `CHANGELOG.md` for user-visible changes and notable architecture, depende
 
 ## License And Attribution
 
-MeetingBarNG is a fork of [MeetingBar](https://github.com/leits/MeetingBar) and is licensed under the Apache License 2.0. By contributing, you agree that your contributions are licensed under the Apache License 2.0.
+Punctual is built on [MeetingBar](https://github.com/leits/MeetingBar) by Andrii Leitsius and is licensed under the Apache License 2.0. By contributing, you agree that your contributions are licensed under the Apache License 2.0.
 
 When you modify a file that carries an upstream `Copyright © … Andrii Leitsius` header, retain that header (Apache-2.0 §4(c)) and add a change notice for significant modifications (§4(b)) rather than removing the original notice. See [`NOTICE`](NOTICE).

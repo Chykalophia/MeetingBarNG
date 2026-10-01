@@ -1,4 +1,4 @@
-# MeetingBarNG — Dropdown & Menu Bar Modernization
+# Punctual: Dropdown & Menu Bar Modernization
 
 **Status:** COMPLETE — all 10 items done as of 2026-08-24. Started 2026-07-27. This is the
 progress note of record for the visual overhaul of the dropdown panel and the menu-bar item.
@@ -162,8 +162,8 @@ makes it impossible to screenshot — `screencapture` takes focus by existing. T
 DEBUG-only:
 
 ```sh
-open "meetingbar://dropdown-debug"     # panel in a window that STAYS OPEN; run again to close
-defaults write com.chykalophia.MeetingBarNG debugPinDropdownPanel -bool true   # real panel, pinned
+open "punctual://dropdown-debug"       # panel in a window that STAYS OPEN; run again to close
+defaults write com.chykalophia.Punctual debugPinDropdownPanel -bool true   # real panel, pinned
 ```
 
 `DropdownInspectorWindow` is the same borderless surface the real panel uses — `WindowCoordinator`
@@ -171,13 +171,15 @@ builds both through one `installDropdownPanelSurface`, so what gets inspected ca
 what ships. It simply omits the `resignKey` override. Prefer it over the pin: it needs no relaunch
 and leaves the shipping panel's behaviour untouched.
 
-> **If a `meetingbar://` link seems to do nothing, check which bundle answered it.**
+> **If a `punctual://` link seems to do nothing, check which bundle answered it.**
 > LaunchServices resolves the scheme across *every* registered copy, and a stale build wins on
 > recency, not on being the one you launched. This masqueraded as a broken deep link for a whole
 > session: `build/Build/Products/Debug/` (an old layout), `build/MeetingBarNG.app`, and a
 > scratchpad copy were all still registered, and the old bundle predated the deep link, so it
-> answered and did nothing. Diagnose with `ps -Ao pid,comm | grep MeetingBar` — more than one PID,
-> or a path you did not expect, is the bug. Clear with `lsregister -u <path>` plus `rm -rf`.
+> answered and did nothing. (That was under the old `meetingbar://` scheme, which upstream
+> MeetingBar also registers, one reason the scheme became `punctual://`.) Diagnose with
+> `ps -Ao pid,comm | grep -E 'Punctual|MeetingBar'`: more than one PID, or a path you did not
+> expect, is the bug. Clear with `lsregister -u <path>` plus `rm -rf`.
 
 ---
 

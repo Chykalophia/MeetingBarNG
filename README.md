@@ -1,138 +1,151 @@
-# MeetingBarNG
+# Punctual
 
-**MeetingBarNG** is a modern, customizable rebuild of the macOS menu-bar meeting
-companion — it keeps your current or next calendar meeting in the status bar and
-lets you join it in one click.
+**Punctual** keeps your current or next meeting in the macOS menu bar and gets you into
+it in one click. No AI, no account, no analytics. Free and open source.
 
-It is created and maintained by **[Peter Krzyzek](https://peterkrzyzek.com)** under
-**[Chykalophia](https://chykalophia.com)**, and is an actively-developed fork of the
-excellent open-source [**MeetingBar**](https://github.com/leits/MeetingBar) by
-[Andrii Leitsius](https://github.com/leits). MeetingBarNG stays free, open source,
-and privacy-respecting.
+Made by [Chykalophia](https://chykalophia.com) and maintained by
+[Peter Krzyzek](https://peterkrzyzek.com). Homepage: <https://chykalophia.com/punctual>.
 
-> **Status: pre-release / in active development.** MeetingBarNG is being overhauled
-> and modernized (code, UI, UX, and features). It is not yet distributed as a packaged
-> app under its own identity — build it from source, or use the original
-> [MeetingBar](https://github.com/leits/MeetingBar) if you want a shipping app today.
-
-<img src="screenshot.png" width="700" alt="MeetingBarNG in the macOS menu bar">
+<img src="screenshot.png" width="700" alt="Punctual in the macOS menu bar">
 
 ---
 
-## Why MeetingBarNG
+## Built on MeetingBar
 
-MeetingBar is a rock-solid, reliability-first menu-bar app. MeetingBarNG builds on that
-foundation with a deliberate goal: a **modern, deeply customizable look and feel** with
-close **productivity feature parity** to modern menu-bar calendars like
-[Dot](https://www.trydot.app), while keeping everything local, private, and open source.
+Punctual is built on [**MeetingBar**](https://github.com/leits/MeetingBar), the open-source
+menu-bar meeting app by [Andrii Leitsius](https://github.com/leits) and the MeetingBar
+contributors. Their work is the foundation here: the calendar plumbing, the meeting-link
+detection for 50+ services, and the reliability-first approach all started with them.
 
-See [`ROADMAP.md`](ROADMAP.md) for the full build-out plan.
+Punctual is a separate app with its own name, icon and roadmap. It is a derivative work
+under the Apache License 2.0, it is not affiliated with or endorsed by the MeetingBar
+project, and any bugs in Punctual are ours to fix. The full attribution lives in
+[`NOTICE`](NOTICE).
 
----
-
-## What it does today
-
-### See what is next
-* Show the current or next meeting in the macOS status bar.
-* Display meeting title, time, countdown, icon, or meeting service.
-* Show upcoming events from today and tomorrow in the menu.
-* Filter all-day, declined, tentative, pending, or linkless events.
-* Shorten long meeting titles to keep the menu bar readable.
-
-### Join meetings faster
-* Join the current or next online meeting with one click.
-* Join the nearest meeting with a global keyboard shortcut.
-* Create ad-hoc meetings from your preferred meeting service.
-* Open meeting links in a preferred browser or native app per service.
-* Open event details in macOS Calendar or Fantastical.
-
-### Get meeting reminders
-* Receive macOS notifications before meetings.
-* Use full-screen reminders for important meeting starts.
-* Dismiss meeting notifications when you no longer need them.
-
-### Customize and automate
-* Bookmark recurring meetings and access them quickly.
-* Launch automatically at login.
-* Use Shortcuts and AppleScript integrations (e.g. pause music when joining a meeting).
-
-### Calendar providers
-* **macOS Calendar** — any account synced with Calendar.app (iCloud, Google, Exchange,
-  Office 365, Yahoo, AOL, and others).
-* **Google Calendar** — Google accounts work today through the macOS Calendar provider
-  above. The *direct* Google provider is currently not offered in onboarding: this build
-  ships without OAuth credentials, so the picker lists macOS Calendar only. The provider
-  code is retained for installs already using it, and for local builds that supply their
-  own credentials (see below).
-
-### Supported meeting services
-More than 50 services, including Google Meet, Zoom, Microsoft Teams, Webex, GoToMeeting,
-Skype, Discord, Jitsi, RingCentral, BlueJeans, Whereby, Slack Huddle, FaceTime, LiveKit
-Meet, Meetecho, and StreamYard.
-
----
-
-## Where we are headed (launch goal)
-
-The launch target is close **productivity parity** with [Dot](https://www.trydot.app),
-paired with a modern, customizable UI. Highlights on the roadmap:
-
-* **Composable menu bar** — mix-and-match tokens (date, next event, countdown, progress
-  bars, clock) instead of a single fixed format.
-* **Menu-bar calendar** — browse/navigate a month ⇄ week calendar and a day summary
-  (event count + focus time) right from the menu bar.
-* **Command bar & keyboard-first navigation** — one shortcut to create, search, and jump.
-* **Meeting prep & camera preview** — surface invite links automatically and check
-  camera/mic/lighting before joining.
-* **Reminders & focus** — Apple Reminders alongside events, per-event reminders, and
-  snooze (by time or location).
-* **Deeper customization & theming** — countdown styles, date markers, hide-empty-days,
-  system/custom themes.
-* **Richer event handling** — full event search, inline edit, location autocomplete,
-  calendar picker, quick date jump, right-click actions, multi-calendar
-  (iCloud/Google/Outlook/Exchange).
-
-**Explicitly out of scope:** natural-language event creation. MeetingBarNG will not parse
-free-text into events.
-
-The complete parity checklist and the deferred rename/overhaul backlog live in
-[`ROADMAP.md`](ROADMAP.md).
+Thank you, Andrii, and everyone who contributed to MeetingBar.
 
 ---
 
 ## Install
 
-> **Heads up:** the download below is not published yet. `v0.2.0` and `v0.3.0` were tagged
-> before the release pipeline existed, so they carry release notes but no artifact. Until
-> the next tagged release, [build from source](#build-from-source). Progress is tracked in
-> [`STATE.md`](STATE.md).
+Punctual needs **macOS 15.0 or later** (Apple Silicon and Intel).
 
-MeetingBarNG requires **macOS 15.0 or later** (Apple Silicon and Intel).
+1. Download `Punctual-<version>.dmg` from the
+   [latest release](https://github.com/Chykalophia/Punctual/releases/latest).
+2. Open it and drag **Punctual** to Applications.
+3. Launch it. Grant Calendar access when asked; Punctual cannot show meetings without it.
 
-1. Download `MeetingBarNG-<version>.dmg` from the
-   [latest release](https://github.com/Chykalophia/MeetingBarNG/releases/latest).
-2. Open it and drag **MeetingBarNG** to Applications.
-3. Launch it. Grant Calendar access when asked — the app cannot show meetings without it.
-
-Builds are signed with a Developer ID certificate and notarized by Apple, so they open
-without a Gatekeeper warning and without right-click ▸ Open. To verify a download yourself:
+Releases are signed with a Developer ID certificate and notarized by Apple, so the app
+opens without a Gatekeeper warning. To check a download yourself:
 
 ```bash
 # should print: accepted ... source=Notarized Developer ID
-spctl --assess --type open --context context:primary-signature -vv MeetingBarNG-<version>.dmg
+spctl --assess --type open --context context:primary-signature -vv Punctual-<version>.dmg
 
 # and match the .sha256 published beside the dmg
-shasum -a 256 MeetingBarNG-<version>.dmg
+shasum -a 256 Punctual-<version>.dmg
 ```
 
-There is no auto-updater yet; check the releases page, or watch the repo for releases.
+There is no auto-updater yet. Watch the repo for releases, or check the releases page.
+
+---
+
+## Features
+
+### See what is next
+* Your current or next meeting in the menu bar, with title, time, countdown, icon or
+  meeting service.
+* A composable menu bar: mix and match the icon, event title, countdown, date, clock, week
+  number, world clock, and day or year progress, in the order you want.
+* Meeting progress in the menu bar (underline, ring, capsule or mini bar). Off by default.
+* A Join chip right on the menu bar for a meeting that has a link.
+* Countdown styles (`2h`, `2h 30m`, `2:30`) and a lead time, so a meeting hours away does
+  not take over the menu bar.
+* Long titles shortened to keep the menu bar readable.
+
+### The dropdown
+* A greeting with today's meeting count and free time.
+* A timeline of your day (Track, Bar or Minimal), a "Next meeting" card, and today's and
+  tomorrow's agenda.
+* Build your own layout: turn sections on or off and reorder them, with a live preview.
+* A month calendar that folds to a single week, with dots on days that have meetings and
+  markers for birthdays, anniversaries and deadlines.
+* Light, dark or system appearance, and your choice of accent colour.
+* Full keyboard navigation.
+
+### Join meetings faster
+* Join the current or next online meeting with one click, or with a global shortcut.
+* Copy just the meeting ID (Zoom, Meet, Webex and others) when you need to dial in.
+* Create an ad-hoc meeting in your preferred service.
+* Open links in a preferred browser, or in the native app per service.
+* Check your camera and mic before you join.
+
+### Find and change things
+* A command bar: search events by title, notes, location or attendee, and run quick
+  actions from one shortcut.
+* Create, edit and delete events without leaving the menu bar, including "this event" or
+  "this and future events" for repeating ones.
+* A month and week calendar window you can walk with the arrow keys, with a jump-to-date
+  picker.
+* A world clock panel for the time zones you work across.
+* Right-click any meeting to join, copy, edit, delete or set its reminder.
+
+### Reminders
+* macOS notifications before a meeting starts or ends, with snooze.
+* Full-screen reminders for the meetings you cannot miss.
+* Per-meeting reminder times, so one standup can be quieter than the rest.
+* Apple Reminders due today, right in the dropdown. Opt in; it asks for its own permission.
+
+### Automate
+* Bookmark recurring meetings.
+* Launch at login.
+* Shortcuts and AppleScript hooks, for example to pause music when you join a meeting.
+
+### Calendars
+* **macOS Calendar:** anything synced to Calendar.app (iCloud, Google, Exchange,
+  Office 365, Yahoo, and others).
+* **Google Calendar, directly:** with your own OAuth client, or with one shipped in the
+  build. See [Google Calendar](#google-calendar-optional) below.
+* Connect both at once. Meetings are merged into one list, and a meeting that shows up in
+  both appears once.
+
+### Meeting services
+More than 50, including Google Meet, Zoom, Microsoft Teams, Webex, GoToMeeting, Skype,
+Discord, Jitsi, RingCentral, BlueJeans, Whereby, Slack Huddle, FaceTime, LiveKit Meet,
+Meetecho, and StreamYard.
+
+---
+
+## What is next
+
+Punctual aims for close productivity parity with [Dot](https://www.trydot.app), with a
+customizable, native look. Most of that list has shipped. Still open: a calendar picker
+from the command bar, snoozing a reminder until you reach a location, and a performance
+pass on both Apple Silicon and Intel.
+
+**Not happening:** AI or LLM features of any kind, voice-to-text, and natural-language
+event creation. Punctual will not parse free text into events.
+
+The full checklist lives in [`ROADMAP.md`](ROADMAP.md).
+
+---
+
+## Privacy
+
+Punctual has no account, no analytics and no server of its own. Calendar data goes from
+your calendar provider to your Mac and is used only there: to show meetings, find meeting
+links, and open the right one.
+
+The one exception is opt-in. Location autocomplete in the event editor sends the location
+text you type to Apple (MapKit) for suggestions. It is off by default, and Preferences says
+exactly what it sends.
 
 ---
 
 ## Build from source
 
-MeetingBarNG requires **macOS 15.0 or later** and is built with Xcode, Swift 6, AppKit,
-SwiftUI, and Xcode-managed Swift Package dependencies.
+Punctual needs **macOS 15.0 or later** and builds with Xcode, Swift 6, AppKit, SwiftUI,
+and Xcode-managed Swift Package dependencies.
 
 For local signing, create `XCConfig/DevTeamOverride.xcconfig` with your Apple development
 team (this file is git-ignored):
@@ -140,50 +153,6 @@ team (this file is git-ignored):
 ```xcconfig
 DEVELOPMENT_TEAM = <your development team id>
 ```
-
-### Google Calendar (optional)
-
-The **macOS Calendar** source works out of the box, including Google accounts added in
-System Settings → Internet Accounts. The **direct Google Calendar** source is worth adding
-anyway: the EventKit mirror drops per-meeting detail the Calendar API carries, notably
-conference entry points and per-attendee response status.
-
-**The two are not exclusive.** Both can be connected at once and their meetings are merged
-into one list — which matters if some calendars only exist in Calendar.app (iCloud,
-Exchange) while your work calendar is Google. A meeting arriving from both is shown
-**once**, using the Google copy for the reason above. That collapsing is the existing
-cross-calendar deduplication (Preferences ▸ Filters ▸ "Hide duplicate events") extended to
-know which source a meeting came from; turning it off shows both copies.
-
-Calendar selection is stored per source, so turning one off and back on does not lose its
-choices. At least one source is always connected — the last one cannot be switched off.
-
-Google needs an OAuth client, from either of two places.
-
-**Bring your own** — Preferences ▸ Calendars ▸ "Use my own Google credentials". Create an
-OAuth client of type **Desktop app** in the
-[Google Cloud Console](https://console.cloud.google.com/apis/credentials), enable the
-Google Calendar API, add yourself under "Test users", and paste the client ID. Calls then
-run on your own project's quota under your own consent screen. This works in a build that
-carries no credentials at all.
-
-**Ship one with the build** — copy `XCConfig/GoogleSecrets.xcconfig.example` to
-`XCConfig/GoogleSecrets.xcconfig` (git-ignored) and follow the steps in it. Google Calendar
-then works out of the box for whoever runs the build.
-
-A shipped client ID is extractable from the binary. That is inherent to native OAuth rather
-than a flaw here — Google's own docs say the installed-app client secret "is obviously not
-treated as a secret", and [RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636) states
-that "secrets provisioned in client binary applications cannot be considered confidential."
-What protects the flow is PKCE, which is performed on every sign-in. An extracted client
-costs you API quota and lets someone put your app's name on a consent screen; it grants
-nobody access to anybody's calendar without that person signing in themselves.
-
-The OAuth redirect is received on a loopback listener (`http://127.0.0.1:<random port>`),
-which is why the client must be the **Desktop app** type and why the app carries the
-`com.apple.security.network.server` entitlement. Google documents loopback as the
-recommended redirect for macOS desktop apps and is retiring the custom URL schemes it
-replaces, which any other app on the Mac could register.
 
 Common commands:
 
@@ -195,43 +164,78 @@ make lint             # SwiftLint
 make validate-strings # Verify English localization keys used by .loco()
 ```
 
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) before changing app flow, calendar
+Read [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) before changing app flow, calendar
 providers, meeting-link detection, notifications, status-bar rendering, settings,
 dependencies, entitlements, or release-sensitive configuration.
 
----
+### Google Calendar (optional)
 
-## Privacy
+The **macOS Calendar** source works out of the box, including Google accounts added in
+System Settings ▸ Internet Accounts. The **direct Google Calendar** source is still worth
+adding: the EventKit mirror drops detail the Calendar API carries, notably conference
+entry points and each attendee's response.
 
-MeetingBarNG does not collect personal data. Calendar data is used only on your Mac to
-show meetings, detect meeting links, and open the correct meeting action.
+**You can use both.** Connect them at once and their meetings merge into one list. That
+matters if some calendars only exist in Calendar.app (iCloud, Exchange) while your work
+calendar is Google. A meeting arriving from both is shown **once**, using the Google copy
+for the reason above. This is the existing cross-calendar deduplication (Preferences ▸
+Filters ▸ "Hide duplicate events"), extended to know which source a meeting came from.
+Turn it off to see both copies.
+
+Calendar selection is stored per source, so turning one off and back on keeps its
+choices. At least one source is always connected; the last one cannot be switched off.
+
+Google needs an OAuth client, from one of two places.
+
+**Bring your own:** Preferences ▸ Calendars ▸ "Use my own Google credentials". Create an
+OAuth client of type **Desktop app** in the
+[Google Cloud Console](https://console.cloud.google.com/apis/credentials), enable the
+Google Calendar API, add yourself under "Test users", and paste the client ID. Calls then
+run on your own project's quota under your own consent screen. This works in a build that
+carries no credentials at all.
+
+**Ship one with the build:** copy `XCConfig/GoogleSecrets.xcconfig.example` to
+`XCConfig/GoogleSecrets.xcconfig` (git-ignored) and follow the steps in it. Google Calendar
+then works out of the box for whoever runs the build.
+
+A shipped client ID can be extracted from the binary. That is true of every native OAuth
+app, not a flaw here. Google's own docs say the installed-app client secret "is obviously
+not treated as a secret", and [RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636)
+says "secrets provisioned in client binary applications cannot be considered
+confidential." What protects the flow is PKCE, which runs on every sign-in. An extracted
+client costs you API quota and lets someone put your app's name on a consent screen. It
+gives nobody access to anyone's calendar unless that person signs in themselves.
+
+The OAuth redirect lands on a loopback listener (`http://127.0.0.1:<random port>`). That
+is why the client must be the **Desktop app** type, and why the app carries the
+`com.apple.security.network.server` entitlement. Google recommends loopback for macOS
+desktop apps and is retiring the custom URL schemes it replaces, which any other app on
+the Mac could register.
 
 ---
 
 ## Contributing
 
-Contributions are welcome — focused fixes, meeting-service integrations, reliability
+Contributions are welcome: focused fixes, meeting-service integrations, reliability
 improvements, translations, and documentation. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ---
 
-## Credits & attribution
+## Credits
 
-MeetingBarNG is a derivative work of [**MeetingBar**](https://github.com/leits/MeetingBar),
+Punctual is a derivative work of [**MeetingBar**](https://github.com/leits/MeetingBar),
 © 2020 [Andrii Leitsius](https://github.com/leits) and the MeetingBar contributors, used
-under the Apache License 2.0. Enormous thanks to the original author and community — the
-original app is [in the Mac App Store](https://apps.apple.com/us/app/id1532419400) and on
-Homebrew (`brew install --cask meetingbar`). The original author is Ukrainian 🇺🇦 —
-[Stand With Ukraine](https://stand-with-ukraine.pp.ua).
+under the Apache License 2.0. Andrii is Ukrainian; if MeetingBar has been useful to you,
+consider [standing with Ukraine](https://stand-with-ukraine.pp.ua).
 
-MeetingBarNG (and MeetingBar) rely on:
+Punctual relies on:
 
-* [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) — global shortcuts
-* [Defaults](https://github.com/sindresorhus/Defaults) — user settings
-* [LaunchAtLogin](https://github.com/sindresorhus/LaunchAtLogin) — launch-at-login
-* [AppAuth-iOS](https://github.com/openid/AppAuth-iOS) — Google Calendar OAuth
+* [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) for global shortcuts
+* [Defaults](https://github.com/sindresorhus/Defaults) for user settings
+* [LaunchAtLogin](https://github.com/sindresorhus/LaunchAtLogin) for launch at login
+* [AppAuth-iOS](https://github.com/openid/AppAuth-iOS) for Google Calendar OAuth
 
-Original app logo by [Miroslav Rajkovic](https://www.rajkovic.co/).
+The original MeetingBar logo is by [Miroslav Rajkovic](https://www.rajkovic.co/).
 
 See [`NOTICE`](NOTICE) for the full attribution notice.
 
@@ -239,5 +243,5 @@ See [`NOTICE`](NOTICE) for the full attribution notice.
 
 ## License
 
-MeetingBarNG is licensed under the [Apache License 2.0](LICENSE), the same license as the
-upstream project.
+Punctual is licensed under the [Apache License 2.0](LICENSE), the same license as
+MeetingBar.

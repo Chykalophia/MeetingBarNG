@@ -1,9 +1,10 @@
-# MeetingBarNG Roadmap
+# Punctual Roadmap
 
-MeetingBarNG is a fork of [MeetingBar](https://github.com/leits/MeetingBar) that is being
-overhauled and modernized in code, UI, UX, and features. The launch goal is close
-**productivity feature parity** with [Dot](https://www.trydot.app), paired with a modern,
-deeply customizable look and feel — while staying local-first, private, and open source.
+Punctual (formerly MeetingBarNG) is built on [MeetingBar](https://github.com/leits/MeetingBar)
+by Andrii Leitsius, and is being overhauled and modernized in code, UI, UX, and features. The
+launch goal is close **productivity feature parity** with [Dot](https://www.trydot.app), paired
+with a modern, deeply customizable look and feel, while staying local-first, private, and open
+source.
 
 This document is the source of truth for what we are building and what we are deliberately
 deferring. It is intentionally opinionated about scope.
@@ -183,7 +184,7 @@ single release.
 - [ ] Native SwiftUI performance pass (Apple Silicon + Intel).
 
 ### Explicitly out of scope
-- **Natural-language event creation** — MeetingBarNG will NOT parse free text into events.
+- **Natural-language event creation**: Punctual will NOT parse free text into events.
   This is a deliberate non-goal.
 
 ---
@@ -196,6 +197,13 @@ each with its own migration care.
 
 ### App identity (breaks OAuth / Keychain / StoreKit / defaults — needs a migration plan)
 - [x] Bundle identifier `leits.MeetingBar` → `com.chykalophia.MeetingBarNG` (2026-07-23).
+- [ ] **Rename to Punctual** (started 2026-10-01, in progress): bundle id
+      `com.chykalophia.MeetingBarNG` → `com.chykalophia.Punctual`, URL scheme `meetingbar://` →
+      `punctual://` (the old one collided with upstream MeetingBar), app `Punctual.app`, Keychain
+      name `Punctual.GoogleAuth`, dmg `Punctual-<version>.dmg`, repo
+      `github.com/Chykalophia/Punctual`. Code identifiers (the `MeetingBarNG/` folder, targets,
+      the `MeetingBarLogic` module) are renamed in a separate pass, so paths in these docs stay
+      as they are until then. The Keychain/Defaults migration item below now spans two id changes.
 - [x] StoreKit product ids `leits.MeetingBar.patronage.*` — moot: the StoreKit patronage
       service was removed outright rather than renamed, so there are no product ids left
       to migrate (2026-07-23).
@@ -203,10 +211,11 @@ each with its own migration care.
       Still open, and now the load-bearing one: the id changed, so anything that derived a
       suite or Keychain name from the OLD id needs a migration path for existing installs.
 - [x] Xcode `PRODUCT_NAME` / scheme / `.app` name and `CFBundleName` → `MeetingBarNG`
-      (2026-07-18, finished 2026-07-23).
+      (2026-07-18, finished 2026-07-23). Superseded by the Punctual rename above.
 - [ ] Mac App Store app id `1532419400` (belongs to the original app).
 - [x] `Application Scripts/leits.MeetingBar` folder path referenced in localized strings —
-      now `Application Scripts → com.chykalophia.MeetingBarNG` (2026-07-23).
+      now `Application Scripts → com.chykalophia.MeetingBarNG` (2026-07-23). It follows the
+      bundle id, so it becomes `com.chykalophia.Punctual` with the rename.
 
 ### In-app strings & links
 - [ ] Product-name strings across `MeetingBarNG/Resources /Localization /*.lproj` (20 languages;
@@ -222,7 +231,7 @@ each with its own migration care.
 
 ### Housekeeping
 - [ ] Per-file source headers still read `Copyright © <year> Andrii Leitsius`. These are
-      **retained** by Apache-2.0 §4(c). As files are modified for MeetingBarNG, add a change
+      **retained** by Apache-2.0 §4(c). As files are modified for Punctual, add a change
       notice (§4(b)) rather than removing the original.
 - [x] `docs/ARCHITECTURE.md` referenced `CLAUDE.md` / `AGENTS.md` that are not present in the
       fork — reference dropped (2026-07-17).

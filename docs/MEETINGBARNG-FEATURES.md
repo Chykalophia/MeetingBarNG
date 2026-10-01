@@ -1,4 +1,4 @@
-# MeetingBarNG — New Features & How to Test
+# Punctual: New Features & How to Test
 
 A testing companion for the Dot-parity work, all of which is now on `master`. Every
 feature below is built, unit-tested, and shipped. Several have **opt-in toggles or
@@ -166,8 +166,9 @@ Waves 1–4 are shipped and on `master`. The Dot-parity plan is **not** complete
 hide empty days, date markers, per-event reminder times, location autocomplete, quick date
 jump, themes, keyboard-first navigation beyond the dropdown panel).
 
-**Testing these requires building from source.** Releases carry notes but no artifact yet;
-a signed, notarized dmg is the next work item in `STATE.md`.
+**Testing these needs a build.** Releases before the Punctual rename carried notes but no
+artifact; the first signed, notarized dmg is the current work item in `STATE.md`. Until it is
+published, build from source.
 
 ## Not in scope (by request)
 No AI/LLM, no natural-language event creation, no voice-to-text — anywhere.

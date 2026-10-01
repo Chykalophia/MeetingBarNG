@@ -1,15 +1,15 @@
-# MeetingBarNG Architecture
+# Punctual Architecture
 
-MeetingBarNG is a fork of [MeetingBar](https://github.com/leits/MeetingBar). This document is the contributor-facing map of the codebase. It is the canonical reference for app structure, dependency ownership, and release-sensitive configuration. The source folder, Xcode targets, product name and bundle id have all been renamed to MeetingBarNG; what remains of the rename backlog (Keychain/Defaults suite migration, App Store id) is tracked in [`ROADMAP.md`](../ROADMAP.md).
+Punctual (formerly MeetingBarNG) is built on [MeetingBar](https://github.com/leits/MeetingBar) by Andrii Leitsius. This document is the contributor-facing map of the codebase. It is the canonical reference for app structure, dependency ownership, and release-sensitive configuration. The product is being renamed to Punctual (bundle id `com.chykalophia.Punctual`, URL scheme `punctual://`); code identifiers (the `MeetingBarNG/` source folder, Xcode targets, the `MeetingBarLogic` module) are renamed in a separate pass, so the paths below are still correct. What remains of the rename backlog (Keychain/Defaults suite migration, App Store id) is tracked in [`ROADMAP.md`](../ROADMAP.md).
 
 If anything below disagrees with the actual code, the code wins — and the doc needs a fix.
 
 
 ---
 
-## What MeetingBar is, in one paragraph
+## What Punctual is, in one paragraph
 
-MeetingBarNG is a macOS menu-bar app that reads calendars (Apple Calendar via EventKit; a Google Calendar OAuth2 provider exists in code but is currently absent from onboarding — see "Calendar providers" below), shows the next event in the system status bar, opens the right meeting URL when you click "Join", and fires notifications around event start/end. It is `NSApplicationDelegate`-based (AppKit), with SwiftUI used for the dropdown panel, Preferences, Onboarding, and the auxiliary windows. macOS 15+ minimum, Swift 6.
+Punctual is a macOS menu-bar app that reads calendars (Apple Calendar via EventKit, and a direct Google Calendar OAuth2 provider that can be connected alongside it; see "Calendar providers" below), shows the next event in the system status bar, opens the right meeting URL when you click "Join", and fires notifications around event start/end. It is `NSApplicationDelegate`-based (AppKit), with SwiftUI used for the dropdown panel, Preferences, Onboarding, and the auxiliary windows. macOS 15+ minimum, Swift 6.
 
 The product principle is reliability first: **show the correct meeting, stay fresh, stay visible, open the right link**. New settings are a last resort — improve the default behavior instead.
 
@@ -495,7 +495,7 @@ Direct app dependencies are declared as Xcode Swift Package references in `Meeti
 | LaunchAtLogin | `5.0.2 ..< 6.0.0` | `5.0.2` | Login item integration |
 | AppAuth-iOS | `2.0.0 ..< 3.0.0` | `2.0.0` | Google OAuth |
 
-`swift-syntax 601.0.1` is currently transitive. StoreKit is NOT used: MeetingBarNG removed the upstream patronage service, so there are no in-app purchases, no StoreKit framework use, and no StoreKit package dependency.
+`swift-syntax 601.0.1` is currently transitive. StoreKit is NOT used: the fork removed the upstream patronage service, so there are no in-app purchases, no StoreKit framework use, and no StoreKit package dependency.
 
 `Package.swift` defines the hostless `MeetingBarLogic` SwiftPM target and its tests. Keep it aligned with pure policy files that need fast `swift test` coverage, but do not use it as the source of truth for app package dependencies.
 
