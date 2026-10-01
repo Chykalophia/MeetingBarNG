@@ -155,17 +155,51 @@ The warning disappears on Google's side once verified; no app update is needed.
 
 ## 3. Cutting a release
 
+**The release path in use is local** (`make release-local`, below). Every Punctual release
+so far was cut that way.
+
 ```bash
 # 1. Bump MARKETING_VERSION and CURRENT_PROJECT_VERSION in the Xcode project.
-# 2. Move CHANGELOG.md's "Unreleased" section under the new version heading.
-# 3. Land that on master through a PR (master is protected; see STATE.md).
-# 4. Tag it.
-git tag v0.4.0
-git push origin v0.4.0
+#    CURRENT_PROJECT_VERSION must go UP every release: Sparkle compares it.
+# 2. Add the version to CHANGELOG.md and the in-app What's New (ReleaseNotes.swift;
+#    a test fails if its newest entry doesn't match the app version).
+# 3. Write build/release-notes-<version>.md (no em dashes): it becomes both the
+#    GitHub release notes and the notes shown in the update window.
+# 4. make release-local NOTARY_PROFILE=punctual-notary SHIP_GOOGLE_CREDENTIALS=1
+#    -> build/Punctual-<version>.dmg, .dmg.sha256, build/appcast.xml
+# 5. PR dev -> master, merge, tag the merge commit, publish ALL THREE files:
+gh pr merge <n> -R Chykalophia/Punctual --merge --admin
+git fetch origin && git tag -s v<version> origin/master -m "Punctual <version>" && git push origin v<version>
+gh release create v<version> -R Chykalophia/Punctual --title "Punctual <version>" \
+  --notes-file build/release-notes-<version>.md \
+  build/Punctual-<version>.dmg build/Punctual-<version>.dmg.sha256 build/appcast.xml
 ```
 
+Run step 5 from the repo root: the paths are relative.
+
+### Sparkle: never publish a release without `appcast.xml`
+
+Installed copies (1.1.0 and later) check
+`https://github.com/Chykalophia/Punctual/releases/latest/download/appcast.xml`. That
+address follows whichever release is **latest**, so a latest release missing its
+`appcast.xml` makes every installed copy's update check fail. If one slips out, upload the
+appcast to it (`gh release upload v<version> build/appcast.xml`), or mark the previous
+release latest again.
+
+`make release-local` writes the appcast only after notarization, signs the dmg with the
+Sparkle EdDSA key, and **verifies** that signature before writing the feed. The key lives
+in the login keychain (`generate_keys -p` prints its public half, which must equal
+`SUPublicEDKey` in Info.plist). **Back it up** (1Password). If it is lost, installed copies
+can never accept another update and every user must reinstall by hand. To restore it on a
+new Mac: `generate_keys -f <backup file>`.
+
+The CI workflow below predates Sparkle and does **not** produce an appcast or hold the
+Sparkle key. Do not use it to publish a release unless that is added first.
+
+### CI (not currently used)
+
 The tag push runs `.github/workflows/release.yml`, which archives, signs, exports,
-packages, notarizes, staples, and uploads `Punctual-0.4.0.dmg` plus a `.sha256`
+packages, notarizes, staples, and uploads `Punctual-<version>.dmg` plus a `.sha256`
 to the release.
 
 If the tag already has a release with hand-written notes, the workflow **uploads into it

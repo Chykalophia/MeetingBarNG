@@ -67,6 +67,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         MenuBarTimeFormatDefaultsMigration.migrateDefaultsIfNeeded()
         DropdownModuleMergeMigration.migrateDefaultsIfNeeded()
 
+        // Sparkle: scheduled update checks and "Check for Updates…".
+        SoftwareUpdater.shared.start()
+
         // Handle windows closing closing
         NotificationCenter.default.addObserver(
             self, selector: #selector(AppDelegate.windowClosed),

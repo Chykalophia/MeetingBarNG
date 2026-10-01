@@ -77,6 +77,21 @@ enum ReleaseNotes {
     /// dropped.
     static let all: [ReleaseNote] = [
         ReleaseNote(
+            version: "1.1.0",
+            date: "October 2026",
+            highlights: [
+                ChangeEntry(
+                    kind: .feature,
+                    text: "Punctual now updates itself. Choose automatic checks and installs, or check "
+                        + "by hand, in Preferences ▸ About ▸ Updates or from the right-click menu."
+                ),
+                ChangeEntry(
+                    kind: .improvement,
+                    text: "Every update is verified with Punctual's own signing key before it installs."
+                )
+            ]
+        ),
+        ReleaseNote(
             version: "1.0.2",
             date: "October 2026",
             highlights: [

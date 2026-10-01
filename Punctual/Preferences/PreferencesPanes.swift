@@ -168,63 +168,66 @@ struct AboutSupportView: View {
 
     var body: some View {
         ScrollView {
-            PreferencesCard {
-                VStack(alignment: .leading, spacing: 16) {
-                    HStack(alignment: .top, spacing: 16) {
-                        Image("appIconForAbout")
-                            .resizable()
-                            .frame(width: 72, height: 72)
-                        VStack(alignment: .leading, spacing: 6) {
-                            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                Text("Punctual")
-                                    .font(.title2).bold()
-                                Text(version)
-                                    .font(.callout)
+            VStack(alignment: .leading, spacing: 16) {
+                PreferencesCard {
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack(alignment: .top, spacing: 16) {
+                            Image("appIconForAbout")
+                                .resizable()
+                                .frame(width: 72, height: 72)
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                    Text("Punctual")
+                                        .font(.title2).bold()
+                                    Text(version)
+                                        .font(.callout)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Text("preferences_about_description".loco())
+                                    .font(.subheadline)
                                     .foregroundStyle(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
                             }
-                            Text("preferences_about_description".loco())
-                                .font(.subheadline)
+                            Spacer()
+                        }
+
+                        Divider()
+
+                        HStack(spacing: 16) {
+                            Button("GitHub") {
+                                Links.github.openInDefaultBrowser()
+                            }
+                            .buttonStyle(.link)
+                            Button("preferences_about_contact".loco()) {
+                                Links.emailMe.openInDefaultBrowser()
+                            }
+                            .buttonStyle(.link)
+                            Button("preferences_about_whats_new".loco()) {
+                                NSApplication.shared.sendAction(
+                                    #selector(AppDelegate.openChangelogWindow(_:)), to: nil, from: nil
+                                )
+                            }
+                            .buttonStyle(.link)
+                            Spacer()
+                            if didCopyDiagnostics {
+                                Label(
+                                    "preferences_about_copied".loco(),
+                                    systemImage: "checkmark.circle.fill"
+                                )
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
-                                .fixedSize(horizontal: false, vertical: true)
+                                .transition(.opacity)
+                                .accessibilityAddTraits(.isStaticText)
+                            }
+                            Button("preferences_about_copy_report".loco()) {
+                                copyDiagnostics()
+                            }
+                            .controlSize(.small)
                         }
-                        Spacer()
+                        .animation(.easeOut(duration: 0.15), value: didCopyDiagnostics)
                     }
-
-                    Divider()
-
-                    HStack(spacing: 16) {
-                        Button("GitHub") {
-                            Links.github.openInDefaultBrowser()
-                        }
-                        .buttonStyle(.link)
-                        Button("preferences_about_contact".loco()) {
-                            Links.emailMe.openInDefaultBrowser()
-                        }
-                        .buttonStyle(.link)
-                        Button("preferences_about_whats_new".loco()) {
-                            NSApplication.shared.sendAction(
-                                #selector(AppDelegate.openChangelogWindow(_:)), to: nil, from: nil
-                            )
-                        }
-                        .buttonStyle(.link)
-                        Spacer()
-                        if didCopyDiagnostics {
-                            Label(
-                                "preferences_about_copied".loco(),
-                                systemImage: "checkmark.circle.fill"
-                            )
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .transition(.opacity)
-                            .accessibilityAddTraits(.isStaticText)
-                        }
-                        Button("preferences_about_copy_report".loco()) {
-                            copyDiagnostics()
-                        }
-                        .controlSize(.small)
-                    }
-                    .animation(.easeOut(duration: 0.15), value: didCopyDiagnostics)
                 }
+                SoftwareUpdateCard()
             }
             .padding(20)
         }

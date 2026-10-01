@@ -4,6 +4,20 @@ Punctual (formerly MeetingBarNG) is built on [MeetingBar](https://github.com/lei
 by Andrii Leitsius and the MeetingBar contributors. This file lists Punctual's own releases.
 Versions 0.2.0 and 0.3.0 shipped under the name MeetingBarNG.
 
+## 1.1.0 (2026-10-01)
+
+* **Automatic updates.** Punctual now updates itself, using
+  [Sparkle](https://sparkle-project.org). On its second launch it asks whether to check
+  automatically (at most once a day). Preferences ▸ About ▸ Updates has switches for
+  automatic checks and automatic installs, a Check for Updates button, and when it last
+  checked; Check for Updates is also in the right-click menu.
+* **Verified before install.** Every update must carry a signature from Punctual's own
+  signing key and Chykalophia's Apple Developer ID, or it is refused.
+* **What a check sends:** an HTTPS request to GitHub, where releases are published. GitHub
+  sees your IP address and which version you have; no calendar data is involved. The
+  [privacy policy](https://www.chykalophia.com/punctual/policy) covers it.
+* Versions before 1.1.0 have no updater: moving to 1.1.0 is a one-time manual download.
+
 ## 1.0.2 (2026-10-01)
 
 * **Punctual stays running.** It had inherited a setting that let macOS quit it whenever it

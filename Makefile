@@ -32,7 +32,7 @@ XCFILTER := $(shell command -v xcbeautify >/dev/null 2>&1 && echo 'xcbeautify --
 # Append a JUnit report to app-hosted test runs when xcbeautify is available.
 JUNIT_REPORT := $(shell command -v xcbeautify >/dev/null 2>&1 && echo '--report junit --report-path $(BUILD_DIR)/test-results')
 
-.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings lint-strings sign-local run-local archive export-app dmg notarize release-local brand-check screenshots
+.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings lint-strings sign-local run-local archive export-app dmg notarize release-local brand-check appcast screenshots
 
 # ---------------------------------------------------------------------------
 # Distribution (Developer ID / direct download)
@@ -138,9 +138,19 @@ notarize:
 brand-check:
 	@Scripts/brand-check.sh
 
-release-local: brand-check dmg notarize
-	@shasum -a 256 "$(DMG_PATH)"
-	@echo "==> Ready: $(DMG_PATH)"
+# Sparkle feed for this release, uploaded next to the dmg. Written only after
+# notarization, so only a dmg Apple accepted is ever signed for Sparkle. Release
+# notes (markdown) are embedded when build/release-notes-<version>.md exists.
+APPCAST_PATH := $(BUILD_DIR)/appcast.xml
+RELEASE_NOTES ?= $(BUILD_DIR)/release-notes-$(VERSION).md
+appcast:
+	Scripts/make-appcast.sh "$(DMG_PATH)" "$(EXPORTED_APP)" "$(APPCAST_PATH)" \
+		$$( [ -f "$(RELEASE_NOTES)" ] && echo "$(RELEASE_NOTES)" )
+
+release-local: brand-check dmg notarize appcast
+	@cd "$(BUILD_DIR)" && shasum -a 256 "$(notdir $(DMG_PATH))" > "$(notdir $(DMG_PATH)).sha256"
+	@cat "$(DMG_PATH).sha256"
+	@echo "==> Ready: $(DMG_PATH), $(DMG_PATH).sha256, $(APPCAST_PATH)"
 
 sign-local:
 	@if ! security find-identity -p codesigning 2>/dev/null | grep -q "$(LOCAL_SIGN_IDENTITY)"; then \

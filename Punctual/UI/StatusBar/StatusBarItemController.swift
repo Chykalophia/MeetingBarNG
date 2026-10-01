@@ -1130,6 +1130,11 @@ final class StatusBarItemController {
     }
 
     @objc
+    func checkForUpdatesAction() {
+        SoftwareUpdater.shared.checkForUpdates()
+    }
+
+    @objc
     func openCalendarAction() {
         dependencies.openCalendar()
     }
