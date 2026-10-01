@@ -58,14 +58,14 @@ final class DropdownInspectorWindow: NSWindow {
         super.close()
     }
 
-    /// Whether `url` is the inspector's deep link (`meetingbar://dropdown-debug`).
+    /// Whether `url` is the inspector's deep link (`punctual://dropdown-debug`).
     ///
     /// Matched here rather than in `URLHandler` on purpose: routing through
     /// `AppRoute` would put a DEBUG-only case in an enum the release build also
     /// compiles, and thread a DEBUG-only closure through `AppEnvironment`. A
     /// development hook should not leave a shape behind in shipping types.
     static func matches(_ url: URL) -> Bool {
-        url.scheme == "meetingbar" && url.host == "dropdown-debug"
+        url.scheme == "punctual" && url.host == "dropdown-debug"
     }
 }
 

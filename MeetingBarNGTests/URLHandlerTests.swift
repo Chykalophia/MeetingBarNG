@@ -13,7 +13,7 @@ final class URLHandlerTests: XCTestCase {
         let handler = URLHandler()
 
         XCTAssertEqual(
-            handler.route(for: URL(string: "meetingbar://preferences")!),
+            handler.route(for: URL(string: "punctual://preferences")!),
             .preferences
         )
     }
@@ -27,7 +27,7 @@ final class URLHandlerTests: XCTestCase {
 
     func testUnknownMeetingBarURLRoutesToUnknown() {
         let handler = URLHandler()
-        let url = URL(string: "meetingbar://calendar/123")!
+        let url = URL(string: "punctual://calendar/123")!
 
         XCTAssertEqual(handler.route(for: url), .unknown(url))
     }

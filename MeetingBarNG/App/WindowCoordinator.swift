@@ -376,7 +376,7 @@ final class WindowCoordinator {
 
     /// Whether the dropdown panel is currently on screen. Lets a deep link
     /// open the panel IDEMPOTENTLY: `openDropdownPanel` toggles, which is right
-    /// for a status-item click and wrong for "meetingbar://dropdown", where a
+    /// for a status-item click and wrong for "punctual://dropdown", where a
     /// second invocation should leave it open rather than dismiss it.
     var isDropdownPanelOpen: Bool { dropdownPanel != nil }
 

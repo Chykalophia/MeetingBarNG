@@ -28,7 +28,7 @@
 //      calendar. A development hook should leave no shape behind in shipping
 //      types.
 //
-//  Reached by `open "meetingbar://debug-harness"`, or from the status item's
+//  Reached by `open "punctual://debug-harness"`, or from the status item's
 //  right-click menu, whose last item exists only in this configuration.
 //
 //  Original work for MeetingBarNG by Peter Krzyzek / Chykalophia, 2026.
@@ -303,10 +303,10 @@ final class DebugHarnessWindow: NSWindow {
         super.close()
     }
 
-    /// Whether `url` is the harness's deep link (`meetingbar://debug-harness`).
+    /// Whether `url` is the harness's deep link (`punctual://debug-harness`).
     /// Matched outside `URLHandler` for the reason given in the file header.
     static func matches(_ url: URL) -> Bool {
-        url.scheme == "meetingbar" && url.host == "debug-harness"
+        url.scheme == "punctual" && url.host == "debug-harness"
     }
 }
 #endif

@@ -4,7 +4,14 @@
 #
 #   Scripts/notarize.sh <path.dmg>
 #
-# Credentials come from the environment (same names locally and in CI):
+# Credentials, in order of preference:
+#
+#   NOTARY_PROFILE  name of a keychain profile made once with
+#                   `xcrun notarytool store-credentials <name>`. Preferred locally:
+#                   the app-specific password then lives in the login keychain,
+#                   never in an env var or shell history.
+#
+#   or, from the environment (what CI uses):
 #   AC_APPLE_ID   Apple ID email of an account on the team
 #   AC_PASSWORD   an APP-SPECIFIC password (appleid.apple.com), never the real one
 #   AC_TEAM_ID    the 10-character team id (KGH289N6T8)
@@ -27,18 +34,18 @@ if [ ! -f "$DMG" ]; then
     exit 1
 fi
 
-: "${AC_APPLE_ID:?AC_APPLE_ID is not set}"
-: "${AC_PASSWORD:?AC_PASSWORD is not set (use an app-specific password)}"
-: "${AC_TEAM_ID:?AC_TEAM_ID is not set}"
+if [ -n "${NOTARY_PROFILE:-}" ]; then
+    AUTH=(--keychain-profile "$NOTARY_PROFILE")
+else
+    : "${AC_APPLE_ID:?Set NOTARY_PROFILE, or AC_APPLE_ID/AC_PASSWORD/AC_TEAM_ID}"
+    : "${AC_PASSWORD:?AC_PASSWORD is not set (use an app-specific password)}"
+    : "${AC_TEAM_ID:?AC_TEAM_ID is not set}"
+    AUTH=(--apple-id "$AC_APPLE_ID" --password "$AC_PASSWORD" --team-id "$AC_TEAM_ID")
+fi
 
 echo "==> Submitting $DMG to the notary service (this waits; typically 1-5 min)"
 set +e
-xcrun notarytool submit "$DMG" \
-    --apple-id "$AC_APPLE_ID" \
-    --password "$AC_PASSWORD" \
-    --team-id "$AC_TEAM_ID" \
-    --wait \
-    --timeout 30m
+xcrun notarytool submit "$DMG" "${AUTH[@]}" --wait --timeout 30m
 SUBMIT_STATUS=$?
 set -e
 
@@ -46,12 +53,8 @@ if [ $SUBMIT_STATUS -ne 0 ]; then
     echo "error: notarization failed. Fetching the log for the most recent submission." >&2
     # The rejection reason is ONLY in this log — the submit output just says
     # "Invalid", which tells you nothing actionable.
-    xcrun notarytool history \
-        --apple-id "$AC_APPLE_ID" \
-        --password "$AC_PASSWORD" \
-        --team-id "$AC_TEAM_ID" \
-        --limit 1 >&2 || true
-    echo "Run: xcrun notarytool log <submission-id> --apple-id ... --password ... --team-id ..." >&2
+    xcrun notarytool history "${AUTH[@]}" --limit 1 >&2 || true
+    echo "Run: xcrun notarytool log <submission-id> <same credentials>" >&2
     exit $SUBMIT_STATUS
 fi
 

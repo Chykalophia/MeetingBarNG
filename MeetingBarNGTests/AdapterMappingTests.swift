@@ -347,20 +347,20 @@ final class GoogleOAuthConfigTests: XCTestCase {
 
     func test_missingClientNumberIsNotConfigured() {
         XCTAssertFalse(GoogleOAuthConfig.isConfigured(
-            clientNumber: "", clientSecret: "GOCSPX-x", keychainName: "MeetingBarNG.GoogleAuth"
+            clientNumber: "", clientSecret: "GOCSPX-x", keychainName: "Punctual.GoogleAuth"
         ))
     }
 
     func test_realValuesWithSecretAreConfigured() {
         XCTAssertTrue(GoogleOAuthConfig.isConfigured(
-            clientNumber: "1234567890-abc123", clientSecret: "GOCSPX-example", keychainName: "MeetingBarNG.GoogleAuth"
+            clientNumber: "1234567890-abc123", clientSecret: "GOCSPX-example", keychainName: "Punctual.GoogleAuth"
         ))
     }
 
     func test_realValuesWithEmptySecretAreConfigured() {
         // "iOS"-type OAuth clients have no secret; an empty secret is valid.
         XCTAssertTrue(GoogleOAuthConfig.isConfigured(
-            clientNumber: "1234567890-abc123", clientSecret: "", keychainName: "MeetingBarNG.GoogleAuth"
+            clientNumber: "1234567890-abc123", clientSecret: "", keychainName: "Punctual.GoogleAuth"
         ))
     }
 

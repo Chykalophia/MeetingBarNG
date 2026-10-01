@@ -18,7 +18,7 @@ import Foundation
 /// gets copied around in backups, regardless of how little it actually protects.
 @MainActor
 enum GoogleUserOAuthClientStore {
-    private static let keychainService = "MeetingBarNG.GoogleUserOAuthClientSecret"
+    private static let keychainService = "Punctual.GoogleUserOAuthClientSecret"
 
     static var isEnabled: Bool {
         get { Defaults[.googleUseUserOAuthClient] }

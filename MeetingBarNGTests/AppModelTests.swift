@@ -374,7 +374,7 @@ final class AppModelTests: BaseTestCase {
         harness.model.send(.openRoute(.preferences))
         harness.model.send(.openRoute(.dropdown))
         harness.model.send(.openRoute(.oauthCallback(oauthURL)))
-        harness.model.send(.openRoute(.unknown(URL(string: "meetingbar://unknown")!)))
+        harness.model.send(.openRoute(.unknown(URL(string: "punctual://unknown")!)))
 
         XCTAssertEqual(harness.openPreferencesCallCount, 1)
         XCTAssertEqual(harness.openDropdownCallCount, 1)

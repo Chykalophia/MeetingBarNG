@@ -23,8 +23,8 @@ LOCAL_CODESIGN_FLAGS := CODE_SIGN_IDENTITY="" CODE_SIGNING_ALLOWED=NO CODE_SIGNI
 # prior grant, so the app reads as "granted" while EventKit returns nothing.
 #   make run-local                 # build + sign + launch
 #   make sign-local                # re-sign the already-built app
-LOCAL_SIGN_IDENTITY ?= MeetingBarNG-Local
-LOCAL_APP := $(DERIVED_DATA_DIR)/Build/Products/Debug/MeetingBarNG.app
+LOCAL_SIGN_IDENTITY ?= Punctual-Local
+LOCAL_APP := $(DERIVED_DATA_DIR)/Build/Products/Debug/Punctual.app
 LOGIC_COVERAGE_SOURCES := MeetingBarNG/Calendar MeetingBarNG/Meetings MeetingBarNG/Notifications MeetingBarNG/UI/StatusBar MeetingBarNG/Utilities/Diagnostics
 
 # Pipe xcodebuild through xcbeautify when available; otherwise grep for the lines that matter.
@@ -32,7 +32,7 @@ XCFILTER := $(shell command -v xcbeautify >/dev/null 2>&1 && echo 'xcbeautify --
 # Append a JUnit report to app-hosted test runs when xcbeautify is available.
 JUNIT_REPORT := $(shell command -v xcbeautify >/dev/null 2>&1 && echo '--report junit --report-path $(BUILD_DIR)/test-results')
 
-.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings lint-strings sign-local run-local archive export-app dmg notarize release-local
+.PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings lint-strings sign-local run-local archive export-app dmg notarize release-local brand-check
 
 # ---------------------------------------------------------------------------
 # Distribution (Developer ID / direct download)
@@ -47,10 +47,10 @@ JUNIT_REPORT := $(shell command -v xcbeautify >/dev/null 2>&1 && echo '--report 
 # notarization: AC_APPLE_ID, AC_PASSWORD (app-specific), AC_TEAM_ID.
 # ---------------------------------------------------------------------------
 VERSION := $(shell grep -m1 'MARKETING_VERSION' $(PROJECT)/project.pbxproj | sed 's/.*= *//;s/;//')
-ARCHIVE_PATH := $(BUILD_DIR)/MeetingBarNG.xcarchive
+ARCHIVE_PATH := $(BUILD_DIR)/Punctual.xcarchive
 EXPORT_PATH := $(BUILD_DIR)/export
-EXPORTED_APP := $(EXPORT_PATH)/MeetingBarNG.app
-DMG_PATH := $(BUILD_DIR)/MeetingBarNG-$(VERSION).dmg
+EXPORTED_APP := $(EXPORT_PATH)/Punctual.app
+DMG_PATH := $(BUILD_DIR)/Punctual-$(VERSION).dmg
 
 # Signed with the FULL entitlements only when a provisioning profile is available;
 # otherwise the time-sensitive-notifications key has to go, or signing fails.
@@ -96,7 +96,10 @@ notarize:
 	@chmod +x Scripts/notarize.sh
 	Scripts/notarize.sh "$(DMG_PATH)"
 
-release-local: dmg notarize
+brand-check:
+	@Scripts/brand-check.sh
+
+release-local: brand-check dmg notarize
 	@shasum -a 256 "$(DMG_PATH)"
 	@echo "==> Ready: $(DMG_PATH)"
 
@@ -185,7 +188,7 @@ coverage-app-report:
 	fi
 	@echo ""
 	@echo "Xcode app-hosted coverage (target summary):"
-	@set -o pipefail; xcrun xccov view --report --only-targets $(XCODE_RESULT_BUNDLE) 2>/dev/null | awk 'NR <= 2 || /MeetingBarNG\.app/'
+	@set -o pipefail; xcrun xccov view --report --only-targets $(XCODE_RESULT_BUNDLE) 2>/dev/null | awk 'NR <= 2 || /Punctual\.app/'
 
 lint:
 	@if command -v $(SWIFTLINT) >/dev/null 2>&1; then \

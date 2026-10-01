@@ -81,10 +81,10 @@ final class CameraPreviewController: NSObject, ObservableObject,
     nonisolated(unsafe) private let audioOutput = AVCaptureAudioDataOutput()
 
     nonisolated private let sessionQueue = DispatchQueue(
-        label: "com.chykalophia.MeetingBarNG.camera-session"
+        label: "com.chykalophia.Punctual.camera-session"
     )
     nonisolated private let audioSampleQueue = DispatchQueue(
-        label: "com.chykalophia.MeetingBarNG.mic-samples"
+        label: "com.chykalophia.Punctual.mic-samples"
     )
 
     // MARK: - Lifecycle

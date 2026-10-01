@@ -1,10 +1,12 @@
-# Releasing MeetingBarNG
+# Releasing Punctual
 
 How a tag becomes a signed, notarized `.dmg` that a stranger can download and run.
 
-**Current status:** the pipeline is built but has never run. `v0.2.0` and `v0.3.0` were
-tagged before it existed and carry release notes with no artifact. Once the secrets below
-are in place, either re-run the workflow against an existing tag or cut `v0.4.0`.
+**Current status (2026-10-01):** the pipeline is built but has never run. `v0.2.0` and
+`v0.3.0` shipped as MeetingBarNG, before the rename to Punctual, with release notes and no
+artifact. The first signed release is the first one under the Punctual name and bundle id
+`com.chykalophia.Punctual`; do not re-run the workflow against those old tags. Before
+tagging, work through the brand checklist in §5.
 
 Two things are outstanding, and they run in parallel — start the second one first, since
 its clock is not yours:
@@ -37,7 +39,7 @@ Never the real Apple ID password — Apple rejects it, and it would be a far wor
 put in a CI secret.
 
 1. <https://appleid.apple.com> ▸ Sign-In and Security ▸ **App-Specific Passwords** ▸ **+**.
-2. Name it something identifiable, e.g. `MeetingBarNG notarization`.
+2. Name it something identifiable, e.g. `Punctual notarization`.
 3. Copy the `xxxx-xxxx-xxxx-xxxx` value.
 
 ### A provisioning profile — optional, but read this
@@ -52,7 +54,7 @@ fire, but they cannot break through a Focus mode.
 For a meeting-reminder app that is a real regression: "notify me even though I'm in Focus"
 is close to the whole point. Recommended, therefore, but not required to ship:
 
-1. Developer portal ▸ Identifiers ▸ `com.chykalophia.MeetingBarNG` ▸ enable
+1. Developer portal ▸ Identifiers ▸ `com.chykalophia.Punctual` ▸ enable
    **Time Sensitive Notifications**.
 2. Profiles ▸ **+** ▸ Distribution ▸ **Developer ID** ▸ select that App ID and your
    Developer ID Application certificate.
@@ -74,7 +76,7 @@ Settings ▸ Secrets and variables ▸ Actions ▸ **New repository secret**.
 | `AC_APPLE_ID` | **yes** | the Apple ID email on the team |
 | `AC_PASSWORD` | **yes** | the app-specific password from above |
 | `AC_TEAM_ID` | no | defaults to `KGH289N6T8` |
-| `MACOS_PROVISIONING_PROFILE` | no | `base64 -i MeetingBarNG.provisionprofile \| pbcopy` |
+| `MACOS_PROVISIONING_PROFILE` | no | `base64 -i Punctual.provisionprofile \| pbcopy` |
 | `GOOGLE_CLIENT_ID` | no | the Desktop-app client id from Google Cloud Console — see §2a |
 | `GOOGLE_CLIENT_SECRET` | no | that client's secret |
 
@@ -142,7 +144,7 @@ git push origin v0.4.0
 ```
 
 The tag push runs `.github/workflows/release.yml`, which archives, signs, exports,
-packages, notarizes, staples, and uploads `MeetingBarNG-0.4.0.dmg` plus a `.sha256`
+packages, notarizes, staples, and uploads `Punctual-0.4.0.dmg` plus a `.sha256`
 to the release.
 
 If the tag already has a release with hand-written notes, the workflow **uploads into it
@@ -156,20 +158,27 @@ existing tag. It rebuilds and re-publishes with `--clobber`.
 
 ### Locally, without CI
 
-```bash
-export AC_APPLE_ID="peter@chykalophia.com"
-export AC_PASSWORD="xxxx-xxxx-xxxx-xxxx"
-export AC_TEAM_ID="KGH289N6T8"
+Locally the certificate is used straight from the login keychain, so there is no `.p12`
+to export. Store the notarization credentials in the keychain once, so the app-specific
+password never sits in an env var or shell history:
 
-make release-local          # archive -> export -> dmg -> notarize
+```bash
+xcrun notarytool store-credentials punctual-notary \
+  --apple-id peter@chykalophia.com --team-id KGH289N6T8
+# prompts for the app-specific password
+
+make release-local NOTARY_PROFILE=punctual-notary   # archive -> export -> dmg -> notarize
 ```
+
+`AC_APPLE_ID` / `AC_PASSWORD` / `AC_TEAM_ID` in the environment still work, and are what
+CI uses.
 
 With a provisioning profile installed, keep the time-sensitive entitlement:
 
 ```bash
-make release-local \
+make release-local NOTARY_PROFILE=punctual-notary \
   RELEASE_ENTITLEMENTS=MeetingBarNG/MeetingBarNG.entitlements \
-  PROFILE_SPECIFIER="MeetingBarNG Developer ID"
+  PROFILE_SPECIFIER="Punctual Developer ID"
 ```
 
 ---
@@ -203,7 +212,38 @@ staple` is part of `Scripts/notarize.sh`; confirm with `xcrun stapler validate <
 **Verifying a build the way a user's Mac will**
 
 ```bash
-spctl --assess --type open --context context:primary-signature -vv MeetingBarNG-0.4.0.dmg
+spctl --assess --type open --context context:primary-signature -vv Punctual-0.4.0.dmg
 ```
 
 A clean `accepted / source=Notarized Developer ID` is what a first-run user gets.
+
+---
+
+## 5. Brand and attribution checklist
+
+Punctual is built on MeetingBar by Andrii Leitsius and credits it openly. What it must
+never do is look like MeetingBar. `make brand-check` (run automatically by
+`make release-local`) enforces the code-side half of both: it fails if the old name,
+the `meetingbar://` scheme or the original app's links reach a user-facing surface, and
+it also fails if the attribution in `NOTICE`, the README or the About box goes missing.
+
+The rest lives outside the repo and has to be checked by hand, once, before the first
+Punctual release:
+
+- [ ] GitHub repo renamed `MeetingBarNG` → `Punctual` (old URLs redirect).
+- [ ] Fork relationship detached via GitHub Support, so the page no longer says
+      "forked from leits/MeetingBar". The README credit stays.
+- [ ] Repo homepage set to `https://chykalophia.com/punctual` (was `meetingbar.app`), and
+      the description rewritten.
+- [ ] `chykalophia.com/punctual` page live, with a privacy policy (Google verification
+      needs both on the verified domain).
+- [ ] Google OAuth consent screen: app name Punctual, Punctual icon, that homepage.
+- [ ] Developer portal: App ID `com.chykalophia.Punctual` with Time Sensitive
+      Notifications, and a Developer ID provisioning profile for it.
+- [ ] New app icon in `Assets.xcassets/AppIcon.appiconset` and the menu-bar glyph.
+- [ ] In-app What's New (`UI/Views/Changelog/ReleaseNotes.swift`) has an entry for this
+      version.
+
+Existing installs under the old bundle id (`com.chykalophia.MeetingBarNG`, source builds
+only; no binary was ever published) start fresh: the app is sandboxed, so the new id gets
+a new container and cannot read the old one's settings.

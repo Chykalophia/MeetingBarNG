@@ -176,7 +176,7 @@ struct AboutSupportView: View {
                             .frame(width: 72, height: 72)
                         VStack(alignment: .leading, spacing: 6) {
                             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                Text("MeetingBarNG")
+                                Text("Punctual")
                                     .font(.title2).bold()
                                 Text(version)
                                     .font(.callout)

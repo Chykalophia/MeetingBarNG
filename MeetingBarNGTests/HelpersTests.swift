@@ -865,7 +865,7 @@ final class SnoozeNotificationRequestFactoryTests: BaseTestCase {
         XCTAssertEqual(request.content.categoryIdentifier, "SNOOZE_EVENT")
         XCTAssertEqual(request.content.title, event.title)
         XCTAssertEqual(request.content.body, "notifications_event_started_body".loco())
-        XCTAssertEqual(request.content.threadIdentifier, "meetingbar")
+        XCTAssertEqual(request.content.threadIdentifier, "punctual")
         XCTAssertEqual(request.content.userInfo["eventID"] as? String, event.id)
         XCTAssertEqual(trigger.timeInterval, 300, accuracy: 0.001)
         XCTAssertFalse(trigger.repeats)

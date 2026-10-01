@@ -44,9 +44,9 @@
 
 // MARK: - Window titles
 
-"window_title_preferences" = "MeetingBarNG Preferences";
-"window_title_onboarding" = "Welcome to MeetingBarNG";
-"windows_title_changelog" = "MeetingBarNG – What's New";
+"window_title_preferences" = "Punctual Preferences";
+"window_title_onboarding" = "Welcome to Punctual";
+"windows_title_changelog" = "Punctual – What's New";
 "window_title_calendar" = "Calendar";
 "window_title_world_clock" = "World Clock";
 "window_title_event_editor" = "Event";
@@ -67,10 +67,10 @@
 "preferences_purpose_calendars" = "Where your meetings come from, and whether macOS is actually syncing them.";
 "preferences_purpose_filters" = "The one place that decides which meetings exist — everywhere in the app.";
 "preferences_purpose_menu_bar" = "What you see in the macOS menu bar all day.";
-"preferences_purpose_dropdown" = "What you see when you click MeetingBarNG.";
-"preferences_purpose_calendar_window" = "The month and week window MeetingBarNG opens — not Apple's Calendar app.";
+"preferences_purpose_dropdown" = "What you see when you click Punctual.";
+"preferences_purpose_calendar_window" = "The month and week window Punctual opens — not Apple's Calendar app.";
 "preferences_purpose_joining" = "What happens when you click Join, and where new meetings get created.";
-"preferences_purpose_alerts" = "When MeetingBarNG interrupts you.";
+"preferences_purpose_alerts" = "When Punctual interrupts you.";
 "preferences_purpose_general" = "The app itself: how it starts, how it reads time, and the way back to calm.";
 
 "preferences_search_placeholder" = "Search settings";
@@ -136,7 +136,7 @@
 "status_bar_quick_action_camera_check" = "Camera check…";
 "status_bar_quick_action_refresh" = "Refresh calendars";
 "status_bar_quick_action_preferences" = "Preferences…";
-"status_bar_quick_action_quit" = "Quit MeetingBarNG";
+"status_bar_quick_action_quit" = "Quit Punctual";
 
 // MARK: - Preferences ▸ Calendars
 
@@ -151,17 +151,17 @@
 "preferences_calendars_grant_access" = "Grant calendar access";
 "preferences_calendars_refresh_now" = "Refresh now";
 "preferences_calendars_list_title" = "Calendars to show";
-"preferences_calendars_list_help" = "Only these calendars' meetings appear anywhere in MeetingBarNG.";
+"preferences_calendars_list_help" = "Only these calendars' meetings appear anywhere in Punctual.";
 "preferences_calendars_selected_count" = "%1$d of %2$d selected";
 "preferences_calendars_select_all" = "All";
 "preferences_calendars_select_none" = "None";
 "preferences_calendars_search_placeholder" = "Search calendars";
 "preferences_calendars_source_other" = "Other";
-"preferences_calendars_empty_no_accounts" = "No calendars found. Add a calendar account in the macOS Calendar app, or check MeetingBarNG's calendar access in System Settings, then refresh.";
+"preferences_calendars_empty_no_accounts" = "No calendars found. Add a calendar account in the macOS Calendar app, or check Punctual's calendar access in System Settings, then refresh.";
 "preferences_calendars_open_privacy" = "Open Calendar privacy settings";
 "preferences_calendars_open_internet_accounts" = "Open Internet Accounts";
 "preferences_calendars_reminders_help" = "macOS asks you the first time. Today's reminders can then appear in the dropdown.";
-"preferences_calendars_reminders_denied" = "macOS is blocking this. Turn MeetingBarNG on under Privacy & Security ▸ Reminders.";
+"preferences_calendars_reminders_denied" = "macOS is blocking this. Turn Punctual on under Privacy & Security ▸ Reminders.";
 "preferences_calendars_reminders_requesting" = "Waiting for macOS to ask you…";
 "preferences_calendars_reminders_open_settings" = "Open Privacy Settings…";
 "preferences_calendars_reminders_where_to_hide" = "Show or hide them in Dropdown…";
@@ -170,7 +170,7 @@
 "preferences_calendars_reminders_allowed" = "Allowed";
 "preferences_calendars_reminders_granted" = "Today's reminders can appear in the dropdown. Access is managed by macOS under Privacy & Security ▸ Reminders.";
 "preferences_calendars_troubleshoot_title" = "Calendar isn't updating?";
-"preferences_calendars_troubleshoot_notice" = "MeetingBarNG shows whatever the macOS Calendar app has already synced. Account access, sync frequency and data freshness are macOS's to control, not MeetingBarNG's — so when meetings look outdated or missing, the fix is upstream: refresh here, or re-sign-in to the account in Internet Accounts.";
+"preferences_calendars_troubleshoot_notice" = "Punctual shows whatever the macOS Calendar app has already synced. Account access, sync frequency and data freshness are macOS's to control, not Punctual's — so when meetings look outdated or missing, the fix is upstream: refresh here, or re-sign-in to the account in Internet Accounts.";
 "preferences_calendars_last_change" = "Newest change the app can see — %@";
 "preferences_calendars_last_change_help" = "If this is hours old, macOS has probably stopped syncing.";
 "preferences_calendars_error_intro" = "macOS reported this problem";
@@ -243,11 +243,11 @@
 "preferences_menubar_block_week_number" = "Week number";
 "preferences_menubar_block_world_clock" = "World clock";
 "preferences_menubar_icon_title" = "Which icon";
-"preferences_menubar_icon_app" = "\U00A0MeetingBarNG";
+"preferences_menubar_icon_app" = "\U00A0Punctual";
 "preferences_menubar_icon_calendar" = "\U00A0Calendar";
 "preferences_menubar_icon_service" = "\U00A0The meeting's app (e.g. Teams)";
 "preferences_menubar_icon_none" = "\U00A0No icon";
-"preferences_menubar_icon_none_help" = "Hides the icon next to the meeting title. With nothing to show, a calendar icon still appears so MeetingBarNG stays clickable.";
+"preferences_menubar_icon_none_help" = "Hides the icon next to the meeting title. With nothing to show, a calendar icon still appears so Punctual stays clickable.";
 "preferences_menubar_title_title" = "Show";
 "preferences_menubar_title_event" = "The meeting's title";
 "preferences_menubar_title_generic" = "The word “Meeting”";
@@ -364,7 +364,7 @@
 "preferences_dropdown_density_roomy" = "Large";
 "preferences_dropdown_density_help" = "How tightly meetings are packed. Small fits more on screen; Large is easier to read at a glance. The dropdown keeps the same width either way.";
 "preferences_general_location_autocomplete_toggle" = "Suggest locations as I type";
-"preferences_general_location_autocomplete_help" = "Off by default. When on, what you type in a meeting's Location field is sent to Apple to look up matching places — the only thing MeetingBarNG ever sends off your Mac. Nothing else about your calendar leaves the machine, and nothing is sent until you have typed at least three characters.";
+"preferences_general_location_autocomplete_help" = "Off by default. When on, what you type in a meeting's Location field is sent to Apple to look up matching places — the only thing Punctual ever sends off your Mac. Nothing else about your calendar leaves the machine, and nothing is sent until you have typed at least three characters.";
 "dropdown_calendar_today" = "Today";
 "dropdown_calendar_today_help" = "Back to the current month";
 "calendar_grid_jump_help" = "Jump to a date";
@@ -374,7 +374,7 @@
 "dropdown_calendar_show_month" = "Show the whole month";
 "preferences_calendars_source_title" = "Meetings come from";
 "preferences_calendars_source_help" = "Turn on either or both. Apple Calendar reads whatever your Mac already syncs. Google Calendar connects directly and carries more per-meeting detail — conference links, attendee replies, and the full description. A meeting that arrives from both is shown once, using the Google copy. Your calendar choices are kept separately for each, so turning one off does not lose them.";
-"oauth_page_title" = "Connected — MeetingBarNG";
+"oauth_page_title" = "Connected — Punctual";
 "oauth_page_heading" = "Google Calendar connected";
 "oauth_page_next_steps" = "You can close this tab. Your meetings are in the menu bar, and you can pick which calendars to show in Preferences.";
 "calendar_source_short_macos" = "macOS Calendar";
@@ -441,7 +441,7 @@
 "preferences_joining_default_browser_title" = "Open meeting links in";
 "preferences_joining_default_browser_help" = "Meeting links open here unless you send a service somewhere else below.";
 "preferences_joining_overrides_title" = "Send some services somewhere else";
-"preferences_joining_overrides_help" = "Pick an app and MeetingBarNG opens that service in it, ignoring the browser above. Pick a browser and it opens there instead.";
+"preferences_joining_overrides_help" = "Pick an app and Punctual opens that service in it, ignoring the browser above. Pick a browser and it opens there instead.";
 "preferences_joining_overrides_group_apps" = "Apps";
 "preferences_joining_overrides_group_browsers" = "Browsers";
 "preferences_joining_service_title" = "%@";
@@ -467,7 +467,7 @@
 "preferences_joining_links_new_duplicate" = "%@ already has this link or phone number:\n%@";
 "preferences_joining_links_new_error_title" = "Can't add that link";
 "preferences_joining_link_patterns_title" = "Find meeting links in unusual formats";
-"preferences_joining_link_patterns_help" = "For invites whose link MeetingBarNG doesn't spot. The whole match must itself be a valid web address.";
+"preferences_joining_link_patterns_help" = "For invites whose link Punctual doesn't spot. The whole match must itself be a valid web address.";
 "preferences_joining_link_patterns_test_title" = "Test a pattern";
 "preferences_joining_link_patterns_test_placeholder" = "Paste sample invite text";
 "preferences_joining_link_patterns_test_button" = "Test";
@@ -498,7 +498,7 @@
 "preferences_alerts_auto_join_help" = "Opens in whatever you picked on the Joining page.";
 "preferences_alerts_auto_join_jump" = "Change in Joining";
 "preferences_alerts_banner_style_tip" = "Notifications are set to Banners, so they disappear on their own. Switch to Alerts to keep them onscreen until you dismiss them.";
-"preferences_alerts_disabled_tip" = "⚠️ macOS notifications for MeetingBarNG are off, so none of these can reach you.";
+"preferences_alerts_disabled_tip" = "⚠️ macOS notifications for Punctual are off, so none of these can reach you.";
 "preferences_alerts_open_notification_settings" = "Open notification settings";
 "preferences_alerts_scripts_title" = "Run a script around meetings";
 "preferences_alerts_script_start_toggle" = "Run a script before a meeting starts";
@@ -512,12 +512,12 @@
 "preferences_alerts_script_placeholder" = "# write your script here\ntell application \"Music\" to pause";
 "preferences_alerts_script_save_button" = "Save script";
 "preferences_alerts_script_wrong_location_title" = "Wrong folder";
-"preferences_alerts_script_wrong_location_message" = "Please choose User → Library → Application Scripts → com.chykalophia.MeetingBarNG";
+"preferences_alerts_script_wrong_location_message" = "Please choose User → Library → Application Scripts → com.chykalophia.Punctual";
 "preferences_alerts_script_wrong_location_button" = "Got it!";
 
 // MARK: - Preferences ▸ General
 
-"preferences_general_login_toggle" = "Open MeetingBarNG when I log in";
+"preferences_general_login_toggle" = "Open Punctual when I log in";
 "preferences_general_time_format_title" = "Time format";
 "preferences_general_time_format_12_hour" = "12-hour (3:30 PM)";
 "preferences_general_time_format_24_hour" = "24-hour (15:30)";
@@ -529,7 +529,7 @@
 "preferences_general_shortcuts_privacy_group" = "Privacy";
 "preferences_general_shortcut_open_dropdown" = "Open the dropdown";
 "preferences_general_shortcut_open_calendar_window" = "Open the calendar window";
-"preferences_general_shortcut_open_calendar_window_help" = "MeetingBarNG's own month view, not Apple's Calendar app.";
+"preferences_general_shortcut_open_calendar_window_help" = "Punctual's own month view, not Apple's Calendar app.";
 "preferences_general_shortcut_open_search_bar" = "Open the search bar";
 "preferences_general_shortcut_open_search_bar_help" = "A Spotlight-style box for finding meetings and running actions.";
 "preferences_general_shortcut_open_world_clock" = "Open the world clock";
@@ -545,7 +545,7 @@
 
 // MARK: - Preferences ▸ About & Support
 
-"preferences_about_description" = "MeetingBarNG is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
+"preferences_about_description" = "Punctual is maintained by Chykalophia / Peter Krzyzek and built on MeetingBar by Andrii Leitsius 🇺🇦";
 "preferences_about_contact" = "Contact";
 "preferences_about_whats_new" = "What's New";
 "preferences_about_copy_report" = "Copy a report for support";
@@ -748,11 +748,11 @@
 "event_editor_delete_failed" = "Couldn't delete the event. Please try again.";
 
 // MARK: - What's New / Changelog
-"changelog_hero_title" = "What's New in MeetingBarNG";
+"changelog_hero_title" = "What's New in Punctual";
 "changelog_hero_version" = "Version %@";
 "changelog_earlier_releases" = "Earlier releases";
 "changelog_empty_title" = "You're all caught up";
-"changelog_empty_message" = "You're on the latest — MeetingBarNG %@.";
+"changelog_empty_message" = "You're on the latest — Punctual %@.";
 "changelog_view_all" = "View all releases";
 "changelog_continue" = "Continue";
 "changelog_kind_feature" = "New";
@@ -760,7 +760,7 @@
 "changelog_kind_fix" = "Fixed";
 "changelog_kind_localization" = "Localization";
 "status_bar_preferences" = "Preferences";
-"status_bar_quit" = "Quit MeetingBarNG";
+"status_bar_quit" = "Quit Punctual";
 "status_bar_no_title" = "No title";
 "status_bar_event_status_now" = "now (%@ left)";
 "status_bar_event_status_in" = "in %@";
@@ -771,30 +771,30 @@
 "status_bar_error_app_link_message" = "Ensure you have the %@ installed, or open such links in a web browser from the preferences instead.";
 // MARK: - Welcome screen
 
-"onboarding_setup_title" = "MeetingBarNG Setup";
+"onboarding_setup_title" = "Punctual Setup";
 "onboarding_progress" = "Step %@ of %@";
 "onboarding_continue" = "Continue";
 "onboarding_back" = "Back";
 "onboarding_done" = "Done";
-"onboarding_welcome_title" = "Welcome to MeetingBarNG";
-"onboarding_welcome_description" = "MeetingBarNG shows your next meeting in the menu bar and joins it in one click. It syncs the calendars already on this Mac — iCloud, Google, Exchange, and more — from the accounts in System Settings.";
+"onboarding_welcome_title" = "Welcome to Punctual";
+"onboarding_welcome_description" = "Punctual shows your next meeting in the menu bar and joins it in one click. It syncs the calendars already on this Mac — iCloud, Google, Exchange, and more — from the accounts in System Settings.";
 "onboarding_apple_calendar_title" = "macOS Calendar app";
 "onboarding_apple_calendar_description" = "Reads calendars from the Calendar app on this Mac, including every account configured there.";
 "onboarding_google_calendar_title" = "Google Calendar API";
-"onboarding_google_calendar_description" = "Connects MeetingBar directly to Google Calendar without using the macOS Calendar app.";
+"onboarding_google_calendar_description" = "Connects Punctual directly to Google Calendar without using the macOS Calendar app.";
 "onboarding_authorization_title" = "Verify calendar access";
 "onboarding_authorization_waiting" = "Waiting for authorization…";
-"onboarding_authorization_apple_description" = "Allow MeetingBarNG to read events from the Calendar app on this Mac.";
-"onboarding_authorization_google_description" = "Complete Google sign-in in your browser, then return to MeetingBar.";
+"onboarding_authorization_apple_description" = "Allow Punctual to read events from the Calendar app on this Mac.";
+"onboarding_authorization_google_description" = "Complete Google sign-in in your browser, then return to Punctual.";
 "onboarding_calendar_selection_title" = "Choose calendars";
-"onboarding_calendar_selection_description" = "Select the calendars whose meetings should appear in MeetingBarNG.";
+"onboarding_calendar_selection_description" = "Select the calendars whose meetings should appear in Punctual.";
 "onboarding_calendar_selection_empty" = "No calendars found. Refresh or check your calendar accounts.";
 "onboarding_calendar_selection_permission" = "Calendar permission is required. Grant access in System Settings, then refresh.";
 "onboarding_calendar_selection_reconnect" = "Google Calendar needs to be reconnected.";
 "onboarding_essentials_title" = "Choose daily behavior";
 "onboarding_essentials_description" = "Choose a few defaults for opening meetings and staying on schedule.";
 "onboarding_essentials_hint" = "You can tune every detail later in Preferences.";
-"onboarding_start_using" = "Start using MeetingBarNG";
+"onboarding_start_using" = "Start using Punctual";
 "onboarding_success_title" = "You’re ready";
 "onboarding_success_description" = "Your next meeting will appear in the menu bar.";
 
@@ -872,7 +872,7 @@
    above under their new names and disappear from here. This block MUST
    reach zero — if it is still here, the migration is not finished.
    --------------------------------------------------------------- */
-"preferences_general_option_login_launch" = "Open MeetingBarNG automatically when you log in";
+"preferences_general_option_login_launch" = "Open Punctual automatically when you log in";
 "preferences_services_create_meeting_title" = "New meetings use";
 "preferences_services_link_meeting_title" = "Default browser for meeting links";
 "preferences_status_open_calendar_settings" = "Open Calendar Settings";

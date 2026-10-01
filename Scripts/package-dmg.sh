@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# package-dmg.sh — wrap an exported MeetingBarNG.app in a distributable .dmg.
+# package-dmg.sh — wrap an exported Punctual.app in a distributable .dmg.
 #
 # Uses hdiutil only, deliberately: create-dmg gives a prettier window but is a
 # Homebrew dependency that has to be installed on every CI runner, and a broken
@@ -27,7 +27,7 @@ if [ ! -d "$APP_PATH" ]; then
     exit 1
 fi
 
-VOLNAME="MeetingBarNG $VERSION"
+VOLNAME="Punctual $VERSION"
 STAGING="$(mktemp -d)"
 trap 'rm -rf "$STAGING"' EXIT
 

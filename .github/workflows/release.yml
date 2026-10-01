@@ -95,7 +95,7 @@ jobs:
           {
             printf 'GOOGLE_CLIENT_ID = %s\n' "$GOOGLE_CLIENT_ID"
             printf 'GOOGLE_CLIENT_SECRET = %s\n' "$GOOGLE_CLIENT_SECRET"
-            printf 'GOOGLE_AUTH_KEYCHAIN_NAME = MeetingBarNG.GoogleAuth\n'
+            printf 'GOOGLE_AUTH_KEYCHAIN_NAME = Punctual.GoogleAuth\n'
           } > XCConfig/GoogleSecrets.xcconfig
           echo "Google Calendar credentials written for this build."
 
@@ -193,7 +193,7 @@ jobs:
             -scheme "$SCHEME" \
             -configuration Release \
             -destination 'generic/platform=macOS' \
-            -archivePath build/MeetingBarNG.xcarchive \
+            -archivePath build/Punctual.xcarchive \
             -derivedDataPath build/DerivedData \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Developer ID Application" \
@@ -206,7 +206,7 @@ jobs:
       - name: Export app
         run: |
           xcodebuild -exportArchive \
-            -archivePath build/MeetingBarNG.xcarchive \
+            -archivePath build/Punctual.xcarchive \
             -exportOptionsPlist XCConfig/ExportOptions-DeveloperID.plist \
             -exportPath build/export
 
@@ -214,7 +214,7 @@ jobs:
 
       - name: Verify signature and hardened runtime
         run: |
-          APP="build/export/MeetingBarNG.app"
+          APP="build/export/Punctual.app"
           [ -d "$APP" ] || { echo "::error::No app at $APP"; exit 1; }
 
           codesign --verify --deep --strict --verbose=2 "$APP"
@@ -234,9 +234,9 @@ jobs:
         id: package
         run: |
           VERSION="${{ steps.tag.outputs.version }}"
-          DMG="build/MeetingBarNG-$VERSION.dmg"
+          DMG="build/Punctual-$VERSION.dmg"
           chmod +x Scripts/package-dmg.sh
-          Scripts/package-dmg.sh build/export/MeetingBarNG.app "$VERSION" "$DMG"
+          Scripts/package-dmg.sh build/export/Punctual.app "$VERSION" "$DMG"
           echo "dmg=$DMG" >> "$GITHUB_OUTPUT"
 
       - name: Sign the dmg
@@ -262,7 +262,7 @@ jobs:
           DMG="${{ steps.package.outputs.dmg }}"
           # Run from the dmg's directory so the checksum file records a bare
           # filename — `shasum -c` next to the download then just works, which it
-          # would not if the file said "build/MeetingBarNG-x.y.z.dmg".
+          # would not if the file said "build/Punctual-x.y.z.dmg".
           cd "$(dirname "$DMG")"
           BASE="$(basename "$DMG")"
           shasum -a 256 "$BASE" > "$BASE.sha256"

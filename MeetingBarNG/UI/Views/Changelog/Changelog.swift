@@ -132,7 +132,7 @@ struct ChangelogView: View {
 
     private var footer: some View {
         HStack(spacing: 12) {
-            if let releasesURL = URL(string: "https://github.com/Chykalophia/MeetingBarNG/releases") {
+            if let releasesURL = URL(string: "https://github.com/Chykalophia/Punctual/releases") {
                 Link("changelog_view_all".loco(), destination: releasesURL)
                     .font(.callout)
             }

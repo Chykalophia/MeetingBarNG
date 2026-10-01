@@ -219,7 +219,7 @@ private enum NotificationContent {
         content.interruptionLevel = .timeSensitive
         content.sound = .default
         content.userInfo = ["eventID": event.id]
-        content.threadIdentifier = "meetingbar"
+        content.threadIdentifier = "punctual"
 
         switch plan.kind {
         case .eventStart:

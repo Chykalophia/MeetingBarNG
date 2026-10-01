@@ -532,7 +532,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     #if DEBUG
     /// Shows (or hides) the dropdown panel in a window that stays open, so it can
     /// be screenshotted and inspected. Reached only via
-    /// `meetingbar://dropdown-debug`.
+    /// `punctual://dropdown-debug`.
     private func toggleDropdownInspectorWindow() {
         guard let snapshot = statusBarItem?.dropdownPanelSnapshotForInspector() else { return }
         windowCoordinator.toggleDropdownInspectorWindow(
@@ -543,7 +543,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Opens the development harness. Reached from the status item's right-click
-    /// menu, or via `meetingbar://debug-harness`.
+    /// menu, or via `punctual://debug-harness`.
     func toggleDebugHarnessWindow() {
         windowCoordinator.openDebugHarnessWindow(
             handlers: DebugHarnessHandlers(

@@ -29,8 +29,8 @@ enum statusbarEventTitleLengthLimits {
 }
 
 enum Links {
-    static let github = URL(string: "https://github.com/Chykalophia/MeetingBarNG")!
-    static let emailMe = URL(string: "mailto:peter@chykalophia.com?subject=MeetingBarNG")!
+    static let github = URL(string: "https://github.com/Chykalophia/Punctual")!
+    static let emailMe = URL(string: "mailto:peter@chykalophia.com?subject=Punctual")!
     static let calendarPreferences = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars")!
     static let cameraPreferences = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera")!
     static let microphonePreferences = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!
