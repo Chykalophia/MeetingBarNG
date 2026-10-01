@@ -1,0 +1,23 @@
+Makefile
+  s_fc9b467d8ed9c2::t_5ec3542e6078be 66-80
+  s_fc9b467d8ed9c2::t_a7eb2b9e8a71ea 96
+  s_fc9b467d8ed9c2::t_017a429792d8c4 120-126
+docs/RELEASING.md
+  s_fc9b467d8ed9c2::t_5d2ea927353df0 145-151
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c301bb78637631e871d75fdfa8db0e2af5ccecd7",
+  "prompts": {},
+  "sessions": {
+    "s_fc9b467d8ed9c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f023a6f-dead-4095-bc42-087df0c7c6ba",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
