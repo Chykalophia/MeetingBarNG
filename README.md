@@ -235,7 +235,7 @@ Punctual relies on:
 * [LaunchAtLogin](https://github.com/sindresorhus/LaunchAtLogin) for launch at login
 * [AppAuth-iOS](https://github.com/openid/AppAuth-iOS) for Google Calendar OAuth
 
-The original MeetingBar logo is by [Miroslav Rajkovic](https://www.rajkovic.co/).
+Punctual's icon is by Chykalophia; its source is in [`docs/brand`](docs/brand).
 
 See [`NOTICE`](NOTICE) for the full attribution notice.
 

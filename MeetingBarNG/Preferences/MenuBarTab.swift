@@ -429,7 +429,9 @@ struct MenuBarTab: View {
 
     private func iconOption(_ format: EventTitleIconFormat, labelKey: String) -> some View {
         HStack {
-            Image(nsImage: iconImage(named: format.rawValue))
+            // `.appicon`'s raw value is the persisted "AppIcon", but the menu
+            // bar draws the template glyph for it; preview what will appear.
+            Image(nsImage: iconImage(named: format == .appicon ? MenuStyleConstants.appIconName : format.rawValue))
                 .resizable()
                 .frame(width: 16, height: 16)
             Text(labelKey.loco())

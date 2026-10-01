@@ -240,7 +240,8 @@ Punctual release:
 - [ ] Google OAuth consent screen: app name Punctual, Punctual icon, that homepage.
 - [ ] Developer portal: App ID `com.chykalophia.Punctual` with Time Sensitive
       Notifications, and a Developer ID provisioning profile for it.
-- [ ] New app icon in `Assets.xcassets/AppIcon.appiconset` and the menu-bar glyph.
+- [x] New app icon in `Assets.xcassets/AppIcon.appiconset` and the menu-bar glyph
+      (`menuBarGlyph`, a template image). Sources in `docs/brand`.
 - [ ] In-app What's New (`UI/Views/Changelog/ReleaseNotes.swift`) has an entry for this
       version.
 

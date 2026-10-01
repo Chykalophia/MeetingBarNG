@@ -49,7 +49,7 @@ import KeyboardShortcuts
 enum MenuStyleConstants {
     static let defaultFontSize: CGFloat = 13
     static let runningIconName = "running_icon"
-    static let appIconName = "AppIcon"
+    static let appIconName = "menuBarGlyph"
     static let calendarCheckmarkIconName = "iconCalendarCheckmark"
     static let calendarIconName = "iconCalendar"
     static let iconSize: NSSize = .init(width: 16, height: 16)
