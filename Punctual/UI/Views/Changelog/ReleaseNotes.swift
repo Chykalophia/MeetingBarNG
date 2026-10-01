@@ -77,6 +77,17 @@ enum ReleaseNotes {
     /// dropped.
     static let all: [ReleaseNote] = [
         ReleaseNote(
+            version: "1.0.1",
+            date: "October 2026",
+            highlights: [
+                ChangeEntry(
+                    kind: .feature,
+                    text: "Sign in to Google Calendar directly from Preferences, no setup needed. "
+                        + "Access is read-only."
+                )
+            ]
+        ),
+        ReleaseNote(
             version: "1.0.0",
             date: "October 2026",
             highlights: [
