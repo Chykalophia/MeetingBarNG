@@ -63,6 +63,21 @@ RELEASE_ENTITLEMENTS ?= Punctual/Punctual.entitlements
 PROFILE_SPECIFIER ?= Punctual Developer ID
 EXPORT_OPTIONS := $(BUILD_DIR)/ExportOptions.plist
 
+# A local XCConfig/GoogleSecrets.xcconfig would otherwise be baked into the
+# release. While the OAuth consent screen is in Testing, Google refuses every
+# account not on the test-user list, so shipping credentials then makes Google
+# look broken to strangers (see docs/RELEASING.md §2a). Default: ship none, and
+# users get the bring-your-own-credentials path. Opt in once Google has verified:
+#   make release-local SHIP_GOOGLE_CREDENTIALS=1
+SHIP_GOOGLE_CREDENTIALS ?= 0
+ifeq ($(SHIP_GOOGLE_CREDENTIALS),1)
+GOOGLE_OVERRIDES :=
+else
+GOOGLE_OVERRIDES := GOOGLE_CLIENT_ID=REPLACE_BY_YOUR_GOOGLE_CLIENT_ID \
+	GOOGLE_CLIENT_NUMBER=REPLACE_BY_YOUR_GOOGLE_CLIENT_NUMBER \
+	GOOGLE_CLIENT_SECRET=REPLACE_BY_YOUR_GOOGLE_CLIENT_SECRET
+endif
+
 archive:
 	@mkdir -p $(BUILD_DIR)
 	@echo "==> Archiving $(SCHEME) $(VERSION) for Developer ID"
@@ -78,6 +93,7 @@ archive:
 		DEVELOPMENT_TEAM=$(TEAM_ID) \
 		PUNCTUAL_ENTITLEMENTS="$(RELEASE_ENTITLEMENTS)" \
 		PUNCTUAL_PROFILE_SPECIFIER="$(PROFILE_SPECIFIER)" \
+		$(GOOGLE_OVERRIDES) \
 		ENABLE_HARDENED_RUNTIME=YES \
 		OTHER_CODE_SIGN_FLAGS="--timestamp"
 
@@ -101,6 +117,13 @@ export-app: archive
 	codesign --verify --deep --strict --verbose=2 "$(EXPORTED_APP)"
 	@codesign -d --verbose=2 "$(EXPORTED_APP)" 2>&1 | grep -q "flags=.*runtime" \
 		|| { echo "ERROR: hardened runtime missing — notarization would reject this."; exit 1; }
+	@# Assert what actually shipped, not what the flag asked for.
+	@ID="$$(plutil -extract GOOGLE_CLIENT_ID raw "$(EXPORTED_APP)/Contents/Info.plist" 2>/dev/null)"; \
+	case "$$ID" in ""|REPLACE_BY_YOUR*) SHIPPED=0 ;; *) SHIPPED=1 ;; esac; \
+	if [ "$$SHIPPED" != "$(SHIP_GOOGLE_CREDENTIALS)" ]; then \
+		echo "ERROR: Google credentials shipped=$$SHIPPED but SHIP_GOOGLE_CREDENTIALS=$(SHIP_GOOGLE_CREDENTIALS)"; exit 1; \
+	fi; \
+	echo "==> Google credentials in this build: $$( [ $$SHIPPED = 1 ] && echo built in || echo none, bring-your-own only )"
 
 dmg: export-app
 	@chmod +x Scripts/package-dmg.sh

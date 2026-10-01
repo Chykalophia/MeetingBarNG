@@ -142,6 +142,13 @@ Turnaround is days to weeks and is entirely Google's queue. Start it before you 
 **Once verified:** add the two secrets, cut a release, and Google works for everyone
 with no code change — the workflow step is already conditional.
 
+**Locally, `make release-local` ships NO Google credentials by default**, even when your
+git-ignored `XCConfig/GoogleSecrets.xcconfig` holds real ones (those are for your own dev
+builds). Opt in only after verification: `make release-local SHIP_GOOGLE_CREDENTIALS=1`.
+The export step reads the finished app's Info.plist and fails if what shipped does not
+match the flag. 1.0.0 shipped without them; Google there is bring-your-own until a
+verified release.
+
 ---
 
 ## 3. Cutting a release
