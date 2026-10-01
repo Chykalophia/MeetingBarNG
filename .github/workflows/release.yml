@@ -198,8 +198,8 @@ jobs:
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Developer ID Application" \
             DEVELOPMENT_TEAM="$TEAM_ID" \
-            CODE_SIGN_ENTITLEMENTS="${{ steps.profile.outputs.entitlements }}" \
-            PROVISIONING_PROFILE_SPECIFIER="${{ steps.profile.outputs.specifier }}" \
+            PUNCTUAL_ENTITLEMENTS="${{ steps.profile.outputs.entitlements }}" \
+            PUNCTUAL_PROFILE_SPECIFIER="${{ steps.profile.outputs.specifier }}" \
             ENABLE_HARDENED_RUNTIME=YES \
             OTHER_CODE_SIGN_FLAGS="--timestamp"
 

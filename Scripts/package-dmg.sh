@@ -40,12 +40,25 @@ ln -s /Applications "$STAGING/Applications"
 echo "==> Building $OUTPUT"
 mkdir -p "$(dirname "$OUTPUT")"
 rm -f "$OUTPUT"
-hdiutil create \
-    -volname "$VOLNAME" \
-    -srcfolder "$STAGING" \
-    -ov \
-    -format ULFO \
-    "$OUTPUT"
+# `hdiutil create` intermittently fails with "Resource busy" while Spotlight or
+# XProtect is still scanning the freshly copied bundle (seen 2026-10-01; the
+# same command succeeded on the next try). Retry a few times before giving up.
+for attempt in 1 2 3; do
+    if hdiutil create \
+        -volname "$VOLNAME" \
+        -srcfolder "$STAGING" \
+        -ov \
+        -format ULFO \
+        "$OUTPUT"; then
+        break
+    fi
+    if [ "$attempt" -eq 3 ]; then
+        echo "error: hdiutil create failed 3 times" >&2
+        exit 1
+    fi
+    echo "hdiutil create failed (attempt $attempt); retrying in 5s" >&2
+    sleep 5
+done
 
 echo "==> Built $OUTPUT"
 hdiutil verify "$OUTPUT"

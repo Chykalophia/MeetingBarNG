@@ -55,6 +55,7 @@ DMG_PATH := $(BUILD_DIR)/Punctual-$(VERSION).dmg
 # Signed with the FULL entitlements only when a provisioning profile is available;
 # otherwise the time-sensitive-notifications key has to go, or signing fails.
 # Override with: make archive RELEASE_ENTITLEMENTS=MeetingBarNG/MeetingBarNG.entitlements PROFILE_SPECIFIER="<profile name>"
+TEAM_ID ?= 66CMG54L8U
 RELEASE_ENTITLEMENTS ?= XCConfig/DeveloperID.entitlements
 PROFILE_SPECIFIER ?=
 
@@ -70,8 +71,9 @@ archive:
 		-derivedDataPath $(DERIVED_DATA_DIR) \
 		CODE_SIGN_STYLE=Manual \
 		CODE_SIGN_IDENTITY="Developer ID Application" \
-		CODE_SIGN_ENTITLEMENTS="$(RELEASE_ENTITLEMENTS)" \
-		PROVISIONING_PROFILE_SPECIFIER="$(PROFILE_SPECIFIER)" \
+		DEVELOPMENT_TEAM=$(TEAM_ID) \
+		PUNCTUAL_ENTITLEMENTS="$(RELEASE_ENTITLEMENTS)" \
+		PUNCTUAL_PROFILE_SPECIFIER="$(PROFILE_SPECIFIER)" \
 		ENABLE_HARDENED_RUNTIME=YES \
 		OTHER_CODE_SIGN_FLAGS="--timestamp"
 
