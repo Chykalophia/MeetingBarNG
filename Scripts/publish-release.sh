@@ -38,7 +38,15 @@ for f in "$DMG" "$SHA" "$APPCAST" "$NOTES"; do [ -f "$f" ] || fail "missing $f";
 grep -q "<sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>" "$APPCAST" \
     || fail "$APPCAST does not describe $VERSION"
 (cd build && shasum -a 256 -c "$(basename "$SHA")" >/dev/null) || fail "$SHA does not match $DMG"
+ENCLOSURE="https://github.com/$REPO/releases/download/$TAG/Punctual-$VERSION.dmg"
+grep -q "<enclosure url=\"$ENCLOSURE\" length=\"$(stat -f %z "$DMG")\"" "$APPCAST" \
+    || fail "$APPCAST does not point at $ENCLOSURE with this dmg's exact length"
+SPARKLE_BIN="${SPARKLE_BIN:-build/SourcePackages/artifacts/sparkle/Sparkle/bin}"
+"$SPARKLE_BIN/sign_update" --account "${SPARKLE_ACCOUNT:-punctual}" --verify "$APPCAST" >/dev/null 2>&1 \
+    || fail "$APPCAST is not validly signed (run make appcast)"
 git rev-parse -q --verify "refs/tags/$TAG" >/dev/null || fail "tag $TAG does not exist locally"
+[ "$(git rev-parse "$TAG^{commit}")" = "$(git ls-remote origin "refs/tags/$TAG^{}" | cut -f1)" ] \
+    || fail "local tag $TAG differs from (or is missing on) origin"
 gh release view "$TAG" -R "$REPO" >/dev/null 2>&1 && fail "a release for $TAG already exists"
 
 echo "==> Creating draft release $TAG"
@@ -71,7 +79,8 @@ for attempt in 1 2 3 4 5 6; do
     sleep 10
 done
 echo "    latest appcast matches"
-curl -fsSL -o "$TMP/Punctual-$VERSION.dmg" "https://github.com/$REPO/releases/latest/download/Punctual-$VERSION.dmg"
+# Through the enclosure URL in the feed: exactly what Sparkle downloads.
+curl -fsSL -o "$TMP/Punctual-$VERSION.dmg" "$ENCLOSURE"
 cp "$SHA" "$TMP/"
 (cd "$TMP" && shasum -a 256 -c "$(basename "$SHA")" >/dev/null) || fail "public dmg sha256 mismatch"
 xattr -w com.apple.quarantine "0081;$(printf %x "$(date +%s)");Safari;" "$TMP/Punctual-$VERSION.dmg"

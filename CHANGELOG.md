@@ -7,8 +7,8 @@ Versions 0.2.0 and 0.3.0 shipped under the name MeetingBarNG.
 ## 1.1.0 (2026-10-01)
 
 * **Automatic updates.** Punctual now updates itself, using
-  [Sparkle](https://sparkle-project.org). On its second launch it asks whether to check
-  automatically (at most once a day). Preferences ▸ About ▸ Updates has switches for
+  [Sparkle](https://sparkle-project.org). Once first-run setup is finished, it asks once
+  whether to check automatically (at most once a day). Preferences ▸ About ▸ Updates has switches for
   automatic checks and automatic installs, a Check for Updates button, and when it last
   checked; Check for Updates is also in the right-click menu.
 * **Verified before install.** Updates are signed by Chykalophia, both with Punctual's own

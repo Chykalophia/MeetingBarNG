@@ -68,7 +68,8 @@ DMG_NAME="$(basename "$DMG")"
 case "$BUILD" in ''|*[!0-9]*) fail "CFBundleVersion '$BUILD' is not a plain integer" ;; esac
 
 # --- 3. the key that signs must be the key installed copies trust ------------
-KEYCHAIN_KEY="$("$SPARKLE_BIN/generate_keys" --account "$ACCOUNT" -p 2>/dev/null | tail -1)"
+KEYCHAIN_KEY="$("$SPARKLE_BIN/generate_keys" --account "$ACCOUNT" -p 2>&1 | tail -1)" \
+    || fail "no Sparkle key in the keychain under account '$ACCOUNT' (restore it: generate_keys --account $ACCOUNT -f <backup>)"
 [ "$KEYCHAIN_KEY" = "$APP_KEY" ] \
     || fail "keychain key ($ACCOUNT) '$KEYCHAIN_KEY' != app SUPublicEDKey '$APP_KEY'"
 
@@ -84,8 +85,18 @@ if [ "$TEST" != 1 ]; then
     [ "$SHORT" = "$P_SHORT" ] || fail "app version $SHORT != project MARKETING_VERSION $P_SHORT"
     [ "$BUILD" = "$P_BUILD" ] || fail "app build $BUILD != project CURRENT_PROJECT_VERSION $P_BUILD"
 
-    PUBLISHED="$(curl -fsSL "$OFFICIAL_FEED" 2>/dev/null \
-        | sed -n 's:.*<sparkle\:version>\([0-9]*\)</sparkle\:version>.*:\1:p' | head -1 || true)"
+    # Only a real 404 means "no Sparkle release published yet" (true before the
+    # first one). Offline, a 5xx, anything else: stop, rather than silently
+    # skipping the newer-than-published check.
+    FEED_TMP="$(mktemp)"
+    STATUS="$(curl -sSL -o "$FEED_TMP" -w '%{http_code}' "$OFFICIAL_FEED" || echo 000)"
+    case "$STATUS" in
+        200) PUBLISHED="$(sed -n 's:.*<sparkle\:version>\([0-9]*\)</sparkle\:version>.*:\1:p' "$FEED_TMP" | head -1)"
+             [ -n "$PUBLISHED" ] || fail "published appcast has no sparkle:version" ;;
+        404) PUBLISHED="" ;;
+        *)   rm -f "$FEED_TMP"; fail "could not read the published appcast (HTTP $STATUS); refusing to guess" ;;
+    esac
+    rm -f "$FEED_TMP"
     if [ -n "$PUBLISHED" ] && [ "$BUILD" -le "$PUBLISHED" ]; then
         fail "build $BUILD is not newer than the published latest ($PUBLISHED)"
     fi

@@ -208,16 +208,22 @@ Sparkle's default account, which every Sparkle app on a Mac shares). Its public 
 - **Back it up** to 1Password: `generate_keys --account punctual -x <file>`, store the
   file's contents, delete the file.
 - **Restore** on a new Mac: `generate_keys --account punctual -f <file>`, then delete it.
-- **If it is lost:** the feed can no longer be validly signed, and installed copies reject
-  an unsigned or differently signed feed. Assume every user would have to reinstall by
-  hand. Don't lose it.
+- **If it is lost:** new feeds can't be signed with it, so installed copies reject them.
+  Sparkle has one way back, read in its source (`SUAppcastDriver.m`): after a feed has failed
+  signature validation continuously for 20 days (`SUSignedFeedFailureExpirationInterval`),
+  it accepts the feed again, provided the update itself still passes the EdDSA **or**
+  same-team Developer ID check. So a Developer ID signed release carrying a new key would
+  reach users, but only after up to 20 days of failed checks. Don't lose it.
 
 What Sparkle accepts, read in its source (`SUUpdateValidator.m`): an update installs if its
 EdDSA signature verifies against the installed app's key, **or** its Developer ID signature
 matches the installed app's team. The "or" is Sparkle's design, for key rotation, and no
 setting removes it. So the Developer ID certificate is as sensitive as the EdDSA key: whoever
-holds it and can publish to this repo can ship an update. Every release is signed both ways,
-and the signed feed means the feed itself cannot be altered without the EdDSA key.
+holds it and can publish to this repo can ship an update. Every release is signed both ways.
+The signed feed means an altered feed is refused (tested: a one-word change to a signed
+feed was rejected and nothing was downloaded), with the 20-day recovery rule above as the
+one exception: an attacker able to replace the feed would also have to keep it failing for
+20 days, unnoticed.
 
 ### CI (manual only, not Sparkle-ready)
 

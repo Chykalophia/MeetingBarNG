@@ -32,6 +32,10 @@ XCFILTER := $(shell command -v xcbeautify >/dev/null 2>&1 && echo 'xcbeautify --
 # Append a JUnit report to app-hosted test runs when xcbeautify is available.
 JUNIT_REPORT := $(shell command -v xcbeautify >/dev/null 2>&1 && echo '--report junit --report-path $(BUILD_DIR)/test-results')
 
+# Serial only: release-local's steps (dmg -> notarize -> appcast) must not
+# overlap, or a stale dmg could be notarized or signed for Sparkle.
+.NOTPARALLEL:
+
 .PHONY: build build-quiet build-release test test-quiet test-app test-app-quiet test-logic test-logic-quiet coverage coverage-report coverage-logic-report coverage-app-report coverage-gate test-summary coverage-codecov lint lint-fix open validate-strings lint-strings sign-local run-local archive export-app dmg notarize release-local brand-check appcast release-preflight screenshots
 
 # ---------------------------------------------------------------------------
@@ -177,9 +181,12 @@ sign-local:
 		echo "LOCAL_SIGN_IDENTITY=<name>."; \
 		exit 1; \
 	fi
-	@# Nested code first, WITHOUT the app's entitlements: `--deep --entitlements`
-	@# would stamp the app's sandbox onto Sparkle's installer helpers.
-	codesign --force --deep --sign "$(LOCAL_SIGN_IDENTITY)" "$(LOCAL_APP)/Contents/Frameworks/Sparkle.framework"
+	@# 1. Every nested bundle (Sparkle's helpers, the login-item helper, debug
+	@#    dylibs, a test bundle left by make test-app), each keeping its OWN
+	@#    entitlements. `--deep --entitlements` would stamp the app's sandbox onto
+	@#    Sparkle's installer helpers.
+	@# 2. Then the app itself, alone, with the local entitlements.
+	codesign --force --deep --preserve-metadata=entitlements --sign "$(LOCAL_SIGN_IDENTITY)" "$(LOCAL_APP)"
 	codesign --force --sign "$(LOCAL_SIGN_IDENTITY)" \
 		--entitlements XCConfig/LocalSigning.entitlements "$(LOCAL_APP)"
 	codesign --verify --deep --strict --verbose=2 "$(LOCAL_APP)"

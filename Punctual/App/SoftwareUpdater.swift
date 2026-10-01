@@ -23,6 +23,18 @@ import Defaults
 import Sparkle
 import UserNotifications
 
+/// Who shows a scheduled (not user-initiated) update. Pure, so it is tested.
+enum UpdateReminderPolicy {
+    /// Sparkle shows its window when Punctual is already in focus. Otherwise a
+    /// notification says an update is available: never a window pulled in
+    /// front of a call. If notifications can't be shown, Sparkle shows its
+    /// window anyway (for a background app it opens without activating), so a
+    /// user who turned notifications off still learns about updates.
+    static func sparkleShowsScheduledUpdate(immediateFocus: Bool, notificationsAuthorized: Bool) -> Bool {
+        immediateFocus || !notificationsAuthorized
+    }
+}
+
 @MainActor
 final class SoftwareUpdater: NSObject, ObservableObject {
     static let shared = SoftwareUpdater()
@@ -40,6 +52,20 @@ final class SoftwareUpdater: NSObject, ObservableObject {
 
     private var controller: SPUStandardUpdaterController?
     private var cancellables: Set<AnyCancellable> = []
+
+    /// Whether a banner/alert notification can be shown right now. Refreshed
+    /// at start and before every scheduled check; read synchronously by the
+    /// Sparkle delegate.
+    private var notificationsAuthorized = false
+
+    private func refreshNotificationAuthorization() {
+        Task { @MainActor in
+            let settings = await UNUserNotificationCenter.current().notificationSettings()
+            let allowed = settings.authorizationStatus == .authorized
+                || settings.authorizationStatus == .provisional
+            notificationsAuthorized = allowed && settings.alertStyle != .none
+        }
+    }
 
     /// Debug builds run from Xcode/DerivedData would otherwise check the
     /// public feed and could replace a development build with the release.
@@ -64,6 +90,7 @@ final class SoftwareUpdater: NSObject, ObservableObject {
             userDriverDelegate: self
         )
         self.controller = controller
+        refreshNotificationAuthorization()
         let updater = controller.updater
         bind(updater.publisher(for: \.canCheckForUpdates), to: \.canCheckForUpdates)
         bind(updater.publisher(for: \.automaticallyChecksForUpdates), to: \.automaticallyChecksForUpdates)
@@ -120,7 +147,13 @@ final class SoftwareUpdater: NSObject, ObservableObject {
             content: content,
             trigger: nil
         )
-        UNUserNotificationCenter.current().add(request)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error {
+                PunctualLogger.lifecycle.error(
+                    "Update-available notification failed: \(error.localizedDescription, privacy: .public)"
+                )
+            }
+        }
     }
 
     private func clearUpdateAvailableNotification() {
@@ -131,11 +164,18 @@ final class SoftwareUpdater: NSObject, ObservableObject {
 }
 
 extension SoftwareUpdater: SPUUpdaterDelegate {
-    /// Sparkle asks "Check for updates automatically?" on the second launch.
-    /// Never during first-run setup: wait until setup is finished (it asks on
-    /// a later launch instead).
+    /// Implementing this replaces Sparkle's own "ask on the second launch"
+    /// rule: Punctual asks "Check for updates automatically?" on the first
+    /// launch after first-run setup is finished, never during setup. (For a new
+    /// install that is the second launch; for someone upgrading from 1.0.x, the
+    /// first launch of 1.1.0.) Sparkle only asks while the choice is unset.
     nonisolated func updaterShouldPromptForPermissionToCheck(forUpdates _: SPUUpdater) -> Bool {
         MainActor.assumeIsolated { Defaults[.onboardingCompleted] }
+    }
+
+    /// Keep the notification-permission answer fresh for the next check.
+    nonisolated func updater(_: SPUUpdater, willScheduleUpdateCheckAfterDelay _: TimeInterval) {
+        MainActor.assumeIsolated { refreshNotificationAuthorization() }
     }
 }
 
@@ -152,7 +192,12 @@ extension SoftwareUpdater: SPUStandardUserDriverDelegate {
         _: SUAppcastItem,
         andInImmediateFocus immediateFocus: Bool
     ) -> Bool {
-        immediateFocus
+        MainActor.assumeIsolated {
+            UpdateReminderPolicy.sparkleShowsScheduledUpdate(
+                immediateFocus: immediateFocus,
+                notificationsAuthorized: notificationsAuthorized
+            )
+        }
     }
 
     nonisolated func standardUserDriverWillHandleShowingUpdate(

@@ -80,3 +80,39 @@ final class SoftwareUpdateConfigurationTests: XCTestCase {
         XCTAssertEqual(info("SUVerifyUpdateBeforeExtraction") as? Bool, true)
     }
 }
+
+/// Sparkle's delegate methods are optional Objective-C requirements: a
+/// misspelled one compiles and is then silently never called. Pin each one by
+/// the exact selector Sparkle 2.10 sends.
+@MainActor
+final class SoftwareUpdaterDelegateTests: XCTestCase {
+    func testEveryDelegateMethodAnswersSparklesExactSelector() {
+        let selectors = [
+            "updaterShouldPromptForPermissionToCheckForUpdates:",
+            "updater:willScheduleUpdateCheckAfterDelay:",
+            "supportsGentleScheduledUpdateReminders",
+            "standardUserDriverShouldHandleShowingScheduledUpdate:andInImmediateFocus:",
+            "standardUserDriverWillHandleShowingUpdate:forUpdate:state:",
+            "standardUserDriverDidReceiveUserAttentionForUpdate:",
+            "standardUserDriverWillFinishUpdateSession"
+        ]
+        for name in selectors {
+            XCTAssertTrue(
+                SoftwareUpdater.shared.responds(to: NSSelectorFromString(name)),
+                "SoftwareUpdater does not answer \(name); Sparkle would never call it"
+            )
+        }
+    }
+
+    /// The four cases of who shows a scheduled update.
+    func testScheduledUpdateIsNeverPulledInFrontButIsNeverLost() {
+        // In focus already: Sparkle's window is fine.
+        XCTAssertTrue(UpdateReminderPolicy.sparkleShowsScheduledUpdate(immediateFocus: true, notificationsAuthorized: true))
+        XCTAssertTrue(UpdateReminderPolicy.sparkleShowsScheduledUpdate(immediateFocus: true, notificationsAuthorized: false))
+        // In the background with notifications: a notification, no window.
+        XCTAssertFalse(UpdateReminderPolicy.sparkleShowsScheduledUpdate(immediateFocus: false, notificationsAuthorized: true))
+        // In the background WITHOUT notifications: Sparkle's (non-activating)
+        // window, or the user would never hear about the update.
+        XCTAssertTrue(UpdateReminderPolicy.sparkleShowsScheduledUpdate(immediateFocus: false, notificationsAuthorized: false))
+    }
+}
