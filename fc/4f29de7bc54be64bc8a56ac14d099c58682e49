@@ -1,0 +1,23 @@
+docs/RELEASING.md
+  s_fc9b467d8ed9c2::t_1db3d0c2d7ebb0 215-228,230
+Scripts/notarize.sh
+  s_fc9b467d8ed9c2::t_d6069042e29630 57,61,64-71
+  s_fc9b467d8ed9c2::t_992e9aad974522 46-47,49-56,58-60,63,73-94
+  s_fc9b467d8ed9c2::t_64493f9c0f02e7 62
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "fc4f29de7bc54be64bc8a56ac14d099c58682e49",
+  "prompts": {},
+  "sessions": {
+    "s_fc9b467d8ed9c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f023a6f-dead-4095-bc42-087df0c7c6ba",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
