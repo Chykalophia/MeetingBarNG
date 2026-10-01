@@ -1,0 +1,43 @@
+.github/workflows/release.yml
+  s_fc9b467d8ed9c2::t_61ad76a36b02b9 312-314,316-331,334-335
+  s_fc9b467d8ed9c2::t_d9ebf88e25a0e2 53-55,68-76
+Makefile
+  s_fc9b467d8ed9c2::t_77ecb68fe8e26d 35-38,184-189
+Scripts/make-appcast.sh
+  s_fc9b467d8ed9c2::t_27ec4118e52fc7 71-72
+  s_fc9b467d8ed9c2::t_99414627f029a0 88-99
+docs/RELEASING.md
+  s_fc9b467d8ed9c2::t_f6f27a47fa901d 211-216,222-226
+README.md
+  s_fc9b467d8ed9c2::t_f6f27a47fa901d 60-61
+Scripts/publish-release.sh
+  s_fc9b467d8ed9c2::t_0bf76ece73014c 82-83
+  s_fc9b467d8ed9c2::t_0a3d372136fe31 41-46,48-49
+PunctualTests/SoftwareUpdateConfigurationTests.swift
+  s_fc9b467d8ed9c2::t_2ea146845dc3f7 83-118
+Punctual/App/SoftwareUpdater.swift
+  s_fc9b467d8ed9c2::t_48593a1cc02979 167-171,175-178
+  s_fc9b467d8ed9c2::t_7769b17f17480d 150-156
+  s_fc9b467d8ed9c2::t_9adf0d6ea44984 195-200
+  s_fc9b467d8ed9c2::t_da5aa1a467b0e2 26-37
+  s_fc9b467d8ed9c2::t_9fb4076e20db06 56-69,179
+  s_fc9b467d8ed9c2::t_82a718827d6e47 93
+CHANGELOG.md
+  s_fc9b467d8ed9c2::t_f6f27a47fa901d 10-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "c96f27e9b8e6650e4ad74fde073303b435415419",
+  "prompts": {},
+  "sessions": {
+    "s_fc9b467d8ed9c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f023a6f-dead-4095-bc42-087df0c7c6ba",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
