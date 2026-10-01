@@ -4,7 +4,7 @@ Punctual (formerly MeetingBarNG) is built on [MeetingBar](https://github.com/lei
 by Andrii Leitsius and the MeetingBar contributors. This file lists Punctual's own releases.
 Versions 0.2.0 and 0.3.0 shipped under the name MeetingBarNG.
 
-## Unreleased
+## 1.0.0 (2026-10-01)
 
 ### Now called Punctual
 

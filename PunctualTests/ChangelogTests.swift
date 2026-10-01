@@ -10,17 +10,28 @@ import XCTest
 @testable import Punctual
 
 final class ChangelogTests: XCTestCase {
-    func testDebutReleaseSurfacesForAFreshInstall() {
+    func testEveryReleaseSurfacesForAFreshInstallNewestFirst() {
         let unseen = ReleaseNotes.releases(newerThan: "0.0.0")
-        XCTAssertEqual(unseen.map(\.version), ["0.1.0"])
+        XCTAssertEqual(unseen.map(\.version), ["1.0.0", "0.1.0"])
     }
 
-    func testNothingSurfacesOnceAcknowledged() {
-        XCTAssertTrue(ReleaseNotes.releases(newerThan: "0.1.0").isEmpty)
-        // And the acknowledged release moves under "earlier releases".
+    func testOnlyTheNewerReleaseSurfacesAfterAcknowledgingAnOlderOne() {
+        XCTAssertEqual(ReleaseNotes.releases(newerThan: "0.1.0").map(\.version), ["1.0.0"])
+    }
+
+    func testNothingSurfacesOnceTheLatestIsAcknowledged() {
+        XCTAssertTrue(ReleaseNotes.releases(newerThan: "1.0.0").isEmpty)
+        // And the acknowledged releases move under "earlier releases".
         XCTAssertEqual(
-            ReleaseNotes.releases(upToAndIncluding: "0.1.0").map(\.version), ["0.1.0"]
+            ReleaseNotes.releases(upToAndIncluding: "1.0.0").map(\.version), ["1.0.0", "0.1.0"]
         )
+    }
+
+    func testTheNewestReleaseNoteMatchesTheShippingVersion() {
+        // A release without its own What's New entry would show users the
+        // previous version's notes as if they were new.
+        let shipping = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+        XCTAssertEqual(ReleaseNotes.all.first?.version, shipping)
     }
 
     func testResetMigrationTargetsInheritedUpstreamVersionsOnly() {

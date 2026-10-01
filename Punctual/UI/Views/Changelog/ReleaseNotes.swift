@@ -77,6 +77,36 @@ enum ReleaseNotes {
     /// dropped.
     static let all: [ReleaseNote] = [
         ReleaseNote(
+            version: "1.0.0",
+            date: "October 2026",
+            highlights: [
+                ChangeEntry(
+                    kind: .feature,
+                    text: "Meet Punctual. New name, new icon, and the first release signed and "
+                        + "notarized by Apple, so it opens without a warning."
+                ),
+                ChangeEntry(
+                    kind: .feature,
+                    text: "Apple and Google Calendar together: connect both and every meeting lands "
+                        + "in one list, each shown once."
+                ),
+                ChangeEntry(
+                    kind: .feature,
+                    text: "Join from the menu bar: a Join chip appears on the status item when a "
+                        + "meeting with a link is coming up."
+                ),
+                ChangeEntry(
+                    kind: .improvement,
+                    text: "Choose how soon before a meeting the countdown shows, and bring your own "
+                        + "Google credentials if your workplace requires it."
+                ),
+                ChangeEntry(
+                    kind: .improvement,
+                    text: "Still built on MeetingBar by Andrii Leitsius and its contributors. Thank you."
+                )
+            ]
+        ),
+        ReleaseNote(
             version: "0.1.0",
             date: "July 2026",
             highlights: [

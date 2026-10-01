@@ -197,6 +197,10 @@ enum DropdownModuleMergeMigration {
 enum ChangelogResetMigration {
     /// Pure decision: reset only when the stored value is a >= 1.0 (inherited)
     /// version. nil / sub-1.0 / unparseable values are left as-is.
+    ///
+    /// Punctual's own 1.0.0 does not trip this: the migration runs once per
+    /// install (`changelogResetMigrated`), on first launch, before any version
+    /// has been acknowledged, and never again.
     static func shouldReset(storedLastRevised: String?) -> Bool {
         guard let stored = storedLastRevised,
               let majorText = stored.split(separator: ".").first,
