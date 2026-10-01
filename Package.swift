@@ -3,20 +3,20 @@
 import PackageDescription
 
 let package = Package(
-    name: "MeetingBarLogic",
+    name: "PunctualLogic",
     platforms: [
         .macOS(.v15)
     ],
     products: [
-        .library(name: "MeetingBarLogic", targets: ["MeetingBarLogic"])
+        .library(name: "PunctualLogic", targets: ["PunctualLogic"])
     ],
     targets: [
         .target(
-            name: "MeetingBarLogic",
-            path: "MeetingBarNG",
+            name: "PunctualLogic",
+            path: "Punctual",
             exclude: [
                 // Exclude app-layer files that depend on AppKit/Defaults/EventKit.
-                // SPM scans the whole MeetingBarNG/ tree for resources; these paths
+                // SPM scans the whole Punctual/ tree for resources; these paths
                 // prevent it from picking up .lproj bundles and asset catalogues.
                 "Resources ",
                 "Assets.xcassets",
@@ -81,9 +81,9 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "MeetingBarLogicTests",
-            dependencies: ["MeetingBarLogic"],
-            path: "MeetingBarLogicTests",
+            name: "PunctualLogicTests",
+            dependencies: ["PunctualLogic"],
+            path: "PunctualLogicTests",
             swiftSettings: [
                 .unsafeFlags(["-strict-concurrency=complete"])
             ]

@@ -2,18 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Attach to MeetingBarNG",
+            "name": "Attach to Punctual",
             "type": "lldb",
             "request": "attach",
             "pid": "${command:pickProcess}",
-            "program": "build/DerivedData/Build/Products/Debug/MeetingBarNG.app/Contents/MacOS/MeetingBarNG",
+            "program": "build/DerivedData/Build/Products/Debug/Punctual.app/Contents/MacOS/Punctual",
             "sourceLanguages": ["swift"]
         },
         {
-            "name": "Build + Run MeetingBarNG",
+            "name": "Build + Run Punctual",
             "type": "lldb",
             "request": "launch",
-            "program": "build/DerivedData/Build/Products/Debug/MeetingBarNG.app/Contents/MacOS/MeetingBarNG",
+            "program": "build/DerivedData/Build/Products/Debug/Punctual.app/Contents/MacOS/Punctual",
             "preLaunchTask": "Build",
             "sourceLanguages": ["swift"],
             "cwd": "${workspaceFolder}"

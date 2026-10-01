@@ -2,11 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
   Entitlements for LOCAL, self-signed builds only (make build LOCAL_SIGN_IDENTITY=...).
-  Identical to MeetingBarNG/MeetingBarNG.entitlements EXCEPT it omits
+  Identical to Punctual/Punctual.entitlements EXCEPT it omits
   `com.apple.developer.usernotifications.time-sensitive`, which requires an Apple
   provisioning profile and so can't be signed with a self-signed certificate.
   Time-sensitive priority is the only thing lost locally; notifications still work.
-  Production/release builds use the full MeetingBarNG.entitlements.
+  Production/release builds use the full Punctual.entitlements.
 -->
 <plist version="1.0">
 <dict>

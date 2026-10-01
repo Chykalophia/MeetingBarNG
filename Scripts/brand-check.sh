@@ -13,7 +13,7 @@
 #      the About box copyright line).
 #
 # Only user-facing surfaces are scanned. Source headers ("Created by Andrii
-# Leitsius") and internal identifiers (the MeetingBarLogic module, file names)
+# Leitsius") and internal identifiers (the PunctualLogic module, file names)
 # are deliberately out of scope: the first are required by Apache-2.0 §4, the
 # second are invisible to users.
 
@@ -25,7 +25,7 @@ cd "$ROOT" || exit 1
 fail=0
 bad() { echo "FAIL: $*" >&2; fail=1; }
 
-STRINGS_DIR="MeetingBarNG/Resources /Localization "
+STRINGS_DIR="Punctual/Resources /Localization "
 
 # --- 1. No upstream identity on user-facing surfaces ------------------------
 
@@ -36,20 +36,26 @@ hits="$(grep -rn --include=Localizable.strings -E '^"[^"]*" *= *"[^"]*MeetingBar
 [ -z "$hits" ] || bad "old app name in localized strings:
 $hits"
 
-hits="$(grep -n -E '<string>[^<]*MeetingBar' MeetingBarNG/Info.plist | grep -v 'Andrii')"
+hits="$(grep -n -E '<string>[^<]*MeetingBar' Punctual/Info.plist | grep -v 'Andrii')"
 [ -z "$hits" ] || bad "old app name in Info.plist:
 $hits"
 
-grep -q '<string>meetingbar</string>' MeetingBarNG/Info.plist \
+grep -q '<string>meetingbar</string>' Punctual/Info.plist \
     && bad "Info.plist still registers the meetingbar:// URL scheme (upstream's)"
 
-hits="$(grep -n -E 'title="[^"]*MeetingBar' MeetingBarNG/Base.lproj/Main.storyboard)"
+hits="$(grep -n -E 'title="[^"]*MeetingBar' Punctual/Base.lproj/Main.storyboard)"
 [ -z "$hits" ] || bad "old app name in storyboard menu titles:
 $hits"
 
-hits="$(grep -rn -E '"[^"]*(meetingbar://|MeetingBarNG\.|github\.com/Chykalophia/MeetingBarNG)' \
-    --include='*.swift' MeetingBarNG | grep -v -E '^\S+:[0-9]+:\s*//')"
-[ -z "$hits" ] || bad "old identifiers in Swift string literals:
+# Any non-comment line of app source naming MeetingBar is user-visible text
+# (identifiers were all renamed), so flag it. Comment lines are skipped: they
+# hold the Apache-2.0 headers. Allowed: lines that credit the original.
+# A narrower literal-only pattern missed an HTML page inside a multi-line
+# string and a diagnostics header; this shape catches both.
+hits="$(grep -rn -E 'MeetingBar|meetingbar://' --include='*.swift' Punctual \
+    | grep -v -E '^[^:]+:[0-9]+:\s*(//|\*)' \
+    | grep -v -E 'fork of MeetingBar|built on MeetingBar|Andrii')"
+[ -z "$hits" ] || bad "old app name in app source (outside comments):
 $hits"
 
 # The original app's homepage and Mac App Store listing are not ours to send
@@ -58,7 +64,7 @@ hits="$(grep -n -E 'meetingbar\.app|apps\.apple\.com/[a-z/]*id1532419400' README
 [ -z "$hits" ] || bad "README points users at the original app:
 $hits"
 
-grep -q 'PRODUCT_BUNDLE_IDENTIFIER = com.chykalophia.Punctual;' MeetingBarNG.xcodeproj/project.pbxproj \
+grep -q 'PRODUCT_BUNDLE_IDENTIFIER = com.chykalophia.Punctual;' Punctual.xcodeproj/project.pbxproj \
     || bad "app bundle id is not com.chykalophia.Punctual"
 
 # --- 2. Attribution is still present -----------------------------------------
@@ -67,7 +73,7 @@ grep -q 'Andrii Leitsius' NOTICE || bad "NOTICE lost the upstream copyright (Apa
 grep -q 'github.com/leits/MeetingBar' NOTICE || bad "NOTICE lost the upstream project link"
 grep -q 'Andrii Leitsius' README.md || bad "README no longer credits Andrii Leitsius"
 grep -q 'github.com/leits/MeetingBar' README.md || bad "README no longer links the original MeetingBar"
-grep -q 'Andrii Leitsius' MeetingBarNG/Info.plist || bad "About box copyright lost the MeetingBar credit"
+grep -q 'Andrii Leitsius' Punctual/Info.plist || bad "About box copyright lost the MeetingBar credit"
 [ -f LICENSE ] || bad "LICENSE is missing"
 
 if [ "$fail" -eq 0 ]; then

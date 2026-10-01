@@ -30,9 +30,9 @@
   The GitHub repo moves to `github.com/Chykalophia/Punctual`; GitHub redirects the old name.
 - Docs (README, NOTICE, CHANGELOG, CONTRIBUTING, SECURITY, CONTACT, templates) are rebranded,
   with MeetingBar credited in a "Built on MeetingBar" section near the top of the README.
-- **Code identifiers are renamed in a separate pass**: the `MeetingBarNG/` source folder, the
-  Xcode targets and scheme, `MeetingBarNGTests`, and the `MeetingBarLogic` module. Until that
-  lands, every `MeetingBarNG/...` path in these docs is still correct. Do not "fix" them early.
+- **Code identifiers are renamed in a separate pass**: the `Punctual/` source folder, the
+  Xcode targets and scheme, `PunctualTests`, and the `PunctualLogic` module. Until that
+  lands, every `Punctual/...` path in these docs is still correct. Do not "fix" them early.
 - The first signed, notarized dmg is the goal of this push. See `docs/RELEASING.md`.
 
 ---
@@ -51,9 +51,9 @@
   bespoke `NSWindow`) is the only dropdown. Any comment or doc implying a "land it twice"
   NSMenu-parity constraint is history — see the known-stale-comments note below. What survived
   the deletion, correctly, is the RIGHT-click `QuickActionsMenu`, still an `NSMenu`.
-- **`MeetingBarLogicTests` cannot see app-target files.** `Package.swift` uses an explicit
+- **`PunctualLogicTests` cannot see app-target files.** `Package.swift` uses an explicit
   `sources:` allowlist, not a glob. A green `swift test` says nothing about `DropdownPanelView`
-  or the Preferences panes — those need `MeetingBarNGTests`.
+  or the Preferences panes — those need `PunctualTests`.
 
 ### 🚨 The gap that matters: nothing is distributable
 `v0.2.0` and `v0.3.0` are public, non-draft GitHub releases with **zero attached assets**, and
@@ -84,7 +84,7 @@ below is currently invisible to users. This is the next work.
   opening the panel), **countdown lead-time control** (`menuBarCountdownLeadMinutes`), and a
   **DEBUG-only harness** (`DebugHarnessWindow` / `DebugHarnessView` / `DebugScenario`) for injecting
   synthetic events. Excluded from release builds. This work is not yet reflected in
-  `docs/MEETINGBARNG-FEATURES.md`.
+  `docs/FEATURES.md`.
 
 ### Shipped 2026-08-24 (this session) — Dot parity now 31 of 35
 Eight features, each hostless-policy-first with tests, each its own commit:

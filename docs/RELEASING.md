@@ -57,7 +57,7 @@ put in a CI secret.
 ### A provisioning profile — optional, but read this
 
 The app's real entitlements
-(`MeetingBarNG/MeetingBarNG.entitlements`) request
+(`Punctual/Punctual.entitlements`) request
 `com.apple.developer.usernotifications.time-sensitive`, which Apple gates behind a
 provisioning profile. **Without a profile, the release is built against
 `XCConfig/DeveloperID.entitlements`, which drops that key** — meeting notifications still
@@ -190,7 +190,7 @@ With a provisioning profile installed, keep the time-sensitive entitlement:
 
 ```bash
 make release-local NOTARY_PROFILE=punctual-notary \
-  RELEASE_ENTITLEMENTS=MeetingBarNG/MeetingBarNG.entitlements \
+  RELEASE_ENTITLEMENTS=Punctual/Punctual.entitlements \
   PROFILE_SPECIFIER="Punctual Developer ID"
 ```
 

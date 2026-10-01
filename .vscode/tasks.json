@@ -4,7 +4,7 @@
         {
             "label": "Build + Kill + Sign + Run",
             "type": "shell",
-            "command": "make build-quiet && pkill -9 -f MeetingBarNG 2>/dev/null; sleep 1; make sign-local && open build/DerivedData/Build/Products/Debug/MeetingBarNG.app",
+            "command": "make build-quiet && pkill -9 -f Punctual 2>/dev/null; sleep 1; make sign-local && open build/DerivedData/Build/Products/Debug/Punctual.app",
             "group": {
                 "kind": "build",
                 "isDefault": true

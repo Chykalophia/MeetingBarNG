@@ -26,9 +26,9 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SOURCE_DIR="$ROOT/MeetingBarNG"
+SOURCE_DIR="$ROOT/Punctual"
 # NOTE: these directory names contain real trailing spaces.
-EN_STRINGS="$ROOT/MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings"
+EN_STRINGS="$ROOT/Punctual/Resources /Localization /en.lproj/Localizable.strings"
 
 if [ ! -f "$EN_STRINGS" ]; then
     echo "ERROR: English strings file not found at:"

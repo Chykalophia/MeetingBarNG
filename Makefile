@@ -1,11 +1,11 @@
-PROJECT := MeetingBarNG.xcodeproj
-SCHEME := MeetingBarNG
+PROJECT := Punctual.xcodeproj
+SCHEME := Punctual
 XCODEBUILD ?= xcodebuild
 SWIFT ?= swift
 SWIFTLINT ?= swiftlint
 BUILD_DIR ?= build
 COVERAGE_DIR := $(BUILD_DIR)/coverage
-XCODE_RESULT_BUNDLE := $(COVERAGE_DIR)/MeetingBarNG.xcresult
+XCODE_RESULT_BUNDLE := $(COVERAGE_DIR)/Punctual.xcresult
 DERIVED_DATA_DIR := $(BUILD_DIR)/DerivedData
 XCODE_SOURCE_PACKAGES_DIR := $(BUILD_DIR)/SourcePackages
 HOST_ARCH := $(shell uname -m)
@@ -25,7 +25,7 @@ LOCAL_CODESIGN_FLAGS := CODE_SIGN_IDENTITY="" CODE_SIGNING_ALLOWED=NO CODE_SIGNI
 #   make sign-local                # re-sign the already-built app
 LOCAL_SIGN_IDENTITY ?= Punctual-Local
 LOCAL_APP := $(DERIVED_DATA_DIR)/Build/Products/Debug/Punctual.app
-LOGIC_COVERAGE_SOURCES := MeetingBarNG/Calendar MeetingBarNG/Meetings MeetingBarNG/Notifications MeetingBarNG/UI/StatusBar MeetingBarNG/Utilities/Diagnostics
+LOGIC_COVERAGE_SOURCES := Punctual/Calendar Punctual/Meetings Punctual/Notifications Punctual/UI/StatusBar Punctual/Utilities/Diagnostics
 
 # Pipe xcodebuild through xcbeautify when available; otherwise grep for the lines that matter.
 XCFILTER := $(shell command -v xcbeautify >/dev/null 2>&1 && echo 'xcbeautify --quiet --renderer terminal' || echo "grep -E '(error:|warning:|FAIL|PASS|\\*\\* )'")
@@ -54,7 +54,7 @@ DMG_PATH := $(BUILD_DIR)/Punctual-$(VERSION).dmg
 
 # Signed with the FULL entitlements only when a provisioning profile is available;
 # otherwise the time-sensitive-notifications key has to go, or signing fails.
-# Override with: make archive RELEASE_ENTITLEMENTS=MeetingBarNG/MeetingBarNG.entitlements PROFILE_SPECIFIER="<profile name>"
+# Override with: make archive RELEASE_ENTITLEMENTS=Punctual/Punctual.entitlements PROFILE_SPECIFIER="<profile name>"
 TEAM_ID ?= 66CMG54L8U
 RELEASE_ENTITLEMENTS ?= XCConfig/DeveloperID.entitlements
 PROFILE_SPECIFIER ?=
@@ -162,7 +162,7 @@ coverage-report: coverage-logic-report coverage-app-report
 
 coverage-logic-report:
 	@PROFILE="$$(ls -d .build/*/debug/codecov/default.profdata .build/debug/codecov/default.profdata 2>/dev/null | head -n 1)" ; \
-	TEST_BINARY="$$(ls -d .build/*/debug/MeetingBarLogicPackageTests.xctest/Contents/MacOS/MeetingBarLogicPackageTests .build/debug/MeetingBarLogicPackageTests.xctest/Contents/MacOS/MeetingBarLogicPackageTests 2>/dev/null | head -n 1)" ; \
+	TEST_BINARY="$$(ls -d .build/*/debug/PunctualLogicPackageTests.xctest/Contents/MacOS/PunctualLogicPackageTests .build/debug/PunctualLogicPackageTests.xctest/Contents/MacOS/PunctualLogicPackageTests 2>/dev/null | head -n 1)" ; \
 	if [ ! -f "$$PROFILE" ] || [ ! -x "$$TEST_BINARY" ]; then \
 		echo "SwiftPM coverage is unavailable. Run 'make test-logic' first."; \
 		exit 1; \
@@ -173,7 +173,7 @@ coverage-logic-report:
 
 coverage-gate:
 	@PROFILE="$$(ls -d .build/*/debug/codecov/default.profdata .build/debug/codecov/default.profdata 2>/dev/null | head -n 1)" ; \
-	TEST_BINARY="$$(ls -d .build/*/debug/MeetingBarLogicPackageTests.xctest/Contents/MacOS/MeetingBarLogicPackageTests .build/debug/MeetingBarLogicPackageTests.xctest/Contents/MacOS/MeetingBarLogicPackageTests 2>/dev/null | head -n 1)" ; \
+	TEST_BINARY="$$(ls -d .build/*/debug/PunctualLogicPackageTests.xctest/Contents/MacOS/PunctualLogicPackageTests .build/debug/PunctualLogicPackageTests.xctest/Contents/MacOS/PunctualLogicPackageTests 2>/dev/null | head -n 1)" ; \
 	if [ ! -f "$$PROFILE" ] || [ ! -x "$$TEST_BINARY" ]; then \
 		echo "SwiftPM coverage data not found. Run 'make test-logic' first."; \
 		exit 1; \

@@ -201,8 +201,8 @@ each with its own migration care.
       `com.chykalophia.MeetingBarNG` → `com.chykalophia.Punctual`, URL scheme `meetingbar://` →
       `punctual://` (the old one collided with upstream MeetingBar), app `Punctual.app`, Keychain
       name `Punctual.GoogleAuth`, dmg `Punctual-<version>.dmg`, repo
-      `github.com/Chykalophia/Punctual`. Code identifiers (the `MeetingBarNG/` folder, targets,
-      the `MeetingBarLogic` module) are renamed in a separate pass, so paths in these docs stay
+      `github.com/Chykalophia/Punctual`. Code identifiers (the `Punctual/` folder, targets,
+      the `PunctualLogic` module) are renamed in a separate pass, so paths in these docs stay
       as they are until then. The Keychain/Defaults migration item below now spans two id changes.
 - [x] StoreKit product ids `leits.MeetingBar.patronage.*` — moot: the StoreKit patronage
       service was removed outright rather than renamed, so there are no product ids left
@@ -218,11 +218,11 @@ each with its own migration care.
       bundle id, so it becomes `com.chykalophia.Punctual` with the rename.
 
 ### In-app strings & links
-- [ ] Product-name strings across `MeetingBarNG/Resources /Localization /*.lproj` (20 languages;
+- [ ] Product-name strings across `Punctual/Resources /Localization /*.lproj` (20 languages;
       coordinate with Weblate rather than hand-editing translations). See the low-priority
       note below — fork-era keys are English-only by decision, so this is broader than a
       product-name sweep.
-- [x] In-app support/funding URLs in `MeetingBarNG/Utilities/Constants.swift` — `telegram`,
+- [x] In-app support/funding URLs in `Punctual/Utilities/Constants.swift` — `telegram`,
       `twitter`, `patreon`, `buymeacoffee` and `rateAppInAppStore` were **deleted** rather
       than repointed; `github` and `emailMe` now point at Chykalophia (2026-07-23).
 - [x] In-app "about"/attribution text — the old `preferences_general_meeting_bar_description`
@@ -235,7 +235,7 @@ each with its own migration care.
       notice (§4(b)) rather than removing the original.
 - [x] `docs/ARCHITECTURE.md` referenced `CLAUDE.md` / `AGENTS.md` that are not present in the
       fork — reference dropped (2026-07-17).
-- [ ] Upstream folder names with trailing spaces (`MeetingBarNG/Resources `,
+- [ ] Upstream folder names with trailing spaces (`Punctual/Resources `,
       `.../Localization `) are an upstream quirk wired into the Xcode project and
       `Package.swift`; rename only as a deliberate, tested change.
 
@@ -248,7 +248,7 @@ Reviewed and consciously parked. Recorded so they are not rediscovered as if new
       asserts the rendered menu for both modes, including the singular/plural summary
       wording), but `DropdownPanelView.tomorrowRenderedEvents` and `isPreview` have no
       direct tests. Both are app-target symbols, so any coverage has to live in
-      `MeetingBarNGTests` — `MeetingBarLogicTests` is a hostless SPM module whose
+      `PunctualTests` — `PunctualLogicTests` is a hostless SPM module whose
       `sources:` whitelist cannot see them. Low priority: the behaviour that matters is
       already pinned at the boundary.
 - [ ] **Non-English localizations.** All 22 non-English `.lproj` files carry ~341 keys each,

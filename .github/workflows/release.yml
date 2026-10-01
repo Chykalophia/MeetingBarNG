@@ -35,8 +35,8 @@ defaults:
 env:
   DEVELOPER_DIR: /Applications/Xcode_16.2.app/Contents/Developer
   TEAM_ID: 66CMG54L8U
-  PROJECT: MeetingBarNG.xcodeproj
-  SCHEME: MeetingBarNG
+  PROJECT: Punctual.xcodeproj
+  SCHEME: Punctual
 
 jobs:
   release:
@@ -179,7 +179,7 @@ jobs:
           fi
 
           echo "Installed provisioning profile: $NAME"
-          echo "entitlements=MeetingBarNG/MeetingBarNG.entitlements" >> "$GITHUB_OUTPUT"
+          echo "entitlements=Punctual/Punctual.entitlements" >> "$GITHUB_OUTPUT"
           echo "specifier=$NAME" >> "$GITHUB_OUTPUT"
 
       - name: Archive

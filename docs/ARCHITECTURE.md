@@ -1,6 +1,6 @@
 # Punctual Architecture
 
-Punctual (formerly MeetingBarNG) is built on [MeetingBar](https://github.com/leits/MeetingBar) by Andrii Leitsius. This document is the contributor-facing map of the codebase. It is the canonical reference for app structure, dependency ownership, and release-sensitive configuration. The product is being renamed to Punctual (bundle id `com.chykalophia.Punctual`, URL scheme `punctual://`); code identifiers (the `MeetingBarNG/` source folder, Xcode targets, the `MeetingBarLogic` module) are renamed in a separate pass, so the paths below are still correct. What remains of the rename backlog (Keychain/Defaults suite migration, App Store id) is tracked in [`ROADMAP.md`](../ROADMAP.md).
+Punctual (formerly MeetingBarNG) is built on [MeetingBar](https://github.com/leits/MeetingBar) by Andrii Leitsius. This document is the contributor-facing map of the codebase. It is the canonical reference for app structure, dependency ownership, and release-sensitive configuration. The product is being renamed to Punctual (bundle id `com.chykalophia.Punctual`, URL scheme `punctual://`); code identifiers (the `Punctual/` source folder, Xcode targets, the `PunctualLogic` module) are renamed in a separate pass, so the paths below are still correct. What remains of the rename backlog (Keychain/Defaults suite migration, App Store id) is tracked in [`ROADMAP.md`](../ROADMAP.md).
 
 If anything below disagrees with the actual code, the code wins — and the doc needs a fix.
 
@@ -77,7 +77,7 @@ it has to be built by hand: the "More actions" row is a plain row that pops a na
 ## Directory map
 
 ```
-MeetingBarNG/                       (~120 .swift files)
+Punctual/                       (~120 .swift files)
 ├── App/                            — process lifecycle, OS integration
 │   ├── AppDelegate.swift           — @main; composition root; wires LifecycleObserver, URLHandler, AppModel
 │   ├── AppMessageCenter.swift      — one adapter for user notifications and fallback alerts
@@ -94,11 +94,11 @@ MeetingBarNG/                       (~120 .swift files)
 │   ├── CalendarRepository.swift    — owns the active store, exposes fetch + switch
 │   ├── CalendarSync.swift          — refresh pipeline (Combine, @MainActor); replaced EventManager in V5
 │   ├── EventFiltering.swift        — apply user filters (all-day, declined, etc.) [SPM]
-│   ├── EventFiltering+MeetingBar.swift
+│   ├── EventFiltering+Punctual.swift
 │   ├── EventSelection.swift        — pick the "next" event from a list [SPM]
-│   ├── EventSelection+MeetingBar.swift
+│   ├── EventSelection+Punctual.swift
 │   ├── MBEvent.swift               — cross-provider event + filtered() / nextEvent() helpers
-│   ├── MBEvent+MeetingBar.swift    — MBEvent adapter for app-specific helpers
+│   ├── MBEvent+Punctual.swift    — MBEvent adapter for app-specific helpers
 │   ├── MBCalendar.swift            — cross-provider calendar
 │   ├── ProviderHealth.swift        — auth/stale/error/ok
 │   └── Providers/
@@ -154,7 +154,7 @@ MeetingBarNG/                       (~120 .swift files)
 │   │   ├── DaySummaryGreeting.swift        — greeting + focus-time copy [SPM]
 │   │   ├── WorldClockPanel.swift           — world-clock token policy [SPM]
 │   │   ├── StatusBarPresentation.swift     — Presentation + Title + Icon policies and Presenter [SPM]
-│   │   └── StatusBarPresentation+MeetingBar.swift — Defaults adapters for all three policies
+│   │   └── StatusBarPresentation+Punctual.swift — Defaults adapters for all three policies
 │   ├── CommandBar/                 — ⌘-driven create / search / settings palette
 │   ├── Calendar/                   — month grid window (CalendarGridView + ViewModel)
 │   ├── EventEditor/                — in-app event create/edit
@@ -167,7 +167,7 @@ MeetingBarNG/                       (~120 .swift files)
 │   ├── Helpers.swift
 │   ├── I18N.swift
 │   ├── Keychain.swift
-│   ├── MeetingBarLogger.swift      — os.Logger categories and privacy-aware structured logging
+│   ├── PunctualLogger.swift      — os.Logger categories and privacy-aware structured logging
 │   ├── Scripts.swift               — AppleScript runners
 │   └── Diagnostics/                — issue-report formatter [SPM]
 │
@@ -178,7 +178,7 @@ MeetingBarNG/                       (~120 .swift files)
 └── Resources /Localization /       — Localizable.strings, 20+ locales (Weblate)
 ```
 
-Tests live in `MeetingBarNGTests/` (host-app tests, AppKit-aware) and `MeetingBarLogicTests/` (hostless, Package.swift, fast).
+Tests live in `PunctualTests/` (host-app tests, AppKit-aware) and `PunctualLogicTests/` (hostless, Package.swift, fast).
 
 ---
 
@@ -210,23 +210,23 @@ PR gate for architecture changes:
 You will see pairs of files like:
 
 - `EventSelection.swift`
-- `EventSelection+MeetingBar.swift`
+- `EventSelection+Punctual.swift`
 
 This is intentional. The pattern is:
 
 | File | Imports | Knows about |
 |---|---|---|
 | `Foo.swift` | `Foundation` only | Plain data, no `Defaults`, no AppKit, no `MBEvent` directly |
-| `Foo+MeetingBar.swift` | `Defaults`, `MBEvent`, AppKit if needed | Bridges the policy to the real app |
+| `Foo+Punctual.swift` | `Defaults`, `MBEvent`, AppKit if needed | Bridges the policy to the real app |
 
-**Why.** The first file lives in the `MeetingBarLogic` SwiftPM target. It runs in `make test-logic` without launching the host app — fast, no calendar permission prompts, no `XCUIApplication`. The adapter file pulls in app-specific types (Defaults snapshots, `MBEvent → StatusBarEventPresentationInput`, etc.) and is built only as part of the main app target.
+**Why.** The first file lives in the `PunctualLogic` SwiftPM target. It runs in `make test-logic` without launching the host app — fast, no calendar permission prompts, no `XCUIApplication`. The adapter file pulls in app-specific types (Defaults snapshots, `MBEvent → StatusBarEventPresentationInput`, etc.) and is built only as part of the main app target.
 
 **When you write a new policy:**
 
 1. Put the pure decision in `Foo.swift`. Take `struct FooSettings` and primitive inputs (Date, Int, String, your own enums). Return a value.
-2. Put `extension FooSettings { static var current: FooSettings { … reads Defaults … } }` and any `init(MBEvent)` mappers in `Foo+MeetingBar.swift`.
+2. Put `extension FooSettings { static var current: FooSettings { … reads Defaults … } }` and any `init(MBEvent)` mappers in `Foo+Punctual.swift`.
 3. Add `Foo.swift` to `Package.swift` sources (and to the Xcode target — it ships in both).
-4. Write tests against `Foo.swift` in `MeetingBarLogicTests/`.
+4. Write tests against `Foo.swift` in `PunctualLogicTests/`.
 
 **When NOT to use this pattern:** if your code genuinely needs `NSImage`, `NSStatusItem`, `UNUserNotificationCenter`, or other AppKit/UN types, it is a **service**. Put it alongside the feature it serves (e.g. `Notifications/NotificationScheduler.swift`) and accept that its tests will be host-app tests.
 
@@ -328,12 +328,12 @@ Within one source, longer URLs win when one is a prefix of another (Zoom truncat
 
 | Suite | Location | Run with | Speed | Use for |
 |---|---|---|---|---|
-| Hostless | `MeetingBarLogicTests/` | `make test-logic` | Fast (~1s) | Policies, formatters, link detection, plan generation |
-| Host | `MeetingBarNGTests/` | `make test` | Slower, launches app | `MenuBuilder`, status item rendering, anything that needs `NSImage`/AppKit |
+| Hostless | `PunctualLogicTests/` | `make test-logic` | Fast (~1s) | Policies, formatters, link detection, plan generation |
+| Host | `PunctualTests/` | `make test` | Slower, launches app | `MenuBuilder`, status item rendering, anything that needs `NSImage`/AppKit |
 
 **Default to hostless.** A test that needs to launch the app is a signal that you are testing a service, not a policy. That is fine — but write it consciously. Hostless tests run on every PR and are the majority of the suite: roughly 568 hostless (`swift test`, sub-second) against 465 host-app tests.
 
-**`MeetingBarLogicTests` cannot see app-target files.** `Package.swift` uses an explicit `sources:` allowlist, not a glob, so a policy is only hostless-testable once its file is added to that array. Anything outside it — `DropdownPanelView`, `MenuBuilder`, the Preferences panes — can only be tested from `MeetingBarNGTests`. A green `swift test` says nothing about those files.
+**`PunctualLogicTests` cannot see app-target files.** `Package.swift` uses an explicit `sources:` allowlist, not a glob, so a policy is only hostless-testable once its file is added to that array. Anything outside it — `DropdownPanelView`, `MenuBuilder`, the Preferences panes — can only be tested from `PunctualTests`. A green `swift test` says nothing about those files.
 
 `BaseTestCase` (host suite) snapshots and restores `UserDefaults` around each test. `FakeEventStore` lets you inject controlled event lists into `CalendarSync`.
 
@@ -424,7 +424,7 @@ Touching these requires extra care, tests around behavior, and a focused PR:
 - `Calendar/CalendarSync.swift`
 - `UI/StatusBar/StatusBarItemController.swift`
 - `UI/StatusBar/MenuBuilder.swift`
-- `Calendar/MBEvent.swift`, `MBEvent+MeetingBar.swift`
+- `Calendar/MBEvent.swift`, `MBEvent+Punctual.swift`
 - `Calendar/Providers/Google/GoogleCalendarEventStore.swift`
 - `Calendar/Providers/EventKit/EventKitEventStore.swift`
 - `Notifications/NotificationScheduler.swift`
@@ -443,7 +443,7 @@ You want to add "do not notify for events shorter than 5 minutes".
 1. **Decide where the rule lives.** It is a per-event filter for notifications → it belongs in `NotificationPlanner`, not in the scheduler service.
 2. **Add the setting.** New key in `Extensions/DefaultsKeys.swift`. Read it once in `NotificationPlanningSettings.currentForScheduler` (the adapter).
 3. **Update the policy.** Inside `NotificationPlanner.plan(for:settings:now:)`, return `[]` when `event.duration < settings.minDurationForNotifications`.
-4. **Test it hostless.** Add a case in `MeetingBarLogicTests/NotificationPlanningPolicyTests.swift`: short event -> empty plan; long event -> plan unchanged.
+4. **Test it hostless.** Add a case in `PunctualLogicTests/NotificationPlanningPolicyTests.swift`: short event -> empty plan; long event -> plan unchanged.
 5. **Update the UI.** Add a toggle in the relevant Preferences tab. Localize the label and add the key to `en.lproj/Localizable.strings`. Run `make validate-strings`.
 6. **Reconcile triggers.** Make sure `StatusBarItemController.setupDefaultsObservers()` (or wherever the watcher list lives) listens to your new key so flipping it triggers a notification reconcile.
 7. **Open a small PR.** Body: rule, why a default tweak alone is not enough, screenshots if UI, test names.
@@ -486,7 +486,7 @@ SwiftLint disabled rules: `file_length`, `function_body_length`, `type_body_leng
 
 ## Dependencies And Release-sensitive Files
 
-Direct app dependencies are declared as Xcode Swift Package references in `MeetingBarNG.xcodeproj/project.pbxproj` and pinned by `MeetingBarNG.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`.
+Direct app dependencies are declared as Xcode Swift Package references in `Punctual.xcodeproj/project.pbxproj` and pinned by `Punctual.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`.
 
 | Package | Project requirement | Current resolved version | Purpose |
 |---|---|---|---|
@@ -497,7 +497,7 @@ Direct app dependencies are declared as Xcode Swift Package references in `Meeti
 
 `swift-syntax 601.0.1` is currently transitive. StoreKit is NOT used: the fork removed the upstream patronage service, so there are no in-app purchases, no StoreKit framework use, and no StoreKit package dependency.
 
-`Package.swift` defines the hostless `MeetingBarLogic` SwiftPM target and its tests. Keep it aligned with pure policy files that need fast `swift test` coverage, but do not use it as the source of truth for app package dependencies.
+`Package.swift` defines the hostless `PunctualLogic` SwiftPM target and its tests. Keep it aligned with pure policy files that need fast `swift test` coverage, but do not use it as the source of truth for app package dependencies.
 
 When updating a dependency:
 
@@ -509,15 +509,15 @@ When updating a dependency:
 
 Treat these as release-sensitive files. Changes should be named in PR notes and covered by CI or local validation where possible:
 
-- `MeetingBarNG.xcodeproj/project.pbxproj`
-- `MeetingBarNG.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
+- `Punctual.xcodeproj/project.pbxproj`
+- `Punctual.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
 - `Package.swift`
 - `XCConfig/**`
-- `MeetingBarNG/MeetingBarNG.entitlements`
-- `MeetingBarNG/Info.plist`
+- `Punctual/Punctual.entitlements`
+- `Punctual/Info.plist`
 - `.github/workflows/**`
 - `Scripts/**`
-- `MeetingBarNG/Resources /Localization /en.lproj/Localizable.strings`
+- `Punctual/Resources /Localization /en.lproj/Localizable.strings`
 
 Before a signed release, verify the configuration that unsigned local Debug builds cannot prove: signing team and provisioning, hardened runtime, sandbox capabilities, URL schemes, Google OAuth placeholders and callback scheme, App Store receipt classification, launch-at-login helper behavior, and localization validation.
 
@@ -540,6 +540,6 @@ Then manually smoke-test first launch/onboarding for EventKit and Google Calenda
 - Contributor workflow: [`CONTRIBUTING.md`](../CONTRIBUTING.md)
 - Unreleased user-visible changes: [`CHANGELOG.md`](../CHANGELOG.md)
 - Security and contact: [`SECURITY.md`](../SECURITY.md), [`CONTACT.md`](../CONTACT.md)
-- Localization: `MeetingBarNG/Resources /Localization /` (note the spaces in the path — historical)
-- Meeting service URL patterns: [`MeetingBarNG/Meetings/MeetingServices.swift`](../MeetingBarNG/Meetings/MeetingServices.swift)
-- All persistent settings keys: [`MeetingBarNG/Extensions/DefaultsKeys.swift`](../MeetingBarNG/Extensions/DefaultsKeys.swift)
+- Localization: `Punctual/Resources /Localization /` (note the spaces in the path — historical)
+- Meeting service URL patterns: [`Punctual/Meetings/MeetingServices.swift`](../Punctual/Meetings/MeetingServices.swift)
+- All persistent settings keys: [`Punctual/Extensions/DefaultsKeys.swift`](../Punctual/Extensions/DefaultsKeys.swift)

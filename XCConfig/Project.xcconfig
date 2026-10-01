@@ -6,7 +6,7 @@ DEVELOPMENT_TEAM = 66CMG54L8U
 // command-line build setting applies to every target, including the Swift
 // package targets, which then look for the entitlements file relative to
 // their own checkout and fail the archive.
-PUNCTUAL_ENTITLEMENTS = MeetingBarNG/MeetingBarNG.entitlements
+PUNCTUAL_ENTITLEMENTS = Punctual/Punctual.entitlements
 PUNCTUAL_PROFILE_SPECIFIER =
 // GOOGLE_CLIENT_ID is the current name and accepts either the full client id or
 // just the part before `.apps.googleusercontent.com`. GOOGLE_CLIENT_NUMBER is the

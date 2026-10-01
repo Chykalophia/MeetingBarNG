@@ -4,7 +4,7 @@
   FALLBACK entitlements for Developer ID (direct download) builds made WITHOUT a
   provisioning profile.
 
-  Identical to MeetingBarNG/MeetingBarNG.entitlements EXCEPT it omits
+  Identical to Punctual/Punctual.entitlements EXCEPT it omits
   `com.apple.developer.usernotifications.time-sensitive`, which Apple gates behind
   a provisioning profile carrying the Time Sensitive Notifications capability.
   Signing with that key present but no matching profile fails outright.
