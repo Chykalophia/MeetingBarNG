@@ -77,6 +77,21 @@ enum ReleaseNotes {
     /// dropped.
     static let all: [ReleaseNote] = [
         ReleaseNote(
+            version: "1.0.2",
+            date: "October 2026",
+            highlights: [
+                ChangeEntry(
+                    kind: .fix,
+                    text: "Punctual stays running: macOS can no longer quit it in the background, "
+                        + "which could send first-run setup back to the start after Google sign-in."
+                ),
+                ChangeEntry(
+                    kind: .improvement,
+                    text: "No more extra \"Google account connected\" pop-up during setup."
+                )
+            ]
+        ),
+        ReleaseNote(
             version: "1.0.1",
             date: "October 2026",
             highlights: [

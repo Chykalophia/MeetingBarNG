@@ -5,6 +5,9 @@
 //  Created by Andrii Leitsius on 24.08.2020.
 //  Copyright © 2020 Andrii Leitsius. All rights reserved.
 //
+//  Modified for Punctual (formerly MeetingBarNG) by Peter Krzyzek / Chykalophia,
+//  2026-10-01: log every setup step transition, to trace setups that jump back.
+//
 import Combine
 import Defaults
 import KeyboardShortcuts
@@ -52,7 +55,17 @@ enum OnboardingFlowPolicy {
 
 @MainActor
 final class OnboardingRouter: ObservableObject {
-    @Published var currentStep: OnboardingStep = .welcome
+    /// Every transition is logged so a setup that "jumps back" can be traced
+    /// after the fact (`log show --info --predicate 'subsystem ==
+    /// "com.chykalophia.Punctual" AND category == "onboarding"'`).
+    @Published var currentStep: OnboardingStep = .welcome {
+        didSet {
+            guard currentStep != oldValue else { return }
+            PunctualLogger.onboarding.info(
+                "Setup step \(String(describing: oldValue), privacy: .public) -> \(String(describing: self.currentStep), privacy: .public)"
+            )
+        }
+    }
     @Published var selectedProvider: EventStoreProvider?
     @Published var authorizationState: OnboardingAuthorizationState = .idle
 

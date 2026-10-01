@@ -5,6 +5,10 @@
 //  Created by Andrii Leitsius on 21.11.2021.
 //  Copyright © 2021 Andrii Leitsius. All rights reserved.
 //
+//  Modified for Punctual (formerly MeetingBarNG) by Peter Krzyzek / Chykalophia,
+//  2026-10-01: the "Google account connected" message is skipped during
+//  first-run setup (see AppMessage.shouldPresent).
+//
 
 import AppAuth
 import AppAuthCore
@@ -288,9 +292,10 @@ final class GCEventStore: NSObject,
                     // Set before the browser is redirected, so the page can name
                     // the account that was just connected.
                     self.completionPage.setAccountEmail(state.userEmail)
-                    AppMessageCenter.shared.post(
-                        .googleAccountConnected(email: self.userEmail ?? "")
-                    )
+                    let connected = AppMessage.googleAccountConnected(email: self.userEmail ?? "")
+                    if connected.shouldPresent(onboardingCompleted: Defaults[.onboardingCompleted]) {
+                        AppMessageCenter.shared.post(connected)
+                    }
                     cont.resume()
                 } else {
                     cont.resume(throwing: Self.authorizationError(error))

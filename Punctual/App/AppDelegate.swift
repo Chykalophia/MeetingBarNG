@@ -20,6 +20,8 @@
 //  EventKit calendar access on a normal post-onboarding launch when it is still
 //  undetermined, so the app prompts and registers with TCC instead of silently
 //  holding no access.
+//  Punctual, 2026-10-01: log each launch that presents setup, so a mid-setup
+//  relaunch is visible in the system log.
 //
 
 import AppKit
@@ -107,6 +109,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     /// incomplete.
     func presentOnboardingWindow() {
         guard let appModel else { return }
+        // One line per launch with setup unfinished. Seeing it twice inside one
+        // setup attempt means the app was relaunched mid-setup (the symptom of
+        // automatic termination, which Info.plist now opts out of).
+        PunctualLogger.onboarding.info("Presenting setup (launch with setup unfinished)")
         windowCoordinator.openOnboardingWindow(
             appModel: appModel,
             onProviderSelected: { [weak appModel] provider in
