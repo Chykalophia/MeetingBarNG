@@ -27,9 +27,21 @@ Developer" certificates cannot sign for direct download.** They only work for bu
 registered devices. The workflow checks for this and fails with a named error rather than
 producing an app that Gatekeeper rejects on someone else's Mac.
 
-1. Xcode ▸ Settings ▸ Accounts ▸ your team ▸ **Manage Certificates** ▸ **+** ▸
-   **Developer ID Application**. (Or the Certificates section of the developer portal.)
-2. Keychain Access ▸ **My Certificates** ▸ find *Developer ID Application: … (KGH289N6T8)*.
+1. Create it in the **developer portal**, not Xcode: Certificates ▸ **+** ▸ **Developer ID
+   Application** ▸ choose the **G2 Sub-CA**. Upload a CSR from Keychain Access ▸
+   Certificate Assistant ▸ Request a Certificate From a Certificate Authority (saved to
+   disk), then double-click the downloaded `.cer` to install it.
+
+   Why not Xcode's **+**: on 2026-10-01 it issued from the *previous* sub-CA, whose own
+   certificate expires **2027-02-01**, capping ours at four months. Builds signed and
+   notarized before then keep launching (the signature is timestamped), but no new release
+   can be signed after it. Check any certificate before relying on it:
+   `security find-certificate -c "Developer ID Application" -p | openssl x509 -noout -issuer -enddate`
+   (a G2 issuer reads `Developer ID Certification Authority, OU=G2`).
+
+   Keep exactly ONE Developer ID Application identity in the keychain. Two with the same
+   name make `codesign --sign "Developer ID Application"` fail as ambiguous.
+2. Keychain Access ▸ **My Certificates** ▸ find *Developer ID Application: … (66CMG54L8U)*.
 3. Right-click ▸ **Export** ▸ `.p12`. Set a password — you will need it in step 2.
    Export the certificate row (it carries the private key), not the bare key.
 
@@ -75,7 +87,7 @@ Settings ▸ Secrets and variables ▸ Actions ▸ **New repository secret**.
 | `MACOS_CERTIFICATE_PASSWORD` | **yes** | the password you set exporting the `.p12` |
 | `AC_APPLE_ID` | **yes** | the Apple ID email on the team |
 | `AC_PASSWORD` | **yes** | the app-specific password from above |
-| `AC_TEAM_ID` | no | defaults to `KGH289N6T8` |
+| `AC_TEAM_ID` | no | defaults to `66CMG54L8U` |
 | `MACOS_PROVISIONING_PROFILE` | no | `base64 -i Punctual.provisionprofile \| pbcopy` |
 | `GOOGLE_CLIENT_ID` | no | the Desktop-app client id from Google Cloud Console — see §2a |
 | `GOOGLE_CLIENT_SECRET` | no | that client's secret |
@@ -164,7 +176,7 @@ password never sits in an env var or shell history:
 
 ```bash
 xcrun notarytool store-credentials punctual-notary \
-  --apple-id peter@chykalophia.com --team-id KGH289N6T8
+  --apple-id peter@chykalophia.com --team-id 66CMG54L8U
 # prompts for the app-specific password
 
 make release-local NOTARY_PROFILE=punctual-notary   # archive -> export -> dmg -> notarize

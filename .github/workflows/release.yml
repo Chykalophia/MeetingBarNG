@@ -34,7 +34,7 @@ defaults:
 
 env:
   DEVELOPER_DIR: /Applications/Xcode_16.2.app/Contents/Developer
-  TEAM_ID: KGH289N6T8
+  TEAM_ID: 66CMG54L8U
   PROJECT: MeetingBarNG.xcodeproj
   SCHEME: MeetingBarNG
 
@@ -251,7 +251,7 @@ jobs:
         env:
           AC_APPLE_ID: ${{ secrets.AC_APPLE_ID }}
           AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
-          AC_TEAM_ID: ${{ secrets.AC_TEAM_ID || 'KGH289N6T8' }}
+          AC_TEAM_ID: ${{ secrets.AC_TEAM_ID || '66CMG54L8U' }}
         run: |
           chmod +x Scripts/notarize.sh
           Scripts/notarize.sh "${{ steps.package.outputs.dmg }}"

@@ -14,7 +14,7 @@
 #   or, from the environment (what CI uses):
 #   AC_APPLE_ID   Apple ID email of an account on the team
 #   AC_PASSWORD   an APP-SPECIFIC password (appleid.apple.com), never the real one
-#   AC_TEAM_ID    the 10-character team id (KGH289N6T8)
+#   AC_TEAM_ID    the 10-character team id (66CMG54L8U)
 #
 # Stapling matters: without it the app still passes Gatekeeper, but only while the
 # machine can reach Apple. A stapled image installs correctly offline and on a
