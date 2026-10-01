@@ -25,6 +25,22 @@ final class AppMessageMappingTests: XCTestCase {
             .alert
         )
     }
+
+    func testGoogleConnectedIsSilentDuringSetupButShownAfter() {
+        let connected = AppMessage.googleAccountConnected(email: "a@example.com")
+        // During first-run setup the browser page and the setup flow already
+        // confirm it; on a fresh install it would interrupt as a modal dialog.
+        XCTAssertFalse(connected.shouldPresent(onboardingCompleted: false))
+        // Connecting later from Preferences: this is the only confirmation.
+        XCTAssertTrue(connected.shouldPresent(onboardingCompleted: true))
+    }
+
+    func testOtherMessagesAreUnaffectedBySetup() {
+        // Problems must still surface during setup.
+        let failure = AppMessage.joinScriptFailed(description: "boom")
+        XCTAssertTrue(failure.shouldPresent(onboardingCompleted: false))
+        XCTAssertTrue(failure.shouldPresent(onboardingCompleted: true))
+    }
 }
 
 final class AppMessageCenterTests: XCTestCase {

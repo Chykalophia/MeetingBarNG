@@ -4,6 +4,17 @@ Punctual (formerly MeetingBarNG) is built on [MeetingBar](https://github.com/lei
 by Andrii Leitsius and the MeetingBar contributors. This file lists Punctual's own releases.
 Versions 0.2.0 and 0.3.0 shipped under the name MeetingBarNG.
 
+## 1.0.2 (2026-10-01)
+
+* **Punctual stays running.** It had inherited a setting that let macOS quit it whenever it
+  looked idle, which a menu-bar app almost always does. That could make Punctual vanish from
+  the menu bar, and could send first-run setup back to the first screen after signing in to
+  Google. macOS can no longer do that.
+* **No extra pop-up during setup.** Signing in to Google during first-run setup no longer
+  shows a "Google account connected" dialog on top of the browser's confirmation page. It
+  still confirms when you connect Google later from Preferences.
+* Setup now records each step in the system log, so a setup problem can be traced.
+
 ## 1.0.1 (2026-10-01)
 
 * **Built-in Google Calendar sign-in.** Connect Google directly from Preferences ▸ Calendars

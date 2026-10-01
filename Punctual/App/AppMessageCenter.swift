@@ -34,6 +34,22 @@ enum AppMessage: Equatable, Sendable {
     case eventScriptFileMissing(path: String)
     case googleAccountConnected(email: String)
 
+    /// Whether to show this message at all, given where the user is.
+    ///
+    /// During first-run setup, "Google account connected" is redundant: the
+    /// browser has just shown the connected page and setup moves straight on
+    /// to the calendar list. On a fresh install notifications are not yet
+    /// allowed, so it arrived as a modal dialog interrupting setup. After setup
+    /// (connecting from Preferences) it is the only confirmation, so it stays.
+    func shouldPresent(onboardingCompleted: Bool) -> Bool {
+        switch self {
+        case .googleAccountConnected:
+            return onboardingCompleted
+        default:
+            return true
+        }
+    }
+
     var content: AppMessageContent {
         switch self {
         case .nextMeetingMissing:
