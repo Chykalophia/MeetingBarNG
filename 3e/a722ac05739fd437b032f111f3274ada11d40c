@@ -1,0 +1,51 @@
+.github/pull-request-template.md
+  s_fc9b467d8ed9c2::t_295c5ef0166017 11-12
+.github/ISSUE_TEMPLATE/bug_report.yaml
+  s_fc9b467d8ed9c2::t_295c5ef0166017 16-17,23,25-26,32,36
+docs/PREFERENCES-UX-PLAN.md
+  s_fc9b467d8ed9c2::t_51de7a7e0ecb63 1
+  s_fc9b467d8ed9c2::t_8b7a96708051d1 113-114,116-117,141,145,179,185,475,812
+SECURITY.md
+  s_fc9b467d8ed9c2::t_3c51e88e8ba452 5-7,9-11
+README.md
+  s_fc9b467d8ed9c2::t_e28978d284d582 1,3-4,6-7,9,13-18,20-23,25,29,31,33-36,38-43,45-47,49,51,53,55-115,119,121-124,126-127,129,131,133,135-137,139-141,147-148,157-170,174-176,178-183,185-186,188,190,197,201-207,209-213,219,224,226,228-229,231,233-236,238,246-247
+docs/ARCHITECTURE.md
+  s_fc9b467d8ed9c2::t_51de7a7e0ecb63 1,3,10,12,498
+CONTACT.md
+  s_fc9b467d8ed9c2::t_a62587763863e6 1,7-8,10
+CHANGELOG.md
+  s_fc9b467d8ed9c2::t_4d843e38ca55cc 64,110
+  s_fc9b467d8ed9c2::t_82909618b64b9b 1,3-5,7,9,11-23,27,45,56,59,68,70,77-78,98,105,133,145,152,158,160-161
+CONTRIBUTING.md
+  s_fc9b467d8ed9c2::t_d1ba97c49c37fe 1,3,18,28,58
+docs/MEETINGBARNG-FEATURES.md
+  s_fc9b467d8ed9c2::t_51de7a7e0ecb63 1,169-171
+.github/FUNDING.yml
+  s_fc9b467d8ed9c2::t_7be237bd0eb888 1,3-6,10
+docs/DROPDOWN-MODERNIZATION.md
+  s_fc9b467d8ed9c2::t_51de7a7e0ecb63 1,165-166,174,179-182
+ROADMAP.md
+  s_fc9b467d8ed9c2::t_3e076594e6cbfb 1,3-7,187,200-206,214,217-218,234
+STATE.md
+  s_fc9b467d8ed9c2::t_9ac5185b76cc7a 1,7-8,23-40,80-81,179-180
+NOTICE
+  s_fc9b467d8ed9c2::t_cfaf31471a399b 1,10,17-18,22-26
+.all-contributorsrc
+  s_fc9b467d8ed9c2::t_0e3a9e30c43d4b 50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "3ea722ac05739fd437b032f111f3274ada11d40c",
+  "prompts": {},
+  "sessions": {
+    "s_fc9b467d8ed9c2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7f023a6f-dead-4095-bc42-087df0c7c6ba",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
