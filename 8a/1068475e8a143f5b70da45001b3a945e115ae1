@@ -1,0 +1,19 @@
+PunctualTests/MarketingScreenshotTests.swift
+  s_7263f6a624c0ff::t_f7506fdb5620e0 1-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "8a1068475e8a143f5b70da45001b3a945e115ae1",
+  "prompts": {},
+  "sessions": {
+    "s_7263f6a624c0ff": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "be53d504-f229-4cc7-a75b-7254aa7048f0",
+        "model": "unknown"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}
